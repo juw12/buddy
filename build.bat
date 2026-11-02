@@ -10,7 +10,7 @@ rem A running Buddy holds your data open: ask it to quit first, and stop if it w
 tasklist /fi "imagename eq Buddy.exe" | find /i "Buddy.exe" >nul && (
     echo Asking the running Buddy to quit...
     if exist dist\Buddy\Buddy.exe start "" /wait dist\Buddy\Buddy.exe --quit
-    timeout /t 6 /nobreak >nul
+    ping -n 7 127.0.0.1 >nul
 )
 tasklist /fi "imagename eq Buddy.exe" | find /i "Buddy.exe" >nul && (
     echo Buddy is still running - quit it from the tray, then run build.bat again.

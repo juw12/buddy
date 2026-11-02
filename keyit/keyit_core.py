@@ -52,6 +52,7 @@ ALT_CODES = {56, 3640}
 M_CODE = 50
 SPACE_CODE = 57
 ESCAPE_CODE = 1
+VK_MENU_MASK = 0xE8           # unassigned virtual key: tapped so a lone Alt release can't open a menu
 LETTER_CODES = list(range(16, 26)) + list(range(30, 39)) + list(range(44, 51))
 DEMO_TYPING = [35, 18, 38, 38, 24, 57, 17, 24, 19, 38, 32, 28, 14, 14, 37, 18, 21, 23, 20, 57]
 
@@ -275,6 +276,19 @@ class Player:
 
 
 # --------------------------------------------------------------------------- keyboard hook
+def tap_menu_mask_key():
+    """Ctrl+Alt+Space swallows the Space, so the app in front only sees Ctrl/Alt go down and up.
+    A lone Alt release opens its menu / system menu; tapping an unused key in between prevents that."""
+    try:
+        import ctypes
+
+        user32 = ctypes.windll.user32
+        user32.keybd_event(VK_MENU_MASK, 0, 0, 0)
+        user32.keybd_event(VK_MENU_MASK, 0, 2, 0)     # KEYEVENTF_KEYUP
+    except Exception:
+        pass
+
+
 class KeyboardHook:
     """Global low-level keyboard hook; ignores auto-repeat; Ctrl+Alt+M toggles mute.
 
@@ -300,7 +314,7 @@ class KeyboardHook:
     def _filter(self, msg, data):
         event_time = time.perf_counter()
         code = data.scanCode | (0xE000 if data.flags & LLKHF_EXTENDED else 0)
-        if code in FAKE_SHIFT_CODES:
+        if code in FAKE_SHIFT_CODES or data.vkCode == VK_MENU_MASK:
             return False
         now = time.monotonic()
         modifiers_down = self.held.keys() & CTRL_CODES and self.held.keys() & ALT_CODES
@@ -310,6 +324,7 @@ class KeyboardHook:
             if msg in (WM_KEYDOWN, WM_SYSKEYDOWN) and (self.buddy_active or modifiers_down):
                 if not self.buddy_active:
                     self.buddy_active = True
+                    threading.Thread(target=tap_menu_mask_key, daemon=True).start()
                     threading.Thread(target=self.buddy.press, daemon=True).start()
                 self.listener.suppress_event()
             if msg in (WM_KEYUP, WM_SYSKEYUP) and self.buddy_active:

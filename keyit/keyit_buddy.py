@@ -336,26 +336,76 @@ def cursor_position():
     return point.x, point.y
 
 
-def monitor_under_cursor():
-    import mss
+class RECT(ctypes.Structure):
+    _fields_ = [("left", wintypes.LONG), ("top", wintypes.LONG),
+                ("right", wintypes.LONG), ("bottom", wintypes.LONG)]
 
-    x, y = cursor_position()
-    with mss.mss() as screen:
-        for monitor in screen.monitors[1:]:
-            if monitor["left"] <= x < monitor["left"] + monitor["width"] and \
-               monitor["top"] <= y < monitor["top"] + monitor["height"]:
-                return dict(monitor)
-        return dict(screen.monitors[1])
+
+class MONITORINFO(ctypes.Structure):
+    _fields_ = [("cbSize", wintypes.DWORD), ("rcMonitor", RECT),
+                ("rcWork", RECT), ("dwFlags", wintypes.DWORD)]
+
+
+MONITOR_DEFAULTTONEAREST = 2
+DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 = -4
+
+
+class physical_pixels:
+    """Run Win32 calls on this thread in physical pixels.
+
+    Never switch the whole process to DPI awareness (mss does that): a DPI-unaware app
+    like Buddy would see all its windows shrink the moment it happens.
+    """
+
+    def __enter__(self):
+        self.previous = None
+        try:
+            set_context = ctypes.windll.user32.SetThreadDpiAwarenessContext
+        except AttributeError:
+            return self
+        set_context.restype = ctypes.c_void_p
+        set_context.argtypes = [ctypes.c_void_p]
+        self.set_context = set_context
+        self.previous = set_context(ctypes.c_void_p(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2))
+        return self
+
+    def __exit__(self, *exc):
+        if self.previous:
+            self.set_context(ctypes.c_void_p(self.previous))
+        return False
+
+
+def _monitor_rect(x, y):
+    user32 = ctypes.windll.user32
+    user32.MonitorFromPoint.restype = ctypes.c_void_p
+    user32.MonitorFromPoint.argtypes = [POINT, wintypes.DWORD]
+    user32.GetMonitorInfoW.argtypes = [ctypes.c_void_p, ctypes.POINTER(MONITORINFO)]
+    handle = user32.MonitorFromPoint(POINT(x, y), MONITOR_DEFAULTTONEAREST)
+    info = MONITORINFO()
+    info.cbSize = ctypes.sizeof(MONITORINFO)
+    user32.GetMonitorInfoW(handle, ctypes.byref(info))
+    rect = info.rcMonitor
+    return rect.left, rect.top, rect.right, rect.bottom
+
+
+def monitor_under_cursor():
+    """Monitor rect in this process's own coordinates (what Tk and GetCursorPos use),
+    plus its physical-pixel rect for screenshots."""
+    left, top, right, bottom = _monitor_rect(*cursor_position())
+    with physical_pixels():
+        physical = _monitor_rect(*cursor_position())
+    return {"left": left, "top": top, "width": right - left, "height": bottom - top,
+            "physical": physical}
 
 
 def capture_monitor(monitor, max_side):
-    """Screenshot one monitor -> (PNG bytes for the model, PIL image)."""
-    import mss
-    from PIL import Image
+    """Screenshot one monitor at full resolution -> (PNG bytes for the model, PIL image)."""
+    from PIL import Image, ImageGrab
 
-    with mss.mss() as screen:
-        shot = screen.grab(monitor)
-    image = Image.frombytes("RGB", shot.size, shot.bgra, "raw", "BGRX")
+    bbox = monitor.get("physical") or (monitor["left"], monitor["top"],
+                                       monitor["left"] + monitor["width"],
+                                       monitor["top"] + monitor["height"])
+    image = ImageGrab.grab(bbox=tuple(bbox), all_screens=True).convert("RGB")
     scale = min(1.0, max_side / max(image.size))
     if scale < 1.0:
         image = image.resize((int(image.width * scale), int(image.height * scale)), Image.LANCZOS)
@@ -401,6 +451,7 @@ class BuddyOverlay:
         user32.SetWindowLongW(self.hwnd, self.GWL_EXSTYLE, style)
         self.monitor = None
         self.position = (0.0, 0.0)
+        self._text = None
         self._animation = None
         self._hide_job = None
         self._pulse_job = None
@@ -456,30 +507,44 @@ class BuddyOverlay:
         canvas.tag_lower(background, item)
 
     # -- states
+    CURSOR_OFFSET = (16, 18)       # sit just below-right of the real mouse pointer, like Clicky
+
     def _cancel_jobs(self):
         for job in (self._animation, self._hide_job, self._pulse_job):
             if job:
                 self.root.after_cancel(job)
         self._animation = self._hide_job = self._pulse_job = None
 
-    def listening(self, monitor, cursor):
+    def _cursor_spot(self):
+        x, y = self.local(*cursor_position())
+        dx, dy = self.CURSOR_OFFSET
+        width, height = self.monitor["width"], self.monitor["height"]
+        return min(max(x + dx, 0), width - 30), min(max(y + dy, 0), height - 30)
+
+    def _follow(self, text, pulsing):
+        """Keep the buddy next to the mouse pointer (redrawn ~30x a second) until told otherwise."""
         self._cancel_jobs()
-        self.attach(monitor)
-        self.position = self.local(*cursor)
+        self._text = text
         start = time.perf_counter()
 
-        def pulse():
-            phase = (math.sin((time.perf_counter() - start) * 6) + 1) / 2
-            self._draw(*self.position, "Listening…", pulse=0.2 + phase)
-            self._pulse_job = self.root.after(33, pulse)
+        def tick():
+            self.position = self._cursor_spot()
+            pulse = 0.0
+            if pulsing:
+                pulse = 0.2 + (math.sin((time.perf_counter() - start) * 6) + 1) / 2
+            self._draw(*self.position, self._text, pulse=pulse)
+            self._pulse_job = self.root.after(33, tick)
 
-        pulse()
+        tick()
 
-    def thinking(self, text="Thinking…"):
-        self._cancel_jobs()
+    def listening(self, monitor, cursor):
+        self.attach(monitor)
+        self._follow("Listening\u2026", pulsing=True)
+
+    def thinking(self, text="Thinking\u2026"):
         if self.monitor:
             self._show_window()
-            self._draw(*self.position, text)
+            self._follow(text, pulsing=False)
 
     def clear_for_screenshot(self):
         self._cancel_jobs()
@@ -487,7 +552,11 @@ class BuddyOverlay:
         self.canvas.update_idletasks()
 
     def say(self, text):
-        if self.monitor:
+        if not self.monitor:
+            return
+        if self._pulse_job:
+            self._text = text                  # still following the mouse: just swap the words
+        else:
             self._draw(*self.position, text)
 
     def tour(self, screen_points, answer_text, dwell_ms=1800):

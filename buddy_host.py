@@ -75,20 +75,13 @@ def pips_focus_summary(widget):
 
 # --------------------------------------------------------------------------- pet as the AI
 class PetGuideOverlay(keyit_buddy.BuddyOverlay):
-    """Buddy's pointer, but the Pips pet does the talking and beams at the targets.
-
-    Falls back to the plain orange pointer whenever the pet is hidden or busy.
-    """
-
-    BEAM_GROW_S = 0.35
-    SAY_THROTTLE_S = 0.4
+    """Buddy's AI lives next to the mouse pointer (Clicky style): listening, thinking, the answer
+    and the pointing tour all happen at the cursor. The desktop pet just reacts with a word or two."""
 
     def __init__(self, root, pet_getter):
         super().__init__(root)
         self.pet_getter = pet_getter
-        self._last_said = ("", 0.0)
 
-    # -- pet helpers
     def _pet(self):
         pet = self.pet_getter()
         if pet is None or not getattr(pet, "visible", False) or getattr(pet, "fs_hidden", False):
@@ -97,121 +90,34 @@ class PetGuideOverlay(keyit_buddy.BuddyOverlay):
             return None
         return pet
 
-    def _pet_say(self, text, duration, force=False):
+    def _pet_react(self, text, duration):
         pet = self._pet()
         if pet is None:
-            return False
-        now = time.monotonic()
-        last_text, last_time = self._last_said
-        if not force and (text == last_text or now - last_time < self.SAY_THROTTLE_S):
-            return True
-        self._last_said = (text, now)
+            return
         try:
-            return bool(pet.say(text, duration=duration, priority=3))
+            pet.say(text, duration=duration, priority=3)
         except Exception:
             logger.exception("pet.say failed")
-            return False
 
-    def _pet_anchor(self):
-        pet = self._pet()
-        if pet is None:
-            return None
-        x, y, width, height = pet.window_rect()
-        return x + width / 2, y + height * 0.3
-
-    # -- states (same interface as BuddyOverlay)
-    def listening(self, monitor, cursor):
-        self.monitor = monitor
-        if self._pet_say("\U0001F399 Listening\u2026 let go of Ctrl+Alt+Space when you're done.", 60, force=True):
-            self._cancel_jobs()
-            self.canvas.delete("all")
-            self._hide_window()
-            return
-        super().listening(monitor, cursor)
-
-    def thinking(self, text="Thinking\u2026"):
-        if self._pet_say(text.replace("\n", "  "), 90, force=True):
-            self._cancel_jobs()
-            return
-        super().thinking(text)
-
-    def say(self, text):
-        if self._pet_say(text, 20):
-            return
-        super().say(text)
-
-    def clear_for_screenshot(self):
-        super().clear_for_screenshot()
+    def _pet_quiet(self):
         pet = self._pet()
         if pet is not None:
             try:
-                pet.bubble.hide()          # keep "Listening..." out of the screenshot
+                pet.bubble.hide()
             except Exception:
                 pass
 
+    def listening(self, monitor, cursor):
+        super().listening(monitor, cursor)
+        self._pet_react("\U0001F442", 3)
+
+    def clear_for_screenshot(self):
+        super().clear_for_screenshot()
+        self._pet_quiet()                      # keep bubbles out of the screenshot
+
     def tour(self, screen_points, answer_text, dwell_ms=1800):
-        anchor = self._pet_anchor()
-        if anchor is None or self.monitor is None:
-            super().tour(screen_points, answer_text, dwell_ms)
-            return
-        self._cancel_jobs()
-        total_s = len(screen_points) * (self.BEAM_GROW_S + dwell_ms / 1000) + 6
-        self._pet_say(answer_text, max(10, total_s), force=True)
-        self.attach(self.monitor)
-        start_x, start_y = self._clamp(*self.local(*anchor))
-        targets = [(self.local(x, y), label) for x, y, label in screen_points]
-
-        def beam(index):
-            if index >= len(targets):
-                self.hide_later(3500)
-                return
-            (tx, ty), label = targets[index]
-            caption = f"{index + 1}. {label}" if len(targets) > 1 and label else label
-            started = time.perf_counter()
-
-            def step():
-                t = min(1.0, (time.perf_counter() - started) / self.BEAM_GROW_S)
-                eased = 1 - (1 - t) ** 3
-                ex = start_x + (tx - start_x) * eased
-                ey = start_y + (ty - start_y) * eased
-                self._draw_beam(start_x, start_y, ex, ey, tx, ty, caption if t >= 1.0 else None, pulse=0.0)
-                if t < 1.0:
-                    self._animation = self.root.after(16, step)
-                else:
-                    pulse_until = time.perf_counter() + dwell_ms / 1000
-
-                    def pulse():
-                        remaining = pulse_until - time.perf_counter()
-                        phase = (math.sin(time.perf_counter() * 7) + 1) / 2
-                        self._draw_beam(start_x, start_y, tx, ty, tx, ty, caption, pulse=phase)
-                        if remaining > 0:
-                            self._animation = self.root.after(33, pulse)
-                        else:
-                            beam(index + 1)
-
-                    pulse()
-
-            step()
-
-        beam(0)
-
-    # -- drawing
-    def _clamp(self, x, y):
-        width, height = self.monitor["width"], self.monitor["height"]
-        return min(max(x, 4), width - 4), min(max(y, 4), height - 4)
-
-    def _draw_beam(self, sx, sy, ex, ey, tx, ty, caption, pulse):
-        canvas = self.canvas
-        canvas.delete("all")
-        canvas.create_line(sx, sy, ex, ey, fill=self.ORANGE, width=3, dash=(10, 6), capstyle="round")
-        canvas.create_oval(sx - 5, sy - 5, sx + 5, sy + 5, fill=self.ORANGE, outline=self.INK, width=2)
-        if (ex, ey) == (tx, ty):
-            radius = 16 + 8 * pulse
-            canvas.create_oval(tx - radius, ty - radius, tx + radius, ty + radius,
-                               outline=self.ORANGE, width=3)
-            canvas.create_oval(tx - 5, ty - 5, tx + 5, ty + 5, fill=self.ORANGE, outline=self.INK, width=2)
-            if caption:
-                self._bubble(tx + 14, ty + 12, caption)
+        super().tour(screen_points, answer_text, dwell_ms)
+        self._pet_react("\U0001F449 look!", 3)
 
 
 # --------------------------------------------------------------------------- autostart
