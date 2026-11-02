@@ -57,10 +57,13 @@ class BuddyTabs:
         ttk.Button(buttons, text="Dashboard", command=self.app.open_dashboard).pack(side="left", padx=(6, 0))
 
         self.sound_status, buttons = self._row(home, 5, "\u2328", "Keyboard sounds")
-        self.sound_button = ttk.Button(buttons, width=9, command=self.app.toggle_sounds)
-        self.sound_button.pack(side="left")
-        ttk.Button(buttons, text="Settings", command=lambda: self.app.open_home("settings")).pack(
-            side="left", padx=(6, 0))
+        self.pack_box = ttk.Combobox(buttons, state="readonly", width=10)
+        self.pack_box.pack(side="left")
+        self.pack_box.bind("<<ComboboxSelected>>",
+                           lambda _event: self.app.select_sound_pack(self.pack_box.current()))
+        ttk.Button(buttons, text="Test", width=5, command=self.app.test_sound).pack(side="left", padx=(6, 0))
+        self.sound_button = ttk.Button(buttons, width=8, command=self.app.toggle_sounds)
+        self.sound_button.pack(side="left", padx=(6, 0))
 
         self.pet_status, buttons = self._row(home, 7, "\u2665", "On your desktop")
         ttk.Button(buttons, text="Find", command=self.app.summon_pet).pack(side="left")
@@ -122,9 +125,13 @@ class BuddyTabs:
         self.focus_text.config(text=self.app.focus_summary_text() or "No focus data yet today.")
 
         sounds_on = self.app.sounds_enabled()
-        self.sound_status.config(text=f"{'On' if sounds_on else 'Muted'}  \u00b7  {self.app.sound_pack_name()}"
-                                      f"  \u00b7  Ctrl+Alt+M mutes")
+        self.sound_status.config(text=f"{'Clicking as you type' if sounds_on else 'Muted'}  \u00b7  "
+                                      f"Ctrl+Alt+M mutes  \u00b7  more in Settings")
         self.sound_button.config(text="Mute" if sounds_on else "Turn on")
+        labels, current = self.app.sound_pack_choices()
+        self.pack_box["values"] = labels
+        if current >= 0:
+            self.pack_box.current(current)
 
         self.brain_status.config(text=self._brain_text)
         name, visible = self.app.pet_state()

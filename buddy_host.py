@@ -334,6 +334,31 @@ class FocusFeature(pips_app.ProductivityWidget):
         pips_app.ProductivityWidget._on_close(self)
 
 
+class _BuddyTrayForPips:
+    """What Pips sees as 'its' tray: Buddy's tray. Pips only pops its card up when it thinks there is
+    no tray (nothing else to bring the pet back), so this must always be present and truthy."""
+
+    def __init__(self, app):
+        self.app = app
+
+    @property
+    def hotkey_label(self):
+        return self.app.tray.hotkey_label if self.app.tray is not None else ""
+
+    def notify(self, title, text):
+        tray = self.app.tray
+        return bool(tray is not None and tray.notify(title, text))
+
+    def set_tooltip(self, _text):
+        return True                      # Buddy owns the tooltip
+
+    def drain(self):
+        return []
+
+    def stop(self):
+        return None                      # Buddy stops its own tray on quit
+
+
 # --------------------------------------------------------------------------- host adapter for KeyIt's window
 class BuddyHost:
     """What KeyIt's settings window needs from Buddy: it becomes Buddy's main window."""
@@ -454,6 +479,7 @@ class BuddyApp:
         # Feature: Focus (Pips pet + tracker)
         self.focus = FocusFeature(self, cfg, con, no_track=no_track)
         self.focus.build()
+        self.focus._tray = _BuddyTrayForPips(self)
 
         # Feature: keyboard sounds + AI helper; KeyIt's window becomes Buddy's main window
         self.host = BuddyHost(self)
@@ -522,6 +548,25 @@ class BuddyApp:
     def toggle_sounds(self, *_args):
         self.hook.toggle()
 
+    def sound_pack_choices(self):
+        """(labels, current index) of the installed keyboard sound packs, e.g. Thock / Clicky."""
+        window = getattr(self, "window", None)
+        if window is None:                      # still starting up
+            return [], -1
+        labels = [label.replace("KeyIt Synth ", "").replace(" (synthetic)", "")
+                  for label in window.pack_box["values"]]
+        names = list(getattr(window, "pack_names", []))
+        current = names.index(self.settings["pack"]) if self.settings["pack"] in names else -1
+        return labels, current
+
+    def select_sound_pack(self, index):
+        names = list(getattr(self.window, "pack_names", []))
+        if 0 <= index < len(names):
+            self.window.select_pack(names[index])
+
+    def test_sound(self):
+        self.window.test_sound()
+
     def pet_state(self):
         pet = self.focus.pet if self.focus else None
         if pet is None:
@@ -588,7 +633,6 @@ class BuddyApp:
             self.tray.set_tooltip(f"{BUDDY_NAME} - click to open" + (f"  \u00b7  {key} finds the pet" if key else ""))
             if self.focus.pet is not None:
                 self.focus.pet.summon_hint = key
-            self.focus._tray = None                    # Pips never sees a tray of its own
             self.root.after(150, self._poll_tray)
         except Exception:
             logger.exception("Tray icon unavailable")
