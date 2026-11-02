@@ -26,6 +26,7 @@ the import stops. Add `--force` to replace that profile; the old one is moved to
 
 ## Use
 - **Ctrl+Alt+Space** (hold): ask Buddy about your screen by voice. Release to send, and press Esc to cancel.
+- Like Clicky, a small orange buddy rests next to your mouse all the time. It shows a waveform while it listens, a spinner while it thinks, and flies to whatever it points at. To see it only while you ask, untick *Settings → Keep Buddy next to my mouse all the time*.
   Buddy answers in the pet's speech bubble, reads it aloud, and draws an orange beam from the pet
   to whatever it is talking about.
 - **Ctrl+Alt+M**: mute keyboard sounds.

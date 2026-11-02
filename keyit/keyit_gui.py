@@ -378,17 +378,22 @@ class KeyItApp:
         ttk.Checkbutton(tab, text="Speak", variable=self.speak_var,
                         command=self._on_buddy_option).grid(row=4, column=2, sticky="w", pady=(8, 0))
 
+        self.cursor_always_var = tk.BooleanVar(value=self.settings["buddy_cursor_always"])
+        ttk.Checkbutton(tab, text="Keep Buddy next to my mouse all the time  (off: only while you ask)",
+                        variable=self.cursor_always_var, command=self._on_cursor_always_toggled).grid(
+            row=5, column=0, columnspan=3, sticky="w", pady=(8, 0))
+
         self.question_var = tk.StringVar()
         if self.host is None:                            # inside Buddy the ask box is on the Home tab
-            ttk.Label(tab, text="Or type").grid(row=5, column=0, sticky="w", pady=(12, 0))
+            ttk.Label(tab, text="Or type").grid(row=6, column=0, sticky="w", pady=(12, 0))
             entry = ttk.Entry(tab, textvariable=self.question_var)
-            entry.grid(row=5, column=1, sticky="ew", padx=8, pady=(12, 0))
+            entry.grid(row=6, column=1, sticky="ew", padx=8, pady=(12, 0))
             entry.bind("<Return>", lambda _e: self.ask_typed())
-            ttk.Button(tab, text="Ask", command=self.ask_typed).grid(row=5, column=2, pady=(12, 0))
+            ttk.Button(tab, text="Ask", command=self.ask_typed).grid(row=6, column=2, pady=(12, 0))
 
         self.buddy_status = ttk.Label(tab, foreground="#777", wraplength=430, justify="left",
                                       text="Runs 100% on this PC with Ollama. A screenshot is taken only when you ask.")
-        self.buddy_status.grid(row=6, column=0, columnspan=3, sticky="w", pady=(12, 0))
+        self.buddy_status.grid(row=7, column=0, columnspan=3, sticky="w", pady=(12, 0))
         self.refresh_models()
         self._load_voices()
         if self.settings["buddy_enabled"]:
@@ -452,6 +457,12 @@ class KeyItApp:
             if self.buddy:
                 threading.Thread(target=self.buddy._prepare, daemon=True).start()
 
+    def _on_cursor_always_toggled(self):
+        self.settings["buddy_cursor_always"] = self.cursor_always_var.get()
+        core.save_settings(self.settings)
+        if self.buddy:
+            self.buddy.overlay.set_always_on(self.settings["buddy_cursor_always"])
+
     def _on_buddy_toggled(self):
         self.settings["buddy_enabled"] = self.buddy_enabled_var.get()
         core.save_settings(self.settings)
@@ -473,10 +484,12 @@ class KeyItApp:
                 context_provider=self.host.buddy_context if self.host else None,
             )
         self.hook.buddy = self.buddy
+        self.buddy.overlay.set_always_on(self.settings["buddy_cursor_always"])
 
     def _stop_buddy(self):
         self.hook.buddy = None
         if self.buddy:
+            self.buddy.overlay.set_always_on(False)     # brain off = no buddy by the mouse
             self.buddy.cancel()
         self._set_buddy_status("Buddy is off.")
 

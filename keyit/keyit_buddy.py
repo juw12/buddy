@@ -39,6 +39,7 @@ DEFAULTS = {
     "buddy_voice": "",
     "buddy_speak": True,
     "screenshot_max_side": 1280,
+    "buddy_cursor_always": True,      # Clicky-style: the buddy rests next to the mouse all the time
 }
 # "auto" = Whisper base.en if it can be downloaded/loaded, else the built-in Windows recognizer
 WHISPER_MODELS = ["auto", "windows", "tiny.en", "base.en", "small.en", "base", "small"]
@@ -388,6 +389,11 @@ def _monitor_rect(x, y):
     return rect.left, rect.top, rect.right, rect.bottom
 
 
+def monitor_at(x, y):
+    left, top, right, bottom = _monitor_rect(int(x), int(y))
+    return {"left": left, "top": top, "width": right - left, "height": bottom - top}
+
+
 def monitor_under_cursor():
     """Monitor rect in this process's own coordinates (what Tk and GetCursorPos use),
     plus its physical-pixel rect for screenshots."""
@@ -416,7 +422,12 @@ def capture_monitor(monitor, max_side):
 
 # --------------------------------------------------------------------------- overlay
 class BuddyOverlay:
-    """Transparent, click-through, never-focused window that draws the buddy pointer and bubble."""
+    """Transparent, click-through, never-focused window that draws the buddy next to the mouse.
+
+    Like Clicky: with always_on the little orange pointer follows the mouse all the time (springy);
+    otherwise it only shows up while you ask. Listening = waveform, thinking = spinner,
+    answering = text bubble, pointing = it flies to the target and then springs back to the mouse.
+    """
 
     KEY_COLOR = "#010203"
     ORANGE = "#ff8424"
@@ -431,7 +442,14 @@ class BuddyOverlay:
     SW_HIDE = 0
     SW_SHOWNOACTIVATE = 4
 
-    def __init__(self, root):
+    CURSOR_OFFSET = (16, 18)       # sit just below-right of the real mouse pointer
+    SPRING = 0.22                  # pull towards the mouse per frame
+    DAMPING = 0.62                 # velocity kept per frame (a little overshoot = springy)
+    FRAME_MS = 16
+    IDLE_POLL_MS = 50
+    FOLLOW_MODES = ("idle", "listening", "thinking", "talking")
+
+    def __init__(self, root, always_on=False):
         import tkinter as tk
 
         self.root = root
@@ -451,12 +469,19 @@ class BuddyOverlay:
         user32.SetWindowLongW(self.hwnd, self.GWL_EXSTYLE, style)
         self.monitor = None
         self.position = (0.0, 0.0)
+        self.velocity = (0.0, 0.0)
+        self.mode = None               # None (hidden), idle/listening/thinking/talking (follow), tour, shot
+        self.always_on = always_on
         self._text = None
+        self._mode_started = time.perf_counter()
+        self._dirty = False
         self._animation = None
         self._hide_job = None
-        self._pulse_job = None
+        self._frame_job = None
         self._visible = False
         self._hide_window()
+        if always_on:
+            self.root.after(300, self.idle)
 
     # -- window
     def _show_window(self):
@@ -470,6 +495,10 @@ class BuddyOverlay:
 
     def attach(self, monitor):
         if monitor != self.monitor:
+            if self.monitor is not None:       # keep the buddy where it is on screen
+                x, y = self.position
+                self.position = (x + self.monitor["left"] - monitor["left"],
+                                 y + self.monitor["top"] - monitor["top"])
             self.monitor = monitor
             self.top.geometry(f"{monitor['width']}x{monitor['height']}+{monitor['left']}+{monitor['top']}")
             self.top.update_idletasks()
@@ -478,18 +507,63 @@ class BuddyOverlay:
     def local(self, x, y):
         return x - self.monitor["left"], y - self.monitor["top"]
 
+    def _follow_monitor(self):
+        """Attach to the monitor under the mouse; returns the mouse position."""
+        x, y = cursor_position()
+        monitor = self.monitor
+        if monitor is None or not (monitor["left"] <= x < monitor["left"] + monitor["width"]
+                                   and monitor["top"] <= y < monitor["top"] + monitor["height"]):
+            self.attach(monitor_under_cursor())
+        return x, y
+
+    def _cursor_spot(self):
+        x, y = self.local(*self._follow_monitor())
+        dx, dy = self.CURSOR_OFFSET
+        width, height = self.monitor["width"], self.monitor["height"]
+        return min(max(x + dx, 0), width - 30), min(max(y + dy, 0), height - 30)
+
     # -- drawing
+    def _draw_arrow(self, x, y):
+        arrow = [x, y, x + 6, y + 26, x + 12, y + 18, x + 24, y + 22]
+        self.canvas.create_polygon(arrow, fill=self.ORANGE, outline=self.INK, width=2, joinstyle="round")
+
+    def _draw_wave(self, x, y, seconds):
+        cx, cy = x + 10, y + 12
+        self.canvas.create_oval(cx - 17, cy - 15, cx + 17, cy + 15, fill=self.INK, outline=self.ORANGE, width=2)
+        for index in range(5):
+            height = 3 + 8 * abs(math.sin(seconds * 7 + index * 0.9))
+            bar_x = cx - 10 + index * 5
+            self.canvas.create_line(bar_x, cy - height, bar_x, cy + height,
+                                    fill=self.ORANGE, width=3, capstyle="round")
+
+    def _draw_spinner(self, x, y, seconds):
+        cx, cy = x + 10, y + 12
+        self.canvas.create_oval(cx - 14, cy - 14, cx + 14, cy + 14, fill=self.INK, outline="")
+        self.canvas.create_arc(cx - 9, cy - 9, cx + 9, cy + 9, start=-seconds * 360 % 360, extent=270,
+                               style="arc", outline=self.ORANGE, width=3)
+
     def _draw(self, x, y, text=None, pulse=0.0):
         canvas = self.canvas
         canvas.delete("all")
         if pulse:
             radius = 18 + 10 * pulse
             canvas.create_oval(x - radius, y - radius, x + radius, y + radius, outline=self.ORANGE, width=2)
-        # Pointer: a chunky arrow with a dark outline so it reads on any background
-        arrow = [x, y, x + 6, y + 26, x + 12, y + 18, x + 24, y + 22]
-        canvas.create_polygon(arrow, fill=self.ORANGE, outline=self.INK, width=2, joinstyle="round")
+        self._draw_arrow(x, y)
         if text:
             self._bubble(x + 28, y + 24, text)
+
+    def _render(self):
+        self.canvas.delete("all")
+        x, y = self.position
+        seconds = time.perf_counter() - self._mode_started
+        if self.mode == "listening":
+            self._draw_wave(x, y, seconds)
+        elif self.mode == "thinking":
+            self._draw_spinner(x, y, seconds)
+        else:
+            self._draw_arrow(x, y)
+        if self._text:
+            self._bubble(x + 28, y + 24, self._text)
 
     def _bubble(self, x, y, text):
         canvas = self.canvas
@@ -506,62 +580,99 @@ class BuddyOverlay:
                                              fill=self.INK, outline=self.ORANGE, width=2)
         canvas.tag_lower(background, item)
 
-    # -- states
-    CURSOR_OFFSET = (16, 18)       # sit just below-right of the real mouse pointer, like Clicky
+    # -- the follow loop (spring towards the mouse)
+    def _frame(self):
+        self._frame_job = None
+        if self.mode not in self.FOLLOW_MODES:
+            return
+        target_x, target_y = self._cursor_spot()
+        x, y = self.position
+        vx, vy = self.velocity
+        vx = vx * self.DAMPING + (target_x - x) * self.SPRING
+        vy = vy * self.DAMPING + (target_y - y) * self.SPRING
+        x, y = x + vx, y + vy
+        settled = (abs(target_x - x) < 0.5 and abs(target_y - y) < 0.5
+                   and abs(vx) < 0.3 and abs(vy) < 0.3)
+        if settled:
+            x, y, vx, vy = target_x, target_y, 0.0, 0.0
+        moved = (x, y) != self.position
+        self.position, self.velocity = (x, y), (vx, vy)
+        animated = self.mode in ("listening", "thinking")
+        if animated or moved or self._dirty:
+            self._render()
+            self._dirty = False
+        busy = animated or not settled
+        self._frame_job = self.root.after(self.FRAME_MS if busy else self.IDLE_POLL_MS, self._frame)
+
+    def _set_mode(self, mode, text=None):
+        self._cancel_jobs()
+        if self.mode not in self.FOLLOW_MODES and self.mode != "tour":
+            self._follow_monitor()                     # appear right at the mouse, no fly-in
+            self.position = self._cursor_spot()
+            self.velocity = (0.0, 0.0)
+        if mode != self.mode:
+            self._mode_started = time.perf_counter()
+        self.mode = mode
+        self._text = text
+        self._dirty = True
+        self._show_window()
+        self._frame()
 
     def _cancel_jobs(self):
-        for job in (self._animation, self._hide_job, self._pulse_job):
+        for job in (self._animation, self._hide_job, self._frame_job):
             if job:
                 self.root.after_cancel(job)
-        self._animation = self._hide_job = self._pulse_job = None
+        self._animation = self._hide_job = self._frame_job = None
 
-    def _cursor_spot(self):
-        x, y = self.local(*cursor_position())
-        dx, dy = self.CURSOR_OFFSET
-        width, height = self.monitor["width"], self.monitor["height"]
-        return min(max(x + dx, 0), width - 30), min(max(y + dy, 0), height - 30)
+    # -- states
+    def set_always_on(self, enabled):
+        self.always_on = bool(enabled)
+        if self.always_on and self.mode is None:
+            self.idle()
+        elif not self.always_on and self.mode == "idle":
+            self.hide()
 
-    def _follow(self, text, pulsing):
-        """Keep the buddy next to the mouse pointer (redrawn ~30x a second) until told otherwise."""
-        self._cancel_jobs()
-        self._text = text
-        start = time.perf_counter()
-
-        def tick():
-            self.position = self._cursor_spot()
-            pulse = 0.0
-            if pulsing:
-                pulse = 0.2 + (math.sin((time.perf_counter() - start) * 6) + 1) / 2
-            self._draw(*self.position, self._text, pulse=pulse)
-            self._pulse_job = self.root.after(33, tick)
-
-        tick()
+    def idle(self):
+        if self.always_on:
+            self._set_mode("idle")
+        else:
+            self.hide()
 
     def listening(self, monitor, cursor):
         self.attach(monitor)
-        self._follow("Listening\u2026", pulsing=True)
+        self._set_mode("listening")
 
     def thinking(self, text="Thinking\u2026"):
-        if self.monitor:
-            self._show_window()
-            self._follow(text, pulsing=False)
+        self._set_mode("thinking", text)
 
     def clear_for_screenshot(self):
         self._cancel_jobs()
+        self.mode = "shot"
         self.canvas.delete("all")
         self.canvas.update_idletasks()
 
     def say(self, text):
-        if not self.monitor:
-            return
-        if self._pulse_job:
-            self._text = text                  # still following the mouse: just swap the words
-        else:
+        if self.mode in self.FOLLOW_MODES or self.mode in (None, "shot"):
+            if self.mode == "talking":
+                self._text = text                      # streaming: just swap the words
+                self._dirty = True
+            else:
+                self._set_mode("talking", text)
+        elif self.monitor:
             self._draw(*self.position, text)
 
     def tour(self, screen_points, answer_text, dwell_ms=1800):
-        """Fly to each (x, y, label) in order, then rest with the answer bubble."""
+        """Fly to each (x, y, label) in order, rest there with the answer, then spring back to the mouse."""
         self._cancel_jobs()
+        if screen_points:
+            first_x, first_y = screen_points[0][:2]
+            monitor = self.monitor
+            if monitor is None or not (monitor["left"] <= first_x < monitor["left"] + monitor["width"]
+                                       and monitor["top"] <= first_y < monitor["top"] + monitor["height"]):
+                self.attach(monitor_at(first_x, first_y))
+        self._show_window()
+        self.mode = "tour"
+        self.velocity = (0.0, 0.0)
         targets = [(self.local(x, y), label) for x, y, label in screen_points]
 
         def fly(index):
@@ -601,7 +712,13 @@ class BuddyOverlay:
         self._hide_job = self.root.after(delay_ms, self.hide)
 
     def hide(self):
+        """Done talking: back to resting by the mouse (always on), or gone."""
         self._cancel_jobs()
+        self._text = None
+        if self.always_on:
+            self._set_mode("idle")
+            return
+        self.mode = None
         self.canvas.delete("all")
         self._hide_window()
 

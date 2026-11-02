@@ -326,6 +326,7 @@ class KeyboardHook:
                     self.buddy_active = True
                     threading.Thread(target=tap_menu_mask_key, daemon=True).start()
                     threading.Thread(target=self.buddy.press, daemon=True).start()
+                    threading.Thread(target=self._watch_space_release, daemon=True).start()
                 self.listener.suppress_event()
             if msg in (WM_KEYUP, WM_SYSKEYUP) and self.buddy_active:
                 self.buddy_active = False
@@ -347,6 +348,22 @@ class KeyboardHook:
             self.held.pop(code, None)
             self._emit(code, False, event_time)
         return False  # skip pynput callbacks; the key still reaches other apps normally
+
+    def _watch_space_release(self):
+        """Safety net: if the Space key-up never reaches the hook, end push-to-talk anyway."""
+        import ctypes
+
+        get_key_state = ctypes.windll.user32.GetAsyncKeyState
+        time.sleep(0.3)
+        while self.buddy_active:
+            if not get_key_state(0x20) & 0x8000:          # VK_SPACE is physically up
+                time.sleep(0.15)
+                if self.buddy_active and not get_key_state(0x20) & 0x8000:
+                    self.buddy_active = False
+                    if self.buddy is not None:
+                        self.buddy.release()
+                    return
+            time.sleep(0.1)
 
     def _emit(self, code, is_down, event_time):
         self.player.submit(code, is_down)
