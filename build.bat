@@ -6,10 +6,26 @@ cd /d "%~dp0"
 if "%PYTHON%"=="" set "PYTHON=.venv\Scripts\python.exe"
 set "KEEP=build\keep-profile"
 
+rem A running Buddy holds your data open: ask it to quit first, and stop if it will not
+tasklist /fi "imagename eq Buddy.exe" | find /i "Buddy.exe" >nul && (
+    echo Asking the running Buddy to quit...
+    if exist dist\Buddy\Buddy.exe start "" /wait dist\Buddy\Buddy.exe --quit
+    timeout /t 6 /nobreak >nul
+)
+tasklist /fi "imagename eq Buddy.exe" | find /i "Buddy.exe" >nul && (
+    echo Buddy is still running - quit it from the tray, then run build.bat again.
+    exit /b 1
+)
+
 if exist "%KEEP%" rmdir /s /q "%KEEP%"
 mkdir "%KEEP%"
 if exist dist\Buddy\app\pips\config.json move dist\Buddy\app\pips\config.json "%KEEP%\" >nul
 if exist dist\Buddy\app\pips\data move dist\Buddy\app\pips\data "%KEEP%\data" >nul
+if exist dist\Buddy\app\pips\data (
+    echo Could not move your Buddy data aside - nothing was changed.
+    if exist "%KEEP%\config.json" move "%KEEP%\config.json" dist\Buddy\app\pips\ >nul
+    exit /b 1
+)
 
 "%PYTHON%" -m PyInstaller --noconfirm --clean buddy.spec || goto :fail
 

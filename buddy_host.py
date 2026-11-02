@@ -455,6 +455,136 @@ def install_pet_menu(app):
     pet_module.DesktopPet._buddy_menu_installed = True
 
 
+# --------------------------------------------------------------------------- scrollable pet menus
+def install_menu_scrolling():
+    """Pips' pet menus are one fixed popup; on a short screen the bottom was cut off. Make every
+    FancyMenu (the pet menu and its submenus) fit the screen and scroll with the mouse wheel."""
+    import fancy_menu
+
+    menu_class = fancy_menu.FancyMenu
+    if getattr(menu_class, "_buddy_scrolling", False):
+        return
+    original_create = menu_class._create_window
+    original_layout = menu_class._layout
+    original_draw = menu_class._draw
+    original_open_child = menu_class._open_child
+    original_key_move = menu_class._key_move
+    margin = 12
+    wheel_step = 3 * fancy_menu.ROW_H
+
+    def offset(menu):
+        return int(menu.cv.canvasy(0)) if getattr(menu, "_scrollable", False) and menu.cv else 0
+
+    def create_window(menu):
+        original_create(menu)
+        menu._scrollable = False
+        menu.win.bind("<MouseWheel>", lambda event: on_wheel(menu, event))
+        menu.cv.bind("<MouseWheel>", lambda event: on_wheel(menu, event))
+
+    def layout(menu):
+        original_layout(menu)                         # height = full content height
+        menu.content_h = menu.height
+        try:
+            pointer_x, pointer_y = menu.master.winfo_pointerxy()
+            _left, top, _right, bottom = fancy_menu.work_area(menu.master, pointer_x, pointer_y)
+        except Exception:
+            top, bottom = 0, menu.master.winfo_screenheight()
+        room = max(160, bottom - top - 2 * margin)
+        menu._scrollable = menu.content_h > room
+        if menu._scrollable:
+            menu.height = room                        # the window is only as tall as the screen allows
+            menu.cv.configure(height=room, scrollregion=(0, 0, menu.width, menu.content_h),
+                              yscrollincrement=1)
+
+    def draw(menu):
+        if not getattr(menu, "_scrollable", False):
+            original_draw(menu)
+            return
+        view_h = menu.height
+        menu.height = menu.content_h                  # paint the whole menu; the canvas shows a window of it
+        try:
+            original_draw(menu)
+        finally:
+            menu.height = view_h
+        if menu.cv is None or menu.closed:
+            return
+        top = offset(menu)
+        track = view_h - 24
+        thumb = max(28, int(track * view_h / menu.content_h))
+        position = top / max(1, menu.content_h - view_h)
+        y0 = top + 12 + int((track - thumb) * position)
+        x = menu.width - 6
+        menu.cv.create_line(x, y0, x, y0 + thumb, width=4, capstyle="round", fill=menu.p.get("muted", "#999999"))
+        if top + view_h < menu.content_h - 2:         # "more below" hint on its own strip
+            strip_top = top + view_h - 20
+            menu.cv.create_rectangle(8, strip_top, menu.width - 14, top + view_h - 3,
+                                     fill=menu.p.get("bg", "#ffffff"), outline="")
+            menu.cv.create_text(menu.width // 2, strip_top + 9, text="\u25BE  scroll for more",
+                                fill=menu.p.get("muted", "#999999"), font=menu.fonts.get("small"))
+
+    def scroll_to(menu, y):
+        if not getattr(menu, "_scrollable", False):
+            return
+        y = min(max(0, y), menu.content_h - menu.height)
+        menu.cv.yview_moveto(y / menu.content_h)
+        menu._draw()
+
+    def on_wheel(menu, event):
+        # the wheel goes to the focused menu; scroll whichever menu of the chain is under the pointer
+        target = menu
+        for candidate in menu.root_menu.chain():
+            try:
+                px, py = candidate.master.winfo_pointerxy()
+                wx, wy = candidate.win.winfo_rootx(), candidate.win.winfo_rooty()
+            except Exception:
+                continue
+            if wx <= px < wx + candidate.width and wy <= py < wy + candidate.height:
+                target = candidate
+        if getattr(target, "_scrollable", False):
+            steps = -1 if event.delta > 0 else 1
+            scroll_to(target, offset(target) + steps * wheel_step)
+            target._set_hover(None)
+        return "break"
+
+    def shifted(handler):
+        def wrapper(menu, event):
+            if getattr(menu, "_scrollable", False):
+                event = types.SimpleNamespace(x=event.x, y=event.y + offset(menu),
+                                              x_root=event.x_root, y_root=event.y_root)
+            return handler(menu, event)
+        return wrapper
+
+    def open_child(menu, index):
+        shift = offset(menu)                          # submenus open next to the row where it is now
+        menu.y -= shift
+        try:
+            return original_open_child(menu, index)
+        finally:
+            menu.y += shift
+
+    def key_move(menu, step):
+        result = original_key_move(menu, step)
+        deepest = menu._deepest()
+        if getattr(deepest, "_scrollable", False) and deepest.hover is not None:
+            entry = deepest.entries[deepest.hover[0]]
+            top = offset(deepest)
+            if entry["y0"] < top + 8:
+                scroll_to(deepest, entry["y0"] - 8)
+            elif entry["y1"] > top + deepest.height - 24:
+                scroll_to(deepest, entry["y1"] - deepest.height + 24)
+        return result
+
+    menu_class._create_window = create_window
+    menu_class._layout = layout
+    menu_class._draw = draw
+    menu_class._on_motion = shifted(menu_class._on_motion)
+    menu_class._on_press = shifted(menu_class._on_press)
+    menu_class._on_release = shifted(menu_class._on_release)
+    menu_class._open_child = open_child
+    menu_class._key_move = key_move
+    menu_class._buddy_scrolling = True
+
+
 # --------------------------------------------------------------------------- the app
 TRAY_MENU = ("summon", "ask", "sounds", None, "pet", "focus", None, "quit")   # "summon" = left click = Open Buddy
 
@@ -469,6 +599,15 @@ class BuddyApp:
         self.focus = None
         self.tray = None
         self._quitting = False
+
+        self.quit_event = None
+        if instance is not None:
+            try:
+                import win32event
+
+                self.quit_event = win32event.CreateEvent(None, True, False, QUIT_EVENT_NAME)
+            except Exception:
+                logger.warning("Quit event unavailable", exc_info=True)
 
         self.root = tk.Tk()
         self.root.withdraw()
@@ -492,6 +631,7 @@ class BuddyApp:
         self.window = keyit_gui.KeyItApp(self.player, self.hook, start_hidden=True, host=self.host)
 
         install_pet_menu(self)
+        install_menu_scrolling()
         self.host.refresh_context()
         if not selftest:
             self.root.after(800, self._start_tray)
@@ -679,6 +819,13 @@ class BuddyApp:
         if self._quitting:
             return
         try:
+            if self.quit_event is not None:
+                import win32event
+
+                if win32event.WaitForSingleObject(self.quit_event, 0) == win32event.WAIT_OBJECT_0:
+                    logger.info("Quit requested from outside (--quit)")
+                    self.quit()
+                    return
             if self.instance.show_requested():          # Buddy was started again: show it
                 self.open_home()
         except Exception:
@@ -757,11 +904,31 @@ def _prepare_pips(cfg):
     return con
 
 
+QUIT_EVENT_NAME = "Local\\Buddy.App.QuitRequest"
+
+
+def request_quit():
+    """Signal a running Buddy to quit (used by build.bat and by you: Buddy.exe --quit)."""
+    try:
+        import win32event
+
+        event = win32event.OpenEvent(win32event.EVENT_MODIFY_STATE, False, QUIT_EVENT_NAME)
+    except Exception:
+        logger.info("No running Buddy to quit")
+        return 0
+    win32event.SetEvent(event)
+    logger.info("Asked the running Buddy to quit")
+    return 0
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="buddy", description="Buddy: focus pet, keyboard sounds and AI helper")
     parser.add_argument("--selftest", action="store_true", help="start everything offscreen, check, exit 0")
     parser.add_argument("--no-track", action="store_true", help="don't track app usage")
+    parser.add_argument("--quit", action="store_true", help="ask a running Buddy to quit cleanly, then exit")
     args = parser.parse_args(argv)
+    if args.quit:
+        return request_quit()
 
     pips_app.SingleInstance.MUTEX = "Local\\Buddy.App.Instance"
     pips_app.SingleInstance.EVENT = "Local\\Buddy.App.ShowRequest"
