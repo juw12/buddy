@@ -1,0 +1,10 @@
+pygame
+pynput
+pystray
+pillow
+numpy
+sounddevice
+mss
+comtypes
+pywin32
+faster-whisper

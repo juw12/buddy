@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+build/
+dist/
+pips/config.json
+pips/data/
+pips/logs/
+pips/output/
+pips/backup/
+pips/.release/

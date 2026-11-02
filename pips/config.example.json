@@ -1,0 +1,173 @@
+{
+  "pomodoro": {
+    "work_minutes": 25,
+    "short_break_minutes": 5,
+    "long_break_minutes": 30,
+    "long_break_every": 4,
+    "auto_start_next": true
+  },
+  "audio": {
+    "default": "rain",
+    "autoplay_on_focus": true,
+    "stop_on_break": false,
+    "volume": 60,
+    "fade_on_break": true,
+    "volumes": {
+      "rain": 60,
+      "thunder": 45,
+      "brown": 50,
+      "cafe": 45,
+      "crickets": 30,
+      "ocean": 55,
+      "wind": 40,
+      "fireplace": 45,
+      "forest": 35
+    }
+  },
+  "tracking": {
+    "poll_seconds": 1,
+    "idle_seconds": 120
+  },
+  "category": {
+    "productive": [
+      "code.exe",
+      "windowsterminal.exe",
+      "devenv.exe",
+      "pycharm64.exe",
+      "excel.exe",
+      "winword.exe",
+      "powerpnt.exe",
+      "notepad.exe",
+      "explorer.exe",
+      "cmd.exe",
+      "powershell.exe",
+      "wt.exe"
+    ],
+    "distracting": [
+      "steam.exe",
+      "discord.exe",
+      "spotify.exe",
+      "tiktok.exe",
+      "netflix.exe",
+      "epicgameslauncher.exe",
+      "battle.net.exe"
+    ],
+    "neutral": []
+  },
+  "title_rules": [
+    {
+      "match": "youtube",
+      "category": "distracting",
+      "where": "title"
+    },
+    {
+      "match": "reddit",
+      "category": "distracting",
+      "where": "title"
+    },
+    {
+      "match": "facebook",
+      "category": "distracting",
+      "where": "title"
+    },
+    {
+      "match": "instagram",
+      "category": "distracting",
+      "where": "title"
+    },
+    {
+      "match": "github",
+      "category": "productive",
+      "where": "title"
+    },
+    {
+      "match": "stackoverflow",
+      "category": "productive",
+      "where": "title"
+    },
+    {
+      "match": "docs",
+      "category": "productive",
+      "where": "title"
+    }
+  ],
+  "goals": {
+    "deep_work_hours": 4,
+    "pomodoros": 8,
+    "max_distraction_hours": 2
+  },
+  "scoring": {
+    "weights": {
+      "productive": 1.0,
+      "neutral": 0.3,
+      "distracting": -0.8,
+      "idle": 0.0
+    },
+    "star_thresholds": [
+      20,
+      40,
+      60,
+      80
+    ]
+  },
+  "coach": {
+    "enabled": true,
+    "llm": {
+      "enabled": false,
+      "endpoint": "",
+      "api_key": "",
+      "model": ""
+    }
+  },
+  "reminders": {
+    "enabled": true,
+    "chime": true,
+    "break_popup": true,
+    "eye_enabled": true,
+    "eye_every_minutes": 20,
+    "hydration_enabled": true,
+    "hydration_every_minutes": 40
+  },
+  "ui": {
+    "alpha": 0.98,
+    "pos": [
+      200,
+      200
+    ],
+    "compact_width": 260,
+    "card_height": 344,
+    "day_start_hour": 8,
+    "day_end_hour": 20
+  },
+  "tokens": {
+    "enabled": true,
+    "log_path": ""
+  },
+  "maas": {
+    "enabled": false,
+    "base_url": "https://ai-gateway.example.com/maas/api/v1",
+    "username": "",
+    "password": "",
+    "verify_ssl": true,
+    "cache_minutes": 10
+  },
+  "diary": {
+    "enabled": false,
+    "repo_dir": "",
+    "auto_write": true,
+    "auto_publish": false
+  },
+  "pet": {
+    "enabled": true,
+    "name": "Pip",
+    "species": "cat",
+    "size": "M",
+    "click_action": "tickle_open",
+    "bubble_reminders": true,
+    "walk_on_taskbar": true,
+    "gravity": false,
+    "sleep_when_away": true,
+    "away_minutes": 5,
+    "chatty": true
+  }
+}

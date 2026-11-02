@@ -1,0 +1,10 @@
+name = "pips-friends"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+account_id = "YOUR_CLOUDFLARE_ACCOUNT_ID"
+workers_dev = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "pips-friends"
+database_id = "9df328b7-b300-4b61-b7b3-06e8d2fd4114"

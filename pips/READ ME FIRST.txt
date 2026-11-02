@@ -1,0 +1,43 @@
+PIPS - desktop pet + focus timer for Windows 10/11 (64-bit)
+=========================================================
+Owner: Juwen Lie
+
+EASIEST WAY TO INSTALL
+1. Visit https://juw12.github.io/projects/pips/
+2. Click Download Pips for Windows and open Pips-Setup.exe.
+3. Click Install Pips. Your pet opens automatically; choose your language.
+
+Python and the helper libraries are included. Nothing to unzip or type.
+No administrator password is needed. Pips shortcuts are added to your Desktop
+and Start Menu. The default location is %LOCALAPPDATA%\Programs\Pips.
+
+The installer is unsigned. Windows SmartScreen may show a warning. Only for
+the trusted official download, use More info -> Run anyway if available.
+If your work PC blocks it, ask IT. Do not disable antivirus or company policy.
+
+ALREADY HAVE PIPS?
+Keep your current copy and use Help -> Check for updates. No reinstall needed.
+Reinstalling the installer version in the same location preserves settings and
+progress. Setup does not automatically import an older ZIP folder's profile.
+
+IF YOU CHOSE THE ADVANCED SOURCE ZIP
+The ZIP is for existing updates and developers. It needs Python 3.13+ with
+Tkinter, pywin32 and Pillow. Use Start Pips.bat after extracting the ZIP.
+For a normal first install, use the Windows installer instead.
+
+USING PIPS
+- Click the pet for the focus timer; right-click it for the menu.
+- Drag it onto the taskbar, change its animal, or rub it to pet it.
+- Help -> Interactive guide replays the quick tour.
+- Start with Windows is optional: use the card's Autostart menu.
+- The full PowerPoint user guide is included in this folder.
+
+UPDATES AND UNINSTALL
+- Help -> Check for updates downloads and applies small updates in place.
+- Settings, history, pet progress and the bundled runtime are preserved.
+- Quit Pips, then Windows Settings -> Apps -> Pips -> Uninstall to remove it.
+  Your config.json, data, logs and backups remain for a later reinstall.
+- Source ZIP copies are removed manually, after disabling their Autostart.
+
+Focus history is local. Optional social/sharing features use the Pips online
+service; automatic update checks also require internet access.

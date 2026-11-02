@@ -1,0 +1,19 @@
+# Local data & runtime artifacts (NOT for the repo)
+data/
+logs/
+output/
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.db
+*.db-shm
+*.db-wal
+
+# Personal configuration (email + local paths) — use config.example.json instead
+config.json
+
+# Release tooling (dev only)
+.release/
+backup/
+Pips-Guide.pptx

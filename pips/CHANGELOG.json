@@ -1,0 +1,1288 @@
+{
+  "_comment": "Pips version history. Newest first. Feeds the in-app update notice (latest.json), the PPT guide and the update emails.",
+  "releases": [
+    {
+      "version": "2.28.0",
+      "date": "2026-11-01",
+      "title": "Token Board & automatic updates",
+      "notes": {
+        "en": [
+          "Pips now updates itself: new versions install automatically when no focus session is running, and your pet tells you what's new. Switch it off in Pet status & settings.",
+          "New for MAAS accounts: Token Board - your live token usage and the company Top 30 ranking in one window. Right-click your pet: the ⚡ row shows your rank and today's tokens.",
+          "Token Board ranking per department: pick the whole company, any level of your own unit (division, department, section) or any other division - ranks, gaps and catch-up dates follow your choice. Pick a division you're not in and you appear in it as a guest, so you see where you'd stand.",
+          "Interactive charts: hover for exact values, switch 7/14/30/90 days, sort the Top 30 by total, last 30 days or per day, and click anyone to see the gap and when you'd catch up.",
+          "Refresh any time (F5) or auto-refresh every 1-30 minutes. Mini mode floats a small always-on-top widget.",
+          "Your pet tells you when you move up, when someone passes you, and at daily token milestones. Turn it off with 🔔 Pet alerts in the board."
+        ],
+        "id": [
+          "Pips sekarang update sendiri: versi baru terpasang otomatis saat tidak ada sesi fokus, lalu pet-mu memberi tahu apa yang baru. Matikan di Status & pengaturan pet.",
+          "Baru untuk akun MAAS: Papan Token - pemakaian token langsung dan peringkat Top 30 perusahaan dalam satu jendela. Klik kanan pet-mu: baris ⚡ menampilkan peringkat dan token hari ini.",
+          "Peringkat Papan Token per departemen: pilih seluruh perusahaan, tiap level unitmu sendiri (divisi, departemen, seksi) atau divisi lain - peringkat, selisih dan tanggal menyusul mengikuti pilihanmu. Pilih divisi yang bukan milikmu dan kamu muncul sebagai tamu, jadi kamu tahu posisimu di sana.",
+          "Grafik interaktif: arahkan kursor untuk nilai pasti, pilih 7/14/30/90 hari, urutkan Top 30 berdasarkan total, 30 hari terakhir atau per hari, dan klik siapa pun untuk melihat selisih dan kapan kamu menyusul.",
+          "Muat ulang kapan saja (F5) atau otomatis tiap 1-30 menit. Mode mini menampilkan widget kecil yang selalu di atas.",
+          "Pet-mu memberi tahu saat kamu naik peringkat, saat ada yang menyalipmu, dan saat mencapai target token harian. Matikan lewat 🔔 Notif pet di papan."
+        ],
+        "zh_TW": [
+          "Pips 現在會自動更新：沒有專注時段時會自動安裝新版本，寵物會告訴你更新了什麼。可在「寵物狀態與設定」關閉。",
+          "MAAS 帳號新功能：Token 看板 - 即時 Token 用量和全公司 Top 30 排行都在同一個視窗。在寵物上按右鍵：⚡ 那一列會顯示你的排名和今日 Token。",
+          "Token 看板可依部門排名：可選全公司、自己單位的任一層級（處、部、課）或其他一級單位，排名、差距和追上日期都會跟著切換。 選擇不是自己的單位時，你會以客座身分出現在排名中，看看自己會排第幾。",
+          "互動圖表：滑鼠移上看精確數值，可切換 7/14/30/90 天，Top 30 可依總量、近 30 日或每日排序，點任何人就能看差距和多久能追上。",
+          "隨時重新整理（F5）或每 1-30 分鐘自動更新。迷你模式會變成一個置頂的小工具。",
+          "排名上升、被別人超越、達到每日 Token 里程碑時，寵物都會告訴你。可在看板用 🔔 寵物提醒 關閉。"
+        ],
+        "zh_CN": [
+          "Pips 现在会自动更新：没有专注时段时会自动安装新版本，宠物会告诉你更新了什么。可在「宠物状态与设置」关闭。",
+          "MAAS 账号新功能：Token 看板 - 实时 Token 用量和全公司 Top 30 排行都在同一个窗口。在宠物上点右键：⚡ 那一行会显示你的排名和今日 Token。",
+          "Token 看板可按部门排名：可选全公司、自己单位的任一层级（处、部、课）或其他一级单位，排名、差距和追上日期都会跟着切换。 选择不是自己的单位时，你会以客座身份出现在排名中，看看自己会排第几。",
+          "互动图表：鼠标移上看精确数值，可切换 7/14/30/90 天，Top 30 可按总量、近 30 日或每日排序，点任何人就能看差距和多久能追上。",
+          "随时刷新（F5）或每 1-30 分钟自动更新。迷你模式会变成一个置顶的小工具。",
+          "排名上升、被别人超越、达到每日 Token 里程碑时，宠物都会告诉你。可在看板用 🔔 宠物提醒 关闭。"
+        ]
+      }
+    },
+    {
+      "version": "2.27.2",
+      "date": "2026-11-01",
+      "title": "Tidier right-click menus",
+      "notes": {
+        "en": [
+          "Cleaner pet menu: one row of everyday actions (Focus, Snack, Pat, Play). Stats and Focus Trail are under My progress; Friends, Community, Shop and Nudge are under Friends.",
+          "When your pet is sick, a Medicine banner appears at the top instead of an extra tile.",
+          "Timer-card menu: Stats, Focus Trail and History tiles; weekly and monthly reports now live in Reports & diary.",
+          "New: Phone Trail for your phone's screen time - juw12.github.io/projects/pips/trail/"
+        ],
+        "id": [
+          "Menu pet lebih rapi: satu baris aksi harian (Fokus, Camilan, Elus, Main). Statistik dan Jejak Fokus ada di Progres saya; Teman, Komunitas, Toko dan Colek ada di Teman.",
+          "Saat pet-mu sakit, banner Obat muncul di atas, bukan ubin tambahan.",
+          "Menu kartu timer: ubin Statistik, Jejak Fokus dan Riwayat; laporan mingguan dan bulanan sekarang ada di Laporan & diary.",
+          "Baru: Jejak HP untuk screen time HP-mu - juw12.github.io/projects/pips/trail/"
+        ],
+        "zh_TW": [
+          "寵物選單更清爽：一排常用動作（專注、點心、摸摸、玩）。統計和專注軌跡在「我的進度」；好友、社群、商店和戳一下在「好友」。",
+          "寵物生病時，頂端會出現「吃藥」橫幅，不再多一格。",
+          "計時卡片選單：統計、專注軌跡、歷史三格；週報和月報移到「報告與日記」。",
+          "新功能：手機軌跡，把手機螢幕使用時間畫成路線 - juw12.github.io/projects/pips/trail/"
+        ],
+        "zh_CN": [
+          "宠物菜单更清爽：一排常用动作（专注、点心、摸摸、玩）。统计和专注轨迹在「我的进度」；好友、社区、商店和戳一下在「好友」。",
+          "宠物生病时，顶部会出现「吃药」横幅，不再多一格。",
+          "计时卡片菜单：统计、专注轨迹、历史三格；周报和月报移到「报告与日记」。",
+          "新功能：手机轨迹，把手机屏幕使用时间画成路线 - juw12.github.io/projects/pips/trail/"
+        ]
+      }
+    },
+    {
+      "version": "2.27.1",
+      "date": "2026-11-01",
+      "title": "Focus Trail in your menus",
+      "notes": {
+        "en": [
+          "Focus Trail is now one click away: right-click your pet (next to Focus and Stats) or right-click the timer card."
+        ],
+        "id": [
+          "Jejak Fokus kini cukup sekali klik: klik kanan pet-mu (di samping Fokus dan Statistik) atau klik kanan kartu timer."
+        ],
+        "zh_TW": [
+          "專注軌跡現在一鍵就到：在寵物上按右鍵（在「專注」和「統計」旁邊），或在計時卡片上按右鍵。"
+        ],
+        "zh_CN": [
+          "专注轨迹现在一键就到：在宠物上点右键（在「专注」和「统计」旁边），或在计时卡片上点右键。"
+        ]
+      }
+    },
+    {
+      "version": "2.27.0",
+      "date": "2026-11-01",
+      "title": "Focus Trail you can read",
+      "notes": {
+        "en": [
+          "Every bend in your Focus Trail now means something: the trail turns clockwise through the day (direction = time of day), runs straight while you stay in one app and kinks when you switch apps. Grey loops are still distracting time.",
+          "Time markers on the trail (08:00, 10:00, 12:00 ... or Mon-Fri in the week view) and a one-line key on every sticker, so friends understand it too.",
+          "New 'How to read your trail' strip in the Focus Trail window, and a tip when most of your time counts as neutral: mark your top apps as Productive or Distracting with one click."
+        ],
+        "id": [
+          "Setiap belokan di Jejak Fokus kini punya arti: jejak berputar searah jarum jam sepanjang hari (arah = jam), lurus saat kamu bertahan di satu aplikasi dan berbelok saat berganti aplikasi. Lingkaran abu-abu tetap waktu distraksi.",
+          "Penanda waktu di jejak (08:00, 10:00, 12:00 ... atau Sen-Jum di tampilan mingguan) dan satu baris keterangan di setiap stiker, supaya teman juga paham.",
+          "Baru: panel 'Cara membaca jejakmu' di jendela Jejak Fokus, dan tips saat sebagian besar waktumu dihitung netral: tandai aplikasi teratas sebagai Produktif atau Distraksi dengan sekali klik."
+        ],
+        "zh_TW": [
+          "專注軌跡的每個轉彎現在都有意義：軌跡隨時間順時針轉彎（方向 = 時間），一直用同一個程式時走直線，切換程式時會轉折。灰色圈圈仍代表分心時間。",
+          "軌跡上有時間標記（08:00、10:00、12:00…，週檢視則是週一到週五），每張貼圖也多了一行說明，朋友也看得懂。",
+          "專注軌跡視窗新增「怎麼看你的軌跡」說明；當大部分時間算一般時，會提示你一鍵把常用程式設為高效或分心。"
+        ],
+        "zh_CN": [
+          "专注轨迹的每个转弯现在都有意义：轨迹随时间顺时针转弯（方向 = 时间），一直用同一个程序时走直线，切换程序时会转折。灰色圈圈仍代表分心时间。",
+          "轨迹上有时间标记（08:00、10:00、12:00…，周视图则是周一到周五），每张贴图也多了一行说明，朋友也看得懂。",
+          "专注轨迹窗口新增「怎么看你的轨迹」说明；当大部分时间算一般时，会提示你一键把常用程序设为高效或分心。"
+        ]
+      }
+    },
+    {
+      "version": "2.26.1",
+      "date": "2026-10-31",
+      "title": "Focus Trail follows your focus",
+      "notes": {
+        "en": [
+          "Your Focus Trail is now shaped by how productive your screen time was: productive time draws long, smooth strides in your colour (the distance you cover), neutral time takes shorter wobbly steps in a lighter shade, and distracting time goes in grey circles on the spot.",
+          "A small legend under the trail explains the colours (only the ones that appear that day). In the Neon style, your productive stretches glow.",
+          "Tip: mark your work apps as productive and your time-wasters as distracting - the trail (and your score) get much more telling."
+        ],
+        "id": [
+          "Jejak Fokus kini dibentuk oleh seberapa produktif waktu layarmu: waktu produktif menggambar langkah panjang dan mulus dengan warnamu (jarak yang kamu tempuh), waktu netral melangkah pendek berkelok dengan warna lebih muda, dan waktu distraksi berputar-putar abu-abu di tempat.",
+          "Legenda kecil di bawah jejak menjelaskan warnanya (hanya yang muncul hari itu). Di gaya Neon, bagian produktif bercahaya.",
+          "Tips: tandai aplikasi kerjamu sebagai produktif dan aplikasi pembuang waktu sebagai distraksi - jejak (dan skormu) jadi jauh lebih bermakna."
+        ],
+        "zh_TW": [
+          "專注軌跡現在依螢幕時間的生產力來畫：高效時間用你的顏色畫出又長又順的步伐（就是你前進的距離），一般時間走得比較短、比較彎，顏色較淡，分心時間則是在原地繞灰色的圈圈。",
+          "軌跡下方有小圖例說明顏色（只顯示當天有出現的）。在 Neon 樣式中，高效的路段會發光。",
+          "小提示：把工作用的程式設為高效、浪費時間的設為分心，軌跡（和分數）會更有意義。"
+        ],
+        "zh_CN": [
+          "专注轨迹现在按屏幕时间的生产力来画：高效时间用你的颜色画出又长又顺的步伐（就是你前进的距离），一般时间走得较短、较弯，颜色较淡，分心时间则在原地绕灰色的圈圈。",
+          "轨迹下方有小图例说明颜色（只显示当天出现的）。在 Neon 样式中，高效的路段会发光。",
+          "小提示：把工作用的程序设为高效、浪费时间的设为分心，轨迹（和分数）会更有意义。"
+        ]
+      }
+    },
+    {
+      "version": "2.26.0",
+      "date": "2026-10-31",
+      "title": "Focus Trail",
+      "notes": {
+        "en": [
+          "New Focus Trail: a Strava-style sticker of your work-hours focus - your day or week drawn as a route, with screen time, productive time and pomodoros.",
+          "Open it from the hub: Play -> Games (Focus Trail row) or the Focus Trail button in the Pet Duel arena. Works even with Friends turned off.",
+          "5 styles (Strava, Badge, Minimal, Bars, Neon) and colours. Save the PNG, copy it, or share it to X, LinkedIn, Facebook or Instagram - the sticker is copied so you just paste it."
+        ],
+        "id": [
+          "Baru: Jejak Fokus - stiker ala Strava dari fokus jam kerjamu: hari atau minggumu digambar sebagai rute, lengkap dengan waktu layar, waktu produktif dan pomodoro.",
+          "Buka dari hub: Main -> Game (baris Jejak Fokus) atau tombol Jejak Fokus di arena Duel Pet. Tetap bisa dipakai walau Teman dimatikan.",
+          "5 gaya (Strava, Badge, Minimal, Bars, Neon) dan pilihan warna. Simpan PNG, salin, atau bagikan ke X, LinkedIn, Facebook atau Instagram - stiker sudah tersalin, tinggal tempel."
+        ],
+        "zh_TW": [
+          "新功能「專注軌跡」：Strava 風格的上班專注貼圖，把你的一天或一週畫成路線，附上螢幕時間、高效時間和番茄鐘。",
+          "從中心開啟：遊戲 -> 遊戲（專注軌跡）或寵物對決競技場中的「專注軌跡」按鈕。沒開好友功能也能用。",
+          "5 種樣式（Strava、Badge、Minimal、Bars、Neon）和多種顏色。可儲存 PNG、複製，或分享到 X、LinkedIn、Facebook、Instagram - 貼圖已自動複製，直接貼上即可。"
+        ],
+        "zh_CN": [
+          "新功能「专注轨迹」：Strava 风格的工作专注贴图，把你的一天或一周画成路线，附上屏幕时间、高效时间和番茄钟。",
+          "从中心打开：游戏 -> 游戏（专注轨迹）或宠物对决竞技场中的「专注轨迹」按钮。没开好友功能也能用。",
+          "5 种样式（Strava、Badge、Minimal、Bars、Neon）和多种颜色。可保存 PNG、复制，或分享到 X、LinkedIn、Facebook、Instagram - 贴图已自动复制，直接粘贴即可。"
+        ]
+      }
+    },
+    {
+      "version": "2.25.2",
+      "date": "2026-10-30",
+      "title": "Updates find you",
+      "notes": {
+        "en": [
+          "No need to press \"Check for updates\" anymore - Pips checks by itself every 30 minutes.",
+          "When an update is ready, your pet keeps the update bubble on screen until you choose Update now, Later (hides it for an hour) or Skip this version. If another message pushes it away, it comes back a minute later.",
+          "\"Check for updates automatically\" is now switched on for everyone (you can still turn it off in Settings)."
+        ],
+        "id": [
+          "Tidak perlu lagi menekan \"Cek update\" - Pips memeriksa sendiri setiap 30 menit.",
+          "Saat ada update, pet-mu tetap menampilkan gelembung update sampai kamu memilih Update sekarang, Nanti (disembunyikan satu jam) atau Lewati versi ini. Jika tertutup pesan lain, gelembung muncul lagi semenit kemudian.",
+          "\"Cek update otomatis\" kini aktif untuk semua orang (tetap bisa dimatikan di Pengaturan)."
+        ],
+        "zh_TW": [
+          "不用再按「檢查更新」了 - Pips 每 30 分鐘會自動檢查。",
+          "有新版本時，寵物會一直顯示更新對話泡泡，直到你選擇「立即更新」、「稍後」（隱藏一小時）或「略過此版本」。若被其他訊息蓋掉，一分鐘後會再出現。",
+          "「自動檢查更新」現在預設為所有人開啟（仍可在設定中關閉）。"
+        ],
+        "zh_CN": [
+          "不用再按「检查更新」了 - Pips 每 30 分钟会自动检查。",
+          "有新版本时，宠物会一直显示更新对话气泡，直到你选择「立即更新」、「稍后」（隐藏一小时）或「跳过此版本」。若被其他消息盖掉，一分钟后会再出现。",
+          "「自动检查更新」现在默认为所有人开启（仍可在设置中关闭）。"
+        ]
+      }
+    },
+    {
+      "version": "2.25.1",
+      "date": "2026-10-30",
+      "title": "Quiet hide",
+      "notes": {
+        "en": [
+          "Hiding your pet no longer opens the Pomodoro card - the pet just disappears. Bring it back with the tray icon or the shortcut (Ctrl+Alt+P)."
+        ],
+        "id": [
+          "Menyembunyikan pet tidak lagi membuka kartu Pomodoro - pet langsung menghilang. Panggil kembali lewat ikon tray atau pintasan (Ctrl+Alt+P)."
+        ],
+        "zh_TW": [
+          "隱藏寵物時不再跳出番茄鐘卡片 - 寵物直接消失。可用系統匣圖示或快捷鍵（Ctrl+Alt+P）叫回來。"
+        ],
+        "zh_CN": [
+          "隐藏宠物时不再弹出番茄钟卡片 - 宠物直接消失。可用系统托盘图标或快捷键（Ctrl+Alt+P）叫回来。"
+        ]
+      }
+    },
+    {
+      "version": "2.25.0",
+      "date": "2026-10-30",
+      "title": "Play with friends",
+      "notes": {
+        "en": [
+          "All 5 minigames can now be played with friends: Hub → Play → Minigames → ＋ New game with friends, pick a game and up to 7 friends (8 players in total).",
+          "Everyone gets the same round at the same time (same treats, bugs, cards, pattern and obstacles) after a 3-2-1 countdown, and a live scoreboard shows how your friends are doing. Best score wins the round.",
+          "Friends get the invite from their pet (Join / Later) or in the Minigames page. The host can start the next round or switch game in the same room; round wins are counted with a 👑.",
+          "While you play a minigame your pet leaves the desktop and jumps into the game window - it plays, watches and cheers (or pouts) inside the game, and walks back onto the desktop when you close it.",
+          "Pet Duel is now one of the games inside Minigames - the separate Arena tab is gone (challenges still show as a badge on Play → Minigames)."
+        ],
+        "id": [
+          "Kelima minigame kini bisa dimainkan bersama teman: Hub → Main → Minigame → ＋ Main baru bersama teman, pilih permainan dan hingga 7 teman (total 8 pemain).",
+          "Semua mendapat ronde yang sama di waktu yang sama (camilan, serangga, kartu, pola, dan rintangan yang sama) setelah hitungan 3-2-1, dan papan skor langsung menunjukkan skor teman-temanmu. Skor terbaik memenangkan ronde.",
+          "Teman mendapat undangan dari pet-nya (Gabung / Nanti) atau di halaman Minigame. Tuan rumah bisa memulai ronde berikutnya atau ganti permainan di ruang yang sama; kemenangan ronde dihitung dengan 👑.",
+          "Saat kamu main minigame, pet-mu meninggalkan desktop dan masuk ke jendela permainan - ia bermain, menonton dan bersorak (atau cemberut) di dalam game, lalu kembali ke desktop saat jendela ditutup.",
+          "Duel Pet kini menjadi salah satu permainan di Minigame - tab Arena terpisah sudah dihapus (tantangan tetap muncul sebagai lencana di Main → Minigame)."
+        ],
+        "zh_TW": [
+          "5 個小遊戲現在都能和朋友一起玩：中心 → 遊戲 → 小遊戲 → ＋ 和朋友開新局，選遊戲和最多 7 位朋友（共 8 人）。",
+          "倒數 3-2-1 後大家同時玩同一回合（同樣的零食、蟲子、卡牌、順序和障礙），即時計分板顯示朋友的分數。最高分贏得該回合。",
+          "朋友會由寵物通知邀請（加入／稍後），也能在小遊戲頁面看到。房主可以在同一房間開下一回合或換遊戲；回合勝場以 👑 計算。",
+          "玩小遊戲時，寵物會離開桌面、跳進遊戲視窗 - 在遊戲裡一起玩、觀戰、歡呼（或嘟嘴），關掉視窗後再走回桌面。",
+          "寵物對決現在是小遊戲裡的一個遊戲 - 不再有獨立的競技場分頁（挑戰仍會在 遊戲 → 小遊戲 顯示數字）。"
+        ],
+        "zh_CN": [
+          "5 个小游戏现在都能和朋友一起玩：中心 → 游戏 → 小游戏 → ＋ 和朋友开新局，选游戏和最多 7 位朋友（共 8 人）。",
+          "倒数 3-2-1 后大家同时玩同一回合（同样的零食、虫子、卡牌、顺序和障碍），实时计分板显示朋友的分数。最高分赢得该回合。",
+          "朋友会由宠物通知邀请（加入／稍后），也能在小游戏页面看到。房主可以在同一房间开下一回合或换游戏；回合胜场以 👑 计算。",
+          "玩小游戏时，宠物会离开桌面、跳进游戏窗口 - 在游戏里一起玩、观战、欢呼（或嘟嘴），关掉窗口后再走回桌面。",
+          "宠物对决现在是小游戏里的一个游戏 - 不再有独立的竞技场分页（挑战仍会在 游戏 → 小游戏 显示数字）。"
+        ]
+      }
+    },
+    {
+      "version": "2.24.2",
+      "date": "2026-10-29",
+      "title": "Auto battle",
+      "notes": {
+        "en": [
+          "Arena battles can now play themselves: switch on 🤖 Auto (button in the battle, the A key, or the tick box before a fight) and your pet picks its skills - it finishes off a weak opponent, heals when low and saves Focus for long fights.",
+          "Prefer to play yourself? Leave Auto off and press the skill buttons (or keys 1-3) as before. You can switch any time, even mid-battle.",
+          "Your choice is remembered for the next fight."
+        ],
+        "id": [
+          "Duel arena kini bisa main sendiri: nyalakan 🤖 Otomatis (tombol di pertarungan, tombol A, atau centang sebelum bertarung) dan pet memilih skill sendiri - menghabisi lawan yang lemah, menyembuhkan diri saat HP rendah, dan memakai Fokus di pertarungan panjang.",
+          "Mau main sendiri? Biarkan Otomatis mati dan tekan tombol skill (atau 1-3) seperti biasa. Bisa diganti kapan saja, bahkan di tengah pertarungan.",
+          "Pilihanmu diingat untuk pertarungan berikutnya."
+        ],
+        "zh_TW": [
+          "競技場對戰現在可以自動進行：開啟 🤖 自動（對戰中的按鈕、A 鍵，或開打前勾選），寵物會自己選技能 - 能擊倒就補刀、血少時回復、長期戰先專注。",
+          "想自己玩？保持自動關閉，像以前一樣按技能按鈕（或 1-3）。隨時都能切換，對戰中也可以。",
+          "你的選擇會保留到下一場。"
+        ],
+        "zh_CN": [
+          "竞技场对战现在可以自动进行：开启 🤖 自动（对战中的按钮、A 键，或开打前勾选），宠物会自己选技能 - 能击倒就补刀、血少时回复、持久战先专注。",
+          "想自己玩？保持自动关闭，像以前一样按技能按钮（或 1-3）。随时都能切换，对战中也可以。",
+          "你的选择会保留到下一场。"
+        ]
+      }
+    },
+    {
+      "version": "2.24.1",
+      "date": "2026-10-29",
+      "title": "No more surprise pop-ups",
+      "notes": {
+        "en": [
+          "Clicking your pet now only tickles it - no window pops up. Double-click the pet to open the hub (or use the right-click menu).",
+          "The focus card and the dashboard stay hidden when Pips starts; open them only when you want them.",
+          "Prefer the old way? Right-click → Settings → When I click the pet."
+        ],
+        "id": [
+          "Klik pet sekarang hanya menggelitik - tidak ada jendela yang muncul. Klik dua kali pet untuk membuka hub (atau pakai menu klik kanan).",
+          "Kartu fokus dan dashboard tetap tersembunyi saat Pips dimulai; buka hanya saat kamu mau.",
+          "Suka cara lama? Klik kanan → Pengaturan → Saat peliharaan diklik."
+        ],
+        "zh_TW": [
+          "點擊寵物現在只會搔癢，不會再跳出視窗。雙擊寵物即可開啟中心（或使用右鍵選單）。",
+          "Pips 啟動時專注卡片和儀表板保持隱藏，需要時再開啟。",
+          "想用舊方式？右鍵 → 設定 → 點擊寵物時。"
+        ],
+        "zh_CN": [
+          "点击宠物现在只会挠痒，不会再弹出窗口。双击宠物即可打开中心（或使用右键菜单）。",
+          "Pips 启动时专注卡片和仪表板保持隐藏，需要时再打开。",
+          "想用旧方式？右键 → 设置 → 点击宠物时。"
+        ]
+      }
+    },
+    {
+      "version": "2.24.0",
+      "date": "2026-10-29",
+      "title": "Skill battles, minigames & a simpler Hub",
+      "notes": {
+        "en": [
+          "Arena battles are now turn-based: before a fight compare both pets' stats (level + gear), pick 3 skills, and the challenger chooses best of 1, 3 or 5 rounds. Take turns until one pet is knocked out - new skills unlock as you level up and with weapons and gadgets.",
+          "5 new minigames to play with your pet: Treat Catch, Bonk the Bugs, Memory Match, Pet Says and Hop Hop. Best scores are saved and great scores earn a few coins (right-click → Games, or Hub → Play).",
+          "The Hub is simpler: 5 tabs - Friends, Chat (messages + groups), Play (arena, minigames, ranks), Shop and Me (profile + achievements)."
+        ],
+        "id": [
+          "Duel arena kini bergiliran: sebelum bertarung bandingkan statistik kedua pet (level + gear), pilih 3 skill, dan penantang memilih best of 1, 3 atau 5 ronde. Bergantian sampai salah satu KO - skill baru terbuka saat naik level dan dengan senjata serta gadget.",
+          "5 minigame baru untuk bermain dengan pet: Tangkap Camilan, Pukul Serangga, Cocokkan Kartu, Kata Pet dan Lompat Lompat. Skor terbaik disimpan dan skor hebat dapat beberapa koin (klik kanan → Permainan, atau Hub → Main).",
+          "Hub lebih sederhana: 5 tab - Teman, Chat (pesan + grup), Main (arena, minigame, peringkat), Toko dan Saya (profil + pencapaian)."
+        ],
+        "zh_TW": [
+          "競技場對戰改為回合制：開打前比較雙方能力值（等級＋裝備），選 3 個技能，由挑戰者決定 1、3 或 5 戰制。輪流出招直到一方被擊倒 - 升級和裝備武器、道具會解鎖新技能。",
+          "新增 5 款寵物小遊戲：接點心、打蟲蟲、記憶翻牌、寵物說、跳跳跑。會記錄最佳分數，高分還能拿金幣（右鍵 → 遊戲，或 Hub → 遊戲）。",
+          "Hub 更簡潔：5 個分頁 - 好友、聊天（訊息＋群組）、遊戲（競技場、小遊戲、排行榜）、商店、我（個人檔案＋成就）。"
+        ],
+        "zh_CN": [
+          "竞技场对战改为回合制：开打前比较双方能力值（等级＋装备），选 3 个技能，由挑战者决定 1、3 或 5 局制。轮流出招直到一方被击倒 - 升级和装备武器、道具会解锁新技能。",
+          "新增 5 款宠物小游戏：接点心、打虫虫、记忆翻牌、宠物说、跳跳跑。会记录最佳分数，高分还能拿金币（右键 → 游戏，或 Hub → 游戏）。",
+          "Hub 更简洁：5 个标签 - 好友、聊天（消息＋群组）、游戏（竞技场、小游戏、排行榜）、商店、我（个人资料＋成就）。"
+        ]
+      }
+    },
+    {
+      "version": "2.23.0",
+      "date": "2026-10-29",
+      "title": "Weather on your desktop",
+      "notes": {
+        "en": [
+          "Your pet now shows the live weather right on your desktop: its own little rain cloud with an umbrella when it rains, a dark storm cloud with lightning, snow piling up at its feet, the sun, the moon and twinkling stars at night, drifting fog and leaves blowing in the wind. Prefer more? Switch the animation to the whole screen - or turn it off.",
+          "New right-click menu → Weather & location: Follow my exact location (Windows location; a laptop is followed as you move), Approximate (from your internet connection), or Pick a place - search a city or paste exact coordinates from Google Maps. The pet tells you when the weather changes.",
+          "Works without Pips Friends (weather from Open-Meteo, no account needed). With Friends on, your profile city follows you too - but a city you hid stays hidden. If Windows location is turned off on your PC, Pips explains how to turn it on and uses your internet location meanwhile."
+        ],
+        "id": [
+          "Pet-mu sekarang menampilkan cuaca langsung di desktop: awan hujan kecil miliknya sendiri lengkap dengan payung saat hujan, awan badai gelap dengan petir, salju yang menumpuk di kakinya, matahari, bulan dan bintang berkelip di malam hari, kabut yang melayang dan daun yang tertiup angin. Mau lebih? Pindahkan animasinya ke seluruh layar - atau matikan.",
+          "Menu klik kanan baru → Cuaca & lokasi: Ikuti lokasi persisku (lokasi Windows; laptop diikuti saat kamu berpindah), Perkiraan (dari koneksi internet), atau Pilih tempat - cari kota atau tempel koordinat persis dari Google Maps. Pet memberi tahu saat cuaca berubah.",
+          "Berfungsi tanpa Pips Friends (cuaca dari Open-Meteo, tanpa akun). Jika Friends aktif, kota di profilmu ikut berpindah - tapi kota yang kamu sembunyikan tetap tersembunyi. Jika lokasi Windows dimatikan di PC-mu, Pips menjelaskan cara menyalakannya dan sementara memakai lokasi internet."
+        ],
+        "zh_TW": [
+          "寵物現在會直接在桌面上顯示即時天氣：下雨時頭上有自己的小雨雲並撐起雨傘、雷雨時是帶閃電的烏雲、下雪時雪會堆在腳邊，還有太陽、夜晚的月亮與閃爍星星、飄動的霧和被風吹起的落葉。想要更多？可以把動畫切換成整個螢幕，或是關閉。",
+          "新的右鍵選單 → 天氣與位置：跟隨我的精確位置（Windows 定位，筆電移動時會跟著你）、大概位置（來自網路連線），或選擇地點：搜尋城市或貼上 Google 地圖的精確座標。天氣變化時寵物會告訴你。",
+          "不需要 Pips 好友也能使用（天氣來自 Open-Meteo，不需帳號）。開啟好友時，個人檔案的城市也會跟著你，但你隱藏的城市會保持隱藏。如果電腦關閉了 Windows 定位，Pips 會說明如何開啟，並暫時使用網路位置。"
+        ],
+        "zh_CN": [
+          "宠物现在会直接在桌面上显示实时天气：下雨时头上有自己的小雨云并撑起雨伞、雷雨时是带闪电的乌云、下雪时雪会堆在脚边，还有太阳、夜晚的月亮与闪烁星星、飘动的雾和被风吹起的落叶。想要更多？可以把动画切换成整个屏幕，或者关闭。",
+          "新的右键菜单 → 天气与位置：跟随我的精确位置（Windows 定位，笔记本移动时会跟着你）、大概位置（来自网络连接），或选择地点：搜索城市或粘贴 Google 地图的精确坐标。天气变化时宠物会告诉你。",
+          "不需要 Pips 好友也能使用（天气来自 Open-Meteo，无需账号）。开启好友时，个人资料的城市也会跟着你，但你隐藏的城市会保持隐藏。如果电脑关闭了 Windows 定位，Pips 会说明如何打开，并暂时使用网络位置。"
+        ]
+      }
+    },
+    {
+      "version": "2.22.0",
+      "date": "2026-10-29",
+      "title": "Sing & dance with music",
+      "notes": {
+        "en": [
+          "Sing, Dance, Moonwalk, Breakdance, Yoga, Rain dance and the show tricks now play real music. When your pet sings, it sings the melody in its own voice - a cat meows the tune, a frog ribbits it, a whale hums it - and when it dances, its animal call joins the beat.",
+          "Pick the song: right-click → Do a trick → Song for sing & dance. Choose your animal's own song (every one of the 51 animals has its own tune), the song for its type (Meadow Hoedown for land, Ocean Calypso for water, Cloud Waltz for sky), Happy Pop, Disco Night, 8-bit Adventure, Lullaby, Lo-fi Chill, any other animal's song, Surprise me or No music.",
+          "Songs follow your sound settings (volume, sounds off, quiet during focus) and stop as soon as the trick is interrupted. Tricks your pet does by itself stay quiet."
+        ],
+        "id": [
+          "Nyanyi, Dansa, Moonwalk, Breakdance, Yoga, Tari hujan, dan trik pertunjukan sekarang memutar musik sungguhan. Saat pet bernyanyi, ia menyanyikan melodinya dengan suaranya sendiri - kucing mengeong mengikuti nada, katak berkwak, paus bersenandung - dan saat berdansa, suara khas hewannya ikut mengikuti irama.",
+          "Pilih lagunya: klik kanan → Lakukan trik → Lagu untuk nyanyi & dansa. Pilih lagu khas hewanmu (ke-51 hewan punya lagu sendiri), lagu untuk tipenya (Dansa Padang Rumput untuk darat, Calypso Samudra untuk air, Waltz Awan untuk udara), Pop Ceria, Malam Disko, Petualangan 8-bit, Nina Bobo, Lo-fi Santai, lagu hewan lain, Kejutkan aku, atau Tanpa musik.",
+          "Lagu mengikuti pengaturan suara (volume, suara mati, senyap saat fokus) dan langsung berhenti saat trik terganggu. Trik yang dilakukan pet sendiri tetap tanpa musik."
+        ],
+        "zh_TW": [
+          "唱歌、跳舞、月球漫步、霹靂舞、瑜伽、求雨舞和表演招式現在會播放真正的音樂。寵物唱歌時會用自己的聲音唱出旋律——貓咪喵著唱、青蛙呱著唱、鯨魚哼著唱；跳舞時，牠的叫聲也會跟著節拍加入。",
+          "選擇歌曲：右鍵 → 表演招式 → 唱歌跳舞的歌曲。可以選動物專屬的歌（51 種動物各有自己的曲子）、牠類型的歌（陸地：草原土風舞、水中：海洋卡利普索、天空：雲朵華爾滋）、快樂流行曲、迪斯可之夜、8 位元冒險、搖籃曲、Lo-fi 放鬆、其他動物的歌、給我驚喜或不要音樂。",
+          "歌曲會遵循你的音效設定（音量、關閉音效、專注時安靜），招式一被打斷就會停止。寵物自己表演的招式維持安靜。"
+        ],
+        "zh_CN": [
+          "唱歌、跳舞、月球漫步、霹雳舞、瑜伽、求雨舞和表演招式现在会播放真正的音乐。宠物唱歌时会用自己的声音唱出旋律——猫咪喵着唱、青蛙呱着唱、鲸鱼哼着唱；跳舞时，它的叫声也会跟着节拍加入。",
+          "选择歌曲：右键 → 表演招式 → 唱歌跳舞的歌曲。可以选动物专属的歌（51 种动物各有自己的曲子）、它类型的歌（陆地：草原土风舞、水中：海洋卡利普索、天空：云朵华尔兹）、快乐流行曲、迪斯科之夜、8 位冒险、摇篮曲、Lo-fi 放松、其他动物的歌、给我惊喜或不要音乐。",
+          "歌曲会遵循你的音效设置（音量、关闭音效、专注时安静），招式一被打断就会停止。宠物自己表演的招式保持安静。"
+        ]
+      }
+    },
+    {
+      "version": "2.21.0",
+      "date": "2026-10-29",
+      "title": "Every animal has a voice",
+      "notes": {
+        "en": [
+          "All 51 animals now have their own sound. Before, more than half of them borrowed the cat's meow - now the dog woofs, the cow moos, the sheep baas, the lion roars, the duck quacks, the dolphin clicks and whistles, the dragon flaps and roars with a puff of fire, the ghost goes wooo... and so on.",
+          "Every mood sounds different too: happy, sad, sleepy, hungry or grumpy. Petting, eating and snoring sound right for each kind of animal - furry ones purr and crunch, birds trill and peck, sea animals blow bubbles, bugs hum and magic pets chime.",
+          "A friend's pet that comes to visit now talks in its own voice: it says hi when it arrives and answers when you wave, pet it or give it a snack (it follows your sound settings)."
+        ],
+        "id": [
+          "Ke-51 hewan sekarang punya suaranya sendiri. Sebelumnya lebih dari separuhnya meminjam suara meong kucing - sekarang anjing menggonggong, sapi melenguh, domba mengembik, singa mengaum, bebek berkwek, lumba-lumba berdecit dan bersiul, naga mengepakkan sayap dan mengaum dengan semburan api, hantu bersuara huuu... dan seterusnya.",
+          "Setiap suasana hati juga terdengar berbeda: senang, sedih, mengantuk, lapar, atau kesal. Suara dielus, makan, dan mendengkur cocok dengan jenis hewannya - hewan berbulu mendengkur dan mengunyah, burung berkicau dan mematuk, hewan laut membuat gelembung, serangga berdengung, dan pet ajaib berdenting.",
+          "Pet teman yang datang berkunjung sekarang bicara dengan suaranya sendiri: ia menyapa saat tiba dan membalas saat kamu melambai, mengelus, atau memberinya camilan (mengikuti pengaturan suaramu)."
+        ],
+        "zh_TW": [
+          "全部 51 種動物現在都有自己的聲音。以前一半以上的動物都借用貓咪的喵喵叫——現在狗會汪汪、牛會哞哞、羊會咩咩、獅子會吼、鴨子會呱呱、海豚會滴答吹口哨、龍會拍翅膀噴火怒吼、幽靈會嗚嗚……等等。",
+          "每種心情聽起來也不一樣：開心、難過、想睡、肚子餓或生氣。摸摸、吃東西和打呼的聲音也符合每種動物——毛茸茸的會呼嚕和咀嚼、鳥會啾啾和啄食、海洋動物會吐泡泡、昆蟲會嗡嗡、魔法寵物會叮叮響。",
+          "來拜訪的朋友寵物現在會用自己的聲音說話：抵達時會打招呼，你揮手、摸摸或餵點心時也會回應（依照你的音效設定）。"
+        ],
+        "zh_CN": [
+          "全部 51 种动物现在都有自己的声音。以前一半以上的动物都借用猫咪的喵喵叫——现在狗会汪汪、牛会哞哞、羊会咩咩、狮子会吼、鸭子会嘎嘎、海豚会嘀嗒吹口哨、龙会拍翅膀喷火怒吼、幽灵会呜呜……等等。",
+          "每种心情听起来也不一样：开心、难过、想睡、肚子饿或生气。摸摸、吃东西和打呼的声音也符合每种动物——毛茸茸的会呼噜和咀嚼、鸟会啾啾和啄食、海洋动物会吐泡泡、昆虫会嗡嗡、魔法宠物会叮叮响。",
+          "来拜访的朋友宠物现在会用自己的声音说话：抵达时会打招呼，你挥手、摸摸或喂点心时也会回应（按照你的音效设置）。"
+        ]
+      }
+    },
+    {
+      "version": "2.20.0",
+      "date": "2026-10-29",
+      "title": "Come over",
+      "notes": {
+        "en": [
+          "When a friend's pet comes over it now wears a name tag: your friend's name (or the nickname you gave them), ♂/♀ and an online dot. It walks up to your pet, says hi, and looks at your mouse when you point at it.",
+          "Point at the visitor (or click its name tag) to open its card: whose pet it is, level, how close you two are, and buttons to wave, pet it, give it a snack, visit back or chat. It reacts to everything - hearts, crumbs, happy faces - and your friend sees it too.",
+          "Rub your mouse over the visitor to pet it. Playing with it makes it stay longer, and your pet comes down from a window or the sky to meet it."
+        ],
+        "id": [
+          "Saat peliharaan teman datang berkunjung, sekarang ia memakai papan nama: nama temanmu (atau julukan yang kamu berikan), ♂/♀ dan titik status online. Ia berjalan mendekati pet-mu, menyapa, dan melihat ke arah mouse saat kamu mengarahkannya.",
+          "Arahkan mouse ke pengunjung (atau klik papan namanya) untuk membuka kartunya: pet milik siapa, level, seberapa dekat kalian, dan tombol untuk menyapa, mengelus, memberi camilan, balas berkunjung, atau chat. Ia bereaksi pada semuanya - hati, remah, wajah senang - dan temanmu juga melihatnya.",
+          "Gosok-gosokkan mouse di atas pengunjung untuk mengelusnya. Makin sering diajak main, makin lama ia tinggal, dan pet-mu turun dari jendela atau langit untuk menyambutnya."
+        ],
+        "zh_TW": [
+          "朋友的寵物來拜訪時，現在會戴著名牌：朋友的名字（或你取的暱稱）、♂/♀ 和在線狀態點。牠會走到你的寵物旁邊打招呼，你指著牠時牠會看著你的滑鼠。",
+          "指著來訪的寵物（或點牠的名牌）就會打開牠的小卡片：是誰的寵物、等級、你們有多親近，還有揮手、摸摸、餵點心、回訪和聊天按鈕。牠對每個動作都有反應——愛心、餅乾屑、開心的表情——你的朋友也會收到。",
+          "用滑鼠在牠身上來回摸摸就能摸牠。陪牠玩，牠就會待久一點；你的寵物也會從視窗或天上下來迎接牠。"
+        ],
+        "zh_CN": [
+          "朋友的宠物来拜访时，现在会戴着名牌：朋友的名字（或你取的昵称）、♂/♀ 和在线状态点。它会走到你的宠物旁边打招呼，你指着它时它会看着你的鼠标。",
+          "指着来访的宠物（或点它的名牌）就会打开它的小卡片：是谁的宠物、等级、你们有多亲近，还有挥手、摸摸、喂点心、回访和聊天按钮。它对每个动作都有反应——爱心、饼干屑、开心的表情——你的朋友也会收到。",
+          "用鼠标在它身上来回摸摸就能摸它。陪它玩，它就会待久一点；你的宠物也会从窗口或天上下来迎接它。"
+        ]
+      }
+    },
+    {
+      "version": "2.19.0",
+      "date": "2026-10-29",
+      "title": "Land, sea & sky",
+      "notes": {
+        "en": [
+          "Land animals walk on the taskbar and on top of your open windows now: they jump up onto window edges, walk along them, ride along when you move the window and hop down when it closes, gets covered or is maximised. They always have gravity - let go of one in mid-air and it lands on the window below or on the taskbar.",
+          "Water animals swim along the taskbar (their water) and every now and then leap high out of it in a big arc, diving back in with a splash, ripples and spray. Drop one anywhere and it dives back into the water.",
+          "Flying animals fly anywhere on the screen: they flutter from place to place, hover, come say hi near your mouse, and sometimes perch on the taskbar or a window edge for a rest. Point at one and it waits for you; they glide down to a perch before a nap.",
+          "New menu moves: Jump onto a window, Splash jump!, Fly around / Rest on the taskbar. \"Move around by myself\" in Pet settings keeps your pet still if you prefer (the old Gravity option is gone - land animals always fall now)."
+        ],
+        "id": [
+          "Hewan darat sekarang berjalan di taskbar dan di atas jendela yang terbuka: mereka melompat ke tepi jendela, berjalan di atasnya, ikut bergerak saat jendela dipindahkan, dan turun saat jendela ditutup, tertutup, atau dimaksimalkan. Mereka selalu punya gravitasi - lepaskan di udara dan ia mendarat di jendela di bawahnya atau di taskbar.",
+          "Hewan air berenang di taskbar (airnya) dan sesekali melompat tinggi membentuk lengkungan besar, lalu menyelam kembali dengan cipratan, riak, dan percikan. Lepaskan di mana saja dan ia menyelam kembali ke air.",
+          "Hewan terbang bisa terbang ke mana saja di layar: berpindah-pindah, melayang, menyapa di dekat mouse-mu, dan kadang hinggap di taskbar atau tepi jendela untuk istirahat. Arahkan mouse ke atasnya dan ia menunggu; sebelum tidur ia turun ke tempat hinggap.",
+          "Gerakan baru di menu: Lompat ke atas jendela, Lompat cipratan!, Terbang berkeliling / Istirahat di taskbar. \"Bergerak sendiri\" di Pengaturan pet membuat pet diam jika kamu mau (opsi Gravitasi lama dihapus - hewan darat sekarang selalu jatuh)."
+        ],
+        "zh_TW": [
+          "陸地動物現在會在工作列和打開的視窗上面走：牠們會跳上視窗邊緣、沿著走、你移動視窗時跟著移動，視窗關閉、被蓋住或最大化時就跳下來。牠們一直都有重力——在半空中放開，就會落在下面的視窗或工作列上。",
+          "水中動物在工作列（牠們的水）上游泳，不時高高躍出水面劃出大弧線，再濺起水花、漣漪和水滴潛回去。放在任何地方，牠都會潛回水裡。",
+          "會飛的動物可以在整個螢幕上飛：從這裡飛到那裡、懸停、到你的滑鼠旁邊打招呼，有時停在工作列或視窗邊緣休息。滑鼠指著牠時牠會等你；睡覺前會先滑翔到停靠點。",
+          "選單新動作：跳到視窗上、跳出水面！、到處飛／停在工作列上休息。寵物設定裡的「自己到處跑」可以讓寵物不動（舊的重力選項已移除——陸地動物現在一定會掉下來）。"
+        ],
+        "zh_CN": [
+          "陆地动物现在会在任务栏和打开的窗口上面走：它们会跳上窗口边缘、沿着走、你移动窗口时跟着移动，窗口关闭、被盖住或最大化时就跳下来。它们一直都有重力——在半空中松开，就会落在下面的窗口或任务栏上。",
+          "水中动物在任务栏（它们的水）上游泳，不时高高跃出水面划出大弧线，再溅起水花、涟漪和水滴潜回去。放在任何地方，它都会潜回水里。",
+          "会飞的动物可以在整个屏幕上飞：从这里飞到那里、悬停、到你的鼠标旁边打招呼，有时停在任务栏或窗口边缘休息。鼠标指着它时它会等你；睡觉前会先滑翔到停靠点。",
+          "菜单新动作：跳到窗口上、跳出水面！、到处飞／停在任务栏上休息。宠物设置里的「自己到处跑」可以让宠物不动（旧的重力选项已移除——陆地动物现在一定会掉下来）。"
+        ]
+      }
+    },
+    {
+      "version": "2.18.0",
+      "date": "2026-10-29",
+      "title": "Raise your pet",
+      "notes": {
+        "en": [
+          "Boy or girl? Pick your pet's gender in Settings: boys get a little hair tuft, girls a pink bow and eyelashes, and a ♂ / ♀ shows next to its name. You can add your own gender to your profile too - friends see a small ♂ / ♀ next to your name.",
+          "Pets grow up now: baby → child → teen → grown-up. Focus sessions, opening Pips each day, games and cuddles help them grow - no care mistakes, no bad endings. Already have a grown-up pet? It will ask whether you'd like to raise it again from a baby (coins, items and stats stay).",
+          "Sick days: work 2.5 hours without a 5-minute break and your pet catches a little cold (sneezes, thermometer, slow steps). A short break cures it - or give medicine from the menu. You can turn this off in Settings.",
+          "New mini-game Left or Right? (pet menu → Play): guess which way your pet will look - 3 out of 5 wins, with coins for your first wins each day."
+        ],
+        "id": [
+          "Jantan atau betina? Pilih jenis kelamin pet di Pengaturan: jantan punya jambul rambut kecil, betina pita pink dan bulu mata, dan ♂ / ♀ muncul di samping namanya. Kamu juga bisa menambahkan jenis kelaminmu di profil - teman melihat ♂ / ♀ kecil di samping namamu.",
+          "Pet kini bisa tumbuh: bayi → anak → remaja → dewasa. Sesi fokus, membuka Pips setiap hari, permainan, dan pelukan membantunya tumbuh - tanpa kesalahan perawatan, tanpa akhir yang buruk. Pet-mu sudah dewasa? Ia akan bertanya apakah kamu mau membesarkannya lagi dari bayi (koin, item, dan statistik tetap).",
+          "Hari sakit: bekerja 2,5 jam tanpa istirahat 5 menit dan pet-mu masuk angin (bersin, termometer, langkah pelan). Istirahat sebentar menyembuhkannya - atau beri obat dari menu. Bisa dimatikan di Pengaturan.",
+          "Mini-game baru Kiri atau Kanan? (menu pet → Main): tebak ke mana pet-mu akan menoleh - 3 dari 5 menang, dengan koin untuk kemenangan pertama setiap hari."
+        ],
+        "zh_TW": [
+          "男生還是女生？在設定裡選擇寵物性別：男生有一小撮翹毛，女生有粉紅蝴蝶結和睫毛，名字旁也會顯示 ♂ / ♀。你也可以在個人資料加上自己的性別，好友會在你的名字旁看到小小的 ♂ / ♀。",
+          "寵物現在會長大了：寶寶 → 小朋友 → 青少年 → 大人。專注、每天打開 Pips、玩遊戲和抱抱都能幫助成長，不會照顧失誤，也沒有壞結局。已經是大人的寵物會問你要不要從寶寶重新養一次（金幣、物品和統計都保留）。",
+          "生病日：連續工作 2.5 小時沒休息 5 分鐘，寵物就會小感冒（打噴嚏、含體溫計、走得慢）。休息一下就會好，或從選單餵藥。可以在設定裡關閉。",
+          "新小遊戲「左還是右？」（寵物選單 → 玩耍）：猜寵物會看哪邊，5 回合猜中 3 次就贏，每天前幾次獲勝還有金幣。"
+        ],
+        "zh_CN": [
+          "男生还是女生？在设置里选择宠物性别：男生有一小撮翘毛，女生有粉色蝴蝶结和睫毛，名字旁也会显示 ♂ / ♀。你也可以在个人资料加上自己的性别，好友会在你的名字旁看到小小的 ♂ / ♀。",
+          "宠物现在会长大了：宝宝 → 小朋友 → 青少年 → 大人。专注、每天打开 Pips、玩游戏和抱抱都能帮助成长，不会照顾失误，也没有坏结局。已经是大人的宠物会问你要不要从宝宝重新养一次（金币、物品和统计都保留）。",
+          "生病日：连续工作 2.5 小时没休息 5 分钟，宠物就会小感冒（打喷嚏、含体温计、走得慢）。休息一下就会好，或从菜单喂药。可以在设置里关闭。",
+          "新小游戏“左还是右？”（宠物菜单 → 玩耍）：猜宠物会看哪边，5 回合猜中 3 次就赢，每天前几次获胜还有金币。"
+        ]
+      }
+    },
+    {
+      "version": "2.17.0",
+      "date": "2026-10-29",
+      "title": "Find your pet anytime",
+      "notes": {
+        "en": [
+          "Pips now has an icon next to the clock: click it to bring your pet back; right-click for the focus timer, Friends & chat or Quit.",
+          "Press Ctrl+Alt+P anywhere to call your pet - it pops up on the screen you're using, even if it was hidden, asleep or behind a fullscreen app.",
+          "Opening Pips again from the Start menu or desktop does the same, and your pet walks back by itself if it ever ends up off-screen (e.g. after unplugging a monitor).",
+          "Hiding your pet now tells you how to bring it back."
+        ],
+        "id": [
+          "Pips kini punya ikon di dekat jam: klik untuk memanggil pet kembali; klik kanan untuk timer fokus, Teman & chat, atau Keluar.",
+          "Tekan Ctrl+Alt+P di mana saja untuk memanggil pet - ia muncul di layar yang sedang kamu pakai, bahkan saat tersembunyi, tidur, atau tertutup aplikasi layar penuh.",
+          "Membuka Pips lagi dari menu Start atau desktop juga memanggilnya, dan pet akan kembali sendiri jika sampai keluar layar (misalnya setelah monitor dicabut).",
+          "Saat menyembunyikan pet, Pips kini memberi tahu cara memanggilnya kembali."
+        ],
+        "zh_TW": [
+          "時鐘旁現在有 Pips 圖示：點一下叫寵物回來；按右鍵可開專注計時器、好友與聊天或結束。",
+          "在任何地方按 Ctrl+Alt+P 就能叫寵物出來，它會出現在你正在用的螢幕上，即使原本隱藏、睡著或被全螢幕程式擋住。",
+          "從開始選單或桌面再次開啟 Pips 也一樣；寵物若跑出螢幕（例如拔掉外接螢幕後）會自己走回來。",
+          "隱藏寵物時，Pips 會告訴你怎麼叫它回來。"
+        ],
+        "zh_CN": [
+          "时钟旁现在有 Pips 图标：点一下叫宠物回来；右键可打开专注计时器、好友与聊天或退出。",
+          "在任何地方按 Ctrl+Alt+P 就能叫宠物出来，它会出现在你正在用的屏幕上，即使原本隐藏、睡着或被全屏程序挡住。",
+          "从开始菜单或桌面再次打开 Pips 也一样；宠物若跑出屏幕（例如拔掉外接显示器后）会自己走回来。",
+          "隐藏宠物时，Pips 会告诉你怎么叫它回来。"
+        ]
+      }
+    },
+    {
+      "version": "2.16.0",
+      "date": "2026-10-29",
+      "title": "Pips Community",
+      "notes": {
+        "en": [
+          "New Pips Community at the top of the Chat tab: a #general channel to chat with everyone who uses Pips, plus #announcements with news from the Pips team.",
+          "Every new Pips version is announced there automatically - see what's new and update with one click.",
+          "Type @name to ping someone in #general. Mute #general any time; owner and moderators can remove messages.",
+          "Open it from your pet's menu too (Pips Community). Fixed: chats no longer clear what you're typing when Pips refreshes in the background."
+        ],
+        "id": [
+          "Komunitas Pips baru di bagian atas tab Chat: kanal #umum untuk ngobrol dengan semua pengguna Pips, plus #pengumuman berisi kabar dari tim Pips.",
+          "Setiap versi Pips baru diumumkan di sana secara otomatis - lihat yang baru dan update dengan sekali klik.",
+          "Ketik @nama untuk memanggil seseorang di #umum. Bisukan #umum kapan saja; pemilik dan moderator bisa menghapus pesan.",
+          "Bisa juga dibuka dari menu pet (Komunitas Pips). Diperbaiki: chat tidak lagi menghapus ketikanmu saat Pips memperbarui di latar belakang."
+        ],
+        "zh_TW": [
+          "全新 Pips 社群就在聊天分頁最上方：#大廳 可以和所有 Pips 使用者聊天，#公告 有 Pips 團隊的最新消息。",
+          "每個 Pips 新版本都會自動在那裡公告，看看有什麼新功能，一鍵就能更新。",
+          "在 #大廳 輸入 @名字 可以提及某人。隨時可以把 #大廳 靜音；擁有者和管理員可以刪除訊息。",
+          "也可以從寵物選單開啟（Pips 社群）。修正：Pips 在背景更新時，聊天不會再清掉你正在輸入的文字。"
+        ],
+        "zh_CN": [
+          "全新 Pips 社区就在聊天标签最上方：#大厅 可以和所有 Pips 用户聊天，#公告 有 Pips 团队的最新消息。",
+          "每个 Pips 新版本都会自动在那里公告，看看有什么新功能，一键就能更新。",
+          "在 #大厅 输入 @名字 可以提及某人。随时可以把 #大厅 静音；所有者和管理员可以删除消息。",
+          "也可以从宠物菜单打开（Pips 社区）。修复：Pips 在后台刷新时，聊天不会再清掉你正在输入的文字。"
+        ]
+      }
+    },
+    {
+      "version": "2.15.0",
+      "date": "2026-10-29",
+      "title": "Update reminders",
+      "notes": {
+        "en": [
+          "Owner & moderators: the Mod tab now lists who hasn't updated Pips yet (their version and when they were last seen), with one-click reminders by e-mail (sent from your Outlook) or a ready-to-send Teams chat.",
+          "New Work e-mail field in your Profile, filled in from Outlook. Only the owner and moderators can see it (for update reminders and support) - clear it to hide it.",
+          "Pips now tells the Friends server which version it runs, so the update list is always accurate.",
+          "Friends keeps working when a local proxy tool stops answering - Pips falls back to the Windows proxy settings."
+        ],
+        "id": [
+          "Pemilik & moderator: tab Mod kini menampilkan siapa yang belum update Pips (versinya dan kapan terakhir terlihat), dengan pengingat sekali klik lewat email (dikirim dari Outlook-mu) atau chat Teams yang siap kirim.",
+          "Kolom baru Email kerja di Profil, diisi otomatis dari Outlook. Hanya pemilik dan moderator yang bisa melihatnya (untuk pengingat update dan bantuan) - kosongkan untuk menyembunyikan.",
+          "Pips kini memberi tahu server Teman versi yang dipakai, jadi daftar update selalu akurat.",
+          "Fitur Teman tetap jalan saat alat proxy lokal tidak merespons - Pips beralih ke pengaturan proxy Windows."
+        ],
+        "zh_TW": [
+          "擁有者與管理員：Mod 分頁現在會列出還沒更新 Pips 的人（版本與最後上線時間），可一鍵用 e-mail（從你的 Outlook 寄出）或備好訊息的 Teams 聊天提醒。",
+          "個人檔案新增「工作 e-mail」欄位，自動從 Outlook 帶入。只有擁有者和管理員看得到（用於更新提醒與支援），清空即可隱藏。",
+          "Pips 現在會告訴好友伺服器目前的版本，更新名單永遠準確。",
+          "本機代理工具沒有回應時，好友功能仍可使用：Pips 會改用 Windows 的代理設定。"
+        ],
+        "zh_CN": [
+          "所有者与管理员：Mod 标签页现在会列出还没更新 Pips 的人（版本和最后上线时间），可一键用邮件（从你的 Outlook 发送）或备好消息的 Teams 聊天提醒。",
+          "个人资料新增“工作邮箱”栏位，自动从 Outlook 填入。只有所有者和管理员看得到（用于更新提醒和支持），清空即可隐藏。",
+          "Pips 现在会告诉好友服务器当前版本，更新名单始终准确。",
+          "本地代理工具没有响应时，好友功能仍可使用：Pips 会改用 Windows 的代理设置。"
+        ]
+      }
+    },
+    {
+      "version": "2.14.3",
+      "date": "2026-10-29",
+      "title": "Tidy menus",
+      "notes": {
+        "en": [
+          "Fixed: a submenu (e.g. Poke a friend) could stay floating on the screen after the right-click menu closed.",
+          "Menus now close by themselves when you move the mouse away and leave them for a few seconds."
+        ],
+        "id": [
+          "Diperbaiki: submenu (mis. Colek teman) bisa tertinggal melayang di layar setelah menu klik kanan ditutup.",
+          "Menu kini menutup sendiri jika mouse dijauhkan dan dibiarkan beberapa detik."
+        ],
+        "zh_TW": [
+          "修正：右鍵選單關閉後，子選單（例如「戳戳好友」）可能會一直浮在螢幕上。",
+          "滑鼠移開幾秒後，選單現在會自動關閉。"
+        ],
+        "zh_CN": [
+          "修复：右键菜单关闭后，子菜单（例如“戳戳好友”）可能会一直浮在屏幕上。",
+          "鼠标移开几秒后，菜单现在会自动关闭。"
+        ]
+      }
+    },
+    {
+      "version": "2.14.2",
+      "date": "2026-10-29",
+      "title": "Never miss an update",
+      "notes": {
+        "en": [
+          "Your pet now reminds you every 2 hours while a new version is waiting (instead of every 6 hours).",
+          "If the reminder can't show (fullscreen app, guided tour, another message), your pet tries again a few minutes later.",
+          "No internet when Pips starts (e.g. VPN off)? It checks again after an hour."
+        ],
+        "id": [
+          "Pet-mu kini mengingatkan setiap 2 jam selama ada versi baru (bukan lagi setiap 6 jam).",
+          "Jika pengingat tidak bisa tampil (aplikasi layar penuh, panduan, pesan lain), pet-mu mencoba lagi beberapa menit kemudian.",
+          "Tidak ada internet saat Pips mulai (mis. VPN mati)? Pips memeriksa lagi setelah satu jam."
+        ],
+        "zh_TW": [
+          "有新版本時，寵物現在每 2 小時提醒一次（原本是每 6 小時）。",
+          "如果提醒無法顯示（全螢幕程式、導覽或其他訊息），寵物會在幾分鐘後再試一次。",
+          "Pips 啟動時沒有網路（例如 VPN 未連線）？一小時後會再檢查。"
+        ],
+        "zh_CN": [
+          "有新版本时，宠物现在每 2 小时提醒一次（原来是每 6 小时）。",
+          "如果提醒无法显示（全屏程序、引导或其他消息），宠物会在几分钟后再试一次。",
+          "Pips 启动时没有网络（例如 VPN 未连接）？一小时后会再检查。"
+        ]
+      }
+    },
+    {
+      "version": "2.14.1",
+      "date": "2026-10-29",
+      "title": "One pet at a time",
+      "notes": {
+        "en": [
+          "Opening Pips again (Desktop / Start Menu shortcut, autostart) no longer starts a second pet - your pet just pops up and says hi.",
+          "Fixes lag caused by two copies of Pips running at once."
+        ],
+        "id": [
+          "Membuka Pips lagi (pintasan Desktop / Start Menu, autostart) tidak lagi memunculkan pet kedua - pet-mu cukup muncul dan menyapa.",
+          "Memperbaiki lag karena dua salinan Pips berjalan bersamaan."
+        ],
+        "zh_TW": [
+          "再次開啟 Pips（桌面 / 開始功能表捷徑、開機自動啟動）不會再多出第二隻寵物——你的寵物會直接跳出來打招呼。",
+          "修正同時執行兩個 Pips 造成的卡頓。"
+        ],
+        "zh_CN": [
+          "再次打开 Pips（桌面 / 开始菜单快捷方式、开机自启）不会再多出第二只宠物——你的宠物会直接跳出来打招呼。",
+          "修复同时运行两个 Pips 导致的卡顿。"
+        ]
+      }
+    },
+    {
+      "version": "2.14.0",
+      "date": "2026-10-29",
+      "title": "Pokes, tickles & teases",
+      "notes": {
+        "en": [
+          "Poke, tickle, tease, boop or hug a friend from afar - no pet visit needed.",
+          "Right-click your pet → Poke a friend, or use the Poke button in Friends, chat and profiles.",
+          "Your friend gets a pop-up (\"Wendy is teasing you!\"), their pet reacts, and they can poke back with one click.",
+          "During a focus session pokes wait quietly until your break; when your pet is hidden they show in the screen corner.",
+          "Don't want it? Profile → untick \"Let friends poke, tickle & tease me\"."
+        ],
+        "id": [
+          "Colek, gelitik, goda, toel hidung atau peluk teman dari jauh - tanpa perlu pet berkunjung.",
+          "Klik kanan pet → Colek teman, atau pakai tombol Colek di Teman, chat dan profil.",
+          "Temanmu mendapat notifikasi (\"Wendy lagi godain kamu!\"), pet-nya bereaksi, dan bisa colek balik dengan satu klik.",
+          "Saat sesi fokus, colekan menunggu sampai istirahat; jika pet disembunyikan, muncul di pojok layar.",
+          "Tidak mau? Profil → hapus centang \"Izinkan teman mencolek, menggelitik & menggoda saya\"."
+        ],
+        "zh_TW": [
+          "遠端戳一下、搔癢、捉弄、點鼻子或抱抱好友——寵物不用親自跑過去。",
+          "右鍵點寵物 → 戳戳好友，或使用好友、聊天和個人檔案裡的「戳一下」按鈕。",
+          "好友會收到通知（「Wendy 在捉弄你！」），寵物會有反應，一鍵就能戳回去。",
+          "專注時段中的戳戳會等到休息時再顯示；寵物隱藏時會顯示在螢幕角落。",
+          "不想被戳？個人檔案 → 取消勾選「允許好友戳我、搔癢和捉弄我」。"
+        ],
+        "zh_CN": [
+          "远程戳一下、挠痒痒、捉弄、点鼻子或抱抱好友——宠物不用亲自跑过去。",
+          "右键点宠物 → 戳戳好友，或使用好友、聊天和个人资料里的“戳一下”按钮。",
+          "好友会收到通知（“Wendy 在捉弄你！”），宠物会有反应，一键就能戳回去。",
+          "专注时段中的戳戳会等到休息时再显示；宠物隐藏时会显示在屏幕角落。",
+          "不想被戳？个人资料 → 取消勾选“允许好友戳我、挠痒和捉弄我”。"
+        ]
+      }
+    },
+    {
+      "version": "2.13.1",
+      "date": "2026-10-28",
+      "title": "One-click Windows installer",
+      "notes": {
+        "en": [
+          "One Windows installer: no ZIP extraction, Python installation or command line. Download, open and click Install Pips.",
+          "Installs for your Windows account without administrator access, adds Desktop and Start Menu shortcuts, and opens Pips automatically.",
+          "Reinstalling in the same location keeps your settings and pet progress. Existing ZIP users can keep updating in place from Help → Check for updates.",
+          "A simpler download page and updated user guide; the bundled runtime stays separate from small in-app updates."
+        ],
+        "id": [
+          "Satu installer Windows: tanpa ekstrak ZIP, instal Python, atau terminal. Unduh, buka, lalu klik Install Pips.",
+          "Dipasang untuk akun Windows Anda tanpa akses administrator, membuat pintasan Desktop dan Start Menu, lalu membuka Pips otomatis.",
+          "Instal ulang di lokasi yang sama tetap menyimpan pengaturan dan progres pet. Pengguna ZIP tetap dapat memperbarui lewat Bantuan → Periksa pembaruan.",
+          "Halaman unduhan dan panduan kini lebih sederhana; runtime bawaan terpisah dari pembaruan kecil dalam aplikasi."
+        ],
+        "zh_TW": [
+          "單一 Windows 安裝程式：不用解壓 ZIP、不用另裝 Python，也不用終端機。下載、開啟，再按安裝即可。",
+          "安裝至目前的 Windows 帳戶，不需系統管理員權限；建立桌面和開始功能表捷徑，並自動開啟 Pips。",
+          "在相同位置重新安裝會保留設定和寵物進度。既有 ZIP 使用者仍可透過「說明 → 檢查更新」原地更新。",
+          "簡化下載頁面並更新使用指南；內建執行環境與輕量的應用程式更新分開管理。"
+        ],
+        "zh_CN": [
+          "单一 Windows 安装程序：不用解压 ZIP、不用另装 Python，也不用终端。下载、打开，再点击安装即可。",
+          "安装到当前 Windows 账户，无需管理员权限；创建桌面和开始菜单快捷方式，并自动打开 Pips。",
+          "在同一位置重新安装会保留设置和宠物进度。现有 ZIP 用户仍可通过“帮助 → 检查更新”就地更新。",
+          "简化下载页面并更新用户指南；内置运行环境与轻量的应用内更新分开管理。"
+        ]
+      }
+    },
+    {
+      "version": "2.13.0",
+      "date": "2026-10-28",
+      "title": "Birthdays, parties & gifts",
+      "notes": {
+        "en": [
+          "Set your birthday in Social → Profile (month + day, optionally visible to friends).",
+          "On your birthday Pips throws confetti and gives you 100 bonus coins.",
+          "Friends tab shows upcoming birthdays; you get reminders 3 days, 1 day and on the day.",
+          "Birthday parties: join a friend's party, see who's there, sign the guestbook and celebrate together.",
+          "Send gifts: any shop item (previewed on their pet), coins, or both, with a message — paid from your own coins."
+        ],
+        "id": [
+          "Atur ulang tahunmu di Sosial → Profil (bulan + tanggal, bisa ditampilkan ke teman).",
+          "Di hari ulang tahunmu Pips menebar konfeti dan memberi 100 koin bonus.",
+          "Tab Teman menampilkan ulang tahun terdekat; pengingat 3 hari, 1 hari, dan di hari-H.",
+          "Pesta ulang tahun: datang ke pesta teman, lihat siapa yang hadir, tulis di buku tamu dan rayakan bersama.",
+          "Kirim hadiah: item toko (pratinjau di pet mereka), koin, atau keduanya, dengan pesan — dibayar dari koinmu."
+        ],
+        "zh_TW": [
+          "在 社交 → 個人檔案 設定生日（月 + 日，可選擇讓好友看到）。",
+          "生日當天 Pips 會灑彩帶並送你 100 枚獎勵金幣。",
+          "好友分頁顯示即將到來的生日；前 3 天、前 1 天與當天都會提醒。",
+          "生日派對：參加好友的派對、看看誰在場、在留言簿寫祝福並一起慶祝。",
+          "送禮：任何商店物品（可在對方寵物上預覽）、金幣或兩者皆送，並附上留言——由你自己的金幣支付。"
+        ],
+        "zh_CN": [
+          "在 社交 → 个人资料 设置生日（月 + 日，可选择让好友看到）。",
+          "生日当天 Pips 会撒彩带并送你 100 枚奖励金币。",
+          "好友页显示即将到来的生日；提前 3 天、1 天和当天都会提醒。",
+          "生日派对：参加好友的派对、看看谁在场、在留言簿写祝福并一起庆祝。",
+          "送礼：任何商店物品（可在对方宠物上预览）、金币或两者都送，并附上留言——由你自己的金币支付。"
+        ]
+      }
+    },
+    {
+      "version": "2.12.0",
+      "date": "2026-10-28",
+      "title": "Mega update: 28 new animals, 31 shop items, 13 moves",
+      "notes": {
+        "en": [
+          "🦁 28 new animals (51 total): lion, tiger, unicorn, deer, sheep, cow, raccoon, red panda, monkey, hedgehog, dino, squirrel, mouse, koala, shark, dolphin, seal, otter, pufferfish, duck, crab, parrot, chick, ladybug, phoenix, pegasus, ghost and flamingo",
+          "🎩 31 new shop items: top hat, cowboy, chef, pirate, Santa, viking, graduation cap, beret, bow, propeller cap, flower crown, nerd glasses, eyepatch, mustache, goggles, masquerade mask, tie, pearls, flower lei, gold chain, balloon, backpack, guitar, shield, butterfly / devil wings and more - plus Premium galaxy crown, galaxy cape and dragon wings",
+          "💃 13 new moves: wave, jump, hearts, sing, yoga, zoomies, cartwheel, juggle, rain dance, breakdance, magic, confetti and the Premium rocket launch",
+          "The Shop is now split into sections (Hats, Face, Neck, Back, Moves, Arena gear) with an owned counter for each"
+        ],
+        "id": [
+          "🦁 28 hewan baru (total 51): singa, harimau, unicorn, rusa, domba, sapi, rakun, panda merah, monyet, landak, dino, tupai, tikus, koala, hiu, lumba-lumba, anjing laut, berang-berang, ikan buntal, bebek, kepiting, beo, anak ayam, kepik, phoenix, pegasus, hantu dan flamingo",
+          "🎩 31 item toko baru: topi tinggi, koboi, koki, bajak laut, Sinterklas, viking, topi wisuda, baret, pita, topi baling-baling, mahkota bunga, kacamata kutu buku, penutup mata, kumis, kacamata renang, topeng pesta, dasi, mutiara, kalung bunga, kalung emas, balon, ransel, gitar, perisai, sayap kupu-kupu / iblis dan lainnya - plus mahkota galaksi, jubah galaksi dan sayap naga khusus Premium",
+          "💃 13 gerakan baru: lambai, lompat, hati, nyanyi, yoga, lari kencang, roda, juggling, tari hujan, breakdance, sulap, konfeti dan peluncuran roket Premium",
+          "Toko kini dibagi per bagian (Topi, Wajah, Leher, Punggung, Gerakan, Perlengkapan arena) dengan penghitung item yang dimiliki"
+        ],
+        "zh_TW": [
+          "🦁 28 種新動物（共 51 種）：獅子、老虎、獨角獸、小鹿、綿羊、乳牛、浣熊、小熊貓、猴子、刺蝟、恐龍、松鼠、老鼠、無尾熊、鯊魚、海豚、海豹、水獺、河豚、鴨子、螃蟹、鸚鵡、小雞、瓢蟲、鳳凰、天馬、小幽靈和紅鶴",
+          "🎩 31 件新商品：紳士帽、牛仔帽、廚師帽、海盜帽、聖誕帽、維京頭盔、學士帽、貝雷帽、蝴蝶結、竹蜻蜓帽、花環、書呆子眼鏡、眼罩、八字鬍、護目鏡、假面舞會面具、領帶、珍珠項鍊、花圈項鍊、金項鍊、氣球、背包、吉他、盾牌、蝴蝶／小惡魔翅膀等，還有 Premium 銀河皇冠、銀河披風和龍之翼",
+          "💃 13 個新動作：揮手、跳跳、愛心、唱歌、瑜伽、暴衝、側翻、雜耍、求雨舞、霹靂舞、魔術、彩帶和 Premium 火箭升空",
+          "商店分成不同區塊（帽子、臉部、頸部、背部、動作、競技場裝備），並顯示已擁有數量"
+        ],
+        "zh_CN": [
+          "🦁 28 种新动物（共 51 种）：狮子、老虎、独角兽、小鹿、绵羊、奶牛、浣熊、小熊猫、猴子、刺猬、恐龙、松鼠、老鼠、考拉、鲨鱼、海豚、海豹、水獭、河豚、鸭子、螃蟹、鹦鹉、小鸡、瓢虫、凤凰、天马、小幽灵和火烈鸟",
+          "🎩 31 件新商品：绅士帽、牛仔帽、厨师帽、海盗帽、圣诞帽、维京头盔、学士帽、贝雷帽、蝴蝶结、竹蜻蜓帽、花环、书呆子眼镜、眼罩、八字胡、护目镜、假面舞会面具、领带、珍珠项链、花环项链、金项链、气球、背包、吉他、盾牌、蝴蝶／小恶魔翅膀等，还有 Premium 银河皇冠、银河披风和龙之翼",
+          "💃 13 个新动作：挥手、跳跳、爱心、唱歌、瑜伽、暴冲、侧翻、杂耍、求雨舞、霹雳舞、魔术、彩带和 Premium 火箭升空",
+          "商店分成不同区块（帽子、脸部、颈部、背部、动作、竞技场装备），并显示已拥有数量"
+        ]
+      }
+    },
+    {
+      "version": "2.11.0",
+      "date": "2026-10-28",
+      "title": "New right-click menus",
+      "notes": {
+        "en": [
+          "✨ Brand-new animated right-click menu for your pet: mood & stat bars, quick-action tiles (Friends, Shop, Snack, Pat, Focus, Stats, Sleep, Taskbar), hover effects and smooth fly-out submenus",
+          "Pick colours from swatches, switch size with one click and flip Sounds / Dark mode with toggle switches - changes show instantly",
+          "Updates are highlighted: a glowing banner and NEW badge appear in the menu when a new version is ready",
+          "The focus card's right-click menu got the same new look; keyboard arrows, Enter and Esc work too"
+        ],
+        "id": [
+          "✨ Menu klik kanan baru yang beranimasi untuk peliharaanmu: bar mood & status, tombol cepat (Teman, Toko, Camilan, Elus, Fokus, Statistik, Tidur, Taskbar), efek hover dan submenu yang mulus",
+          "Pilih warna dari palet, ganti ukuran sekali klik, dan nyalakan Suara / Mode gelap dengan sakelar - perubahan langsung terlihat",
+          "Update kini disorot: banner menyala dan lencana BARU muncul di menu saat versi baru siap",
+          "Menu klik kanan kartu fokus juga punya tampilan baru; panah keyboard, Enter dan Esc juga bisa dipakai"
+        ],
+        "zh_TW": [
+          "✨ 全新動畫右鍵選單：心情與狀態條、快捷按鈕（好友、商店、點心、摸摸、專注、統計、睡覺、工作列）、滑過特效和流暢的子選單",
+          "從色票選顏色、一鍵切換大小、用開關切換聲音／深色模式，變化立即生效",
+          "更新會被醒目標示：有新版本時選單會出現發光橫幅和「新」標籤",
+          "專注卡的右鍵選單也換上新外觀；也可以用方向鍵、Enter 和 Esc 操作"
+        ],
+        "zh_CN": [
+          "✨ 全新动画右键菜单：心情与状态条、快捷按钮（好友、商店、点心、摸摸、专注、统计、睡觉、任务栏）、悬停特效和流畅的子菜单",
+          "从色板选颜色、一键切换大小、用开关切换声音／深色模式，变化立即生效",
+          "更新会被醒目标示：有新版本时菜单会出现发光横幅和“新”标签",
+          "专注卡的右键菜单也换上新外观；也可以用方向键、Enter 和 Esc 操作"
+        ]
+      }
+    },
+    {
+      "version": "2.10.0",
+      "date": "2026-10-28",
+      "title": "Chat bots",
+      "notes": {
+        "en": [
+          "🤖 6 friendly chat bots in the Chat tab: Pip Helper (app questions), Coach Focus (focus tips from your real stats), Sunny (live weather for any city), Arena Master (battle tips + quick battle), Giggles (jokes & games) and Guardian (safety & reporting help)",
+          "Private bot chats with suggestion chips, typing indicator and a clear button - your bot chats stay on your PC",
+          "Mention a bot in a group chat (e.g. @weather Batam) and it answers in the room for everyone",
+          "Bots reply in your app language; up to 120 bot messages per day"
+        ],
+        "id": [
+          "🤖 6 bot obrolan di tab Chat: Pip Helper (pertanyaan aplikasi), Coach Focus (tips fokus dari statistikmu), Sunny (cuaca langsung kota mana pun), Arena Master (tips bertarung + quick battle), Giggles (lelucon & permainan) dan Guardian (bantuan keamanan & laporan)",
+          "Chat pribadi dengan bot lengkap dengan saran pertanyaan, indikator mengetik dan tombol hapus - chat bot tersimpan di PC-mu",
+          "Sebut bot di grup (mis. @weather Batam) dan bot akan menjawab di grup untuk semua",
+          "Bot menjawab dalam bahasa aplikasimu; maksimal 120 pesan bot per hari"
+        ],
+        "zh_TW": [
+          "🤖 聊天分頁新增 6 個聊天機器人：Pip Helper（應用問題）、Coach Focus（依你的真實數據給專注建議）、Sunny（任何城市的即時天氣）、Arena Master（對戰技巧 + 快速對戰）、Giggles（笑話與小遊戲）和 Guardian（安全與檢舉協助）",
+          "與機器人私聊，附建議問題、輸入中提示和清除按鈕，機器人聊天紀錄只存在你的電腦",
+          "在群組中提及機器人（例如 @weather Batam），它會在群組裡回答所有人",
+          "機器人以你的應用語言回覆；每天最多 120 則機器人訊息"
+        ],
+        "zh_CN": [
+          "🤖 聊天标签新增 6 个聊天机器人：Pip Helper（应用问题）、Coach Focus（根据你的真实数据给专注建议）、Sunny（任何城市的实时天气）、Arena Master（对战技巧 + 快速对战）、Giggles（笑话与小游戏）和 Guardian（安全与举报帮助）",
+          "与机器人私聊，附建议问题、输入中提示和清除按钮，机器人聊天记录只保存在你的电脑",
+          "在群组中提及机器人（例如 @weather Batam），它会在群组里回答所有人",
+          "机器人以你的应用语言回复；每天最多 120 条机器人消息"
+        ]
+      }
+    },
+    {
+      "version": "2.9.0",
+      "date": "2026-10-28",
+      "title": "Location & live weather",
+      "notes": {
+        "en": [
+          "📍 Add your city in Profile → Location & weather (auto-detect or search) - only your city and country are shown, never your exact position",
+          "Live weather banners on every profile with animations: rain, drizzle, thunderstorms with lightning, snow, fog, clouds, sunshine or a starry night - plus temperature, feels-like, humidity, wind and local time",
+          "Your own weather strip on top of the hub, and each friend's weather + local time in the friends list",
+          "Hide your location from others or remove it any time"
+        ],
+        "id": [
+          "📍 Tambahkan kotamu di Profil → Lokasi & cuaca (deteksi otomatis atau cari) - hanya kota dan negaramu yang ditampilkan, tidak pernah posisi persismu",
+          "Banner cuaca langsung di setiap profil dengan animasi: hujan, gerimis, badai petir dengan kilat, salju, kabut, awan, cerah atau malam berbintang - plus suhu, terasa seperti, kelembapan, angin dan waktu setempat",
+          "Strip cuacamu sendiri di atas hub, dan cuaca + waktu setempat setiap teman di daftar teman",
+          "Sembunyikan lokasimu dari orang lain atau hapus kapan saja"
+        ],
+        "zh_TW": [
+          "📍 在 個人檔案 → 位置與天氣 加入你的城市（自動偵測或搜尋），只會顯示城市和國家，絕不顯示精確位置",
+          "每個人的檔案都有即時天氣動畫橫幅：下雨、毛毛雨、閃電雷雨、下雪、起霧、多雲、晴天或星空夜晚，並顯示溫度、體感、濕度、風速和當地時間",
+          "中心頂部顯示你自己的天氣條，好友列表顯示每位好友的天氣和當地時間",
+          "隨時可以對他人隱藏或移除你的位置"
+        ],
+        "zh_CN": [
+          "📍 在 个人资料 → 位置与天气 加入你的城市（自动检测或搜索），只会显示城市和国家，绝不显示精确位置",
+          "每个人的资料都有实时天气动画横幅：下雨、毛毛雨、闪电雷雨、下雪、起雾、多云、晴天或星空夜晚，并显示温度、体感、湿度、风速和当地时间",
+          "中心顶部显示你自己的天气条，好友列表显示每位好友的天气和当地时间",
+          "随时可以对他人隐藏或移除你的位置"
+        ]
+      }
+    },
+    {
+      "version": "2.8.0",
+      "date": "2026-10-28",
+      "title": "Pips Arena - duels, gear & live battles",
+      "notes": {
+        "en": [
+          "⚔ New Arena tab: challenge friends or anyone in the arena to a live duel - each round pick Attack, Guard or Special within 12 seconds and watch your pets fight",
+          "⚡ Quick battle: an instant auto-fight against anyone's fighter, even when they're offline",
+          "Arena gear in the Shop: 7 weapons (water pistol to rocket launcher), 5 armors and 5 gadgets that decide your special move - better gear and a higher level make a stronger fighter",
+          "Live duels can be watched by everyone, plus recent battle replays, top fighters, rating and win/loss records; wins earn coins",
+          "★ Premium gear: plasma cannon, mech suit and force field"
+        ],
+        "id": [
+          "⚔ Tab Arena baru: tantang teman atau siapa saja di arena untuk duel langsung - setiap ronde pilih Serang, Bertahan atau Spesial dalam 12 detik dan tonton peliharaanmu bertarung",
+          "⚡ Tarung cepat: pertarungan otomatis instan melawan petarung siapa saja, bahkan saat mereka offline",
+          "Perlengkapan arena di Toko: 7 senjata (pistol air sampai peluncur roket), 5 baju zirah dan 5 gadget yang menentukan gerakan spesialmu - perlengkapan lebih baik dan level lebih tinggi membuat petarung lebih kuat",
+          "Duel langsung bisa ditonton semua orang, plus tayangan ulang, petarung teratas, rating dan rekor menang/kalah; kemenangan memberi koin",
+          "★ Perlengkapan Premium: meriam plasma, baju robot dan medan pelindung"
+        ],
+        "zh_TW": [
+          "⚔ 新的競技場分頁：向好友或競技場裡的任何人發起即時對決，每回合在 12 秒內選擇攻擊、防禦或特技，看你的寵物對戰",
+          "⚡ 快速對戰：與任何人的戰士即時自動對戰，對方離線也可以",
+          "商店新增競技場裝備：7 種武器（水槍到火箭筒）、5 種護甲和 5 種決定特技的道具，裝備越好、等級越高越強",
+          "所有人都能觀看即時對決，另有對戰重播、頂尖戰士、積分和勝負紀錄；勝利可得金幣",
+          "★ 高級會員裝備：電漿砲、機甲裝和力場產生器"
+        ],
+        "zh_CN": [
+          "⚔ 新的竞技场标签：向好友或竞技场里的任何人发起实时对决，每回合在 12 秒内选择攻击、防御或特技，看你的宠物对战",
+          "⚡ 快速对战：与任何人的战士即时自动对战，对方离线也可以",
+          "商店新增竞技场装备：7 种武器（水枪到火箭筒）、5 种护甲和 5 种决定特技的道具，装备越好、等级越高越强",
+          "所有人都能观看实时对决，另有对战回放、顶尖战士、积分和胜负记录；胜利可得金币",
+          "★ 高级会员装备：等离子炮、机甲装和力场发生器"
+        ]
+      }
+    },
+    {
+      "version": "2.7.0",
+      "date": "2026-10-28",
+      "title": "Moderators & Premium",
+      "notes": {
+        "en": [
+          "★ Premium: a purple Premium badge, 4 exclusive props (tiara, star glasses, diamond necklace, fairy wings), the Fireworks move, +30 coins every day, double friend-interaction coins and room for 300 friends / 30 groups",
+          "Get Premium: Profile tab → Premium → \"Ask to buy\" emails the owner; after payment you receive a key (PIPS-XXXX-XXXX) to redeem right there",
+          "🛡 Moderators: a blue Mod badge and a Mod tab with the report queue - warn, mute (1h / 24h / 7 days), clear a profile or reset a name; every action is logged",
+          "Report button on everyone's profile, so moderators can keep Pips friendly"
+        ],
+        "id": [
+          "★ Premium: lencana ungu Premium, 4 aksesori eksklusif (tiara, kacamata bintang, kalung berlian, sayap peri), gerakan Kembang Api, +30 koin setiap hari, koin interaksi teman dua kali lipat dan hingga 300 teman / 30 grup",
+          "Dapatkan Premium: tab Profil → Premium → \"Tanya cara beli\" mengirim email ke pemilik; setelah membayar kamu menerima kunci (PIPS-XXXX-XXXX) untuk ditukarkan di sana",
+          "🛡 Moderator: lencana biru Mod dan tab Mod dengan antrean laporan - peringatkan, bisukan (1 jam / 24 jam / 7 hari), hapus profil atau atur ulang nama; semua tindakan dicatat",
+          "Tombol Laporkan di profil setiap orang, agar moderator bisa menjaga Pips tetap ramah"
+        ],
+        "zh_TW": [
+          "★ 高級會員：紫色高級會員徽章、4 款專屬配件（皇冠頭飾、星星眼鏡、鑽石項鍊、精靈翅膀）、煙火動作、每天 +30 金幣、好友互動金幣加倍，以及最多 300 位好友 / 30 個群組",
+          "取得方式：個人檔案分頁 → 高級會員 →「詢問購買」寄信給擁有者；付款後會收到序號（PIPS-XXXX-XXXX），在同一處兌換",
+          "🛡 管理員：藍色管理員徽章和「管理」分頁的檢舉清單，可警告、禁言（1 小時 / 24 小時 / 7 天）、清除檔案或重設名字；所有操作都會記錄",
+          "每個人的檔案都有檢舉按鈕，讓管理員維護友善的 Pips"
+        ],
+        "zh_CN": [
+          "★ 高级会员：紫色高级会员徽章、4 款专属配件（皇冠头饰、星星眼镜、钻石项链、精灵翅膀）、烟火动作、每天 +30 金币、好友互动金币加倍，以及最多 300 位好友 / 30 个群组",
+          "获取方式：个人资料标签 → 高级会员 →“咨询购买”发邮件给所有者；付款后会收到兑换码（PIPS-XXXX-XXXX），在同一处兑换",
+          "🛡 管理员：蓝色管理员徽章和“管理”标签的举报列表，可警告、禁言（1 小时 / 24 小时 / 7 天）、清除资料或重置名字；所有操作都会记录",
+          "每个人的资料都有举报按钮，让管理员维护友好的 Pips"
+        ]
+      }
+    },
+    {
+      "version": "2.6.1",
+      "date": "2026-10-28",
+      "title": "Owner badge & credits",
+      "notes": {
+        "en": [
+          "The creator of Pips (Juwen Lie) now shows a gold ♛ Owner badge on his profile, friend list and ranks",
+          "New About Pips card in the Profile tab: credits and how to contact the owner (73946469+juw12@users.noreply.github.com) with Email and Copy buttons",
+          "Right-click the pet → Help → About now shows who made Pips and the contact email"
+        ],
+        "id": [
+          "Pembuat Pips (Juwen Lie) sekarang memiliki lencana emas ♛ Pemilik di profil, daftar teman dan peringkat",
+          "Kartu Tentang Pips baru di tab Profil: kredit dan cara menghubungi pemilik (73946469+juw12@users.noreply.github.com) dengan tombol Email dan Salin",
+          "Klik kanan peliharaan → Bantuan → Tentang sekarang menampilkan pembuat Pips dan email kontak"
+        ],
+        "zh_TW": [
+          "Pips 的作者（Juwen Lie）現在在個人檔案、好友列表和排行中顯示金色 ♛ 擁有者徽章",
+          "個人檔案分頁新增「關於 Pips」卡片：製作名單與聯絡方式（73946469+juw12@users.noreply.github.com），附寄信與複製按鈕",
+          "右鍵寵物 → 說明 → 關於，現在會顯示 Pips 的作者與聯絡信箱"
+        ],
+        "zh_CN": [
+          "Pips 的作者（Juwen Lie）现在在个人资料、好友列表和排行中显示金色 ♛ 拥有者徽章",
+          "个人资料标签新增“关于 Pips”卡片：制作名单与联系方式（73946469+juw12@users.noreply.github.com），附发邮件与复制按钮",
+          "右键宠物 → 帮助 → 关于，现在会显示 Pips 的作者与联系邮箱"
+        ]
+      }
+    },
+    {
+      "version": "2.6.0",
+      "date": "2026-10-28",
+      "title": "Profiles, ranks, online status & dark mode",
+      "notes": {
+        "en": [
+          "Profile tab: profile picture (or your pet), about me, job, location, hobbies, birthday and a status message",
+          "Public or private: public profiles can be added directly and viewed in full; private profiles need a friend request that they accept, and strangers only see name, photo, pet, level and status",
+          "Click anyone to open their profile - badges, info, their friends - and add them, chat or wave from there",
+          "Ranks tab replaces Teams: everyone using Pips, sorted by XP, badges or streak",
+          "Online status: auto (online / away when idle / offline) or set Online, Busy, Away or Appear offline yourself",
+          "Relationship labels for friends: Buddy, Bro, Sis, Bestie, Partner, Soulmate, Family, Work buddy",
+          "Dark mode: Profile tab or right-click the pet → Dark mode (hub, settings and the focus card)"
+        ],
+        "id": [
+          "Tab Profil: foto profil (atau peliharaanmu), tentang aku, pekerjaan, lokasi, hobi, ulang tahun dan pesan status",
+          "Publik atau pribadi: profil publik bisa langsung ditambahkan dan dilihat lengkap; profil pribadi perlu permintaan pertemanan yang diterima, dan orang asing hanya melihat nama, foto, peliharaan, level dan status",
+          "Klik siapa saja untuk membuka profilnya - lencana, info, teman-temannya - lalu tambahkan, chat atau lambaikan dari sana",
+          "Tab Peringkat menggantikan Tim: semua pengguna Pips, diurutkan menurut XP, lencana atau beruntun",
+          "Status online: otomatis (online / pergi saat tidak aktif / offline) atau atur sendiri Online, Sibuk, Pergi atau tampak offline",
+          "Label hubungan untuk teman: Sobat, Bro, Sis, Sahabat, Pasangan, Belahan jiwa, Keluarga, Rekan kerja",
+          "Mode gelap: tab Profil atau klik kanan peliharaan → Mode gelap (hub, pengaturan dan kartu fokus)"
+        ],
+        "zh_TW": [
+          "個人檔案分頁：大頭貼（或你的寵物）、自我介紹、工作、地點、興趣、生日和狀態訊息",
+          "公開或私人：公開檔案可直接加好友並完整查看；私人檔案需先送出好友邀請並被接受，陌生人只看得到名字、照片、寵物、等級和狀態",
+          "點任何人就能打開他的檔案（徽章、資訊、他的好友），並直接加好友、聊天或揮手",
+          "排行分頁取代團隊：所有 Pips 使用者，依經驗值、徽章或連續天數排序",
+          "在線狀態：自動（在線 / 閒置時離開 / 離線），或自己設定在線、忙碌、離開或隱身",
+          "好友關係標籤：好夥伴、兄弟、姊妹、閨蜜、伴侶、靈魂伴侶、家人、同事",
+          "深色模式：個人檔案分頁或右鍵寵物 → 深色模式（中心、設定和專注卡片）"
+        ],
+        "zh_CN": [
+          "个人资料标签：头像（或你的宠物）、简介、工作、地点、爱好、生日和状态消息",
+          "公开或私密：公开资料可直接加好友并完整查看；私密资料需先发送好友申请并被接受，陌生人只能看到名字、照片、宠物、等级和状态",
+          "点任何人就能打开他的资料（徽章、信息、他的好友），并直接加好友、聊天或挥手",
+          "排行标签取代团队：所有 Pips 用户，按经验值、徽章或连续天数排序",
+          "在线状态：自动（在线 / 闲置时离开 / 离线），或自己设置在线、忙碌、离开或隐身",
+          "好友关系标签：好伙伴、兄弟、姐妹、闺蜜、伴侣、灵魂伴侣、家人、同事",
+          "深色模式：个人资料标签或右键宠物 → 深色模式（中心、设置和专注卡片）"
+        ]
+      }
+    },
+    {
+      "version": "2.5.1",
+      "date": "2026-10-28",
+      "title": "New cute Pips logo",
+      "notes": {
+        "en": [
+          "New Pips logo: Pip the cat on a Pips-red tile, matching the app colours (desktop shortcut, windows and website)"
+        ],
+        "id": [
+          "Logo Pips baru: kucing Pip di ubin merah Pips, serasi dengan warna aplikasi (shortcut desktop, jendela dan situs web)"
+        ],
+        "zh_TW": [
+          "全新 Pips 圖示：Pips 紅色底上的小貓 Pip，和應用程式配色一致 (桌面捷徑、視窗和網站)"
+        ],
+        "zh_CN": [
+          "全新 Pips 图标：Pips 红色底上的小猫 Pip，和应用配色一致 (桌面快捷方式、窗口和网站)"
+        ]
+      }
+    },
+    {
+      "version": "2.5.0",
+      "date": "2026-10-28",
+      "title": "Shop, coins, props & moves",
+      "notes": {
+        "en": [
+          "Shop: earn coins and spend them on your pet - 17 props (crown, wizard hat, headphones, shades, scarf, cape, angel wings...) and 6 moves: spin, dance, moonwalk, backflip, kung fu and spider swing!",
+          "Coins come from leveling up (+40), badges (+25), opening Pips each day (+10), friendships (+15 per affinity level), waving / chatting / visiting friends (+2) and pomodoros (+5). Everyone starts with a 100-coin gift",
+          "Your friends see your props: on avatars in the hub and when your pet visits their desktop - it shows off one of your moves",
+          "Pips is now a social pet: clicking the pet opens the Pips hub (friends, chat, groups, shop, badges)",
+          "The focus timer moved to right-click → Focus timer (Pomodoro). Pomodoros still give XP and coins"
+        ],
+        "id": [
+          "Toko: kumpulkan koin dan belanjakan untuk peliharaanmu - 17 aksesori (mahkota, topi penyihir, headphone, kacamata hitam, syal, jubah, sayap malaikat...) dan 6 gerakan: putar, joget, moonwalk, salto, kung fu dan ayunan laba-laba!",
+          "Koin didapat dari naik level (+40), lencana (+25), membuka Pips tiap hari (+10), pertemanan (+15 per level afinitas), melambai / chat / berkunjung ke teman (+2) dan pomodoro (+5). Semua mulai dengan hadiah 100 koin",
+          "Temanmu bisa melihat aksesorimu: di avatar hub dan saat peliharaanmu berkunjung ke desktop mereka - ia memamerkan salah satu gerakanmu",
+          "Pips kini peliharaan sosial: klik peliharaan untuk membuka hub Pips (teman, chat, grup, toko, lencana)",
+          "Timer fokus pindah ke klik kanan → Timer fokus (Pomodoro). Pomodoro tetap memberi XP dan koin"
+        ],
+        "zh_TW": [
+          "商店：賺金幣幫寵物買東西 - 17 種配件 (皇冠、巫師帽、耳機、墨鏡、圍巾、披風、天使翅膀…) 和 6 種動作：旋轉、跳舞、月球漫步、後空翻、功夫和蜘蛛擺盪！",
+          "金幣來源：升級 (+40)、徽章 (+25)、每天打開 Pips (+10)、友誼 (每級親密度 +15)、對好友揮手 / 聊天 / 拜訪 (+2) 以及番茄鐘 (+5)。每個人一開始都有 100 金幣禮物",
+          "好友看得到你的配件：在中心的頭像上，以及你的寵物拜訪他們桌面時 - 牠還會表演你的一個動作",
+          "Pips 現在是社交寵物：點寵物會打開 Pips 中心 (好友、聊天、群組、商店、徽章)",
+          "專注計時器移到右鍵 → 專注計時器 (番茄鐘)。番茄鐘仍然會給 XP 和金幣"
+        ],
+        "zh_CN": [
+          "商店：赚金币给宠物买东西 - 17 种配件 (皇冠、巫师帽、耳机、墨镜、围巾、披风、天使翅膀…) 和 6 种动作：旋转、跳舞、月球漫步、后空翻、功夫和蜘蛛荡！",
+          "金币来源：升级 (+40)、徽章 (+25)、每天打开 Pips (+10)、友谊 (每级亲密度 +15)、对好友挥手 / 聊天 / 拜访 (+2) 以及番茄钟 (+5)。每个人一开始都有 100 金币礼物",
+          "好友看得到你的配件：在中心的头像上，以及你的宠物拜访他们桌面时 - 它还会表演你的一个动作",
+          "Pips 现在是社交宠物：点宠物会打开 Pips 中心 (好友、聊天、群组、商店、徽章)",
+          "专注计时器移到右键 → 专注计时器 (番茄钟)。番茄钟仍然会给 XP 和金币"
+        ]
+      }
+    },
+    {
+      "version": "2.4.0",
+      "date": "2026-10-28",
+      "title": "Chat, groups, affinity & pet visits",
+      "notes": {
+        "en": [
+          "Chat: message your friends, and chat inside groups. Your pet pops up new messages as a bubble - click it to reply",
+          "Pet interactions: wave, pet their pet, send a snack, high five - or send your pet to visit: it walks onto your friend's desktop for a little while!",
+          "Affinity: every chat and interaction grows your friendship - Acquaintance → Buddy → Good friends → Close friends → Best friends → Soulmates",
+          "Your own groups: create a private group, invite your friends, they accept or decline. Group board + group chat; the owner can remove members",
+          "2 new achievements (Close friends, Globetrotter). Right-click the pet → Friends & achievements…"
+        ],
+        "id": [
+          "Chat: kirim pesan ke teman dan chat di grup. Peliharaanmu menampilkan pesan baru sebagai gelembung - klik untuk membalas",
+          "Interaksi peliharaan: lambai, elus peliharaan mereka, kirim camilan, tos - atau kirim peliharaanmu berkunjung: ia berjalan ke desktop temanmu sebentar!",
+          "Afinitas: setiap chat dan interaksi menumbuhkan pertemanan - Kenalan → Sobat → Teman baik → Teman dekat → Sahabat → Belahan jiwa",
+          "Grup sendiri: buat grup pribadi, undang temanmu, mereka bisa menerima atau menolak. Papan grup + chat grup; pemilik bisa mengeluarkan anggota",
+          "2 pencapaian baru (Teman dekat, Penjelajah). Klik kanan peliharaan → Teman & pencapaian…"
+        ],
+        "zh_TW": [
+          "聊天：可以和好友私訊，也能在群組裡聊天。新訊息會由寵物以對話泡泡顯示，點一下就能回覆",
+          "寵物互動：揮手、摸摸對方的寵物、送點心、擊掌，還能派你的寵物去拜訪，牠會走到朋友的桌面待一會兒！",
+          "親密度：每次聊天和互動都會增進友誼：點頭之交 → 好夥伴 → 好朋友 → 知心好友 → 最好的朋友 → 靈魂伴侶",
+          "自己的群組：建立私人群組並邀請好友，對方可以接受或拒絕。群組排行 + 群組聊天；群主可以移除成員",
+          "新增 2 個成就 (知心好友、環遊世界)。右鍵寵物 → 好友與成就…"
+        ],
+        "zh_CN": [
+          "聊天：可以和好友私聊，也能在群组里聊天。新消息会由宠物以对话气泡显示，点一下就能回复",
+          "宠物互动：挥手、摸摸对方的宠物、送点心、击掌，还能派你的宠物去拜访，它会走到朋友的桌面待一会儿！",
+          "亲密度：每次聊天和互动都会增进友谊：点头之交 → 好伙伴 → 好朋友 → 知心好友 → 最好的朋友 → 灵魂伴侣",
+          "自己的群组：创建私人群组并邀请好友，对方可以接受或拒绝。群组排行 + 群组聊天；群主可以移除成员",
+          "新增 2 个成就 (知心好友、环游世界)。右键宠物 → 好友与成就…"
+        ]
+      }
+    },
+    {
+      "version": "2.3.0",
+      "date": "2026-10-28",
+      "title": "Friends, levels & achievements",
+      "notes": {
+        "en": [
+          "Levels & XP: every finished pomodoro earns XP and your level grows - plus 20 achievements to unlock (first tomato, 8 in a day, 7-day streak, early bird, night owl, pet lover...). Your pet celebrates each one",
+          "Friends (optional, off by default): get a 6-letter friend code, add colleagues, see today's board and join a team board like QA. Your pet tells you when a friend finishes a pomodoro",
+          "Privacy: only your name, pet, level, streak and pomodoro counts are shared - never apps, window titles or scores. One click turns it off and deletes your online data. Right-click the pet → Friends & achievements…"
+        ],
+        "id": [
+          "Level & XP: setiap pomodoro selesai memberi XP dan levelmu naik - plus 20 pencapaian (tomat pertama, 8 sehari, streak 7 hari, burung pagi, burung hantu, pecinta hewan...). Peliharaanmu ikut merayakan",
+          "Teman (opsional, mati secara default): dapatkan kode teman 6 huruf, tambahkan rekan, lihat papan hari ini dan gabung papan tim seperti QA. Peliharaanmu memberi tahu saat teman menyelesaikan pomodoro",
+          "Privasi: hanya nama, peliharaan, level, streak dan jumlah pomodoro yang dibagikan - tidak pernah aplikasi, judul jendela atau skor. Satu klik untuk mematikan dan menghapus data online-mu. Klik kanan peliharaan → Teman & pencapaian…"
+        ],
+        "zh_TW": [
+          "等級與 XP：每完成一個番茄都會獲得 XP 並升級，還有 20 個成就可以解鎖 (第一顆番茄、一天 8 個、連續 7 天、早起鳥、夜貓子、愛寵人士…)，寵物會一起慶祝",
+          "好友 (選用，預設關閉)：取得 6 位好友代碼、加入同事、查看今日排行並加入團隊排行榜 (例如 QA)。朋友完成番茄時寵物會告訴你",
+          "隱私：只分享名字、寵物、等級、連續天數與番茄數，絕不分享應用程式、視窗標題或分數。一鍵即可關閉並刪除線上資料。右鍵寵物 → 好友與成就…"
+        ],
+        "zh_CN": [
+          "等级与 XP：每完成一个番茄都会获得 XP 并升级，还有 20 个成就可以解锁 (第一颗番茄、一天 8 个、连续 7 天、早起鸟、夜猫子、爱宠人士…)，宠物会一起庆祝",
+          "好友 (可选，默认关闭)：获取 6 位好友代码、添加同事、查看今日排行并加入团队排行榜 (例如 QA)。朋友完成番茄时宠物会告诉你",
+          "隐私：只分享名字、宠物、等级、连续天数与番茄数，绝不分享应用、窗口标题或分数。一键即可关闭并删除在线数据。右键宠物 → 好友与成就…"
+        ]
+      }
+    },
+    {
+      "version": "2.2.0",
+      "date": "2026-10-28",
+      "title": "Pet sounds",
+      "notes": {
+        "en": [
+          "Your pet has a voice! Each of the 23 animals has its own sound (meow, woof, ribbit, hoot, buzz, oink, whale song...) and it changes with its mood: happy chirps, sad whimpers, sleepy yawns, hungry calls, grumpy huffs and soft snores",
+          "It also reacts with sound when you tickle, pet, feed, shake or wake it",
+          "Settings: right-click the pet → Sounds to switch on/off; Pet status & settings has a volume slider, a ▶ Hear me button and \"Stay quiet while I'm focusing\" (on by default)"
+        ],
+        "id": [
+          "Peliharaanmu sekarang bisa bersuara! Ke-23 hewan punya suara sendiri (meong, guk, kwek-kwek katak, hu-hu burung hantu, dengung lebah, oink, nyanyian paus...) dan berubah sesuai mood: ceria, sedih, menguap, lapar, ngambek, dan dengkur pelan",
+          "Juga bersuara saat kamu gelitik, elus, beri makan, guncang, atau bangunkan",
+          "Pengaturan: klik kanan peliharaan → Suara untuk nyala/mati; Status & pengaturan punya slider volume, tombol ▶ Dengar, dan \"Diam saat aku sedang fokus\" (aktif secara default)"
+        ],
+        "zh_TW": [
+          "寵物會叫了！23 種動物都有自己的聲音（喵、汪、呱呱、咕咕、嗡嗡、哼哼、鯨歌…），而且會隨心情改變：開心、難過、打哈欠、肚子餓、生氣，還有輕輕的打呼",
+          "搔癢、撫摸、餵食、搖晃或叫醒牠時也會出聲回應",
+          "設定：右鍵寵物 → 聲音 可開關；寵物狀態與設定中有音量滑桿、▶ 聽聽看 按鈕，以及「專注時保持安靜」（預設開啟）"
+        ],
+        "zh_CN": [
+          "宠物会叫了！23 种动物都有自己的声音（喵、汪、呱呱、咕咕、嗡嗡、哼哼、鲸歌…），而且会随心情改变：开心、难过、打哈欠、肚子饿、生气，还有轻轻的打呼",
+          "挠痒、抚摸、喂食、摇晃或叫醒它时也会出声回应",
+          "设置：右键宠物 → 声音 可开关；宠物状态与设置中有音量滑块、▶ 听听看 按钮，以及“专注时保持安静”（默认开启）"
+        ]
+      }
+    },
+    {
+      "version": "2.1.2",
+      "date": "2026-10-28",
+      "title": "Tickle-only mode",
+      "notes": {
+        "en": [
+          "New click option \"Only tickle (never open Pips)\": click and tickle your pet as much as you like - the Pomodoro window stays closed (open it from the right-click menu). Right-click the pet → When I click"
+        ],
+        "id": [
+          "Opsi klik baru \"Hanya gelitik (tidak membuka Pips)\": klik dan gelitik peliharaanmu sepuasnya - jendela Pomodoro tetap tertutup (buka lewat menu klik kanan). Klik kanan peliharaan → Saat aku diklik"
+        ],
+        "zh_TW": [
+          "新的點擊選項「只搔癢 (不開啟 Pips)」：盡情點擊搔癢寵物，番茄鐘視窗不會打開（可從右鍵選單開啟）。右鍵寵物 → 點擊我時"
+        ],
+        "zh_CN": [
+          "新的点击选项“只挠痒 (不打开 Pips)”：尽情点击挠痒宠物，番茄钟窗口不会打开（可从右键菜单打开）。右键宠物 → 点击我时"
+        ]
+      }
+    },
+    {
+      "version": "2.1.1",
+      "date": "2026-10-28",
+      "title": "Owner info",
+      "notes": {
+        "en": [
+          "About Pips now shows the owner: Juwen Lie (right-click the pet → Help → About)"
+        ],
+        "id": [
+          "Tentang Pips sekarang menampilkan pemilik: Juwen Lie (klik kanan peliharaan → Bantuan → Tentang)"
+        ],
+        "zh_TW": [
+          "「關於 Pips」現在會顯示擁有者：Juwen Lie（右鍵寵物 → 說明 → 關於）"
+        ],
+        "zh_CN": [
+          "“关于 Pips”现在会显示所有者：Juwen Lie（右键宠物 → 帮助 → 关于）"
+        ]
+      }
+    },
+    {
+      "version": "2.1.0",
+      "date": "2026-10-28",
+      "title": "Interactive guide & in-app updates",
+      "notes": {
+        "en": [
+          "Interactive first-run guide: your pet walks you through clicking, dragging, petting and the right-click menu",
+          "In-app updates: Pips tells you when a new version is out - update with one click (your settings and data are kept)",
+          "New Help menu: replay the guide, check for updates, see the version",
+          "Option to turn automatic update checks off"
+        ],
+        "id": [
+          "Panduan interaktif saat pertama dipakai: peliharaanmu mengajarimu klik, seret, elus, dan menu klik kanan",
+          "Update di dalam aplikasi: Pips memberi tahu saat ada versi baru - update dengan satu klik (pengaturan dan data tetap aman)",
+          "Menu Bantuan baru: putar ulang panduan, cek update, lihat versi",
+          "Pilihan untuk mematikan cek update otomatis"
+        ],
+        "zh_TW": [
+          "互動式新手導覽：寵物會帶你學會點擊、拖曳、摸摸和右鍵選單",
+          "應用程式內更新：有新版本時 Pips 會通知你，一鍵更新（設定和資料都會保留）",
+          "新的說明選單：重播導覽、檢查更新、查看版本",
+          "可以關閉自動檢查更新"
+        ],
+        "zh_CN": [
+          "互动式新手引导：宠物会带你学会点击、拖动、摸摸和右键菜单",
+          "应用内更新：有新版本时 Pips 会通知你，一键更新（设置和数据都会保留）",
+          "新的帮助菜单：重播引导、检查更新、查看版本",
+          "可以关闭自动检查更新"
+        ]
+      }
+    },
+    {
+      "version": "2.0.0",
+      "date": "2026-10-28",
+      "title": "Desktop pet, 23 animals & 4 languages",
+      "notes": {
+        "en": [
+          "Desktop pet that lives on your desktop and taskbar - drag it, tickle it, pet it",
+          "23 animals in 3 groups: Land walks, Water swims with bubbles, Sky hovers and flaps",
+          "Moods (happy, sad, tired, hungry, grumpy...), naps when you're away, wakes up when you're back",
+          "Cute chat-bubble reminders: breaks, water, 20-20-20 eye rest, pomodoro done, daily goal",
+          "4 languages: English, Bahasa Indonesia, Traditional & Simplified Chinese",
+          "Refreshed card: rounded, auto-height, status pill, hover buttons"
+        ]
+      }
+    },
+    {
+      "version": "1.5.0",
+      "date": "2026-10-24",
+      "title": "Renamed to Pips + insights",
+      "notes": {
+        "en": [
+          "Renamed from Productivity Widget to Pips",
+          "Dashboard charts: focus timeline, hour heatmap, 7-day score trend, pomodoros per day",
+          "AI token usage on the card and dashboard",
+          "Daily diary export and weekly / monthly reports",
+          "More soundscapes (ocean, forest, fireplace, crickets, wind) with per-sound volume"
+        ]
+      }
+    },
+    {
+      "version": "1.0.0",
+      "date": "2026-10-21",
+      "title": "First release",
+      "notes": {
+        "en": [
+          "Always-on-top Pomodoro card with progress ring",
+          "Rain / thunder / brown-noise / cafe soundscapes",
+          "Live app-usage tracking and a daily 1-5 star focus score",
+          "Goals, streaks, XP, coach tips and break reminders"
+        ]
+      }
+    }
+  ]
+}
