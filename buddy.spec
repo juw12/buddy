@@ -65,7 +65,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name="Buddy",
-    icon=str(ROOT / "pips" / "assets" / "widget.ico"),
+    icon=str(ROOT / "assets" / "buddy.ico"),
     console=False,
 )
 coll = COLLECT(exe, analysis.binaries, analysis.datas, name="Buddy")

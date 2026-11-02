@@ -7,6 +7,7 @@ and the keyboard hook on pynput's thread; both talk to the UI only through post(
 import queue
 import threading
 import time
+from pathlib import Path
 import tkinter as tk
 from tkinter import messagebox, ttk
 
@@ -80,6 +81,8 @@ class KeyItApp:
             self.root.title(host.window_title)
         self.root.resizable(False, False)
         icon_file = core.ASSETS_DIR / "keyit.ico"
+        if host is not None and getattr(host, "icon_path", None):
+            icon_file = Path(host.icon_path)
         if icon_file.exists():
             self.root.iconbitmap(default=str(icon_file))
         self.root.protocol("WM_DELETE_WINDOW", self.hide)
@@ -135,9 +138,12 @@ class KeyItApp:
         sounds.columnconfigure(1, weight=1)
         buddy_tab = ttk.Frame(notebook, padding=(10, 10, 10, 6))
         buddy_tab.columnconfigure(1, weight=1)
-        notebook.add(sounds, text="  Sounds  ")
-        notebook.add(buddy_tab, text="  Buddy (AI)  ")
+        hosted = self.host is not None
+        notebook.add(sounds, text="  Keyboard sounds  " if hosted else "  Sounds  ")
+        notebook.add(buddy_tab, text="  AI helper  " if hosted else "  Buddy (AI)  ")
         self.notebook = notebook
+        if hosted and hasattr(self.host, "build_tabs"):
+            self.host.build_tabs(notebook)          # the host's own tabs (Home, Focus) go first
 
         self.enabled_var = tk.BooleanVar(value=self.settings["enabled"])
         ttk.Checkbutton(sounds, text="Sound on        (Ctrl+Alt+M)", variable=self.enabled_var,
@@ -181,6 +187,9 @@ class KeyItApp:
             ttk.Button(bottom, text="Quit KeyIt", command=self.quit).pack(side="left", padx=(6, 0))
         else:
             ttk.Button(bottom, text="Close", command=lambda: self.hide(notify=False)).pack(side="left")
+            if hasattr(self.host, "quit"):
+                ttk.Button(bottom, text=f"Quit {self.host.window_title}",
+                           command=self.host.quit).pack(side="left", padx=(6, 0))
 
         self._populate_packs()
         self._update_volume_label()
@@ -215,6 +224,8 @@ class KeyItApp:
             self.tray.icon = make_tray_image(self.settings["enabled"])
         self.tray.title = f"{core.APP_NAME} – {state} – {pack.name}"
         self.tray.update_menu()
+        if self.host is not None and hasattr(self.host, "on_refresh"):
+            self.host.on_refresh()
 
     def show(self):
         self.root.deiconify()

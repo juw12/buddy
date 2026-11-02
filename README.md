@@ -1,7 +1,12 @@
 # Buddy
 
-Buddy = **Pips** (desktop pet + productivity tracking) + **KeyIt** (keyboard sounds)
-+ a **local AI screen helper**, all in one app and one tray/pet.
+Buddy is the app. It owns the tray icon, the main window, autostart and quitting.
+It has three features:
+- **Focus**: the Pips desktop pet and focus tracker, running inside Buddy.
+- **Keyboard sounds**: KeyIt.
+- **AI helper**: a local helper that looks at your screen and answers questions about it.
+
+Click the orange Buddy icon by the clock to open the main window. Its tabs are Home, Focus, Keyboard sounds and AI helper.
 
 ## Run
 - **App:** unzip `Buddy-win64.zip` anywhere and run `Buddy.exe`. You don't need Python.
@@ -48,6 +53,9 @@ your current Pips focus score, so answers can take your day into account.
 - `buddy.py`: the launcher (`--selftest`, `--import-pips`).
 - `pips_import.py`: copies a Pips profile into Buddy (SQLite online backup with an integrity check).
 - `buddy.spec` and `build.bat`: the PyInstaller onedir build. The sources ship as plain files in `app\`.
-- `buddy_host.py`: the glue. It provides the BuddyWidget (a Pips subclass), the pet menu, the pet-guide overlay, and the focus context.
+- `buddy_host.py`: BuddyApp, the boss. It owns the Tk root, the tray, single-instance, quitting and autostart.
+  It also contains FocusFeature (Pips running under Buddy's root), the pet menu and the pet-guide overlay.
+- `buddy_home.py`: the Home and Focus tabs of the Buddy window.
+- `assets/buddy.ico`: Buddy's icon. `make_buddy_icon.py` draws it.
 - `pips/`: Pips v2.28.0 source, unmodified.
 - `keyit/`: KeyIt modules, patched so they can be hosted inside Buddy.
