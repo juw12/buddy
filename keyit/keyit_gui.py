@@ -296,12 +296,17 @@ class KeyItApp:
 
     def _safe_autostart_state(self):
         try:
+            if self.host is not None:
+                return self.host.autostart_enabled()
             return core.is_autostart_enabled()
         except OSError:
             return False
 
     def _on_autostart_clicked(self):
         try:
+            if self.host is not None:
+                self.host.set_autostart(self.autostart_var.get())
+                return
             core.set_autostart(self.autostart_var.get())
         except OSError as error:
             self.autostart_var.set(self._safe_autostart_state())

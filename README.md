@@ -4,8 +4,20 @@ Buddy = **Pips** (desktop pet + productivity tracking) + **KeyIt** (keyboard sou
 + a **local AI screen helper**, all in one app and one tray/pet.
 
 ## Run
-1. `setup.bat` (once): creates `.venv`, installs requirements, runs the self-test.
-2. `start.bat`: starts Buddy (no console).
+- **App:** unzip `Buddy-win64.zip` anywhere and run `Buddy.exe`. You don't need Python.
+- **From source:** run `setup.bat` once (it creates `.venv`, installs the requirements, and runs the self-test).
+  After that, start Buddy with `start.bat`.
+- **Build the app:** run `build.bat`. It writes `dist\Buddy\` and `dist\Buddy-win64.zip`. Your Pips data in
+  `dist\Buddy\app\pips` is kept when you rebuild, and it is never put in the zip.
+
+## Bring your Pips history along
+Quit Pips first, or leave it running: the database is copied safely either way. Then run:
+
+    Buddy.exe --import-pips "C:\path\to\your\pips"            (app)
+    python buddy.py --import-pips "C:\path\to\your\pips"       (source)
+
+This copies `config.json` and `data\`. Buddy only reads your original Pips folder. If Buddy already has a profile,
+the import stops. Add `--force` to replace that profile; the old one is moved to `pips\backup\` first.
 
 ## Use
 - **Ctrl+Alt+Space** (hold): ask Buddy about your screen by voice. Release to send, and press Esc to cancel.
@@ -20,7 +32,10 @@ for example `ollama pull qwen3-vl:4b`. Everything stays on this PC. Buddy also t
 your current Pips focus score, so answers can take your day into account.
 
 ## Data
-- Pips data (tasks, history, config) is stored in `pips/data` and `pips/config.json`, next to the code.
+- Pips data (tasks, history, config) is stored in `pips/data` and `pips/config.json`. In the app, that is
+  `Buddy\app\pips\data` and `Buddy\app\pips\config.json`.
+- Autostart (pet menu: Autostart, or the "Start with Windows" setting) adds `Buddy.lnk` to your Startup folder.
+  It doesn't change a standalone `Pips.lnk`.
 - Sound and AI settings are stored in `%APPDATA%\Buddy`. You can override this with the `KEYIT_HOME` environment variable.
 
 ## Notes
@@ -30,7 +45,9 @@ your current Pips focus score, so answers can take your day into account.
 - `python buddy.py --selftest` runs the Pips self-test with all Buddy parts attached.
 
 ## Layout
-- `buddy.py`: the launcher.
+- `buddy.py`: the launcher (`--selftest`, `--import-pips`).
+- `pips_import.py`: copies a Pips profile into Buddy (SQLite online backup with an integrity check).
+- `buddy.spec` and `build.bat`: the PyInstaller onedir build. The sources ship as plain files in `app\`.
 - `buddy_host.py`: the glue. It provides the BuddyWidget (a Pips subclass), the pet menu, the pet-guide overlay, and the focus context.
 - `pips/`: Pips v2.28.0 source, unmodified.
 - `keyit/`: KeyIt modules, patched so they can be hosted inside Buddy.

@@ -9,3 +9,5 @@ pips/logs/
 pips/output/
 pips/backup/
 pips/.release/
+build/keep-profile/
+build.log

@@ -20,7 +20,7 @@ import types
 from datetime import datetime
 from pathlib import Path
 
-BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
+BUNDLE_DIR = Path(__file__).resolve().parent          # app root: source checkout or <exe dir>/app
 PIPS_DIR = BUNDLE_DIR / "pips"
 KEYIT_DIR = BUNDLE_DIR / "keyit"
 for folder in (KEYIT_DIR, PIPS_DIR):
@@ -211,6 +211,37 @@ class PetGuideOverlay(keyit_buddy.BuddyOverlay):
                 self._bubble(tx + 14, ty + 12, caption)
 
 
+# --------------------------------------------------------------------------- autostart
+STARTUP_SHORTCUT = Path(os.environ.get("APPDATA", Path.home())) / r"Microsoft\Windows\Start Menu\Programs\Startup" / "Buddy.lnk"
+
+
+def autostart_enabled():
+    return STARTUP_SHORTCUT.exists()
+
+
+def set_autostart(enabled):
+    """Startup-folder shortcut 'Buddy.lnk' (never touches a standalone Pips.lnk)."""
+    if not enabled:
+        STARTUP_SHORTCUT.unlink(missing_ok=True)
+        return
+    from win32com.client import Dispatch
+
+    if getattr(sys, "frozen", False):
+        target, arguments, workdir = Path(sys.executable), "", Path(sys.executable).parent
+    else:
+        pythonw = Path(sys.executable).with_name("pythonw.exe")
+        target = pythonw if pythonw.exists() else Path(sys.executable)
+        arguments = f'"{BUNDLE_DIR / "buddy.py"}"'
+        workdir = BUNDLE_DIR
+    STARTUP_SHORTCUT.parent.mkdir(parents=True, exist_ok=True)
+    shortcut = Dispatch("WScript.Shell").CreateShortCut(str(STARTUP_SHORTCUT))
+    shortcut.TargetPath = str(target)
+    shortcut.Arguments = arguments
+    shortcut.WorkingDirectory = str(workdir)
+    shortcut.IconLocation = str(PIPS_DIR / "assets" / "widget.ico")
+    shortcut.save()
+
+
 # --------------------------------------------------------------------------- host adapter
 class BuddyHost:
     """What KeyIt's settings window needs from its host (Pips)."""
@@ -225,6 +256,12 @@ class BuddyHost:
 
     def make_overlay(self):
         return PetGuideOverlay(self.root, lambda: self.widget.pet)
+
+    def autostart_enabled(self):
+        return autostart_enabled()
+
+    def set_autostart(self, enabled):
+        set_autostart(enabled)
 
     def buddy_context(self):
         return self._context                       # cached; refreshed on the Tk thread (sqlite!)
@@ -341,6 +378,17 @@ class BuddyWidget(pips_app.ProductivityWidget):
             self.buddy_suite = BuddySuite(self)
         except Exception:
             logger.exception("Buddy add-ons failed to start; Pips continues without them")
+
+    def _toggle_autostart(self):
+        """Pips' menu item 'Autostart' -> start Buddy (not standalone Pips) with Windows."""
+        try:
+            set_autostart(not autostart_enabled())
+            state = "on" if autostart_enabled() else "off"
+            logger.info("Buddy autostart %s", state)
+            if self.pet is not None:
+                self.pet.say(f"Start with Windows: {state}", duration=4, priority=2)
+        except Exception:
+            logger.exception("Autostart toggle failed")
 
     # Pips is shipped inside Buddy now: its own updater must never replace the merged files
     def _auto_update_tick(self):

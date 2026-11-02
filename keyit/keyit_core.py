@@ -24,7 +24,8 @@ VERSION = "0.1.0"
 
 # --------------------------------------------------------------------------- paths
 FROZEN = getattr(sys, "frozen", False)                       # running as PyInstaller exe
-BUNDLE_DIR = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
+_MODULE_DIR = Path(__file__).resolve().parent
+BUNDLE_DIR = _MODULE_DIR if (_MODULE_DIR / "packs").is_dir() else Path(getattr(sys, "_MEIPASS", _MODULE_DIR))
 BUILTIN_PACKS_DIR = BUNDLE_DIR / "packs"                     # read-only, shipped with app
 ASSETS_DIR = BUNDLE_DIR / "assets"
 USER_DIR = Path(os.environ.get("KEYIT_HOME") or Path(os.environ.get("APPDATA", Path.home())) / APP_NAME)
