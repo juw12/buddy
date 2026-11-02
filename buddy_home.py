@@ -1,4 +1,4 @@
-"""Buddy's own tabs in the main Buddy window: Home (everything at a glance) and Focus (the Pips part)."""
+"""Buddy's own tabs in the main Buddy window: Home (ask Buddy + everything at a glance) and Focus."""
 import threading
 import tkinter as tk
 from datetime import datetime
@@ -20,7 +20,7 @@ class BuddyTabs:
         notebook.insert(0, self.home, text="  Home  ")
         notebook.insert(1, self.focus, text="  Focus  ")
         notebook.select(0)
-        self._ai_text = "Checking\u2026"
+        self._brain_text = "Checking\u2026"
         self._build_home()
         self._build_focus()
 
@@ -38,22 +38,31 @@ class BuddyTabs:
         home = self.home
         home.columnconfigure(1, weight=1)
         self.greeting = ttk.Label(home, font=("Segoe UI Semibold", 13))
-        self.greeting.grid(row=0, column=0, columnspan=3, sticky="w", pady=(0, 12))
+        self.greeting.grid(row=0, column=0, columnspan=3, sticky="w")
 
-        self.focus_status, buttons = self._row(home, 1, "\u25CE", "Focus")
+        # Ask Buddy - the AI is simply Buddy
+        ask = ttk.Frame(home)
+        ask.grid(row=1, column=0, columnspan=3, sticky="ew", pady=(10, 2))
+        ask.columnconfigure(0, weight=1)
+        self.question_var = tk.StringVar()
+        self.ask_entry = ttk.Entry(ask, textvariable=self.question_var, font=("Segoe UI", 11))
+        self.ask_entry.grid(row=0, column=0, sticky="ew", ipady=3)
+        self.ask_entry.bind("<Return>", lambda _event: self._ask())
+        ttk.Button(ask, text="Ask Buddy", command=self._ask).grid(row=0, column=1, padx=(8, 0))
+        self.brain_status = ttk.Label(home, foreground=MUTED)
+        self.brain_status.grid(row=2, column=0, columnspan=3, sticky="w", pady=(0, 14))
+
+        self.focus_status, buttons = self._row(home, 3, "\u25CE", "Focus")
         ttk.Button(buttons, text="Focus card", command=self.app.open_focus_card).pack(side="left")
         ttk.Button(buttons, text="Dashboard", command=self.app.open_dashboard).pack(side="left", padx=(6, 0))
 
-        self.sound_status, buttons = self._row(home, 3, "\u2328", "Keyboard sounds")
+        self.sound_status, buttons = self._row(home, 5, "\u2328", "Keyboard sounds")
         self.sound_button = ttk.Button(buttons, width=9, command=self.app.toggle_sounds)
         self.sound_button.pack(side="left")
-        ttk.Button(buttons, text="Settings", command=lambda: self.app.open_home("sounds")).pack(side="left", padx=(6, 0))
+        ttk.Button(buttons, text="Settings", command=lambda: self.app.open_home("settings")).pack(
+            side="left", padx=(6, 0))
 
-        self.ai_status, buttons = self._row(home, 5, "\u2726", "AI helper")
-        ttk.Button(buttons, text="Ask\u2026", command=self.app.open_ask).pack(side="left")
-        ttk.Button(buttons, text="Check", command=self.check_ai).pack(side="left", padx=(6, 0))
-
-        self.pet_status, buttons = self._row(home, 7, "\u2665", "Desktop pet")
+        self.pet_status, buttons = self._row(home, 7, "\u2665", "On your desktop")
         ttk.Button(buttons, text="Find", command=self.app.summon_pet).pack(side="left")
         ttk.Button(buttons, text="Pet settings", command=self.app.open_pet_settings).pack(side="left", padx=(6, 0))
 
@@ -63,6 +72,16 @@ class BuddyTabs:
                         command=self._on_autostart).grid(row=10, column=0, columnspan=2, sticky="w")
         self.hint = ttk.Label(home, foreground=MUTED)
         self.hint.grid(row=11, column=0, columnspan=3, sticky="w", pady=(6, 0))
+
+    def _ask(self):
+        question = self.question_var.get().strip()
+        if question:
+            self.question_var.set("")
+            self.app.ask_buddy(question)
+
+    def focus_ask_box(self):
+        self.notebook.select(0)
+        self.ask_entry.focus_set()
 
     def _on_autostart(self):
         try:
@@ -83,14 +102,14 @@ class BuddyTabs:
         ttk.Button(buttons, text="Dashboard", command=self.app.open_dashboard).pack(side="left", padx=(6, 0))
         ttk.Button(buttons, text="History", command=self.app.open_history).pack(side="left", padx=(6, 0))
         ttk.Button(buttons, text="Refresh", command=self.refresh).pack(side="left", padx=(6, 0))
-        ttk.Label(focus, text="Pomodoros, goals, reminders and friends live on the pet: right-click it.",
+        ttk.Label(focus, text="Pomodoros, goals, reminders and friends: right-click Buddy on your desktop.",
                   foreground=MUTED).grid(row=3, column=0, sticky="w", pady=(14, 0))
 
     # ------------------------------------------------------------------ updates
     def refresh(self):
         hour = datetime.now().hour
         part = "morning" if 5 <= hour < 12 else "afternoon" if hour < 18 else "evening"
-        self.greeting.config(text=f"Good {part}! Here's everything Buddy runs for you.")
+        self.greeting.config(text=f"Good {part}! What can I help with?")
 
         summary = self.app.focus_numbers()
         if summary:
@@ -107,33 +126,34 @@ class BuddyTabs:
                                       f"  \u00b7  Ctrl+Alt+M mutes")
         self.sound_button.config(text="Mute" if sounds_on else "Turn on")
 
-        self.ai_status.config(text=self._ai_text)
+        self.brain_status.config(text=self._brain_text)
         name, visible = self.app.pet_state()
         self.pet_status.config(text=f"{name} is on your desktop" if visible else f"{name} is hidden - click Find")
         self.autostart_var.set(self.app.autostart_enabled())
-        self.hint.config(text=f"Hold Ctrl+Alt+Space to ask about your screen  \u00b7  "
-                              f"{self.app.pet_hotkey()} finds the pet")
+        self.hint.config(text=f"Or hold Ctrl+Alt+Space and just talk  \u00b7  {self.app.pet_hotkey()} brings "
+                              f"{name} to you")
 
     def check_ai(self):
         settings = self.app.settings
         if not settings.get("buddy_enabled"):
-            self._set_ai("Off - turn it on in the AI helper tab")
+            self._set_brain("My brain is switched off - turn it on in Settings")
             return
-        self._set_ai("Checking Ollama\u2026")
+        self._set_brain("Waking up my brain (Ollama)\u2026")
 
         def worker():
             model = settings.get("buddy_model", "")
             try:
                 models = keyit_buddy.OllamaClient(settings["ollama_url"]).list_models()
             except Exception:
-                self.app.post(self._set_ai, "Ollama isn't answering - start or reinstall Ollama")
+                self.app.post(self._set_brain, "I can't think yet: Ollama isn't answering - start or reinstall Ollama")
                 return
             installed = any(name == model or name.split(":")[0] == model for name in models)
-            text = f"Ready  \u00b7  {model}" if installed else f"Model '{model}' missing - run: ollama pull {model}"
-            self.app.post(self._set_ai, text)
+            text = (f"I see your screen when you ask  \u00b7  brain: {model}" if installed
+                    else f"My brain '{model}' is missing - run: ollama pull {model}")
+            self.app.post(self._set_brain, text)
 
         threading.Thread(target=worker, daemon=True).start()
 
-    def _set_ai(self, text):
-        self._ai_text = text
-        self.ai_status.config(text=text)
+    def _set_brain(self, text):
+        self._brain_text = text
+        self.brain_status.config(text=text)

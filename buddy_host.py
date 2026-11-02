@@ -339,7 +339,7 @@ class BuddyHost:
     """What KeyIt's settings window needs from Buddy: it becomes Buddy's main window."""
 
     window_title = BUDDY_NAME
-    tagline = f"v{BUDDY_VERSION}  \u00b7  focus \u00b7 keyboard sounds \u00b7 AI helper"
+    tagline = f"v{BUDDY_VERSION}  \u00b7  your desktop buddy"
     icon_path = ICON_PATH
 
     def __init__(self, app):
@@ -393,7 +393,7 @@ def install_pet_menu(app):
 
             def header(self, title, subtitle="", avatar="", **kwargs):
                 if title == "Pips":
-                    title, subtitle, avatar = BUDDY_NAME, f"v{BUDDY_VERSION} \u00b7 focus \u00b7 sounds \u00b7 AI", "B"
+                    title, subtitle, avatar = BUDDY_NAME, f"v{BUDDY_VERSION} \u00b7 your desktop buddy", "B"
                 return base.header(self, title, subtitle, avatar, **kwargs)
 
             def _add_buddy_section(self):
@@ -402,7 +402,7 @@ def install_pet_menu(app):
                 self._buddy_added = True
                 base.section(self, BUDDY_NAME)
                 base.item(self, "\U0001F3E0", "Open Buddy", app.open_home)
-                base.item(self, "\U0001F399", "Ask about my screen", app.open_ask, hint="or hold Ctrl+Alt+Space")
+                base.item(self, "\U0001F399", "Ask Buddy", app.open_ask, hint="or hold Ctrl+Alt+Space")
                 base.toggle(self, "\u2328", "Keyboard sounds", app.sounds_enabled(), app.toggle_sounds)
 
             def section(self, label):
@@ -459,6 +459,7 @@ class BuddyApp:
         self.host = BuddyHost(self)
         keyit_core.ensure_user_dirs()
         self.settings = keyit_core.load_settings()
+        self._make_it_all_buddy()
         self.player = keyit_core.Player(self.settings)
         self.hook = keyit_core.KeyboardHook(self.player)
         self.hook.start()
@@ -540,13 +541,20 @@ class BuddyApp:
 
     # ------------------------------------------------------------------ actions
     def open_home(self, tab="home"):
-        index = {"home": 0, "focus": 1, "sounds": 2, "ai": 3}.get(tab, 0)
+        index = {"home": 0, "focus": 1, "settings": 2}.get(tab, 0)
         self.refresh()
         self.window.show()
         self.window.notebook.select(index)
 
     def open_ask(self):
-        self.open_home("ai")
+        self.open_home("home")
+        if self.tabs is not None:
+            self.tabs.focus_ask_box()
+
+    def ask_buddy(self, question):
+        """Typed question from the Home tab: Buddy hides its window, looks at the screen and answers."""
+        self.window.question_var.set(question)
+        self.window.ask_typed()
 
     def open_focus_card(self):
         self.focus._show_card(near_pet=True)
@@ -591,9 +599,9 @@ class BuddyApp:
         sound = "Mute keyboard sounds" if self.settings.get("enabled") else "Turn keyboard sounds on"
         return {
             "summon": "Open Buddy",
-            "ask": "Ask about my screen   (Ctrl+Alt+Space)",
+            "ask": "Ask Buddy   (Ctrl+Alt+Space)",
             "sounds": f"{sound}   (Ctrl+Alt+M)",
-            "pet": f"Find my pet   ({self.pet_hotkey()})",
+            "pet": f"Where are you, Buddy?   ({self.pet_hotkey()})",
             "focus": "Focus card",
             "quit": "Quit Buddy",
         }
@@ -633,16 +641,31 @@ class BuddyApp:
             logger.exception("Show request failed")
         self.root.after(700, self._poll_instance)
 
-    def _first_run(self):
-        if self.settings.get("buddy_home_shown"):
+    def _make_it_all_buddy(self):
+        """One-time: the AI, the pet and the app are all Buddy (brain on, pet called Buddy unless renamed)."""
+        if self.settings.get("buddy_unified"):
             return
-        self.settings["buddy_home_shown"] = True
+        self.settings["buddy_unified"] = True
+        self.settings["buddy_enabled"] = True                  # Buddy's brain is part of Buddy, not an extra
+        pet = self.focus.pet if self.focus else None
+        if pet is not None and (pet.s.get("name") or "Pip") == "Pip":
+            pet.s["name"] = BUDDY_NAME
+            try:
+                self.focus._save_pet_settings(pet.s)
+            except Exception:
+                logger.exception("Could not save the pet's new name")
+        keyit_core.save_settings(self.settings)
+
+    def _first_run(self):
+        if self.settings.get("buddy_hello_v2"):
+            return
+        self.settings["buddy_hello_v2"] = True
         keyit_core.save_settings(self.settings)
         self.open_home()
         pet = self.focus.pet
         if pet is not None:
-            pet.say("Buddy's in charge now! Click the orange Buddy icon by the clock for focus, "
-                    "keyboard sounds and the AI helper.", duration=12, priority=2)
+            pet.say("Hi, I'm Buddy! Ask me anything - type on my Home page or hold Ctrl+Alt+Space and talk. "
+                    "I also keep your focus score and click your keys.", duration=14, priority=2)
 
     # ------------------------------------------------------------------ quit
     def quit(self):
@@ -727,7 +750,8 @@ def main(argv=None):
                         app.root.winfo_class(), app.focus.root.winfo_parent() or "?", tabs)
             logger.info("Today's focus: %s", numbers)
             assert app.focus.root.master is app.root, "Pips must live inside Buddy's root"
-            assert tabs[:2] == ["Home", "Focus"], tabs
+            assert tabs == ["Home", "Focus", "Settings"], tabs
+            assert app.pet_state()[0] != "Pip", "the pet should be Buddy"
         except Exception:
             logger.exception("Self-test failed")
             app.quit()

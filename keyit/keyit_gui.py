@@ -134,13 +134,23 @@ class KeyItApp:
 
         notebook = ttk.Notebook(frame)
         notebook.grid(row=1, column=0, columnspan=3, sticky="nsew")
-        sounds = ttk.Frame(notebook, padding=(10, 10, 10, 6))
-        sounds.columnconfigure(1, weight=1)
-        buddy_tab = ttk.Frame(notebook, padding=(10, 10, 10, 6))
-        buddy_tab.columnconfigure(1, weight=1)
         hosted = self.host is not None
-        notebook.add(sounds, text="  Keyboard sounds  " if hosted else "  Sounds  ")
-        notebook.add(buddy_tab, text="  AI helper  " if hosted else "  Buddy (AI)  ")
+        if hosted:
+            # Inside Buddy everything is Buddy: one Settings tab with two sections
+            settings_tab = ttk.Frame(notebook, padding=(10, 8, 10, 6))
+            settings_tab.columnconfigure(0, weight=1)
+            sounds = ttk.LabelFrame(settings_tab, text=" Keyboard sounds ", padding=(10, 4, 10, 8))
+            buddy_tab = ttk.LabelFrame(settings_tab, text=" Buddy's brain (local AI) ", padding=(10, 4, 10, 8))
+            sounds.grid(row=0, column=0, sticky="ew")
+            buddy_tab.grid(row=1, column=0, sticky="ew", pady=(10, 0))
+            notebook.add(settings_tab, text="  Settings  ")
+        else:
+            sounds = ttk.Frame(notebook, padding=(10, 10, 10, 6))
+            buddy_tab = ttk.Frame(notebook, padding=(10, 10, 10, 6))
+            notebook.add(sounds, text="  Sounds  ")
+            notebook.add(buddy_tab, text="  Buddy (AI)  ")
+        sounds.columnconfigure(1, weight=1)
+        buddy_tab.columnconfigure(1, weight=1)
         self.notebook = notebook
         if hosted and hasattr(self.host, "build_tabs"):
             self.host.build_tabs(notebook)          # the host's own tabs (Home, Focus) go first
@@ -172,8 +182,9 @@ class KeyItApp:
         ttk.Button(sounds, text="Record my keyboard…", command=self.open_recorder).grid(
             row=6, column=0, columnspan=2, sticky="w")
         self.autostart_var = tk.BooleanVar(value=self._safe_autostart_state())
-        ttk.Checkbutton(sounds, text="Start with Windows", variable=self.autostart_var,
-                        command=self._on_autostart_clicked).grid(row=6, column=1, columnspan=2, sticky="e")
+        if self.host is None:                        # inside Buddy it's on the Home tab ("Start Buddy with Windows")
+            ttk.Checkbutton(sounds, text="Start with Windows", variable=self.autostart_var,
+                            command=self._on_autostart_clicked).grid(row=6, column=1, columnspan=2, sticky="e")
 
         self._build_buddy_tab(buddy_tab)
 
@@ -337,7 +348,9 @@ class KeyItApp:
         buddy_module.buddy_settings(self.settings)
         self.buddy = None
         self.buddy_enabled_var = tk.BooleanVar(value=self.settings["buddy_enabled"])
-        ttk.Checkbutton(tab, text="Enable Buddy – hold Ctrl+Alt+Space and ask about your screen",
+        enable_text = ("Buddy can see your screen and answer  (hold Ctrl+Alt+Space and talk)" if self.host
+                       else "Enable Buddy – hold Ctrl+Alt+Space and ask about your screen")
+        ttk.Checkbutton(tab, text=enable_text,
                         variable=self.buddy_enabled_var, command=self._on_buddy_toggled).grid(
             row=0, column=0, columnspan=3, sticky="w")
 
@@ -365,12 +378,13 @@ class KeyItApp:
         ttk.Checkbutton(tab, text="Speak", variable=self.speak_var,
                         command=self._on_buddy_option).grid(row=4, column=2, sticky="w", pady=(8, 0))
 
-        ttk.Label(tab, text="Or type").grid(row=5, column=0, sticky="w", pady=(12, 0))
         self.question_var = tk.StringVar()
-        entry = ttk.Entry(tab, textvariable=self.question_var)
-        entry.grid(row=5, column=1, sticky="ew", padx=8, pady=(12, 0))
-        entry.bind("<Return>", lambda _e: self.ask_typed())
-        ttk.Button(tab, text="Ask", command=self.ask_typed).grid(row=5, column=2, pady=(12, 0))
+        if self.host is None:                            # inside Buddy the ask box is on the Home tab
+            ttk.Label(tab, text="Or type").grid(row=5, column=0, sticky="w", pady=(12, 0))
+            entry = ttk.Entry(tab, textvariable=self.question_var)
+            entry.grid(row=5, column=1, sticky="ew", padx=8, pady=(12, 0))
+            entry.bind("<Return>", lambda _e: self.ask_typed())
+            ttk.Button(tab, text="Ask", command=self.ask_typed).grid(row=5, column=2, pady=(12, 0))
 
         self.buddy_status = ttk.Label(tab, foreground="#777", wraplength=430, justify="left",
                                       text="Runs 100% on this PC with Ollama. A screenshot is taken only when you ask.")
