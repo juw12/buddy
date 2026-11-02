@@ -33,7 +33,7 @@ import keyit_core as core
 DEFAULTS = {
     "buddy_enabled": False,
     "ollama_url": "http://localhost:11434",
-    "buddy_model": "qwen3-vl:4b",
+    "buddy_model": "qwen3-vl:4b-instruct",   # the plain 4b tag is the slow "thinking" variant
     "whisper_model": "auto",
     "speech_language": "en-US",
     "buddy_voice": "",
@@ -45,6 +45,7 @@ DEFAULTS = {
 WHISPER_MODELS = ["auto", "windows", "tiny.en", "base.en", "small.en", "base", "small"]
 WHISPER_RATE = 16000
 MAX_POINTS = 3
+MODEL_OPTIONS = {"num_ctx": 8192}   # keep identical for warm-up and questions
 TAP_SECONDS = 0.35            # Ctrl+Alt+Space shorter than this = type, longer = talk
 SELECTION_MAX_CHARS = 4000
 HISTORY_TURNS = 4
@@ -69,9 +70,14 @@ POINT_PATTERN = re.compile(
 FINISHED_SENTENCE = re.compile(r"\s*(.+?[.!?]+)(?=\s)", re.DOTALL)
 
 
+SLOW_THINKING_MODELS = {"qwen3-vl:4b": "qwen3-vl:4b-instruct", "qwen3-vl:latest": "qwen3-vl:4b-instruct"}
+
+
 def buddy_settings(settings):
     for key, value in DEFAULTS.items():
         settings.setdefault(key, value)
+    # The plain qwen3-vl tags "think" silently for minutes on a laptop CPU; use the instruct twin.
+    settings["buddy_model"] = SLOW_THINKING_MODELS.get(settings["buddy_model"], settings["buddy_model"])
     return settings
 
 
@@ -140,8 +146,9 @@ class OllamaClient:
             "model": model,
             "messages": messages,
             "stream": True,
+            "think": False,                 # answer right away; silent reasoning took minutes on this laptop
             "keep_alive": "15m",
-            "options": {"temperature": 0.2, "num_ctx": 8192},
+            "options": dict(MODEL_OPTIONS, temperature=0.2),
         }
         with self._request("/api/chat", payload, timeout=timeout) as response:
             for line in response:
@@ -158,7 +165,8 @@ class OllamaClient:
 
     def warm_up(self, model):
         """Load the model into memory so the first real question is fast."""
-        payload = {"model": model, "messages": [], "keep_alive": "15m"}
+        # Same options as real questions, or Ollama reloads the model on the first question (~45 s here)
+        payload = {"model": model, "messages": [], "keep_alive": "15m", "options": dict(MODEL_OPTIONS)}
         with self._request("/api/chat", payload, timeout=300) as response:
             response.read()
 
@@ -1124,7 +1132,7 @@ class Buddy:
         done.wait(1.0)
         time.sleep(0.05)
         png, image = capture_monitor(self.monitor, self.settings["screenshot_max_side"])
-        self.post(self.overlay.thinking, f"“{question}”\nThinking…")
+        self.post(self.overlay.thinking, f"“{question}”\nLooking at your screen… (about a minute)")
 
         messages = [{"role": "system", "content": self._system_prompt()}]
         messages += self.history[-2 * HISTORY_TURNS:]

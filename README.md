@@ -35,7 +35,7 @@ the import stops. Add `--force` to replace that profile; the old one is moved to
 - Right-click the pet, then go to **Buddy** to find *Ask Buddy about my screen*, *Keyboard sounds*, and *Sounds & AI settings*.
 
 The AI part needs [Ollama](https://ollama.com) running locally with a vision model,
-for example `ollama pull qwen3-vl:4b`. Everything stays on this PC. Buddy also tells the model
+for example `ollama pull qwen3-vl:4b-instruct`. Everything stays on this PC. Buddy also tells the model
 your current Pips focus score, so answers can take your day into account.
 
 ## Data
