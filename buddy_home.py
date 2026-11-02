@@ -137,7 +137,7 @@ class BuddyTabs:
         name, visible = self.app.pet_state()
         self.pet_status.config(text=f"{name} is on your desktop" if visible else f"{name} is hidden - click Find")
         self.autostart_var.set(self.app.autostart_enabled())
-        self.hint.config(text=f"Or hold Ctrl+Alt+Space and just talk  \u00b7  {self.app.pet_hotkey()} brings "
+        self.hint.config(text=f"Anywhere: tap Ctrl+Alt+Space to type, hold it to talk  \u00b7  {self.app.pet_hotkey()} brings "
                               f"{name} to you")
 
     def check_ai(self):

@@ -348,7 +348,7 @@ class KeyItApp:
         buddy_module.buddy_settings(self.settings)
         self.buddy = None
         self.buddy_enabled_var = tk.BooleanVar(value=self.settings["buddy_enabled"])
-        enable_text = ("Buddy can see your screen and answer  (hold Ctrl+Alt+Space and talk)" if self.host
+        enable_text = ("Buddy can see your screen and answer  (Ctrl+Alt+Space: tap to type, hold to talk)" if self.host
                        else "Enable Buddy – hold Ctrl+Alt+Space and ask about your screen")
         ttk.Checkbutton(tab, text=enable_text,
                         variable=self.buddy_enabled_var, command=self._on_buddy_toggled).grid(

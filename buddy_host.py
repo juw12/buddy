@@ -333,7 +333,7 @@ def install_pet_menu(app):
                 self._buddy_added = True
                 base.section(self, BUDDY_NAME)
                 base.item(self, "\U0001F3E0", "Open Buddy", app.open_home)
-                base.item(self, "\U0001F399", "Ask Buddy", app.open_ask, hint="or hold Ctrl+Alt+Space")
+                base.item(self, "\U0001F399", "Ask Buddy", app.open_ask, hint="tap Ctrl+Alt+Space")
                 base.toggle(self, "\u2328", "Keyboard sounds", app.sounds_enabled(), app.toggle_sounds)
 
             def section(self, label):
@@ -638,6 +638,11 @@ class BuddyApp:
         self.window.notebook.select(index)
 
     def open_ask(self):
+        """Tray / pet menu 'Ask Buddy': the little ask box at the mouse (or Home if the brain is off)."""
+        buddy = getattr(self.window, "buddy", None)
+        if buddy is not None:
+            self.root.after(150, buddy.open_ask_box)     # let the menu close first
+            return
         self.open_home("home")
         if self.tabs is not None:
             self.tabs.focus_ask_box()
@@ -689,7 +694,7 @@ class BuddyApp:
         sound = "Mute keyboard sounds" if self.settings.get("enabled") else "Turn keyboard sounds on"
         return {
             "summon": "Open Buddy",
-            "ask": "Ask Buddy   (Ctrl+Alt+Space)",
+            "ask": "Ask Buddy   (tap Ctrl+Alt+Space, hold to talk)",
             "sounds": f"{sound}   (Ctrl+Alt+M)",
             "pet": f"Where are you, Buddy?   ({self.pet_hotkey()})",
             "focus": "Focus card",
@@ -761,7 +766,7 @@ class BuddyApp:
         self.open_home()
         pet = self.focus.pet
         if pet is not None:
-            pet.say("Hi, I'm Buddy! Ask me anything - type on my Home page or hold Ctrl+Alt+Space and talk. "
+            pet.say("Hi, I'm Buddy! Ask me anything - tap Ctrl+Alt+Space to type, or hold it and talk. "
                     "I also keep your focus score and click your keys.", duration=14, priority=2)
 
     # ------------------------------------------------------------------ quit
@@ -869,6 +874,9 @@ def main(argv=None):
             assert app.focus.root.master is app.root, "Pips must live inside Buddy's root"
             assert tabs == ["Home", "Focus", "Settings"], tabs
             assert app.pet_state()[0] != "Pip", "the pet should be Buddy"
+            uia, automation = keyit_buddy._uia()               # selection reading for the ask box
+            assert automation.GetRootElement(), "UI Automation unavailable"
+            logger.info("UI Automation ready for highlighted-text questions")
         except Exception:
             logger.exception("Self-test failed")
             app.quit()

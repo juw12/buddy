@@ -45,6 +45,8 @@ DEFAULTS = {
 WHISPER_MODELS = ["auto", "windows", "tiny.en", "base.en", "small.en", "base", "small"]
 WHISPER_RATE = 16000
 MAX_POINTS = 3
+TAP_SECONDS = 0.35            # Ctrl+Alt+Space shorter than this = type, longer = talk
+SELECTION_MAX_CHARS = 4000
 HISTORY_TURNS = 4
 
 SYSTEM_PROMPT = """You are KeyIt Buddy, a friendly expert tutor that lives next to the user's mouse cursor on Windows.
@@ -723,6 +725,228 @@ class BuddyOverlay:
         self._hide_window()
 
 
+# --------------------------------------------------------------------------- typing instead of talking
+def _uia():
+    import comtypes
+    import comtypes.client
+
+    comtypes.CoInitialize()
+    comtypes.client.GetModule("UIAutomationCore.dll")
+    from comtypes.gen import UIAutomationClient as uia
+
+    return uia, comtypes.client.CreateObject(uia.CUIAutomation, interface=uia.IUIAutomation)
+
+
+def uia_selection(element, uia, max_chars):
+    """Selected text of one UI Automation element ('' if it has no text pattern or no selection)."""
+    if not element:
+        return ""
+    pattern = element.GetCurrentPattern(uia.UIA_TextPatternId)
+    if not pattern:
+        return ""
+    ranges = pattern.QueryInterface(uia.IUIAutomationTextPattern).GetSelection()
+    parts = []
+    for index in range(ranges.Length):
+        text = ranges.GetElement(index).GetText(max_chars)
+        if text and text.strip():
+            parts.append(text.strip())
+    return "\n".join(parts)[:max_chars]
+
+
+def selected_text(max_chars=None):
+    """Text highlighted in the app you're using, read through Windows UI Automation.
+
+    No Ctrl+C and no clipboard: Ctrl+C would stop whatever runs in a terminal and overwrite your clipboard.
+    Works where apps expose their text (browsers, Office, WPF/UWP apps...); returns "" otherwise.
+    """
+    max_chars = max_chars or SELECTION_MAX_CHARS
+    try:
+        uia, automation = _uia()
+        return uia_selection(automation.GetFocusedElement(), uia, max_chars)
+    except Exception:
+        logging.debug("Could not read the selected text", exc_info=True)
+        return ""
+
+
+class GUITHREADINFO(ctypes.Structure):
+    _fields_ = [("cbSize", wintypes.DWORD), ("flags", wintypes.DWORD), ("hwndActive", wintypes.HWND),
+                ("hwndFocus", wintypes.HWND), ("hwndCapture", wintypes.HWND), ("hwndMenuOwner", wintypes.HWND),
+                ("hwndMoveSize", wintypes.HWND), ("hwndCaret", wintypes.HWND), ("rcCaret", RECT)]
+
+
+def edit_control_selection(hwnd, max_chars=None):
+    """Selected text of a classic text box (Win32 / WinForms edit control), asked from the control itself."""
+    max_chars = max_chars or SELECTION_MAX_CHARS
+    WM_GETTEXT, WM_GETTEXTLENGTH, EM_GETSEL = 0x000D, 0x000E, 0x00B0
+    SMTO_ABORTIFHUNG = 0x0002
+    user32 = ctypes.windll.user32
+    user32.SendMessageTimeoutW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM,
+                                           wintypes.UINT, wintypes.UINT, ctypes.POINTER(ctypes.c_size_t)]
+    class_name = ctypes.create_unicode_buffer(64)
+    user32.GetClassNameW(hwnd, class_name, 64)
+    if "EDIT" not in class_name.value.upper():
+        return ""
+
+    def send(message, wparam=0, lparam=0):
+        result = ctypes.c_size_t()
+        if not user32.SendMessageTimeoutW(hwnd, message, wparam, lparam, SMTO_ABORTIFHUNG, 300,
+                                          ctypes.byref(result)):
+            return None
+        return result.value
+
+    selection = send(EM_GETSEL)
+    length = send(WM_GETTEXTLENGTH)
+    if not selection or not length:
+        return ""
+    start, end = selection & 0xFFFF, (selection >> 16) & 0xFFFF
+    if end <= start:
+        return ""
+    buffer = ctypes.create_unicode_buffer(length + 1)
+    if send(WM_GETTEXT, length + 1, ctypes.addressof(buffer)) is None:
+        return ""
+    return buffer.value[start:end].strip()[:max_chars]
+
+
+def selected_text_from_edit_control(max_chars=None):
+    """Fallback for classic text boxes: the focused control of the app in front."""
+    try:
+        user32 = ctypes.windll.user32
+        thread = user32.GetWindowThreadProcessId(user32.GetForegroundWindow(), None)
+        info = GUITHREADINFO()
+        info.cbSize = ctypes.sizeof(GUITHREADINFO)
+        if not user32.GetGUIThreadInfo(thread, ctypes.byref(info)) or not info.hwndFocus:
+            return ""
+        return edit_control_selection(info.hwndFocus, max_chars)
+    except Exception:
+        logging.debug("Could not read the edit control's selection", exc_info=True)
+        return ""
+
+
+def selected_text_quick(timeout_s=0.8):
+    """selected_text(), but never wait long on a busy app."""
+    result = {}
+
+    def read():
+        result["text"] = selected_text() or selected_text_from_edit_control()
+
+    worker = threading.Thread(target=read, daemon=True)
+    worker.start()
+    worker.join(timeout_s)
+    return result.get("text", "")
+
+
+class AskBox:
+    """Small 'Ask Buddy' box that pops up at the mouse when you tap Ctrl+Alt+Space."""
+
+    current = None
+    ORANGE = "#ff8424"
+    INK = "#1f2130"
+    FIELD = "#2b2e40"
+    MUTED = "#a9acbd"
+
+    def __init__(self, root, monitor, cursor, selection, on_submit):
+        import tkinter as tk
+
+        AskBox.close_current()
+        AskBox.current = self
+        self.root = root
+        self.selection = selection
+        self.on_submit = on_submit
+        self.top = top = tk.Toplevel(root)
+        top.overrideredirect(True)
+        top.attributes("-topmost", True)
+        top.config(bg=self.ORANGE)
+        inner = tk.Frame(top, bg=self.INK, padx=12, pady=9)
+        inner.pack(padx=2, pady=2)
+        tk.Label(inner, text="Ask Buddy", fg=self.ORANGE, bg=self.INK,
+                 font=("Segoe UI Semibold", 10)).pack(anchor="w")
+        if selection:
+            preview = " ".join(selection.split())
+            if len(preview) > 70:
+                preview = preview[:70] + "\u2026"
+            tk.Label(inner, text=f"About the text you highlighted: \u201c{preview}\u201d", fg=self.MUTED,
+                     bg=self.INK, font=("Segoe UI", 9), wraplength=400, justify="left").pack(anchor="w", pady=(2, 0))
+        self.var = tk.StringVar()
+        self.entry = tk.Entry(inner, textvariable=self.var, width=44, font=("Segoe UI", 11), bg=self.FIELD,
+                              fg="white", insertbackground="white", relief="flat")
+        self.entry.pack(fill="x", pady=(6, 0), ipady=4)
+        hint = "Enter to ask  \u00b7  Esc to close"
+        if selection:
+            hint += "  \u00b7  just Enter = explain it"
+        tk.Label(inner, text=hint, fg=self.MUTED, bg=self.INK, font=("Segoe UI", 8)).pack(anchor="w", pady=(4, 0))
+        self.entry.bind("<Return>", self.submit)
+        self.entry.bind("<Escape>", lambda _event: self.close())
+        self.entry.bind("<FocusOut>", lambda _event: self.root.after(150, self._close_if_unfocused))
+
+        top.update_idletasks()
+        width, height = top.winfo_reqwidth(), top.winfo_reqheight()
+        right = monitor["left"] + monitor["width"]
+        bottom = monitor["top"] + monitor["height"]
+        x = min(max(cursor[0] + 18, monitor["left"] + 4), right - width - 8)
+        y = cursor[1] + 26
+        if y + height > bottom - 8:
+            y = cursor[1] - height - 12             # no room below the mouse: open above it
+        top.geometry(f"+{int(x)}+{int(max(y, monitor['top'] + 4))}")
+        self._take_focus()
+
+    def _take_focus(self):
+        """Windows only lets the app in front hand out keyboard focus, so borrow its input queue briefly."""
+        self.top.update_idletasks()
+        hwnd = int(self.top.wm_frame(), 16)
+        user32 = ctypes.windll.user32
+        kernel32 = ctypes.windll.kernel32
+        user32.GetWindowThreadProcessId.restype = wintypes.DWORD
+        foreground = user32.GetForegroundWindow()
+        foreground_thread = user32.GetWindowThreadProcessId(foreground, None) if foreground else 0
+        this_thread = kernel32.GetCurrentThreadId()
+        attached = bool(foreground_thread and foreground_thread != this_thread
+                        and user32.AttachThreadInput(foreground_thread, this_thread, True))
+        try:
+            # A key event sent by this app makes Windows accept it as "the app the user is talking to"
+            # (an unused key code, ignored by Buddy's keyboard hook and by every app).
+            user32.keybd_event(core.VK_MENU_MASK, 0, 0, 0)
+            user32.keybd_event(core.VK_MENU_MASK, 0, 2, 0)
+            user32.BringWindowToTop(hwnd)
+            user32.SetForegroundWindow(hwnd)
+        finally:
+            if attached:
+                user32.AttachThreadInput(foreground_thread, this_thread, False)
+        self.top.focus_force()
+        self.entry.focus_force()
+        if user32.GetForegroundWindow() != hwnd and not getattr(self, "_retried", False):
+            self._retried = True
+            self.root.after(120, self._take_focus)          # Windows sometimes needs a second try
+
+    def _close_if_unfocused(self):
+        try:
+            if self.top.winfo_exists() and self.top.focus_get() is None:
+                self.close()
+        except Exception:
+            self.close()
+
+    def submit(self, _event=None):
+        question = self.var.get().strip()
+        if not question and self.selection:
+            question = "Explain this."
+        if not question:
+            return
+        self.close()
+        self.on_submit(question)
+
+    def close(self):
+        if AskBox.current is self:
+            AskBox.current = None
+        try:
+            self.top.destroy()
+        except Exception:
+            pass
+
+    @classmethod
+    def close_current(cls):
+        if cls.current is not None:
+            cls.current.close()
+
+
 # --------------------------------------------------------------------------- controller
 class Buddy:
     """Push-to-talk flow. Call press()/release() from the hook; ask_text() from the GUI."""
@@ -754,7 +978,7 @@ class Buddy:
         try:
             self.on_status("Loading model into memory…")
             self.client().warm_up(self.settings["buddy_model"])
-            self.on_status("Ready – hold Ctrl+Alt+Space and ask.")
+            self.on_status("Ready – Ctrl+Alt+Space: tap to type, hold to talk.")
         except Exception as error:
             self.on_status(f"Ollama problem: {error}")
 
@@ -770,6 +994,7 @@ class Buddy:
         from keyit_recorder import MicCapture
 
         self.cancel()
+        self.pressed_at = time.perf_counter()
         self.monitor = monitor_under_cursor()
         cursor = cursor_position()
         try:
@@ -777,18 +1002,46 @@ class Buddy:
             self.mic.start()
         except Exception as error:
             self.mic = None
-            self.post(self.overlay.attach, self.monitor)
-            self.post(self.overlay.thinking, f"Mic error: {error}")
+            self.mic_error = error
             return
-        self.post(self.overlay.listening, self.monitor, cursor)
+        self.mic_error = None
+        mic = self.mic
+
+        def show_listening():
+            if self.mic is mic:                       # still held: it's a voice question
+                self.overlay.listening(self.monitor, cursor)
+
+        self.post(lambda: self.root.after(int(TAP_SECONDS * 1000), show_listening))
 
     def release(self):
+        """End of Ctrl+Alt+Space: a quick tap opens the type box, a hold sends what you said."""
+        held = time.perf_counter() - getattr(self, "pressed_at", 0.0)
         mic, self.mic = self.mic, None
+        if held < TAP_SECONDS:
+            if mic is not None:
+                try:
+                    mic.stop()
+                except Exception:
+                    pass
+            threading.Thread(target=self._open_ask_box, daemon=True).start()
+            return
         if mic is None:
+            error = getattr(self, "mic_error", None) or "no microphone"
+            self.post(self.overlay.thinking, f"Mic error: {error}\nTap Ctrl+Alt+Space to type instead.")
+            self.post(self.overlay.hide_later, 5000)
             return
         audio, _ = mic.stop()
-        self.post(self.overlay.thinking, "Transcribing…")
+        self.post(self.overlay.thinking, "Transcribing\u2026")
         threading.Thread(target=self._from_voice, args=(audio, mic.sample_rate), daemon=True).start()
+
+    def _open_ask_box(self):
+        """Read the highlighted text (if any) before the box takes focus, then open the box at the mouse."""
+        selection = selected_text_quick()
+        self.post(self.open_ask_box, selection)
+
+    def open_ask_box(self, selection=""):
+        AskBox(self.root, monitor_under_cursor(), cursor_position(), selection,
+               on_submit=lambda question: self.ask_text(question, selection=selection))
 
     def cancel(self):
         self.generation += 1
@@ -800,6 +1053,7 @@ class Buddy:
                 pass
             self.mic = None
         self.post(self.overlay.hide)
+        self.post(AskBox.close_current)
 
     # -- question flow (worker threads)
     def _from_voice(self, audio, sample_rate):
@@ -815,23 +1069,23 @@ class Buddy:
             return
         self._ask(question)
 
-    def ask_text(self, question, monitor=None):
+    def ask_text(self, question, monitor=None, selection=""):
         self.monitor = monitor or monitor_under_cursor()
         cursor = cursor_position()
 
         def start():
             self.overlay.attach(self.monitor)
             self.overlay.position = self.overlay.local(*cursor)
-            threading.Thread(target=self._ask, args=(question,), daemon=True).start()
+            threading.Thread(target=self._ask, args=(question, selection), daemon=True).start()
 
         self.post(start)
 
-    def _ask(self, question):
+    def _ask(self, question, selection=""):
         if not self.busy.acquire(blocking=False):
             return
         generation = self.generation
         try:
-            self._ask_locked(question, generation)
+            self._ask_locked(question, generation, selection)
         except Exception as error:
             logging.exception("Buddy error")
             self.post(self.overlay.thinking, f"Buddy error: {error}")
@@ -852,7 +1106,7 @@ class Buddy:
                            "Use it only when the question is about their day, focus or habits:\n" + context)
         return prompt
 
-    def _ask_locked(self, question, generation):
+    def _ask_locked(self, question, generation, selection=""):
         started = time.perf_counter()
         # Remove the buddy from the screen before taking the screenshot
         done = threading.Event()
@@ -864,9 +1118,12 @@ class Buddy:
 
         messages = [{"role": "system", "content": self._system_prompt()}]
         messages += self.history[-2 * HISTORY_TURNS:]
+        content = question
+        if selection:
+            content += f"\n\nThe text I highlighted on screen:\n\"\"\"\n{selection[:SELECTION_MAX_CHARS]}\n\"\"\""
         messages.append({
             "role": "user",
-            "content": question,
+            "content": content,
             "images": [base64.b64encode(png).decode()],
         })
 
