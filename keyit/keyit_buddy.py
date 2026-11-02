@@ -980,7 +980,7 @@ class Buddy:
             self.client().warm_up(self.settings["buddy_model"])
             self.on_status("Ready – Ctrl+Alt+Space: tap to type, hold to talk.")
         except Exception as error:
-            self.on_status(f"Ollama problem: {error}")
+            self.on_status(self._explain_error(error).replace("\n", " "))
 
     def _ensure_stt(self):
         wanted = (self.settings["whisper_model"], self.settings["speech_language"])
@@ -1088,10 +1088,20 @@ class Buddy:
             self._ask_locked(question, generation, selection)
         except Exception as error:
             logging.exception("Buddy error")
-            self.post(self.overlay.thinking, f"Buddy error: {error}")
-            self.post(self.overlay.hide_later, 6000)
+            self.post(self.overlay.thinking, self._explain_error(error))
+            self.post(self.overlay.hide_later, 12000)
         finally:
             self.busy.release()
+
+    def _explain_error(self, error):
+        """Plain-language reason Buddy can't answer (instead of 'HTTP Error 404')."""
+        model = self.settings["buddy_model"]
+        if isinstance(error, urllib.error.HTTPError) and error.code == 404:
+            return (f"I can't find my brain: Ollama has no '{model}' model.\n"
+                    f"Fix: reinstall Ollama from ollama.com, then run:  ollama pull {model}")
+        if isinstance(error, urllib.error.URLError):
+            return "Ollama isn't running, so I can't think.\nStart Ollama from the Start menu and ask again."
+        return f"Buddy error: {error}"
 
     def _system_prompt(self):
         prompt = SYSTEM_PROMPT
