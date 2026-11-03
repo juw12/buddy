@@ -4,9 +4,10 @@ KeyIt Buddy - a free, local, screen-aware AI helper that lives next to your curs
 Hold Ctrl+Alt+Space, ask a question out loud, release. Buddy:
   1. transcribes your voice locally (faster-whisper),
   2. screenshots the monitor under your cursor (only at that moment),
-  3. asks a local vision model through Ollama (nothing leaves this PC),
+  3. asks a local vision model (on the laptop GPU when possible, else Ollama; nothing leaves this PC),
   4. speaks the answer with the Windows voice, sentence by sentence while it streams,
-  5. flies a pointer to the UI elements it mentions, in order (step-by-step tours).
+  5. flies a pointer to the UI elements it mentions, in order (step-by-step tours), snapped onto
+     the exact button/field through Windows UI Automation.
 
 Pointing protocol: the model appends tags  [POINT:x,y:label]  with x, y in 0..1000
 normalized screenshot coordinates (the convention Qwen-VL models are trained on).
@@ -32,6 +33,8 @@ from ctypes import wintypes
 import numpy as np
 
 import keyit_core as core
+import keyit_gpu
+import keyit_targets
 
 DEFAULTS = {
     "buddy_enabled": False,
@@ -43,6 +46,7 @@ DEFAULTS = {
     "buddy_speak": True,
     "screenshot_max_side": 1280,
     "buddy_cursor_always": True,      # Clicky-style: the buddy rests next to the mouse all the time
+    "buddy_engine": "auto",           # "auto": GPU (fast) when possible, else Ollama; "cpu": always Ollama
 }
 # "auto" = Whisper base.en if it can be downloaded/loaded, else the built-in Windows recognizer
 WHISPER_MODELS = ["auto", "windows", "tiny.en", "base.en", "small.en", "base", "small"]
@@ -65,8 +69,9 @@ You are given a screenshot of the user's current screen and their spoken questio
 Rules:
 - Reply in 1 to 3 short, natural, spoken sentences. No markdown, no lists, no emojis, no URLs.
 - Be concrete and refer to what is actually visible on the screen.
-- When pointing at something on screen helps (a button, menu, tab, field, icon, text), put one tag per
-  element at the very END of your reply, in the order the user should use them, at most 3 tags:
+- Whenever the question is about where something is or how to do something on screen, you MUST point:
+  put one tag per element (button, menu, tab, field, icon, text) at the very END of your reply,
+  in the order the user should use them, at most 3 tags:
   [POINT:x,y:short label]
   x and y are the CENTER of the element in normalized coordinates from 0 to 1000,
   where 0,0 is the top-left and 1000,1000 is the bottom-right of the screenshot.
@@ -1028,12 +1033,38 @@ class Buddy:
         self.history = []
         self.busy = threading.Lock()
         self.generation = 0
-        self.look_ahead = None                # screenshot Ollama starts reading while you talk/type
+        self.look_ahead = None                # screenshot the model starts reading while you talk/type
+        self.gpu_server = None                # llama-server on the GPU (keyit_gpu), started on demand
+        self.gpu_failed = {}                  # model -> why the GPU can't run it (then: Ollama)
         threading.Thread(target=self._prepare, daemon=True).start()
 
     # -- setup
     def client(self):
-        return OllamaClient(self.settings["ollama_url"])
+        """The GPU brain when it can run the chosen model, else Ollama."""
+        model = self.settings["buddy_model"]
+        if self.settings.get("buddy_engine", "auto") == "cpu" or model in self.gpu_failed:
+            if self.gpu_server is not None:
+                self.gpu_server.stop()                     # switched off: free its memory
+                self.gpu_server = None
+            return OllamaClient(self.settings["ollama_url"])
+        if self.gpu_server is None or self.gpu_server.model != model:
+            reason = keyit_gpu.available(model)
+            if reason:
+                logging.info("GPU brain not available (%s); using Ollama", reason)
+                self.gpu_failed[model] = reason
+                return OllamaClient(self.settings["ollama_url"])
+            if self.gpu_server is not None:
+                self.gpu_server.stop()
+            self.gpu_server = keyit_gpu.GpuServer(model)
+        return keyit_gpu.GpuClient(self.gpu_server)
+
+    def _gpu_broke(self, error):
+        """The GPU server failed: use Ollama from now on (until the model changes)."""
+        logging.warning("GPU brain failed, switching to Ollama: %s", error)
+        self.gpu_failed[self.settings["buddy_model"]] = str(error)
+        if self.gpu_server is not None:
+            self.gpu_server.stop()
+            self.gpu_server = None
 
     def chime(self, name):
         """Buddy's wake-up / got-it sounds (Settings: 'Chime when Buddy wakes up')."""
@@ -1048,8 +1079,17 @@ class Buddy:
     def _prepare(self):
         try:
             self.on_status("Loading model into memory…")
-            self.client().warm_up(self.settings["buddy_model"])
-            self.on_status("Ready – Ctrl+Alt+Space: tap to type, hold to talk.")
+            client = self.client()
+            try:
+                client.warm_up(self.settings["buddy_model"])
+            except RuntimeError as error:
+                if not getattr(client, "gpu", False):
+                    raise
+                self._gpu_broke(error)
+                client = self.client()
+                client.warm_up(self.settings["buddy_model"])
+            where = "GPU, fast" if getattr(client, "gpu", False) else "CPU via Ollama"
+            self.on_status(f"Ready ({where}) – Ctrl+Alt+Space: tap to type, hold to talk.")
         except Exception as error:
             self.on_status(self._explain_error(error).replace("\n", " "))
 
@@ -1149,6 +1189,7 @@ class Buddy:
             "png": None,
             "system": None,
             "taken": threading.Event(),       # screenshot captured
+            "targets": None,                  # visible UI elements (for snapping the arrow)
             "read": threading.Event(),        # Ollama finished reading it
             "stop": threading.Event(),        # cancelled
         }
@@ -1163,6 +1204,7 @@ class Buddy:
             time.sleep(0.05)
             look["png"], _ = capture_monitor(look["monitor"], self.settings["screenshot_max_side"])
             look["system"] = self._system_prompt()
+            look["targets"] = self._snapshot_ui(look["monitor"])
         except Exception:
             logging.exception("Look-ahead screenshot failed")
             return
@@ -1170,7 +1212,11 @@ class Buddy:
             look["taken"].set()
         messages = self._messages(look["system"], look["history"], "", look["png"])
         started = time.perf_counter()
-        if self.client().prefill(self.settings["buddy_model"], messages, look["stop"]):
+        try:
+            client = self.client()
+        except Exception:
+            return
+        if client.prefill(self.settings["buddy_model"], messages, look["stop"]):
             look["read"].set()
             logging.info("Buddy read the screen ahead in %.1fs", time.perf_counter() - started)
 
@@ -1190,6 +1236,57 @@ class Buddy:
             return look
         look["stop"].set()                     # stale: free Ollama for the real question
         return None
+
+    @staticmethod
+    def _snapshot_ui(monitor):
+        """Start listing the visible UI elements (same moment as the screenshot). Returns a holder
+        {"done": Event, "items": [...]} so the question doesn't wait for it unless it needs it."""
+        rect = monitor.get("physical") or (monitor["left"], monitor["top"],
+                                           monitor["left"] + monitor["width"],
+                                           monitor["top"] + monitor["height"])
+        holder = {"done": threading.Event(), "items": [], "rect": rect}
+
+        def work():
+            try:
+                holder["items"] = keyit_targets.snapshot(rect)
+            except Exception:
+                logging.debug("UI snapshot failed", exc_info=True)
+            finally:
+                holder["done"].set()
+
+        threading.Thread(target=work, daemon=True).start()
+        return holder
+
+    def _snap_points(self, points, targets):
+        """Move the model's points onto the exact UI elements they mean (when Windows knows them)."""
+        if not points or targets is None:
+            return points
+        targets["done"].wait(3.0)
+        snapped = []
+        for point in points:
+            new_point, target = keyit_targets.snap(point, targets["items"], targets["rect"])
+            if target is not None:
+                logging.info("Arrow snapped %r -> %r %s", point[2], target["name"][:40], target["kind"])
+            snapped.append(new_point)
+        return snapped
+
+    def _stream(self, messages):
+        """Answer chunks from the GPU brain; if it breaks before answering, from Ollama instead."""
+        client = self.client()
+        model = self.settings["buddy_model"]
+        if not getattr(client, "gpu", False):
+            yield from client.chat_stream(model, messages)
+            return
+        started = False
+        try:
+            for chunk in client.chat_stream(model, messages):
+                started = True
+                yield chunk
+        except (RuntimeError, OSError, http.client.HTTPException) as error:
+            if started:
+                raise
+            self._gpu_broke(error)
+            yield from self.client().chat_stream(model, messages)
 
     @staticmethod
     def _messages(system, history, content, png):
@@ -1267,6 +1364,7 @@ class Buddy:
         if look is not None:
             # Screenshot from the moment the hotkey went down; Ollama may already have read it
             png, system, history = look["png"], look["system"], look["history"]
+            targets = look["targets"]
             wait_text = "Almost there\u2026" if look["read"].is_set() else "Still reading your screen\u2026"
         else:
             # Remove the buddy from the screen before taking the screenshot
@@ -1275,8 +1373,11 @@ class Buddy:
             done.wait(1.0)
             time.sleep(0.05)
             png, _ = capture_monitor(self.monitor, self.settings["screenshot_max_side"])
+            targets = self._snapshot_ui(self.monitor)
             system, history = self._system_prompt(), self.history[-2 * HISTORY_TURNS:]
-            wait_text = "Looking at your screen\u2026 (about a minute)"
+            fast = self.settings.get("buddy_engine", "auto") != "cpu" and \
+                self.settings["buddy_model"] not in self.gpu_failed
+            wait_text = "Looking at your screen\u2026" if fast else "Looking at your screen\u2026 (about a minute)"
         self.post(self.overlay.thinking, f"\u201c{question}\u201d\n{wait_text}")
 
         content = question
@@ -1286,7 +1387,7 @@ class Buddy:
 
         reply, spoken_upto = "", 0
         first_token_at = None
-        for chunk in self.client().chat_stream(self.settings["buddy_model"], messages):
+        for chunk in self._stream(messages):
             if generation != self.generation:
                 return                                            # cancelled
             if first_token_at is None:
@@ -1307,6 +1408,7 @@ class Buddy:
         remainder = parse_reply(reply.split("[")[0][spoken_upto:])[0]
         if remainder and self.settings["buddy_speak"]:
             self.speaker.say(remainder)
+        points = self._snap_points(points, targets)
         screen_points = [to_screen(p, self.monitor) for p in points]
         self.history += [
             {"role": "user", "content": question},

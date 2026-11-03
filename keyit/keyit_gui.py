@@ -376,6 +376,9 @@ class KeyItApp:
         self.whisper_box.set(self.settings["whisper_model"])
         self.whisper_box.grid(row=3, column=1, sticky="w", padx=8, pady=(8, 0))
         self.whisper_box.bind("<<ComboboxSelected>>", self._on_buddy_option)
+        self.gpu_var = tk.BooleanVar(value=self.settings.get("buddy_engine", "auto") != "cpu")
+        ttk.Checkbutton(tab, text="Use GPU (fast)", variable=self.gpu_var,
+                        command=self._on_gpu_toggled).grid(row=3, column=2, sticky="w", pady=(8, 0))
 
         ttk.Label(tab, text="Voice").grid(row=4, column=0, sticky="w", pady=(8, 0))
         self.voice_box = ttk.Combobox(tab, state="readonly", width=30)
@@ -466,6 +469,12 @@ class KeyItApp:
             self.refresh_models()
             if self.buddy:
                 threading.Thread(target=self.buddy._prepare, daemon=True).start()
+
+    def _on_gpu_toggled(self):
+        self.settings["buddy_engine"] = "auto" if self.gpu_var.get() else "cpu"
+        core.save_settings(self.settings)
+        if self.buddy:
+            threading.Thread(target=self.buddy._prepare, daemon=True).start()
 
     def _on_cursor_always_toggled(self):
         self.settings["buddy_cursor_always"] = self.cursor_always_var.get()

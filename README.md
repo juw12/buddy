@@ -39,6 +39,17 @@ The AI part needs [Ollama](https://ollama.com) running locally with a vision mod
 for example `ollama pull qwen3-vl:4b-instruct`. Everything stays on this PC. Buddy also tells the model
 your current Pips focus score, so answers can take your day into account.
 
+**Speed (Use GPU, on by default):** Ollama runs only on the CPU on Intel Arc laptops, which takes about
+70–140 s per screenshot. So Buddy starts Ollama's own bundled GPU server (Vulkan) with the model files
+Ollama already downloaded. A fresh screenshot takes about 12–15 s, and a follow-up or a question asked
+while you were still talking takes about 5 s. The GPU server stops after 30 min idle to free memory.
+If the GPU path isn't available, Buddy uses Ollama on the CPU. You can untick *Use GPU (fast)* in
+Settings to always use the CPU.
+
+**Pointing:** the arrow snaps onto the exact button, tab or text box through Windows UI Automation.
+This works in Office, browsers, Electron apps and the taskbar. In apps that draw their own UI, the
+arrow goes to the model's estimate.
+
 ## Data
 - Pips data (tasks, history, config) is stored in `pips/data` and `pips/config.json`. In the app, that is
   `Buddy\app\pips\data` and `Buddy\app\pips\config.json`.
