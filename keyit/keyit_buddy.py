@@ -32,6 +32,7 @@ from ctypes import wintypes
 
 import numpy as np
 
+import keyit_actions
 import keyit_core as core
 import keyit_gpu
 import keyit_targets
@@ -1012,6 +1013,44 @@ class AskBox:
 
 
 # --------------------------------------------------------------------------- controller
+class ConfirmBox:
+    """'Force it closed?  [Yes] [No]' next to the mouse. Enter = yes, Esc = no, closes itself after 30 s."""
+
+    def __init__(self, root, cursor, question, on_answer):
+        import tkinter as tk
+
+        self.on_answer = on_answer
+        self.answered = False
+        self.window = window = tk.Toplevel(root)
+        window.overrideredirect(True)
+        window.attributes("-topmost", True)
+        frame = tk.Frame(window, bg="#fff7ef", highlightbackground="#ff8a3d", highlightthickness=2)
+        frame.pack()
+        tk.Label(frame, text=question, bg="#fff7ef", justify="left", font=("Segoe UI", 10),
+                 wraplength=320).pack(padx=12, pady=(10, 6), anchor="w")
+        buttons = tk.Frame(frame, bg="#fff7ef")
+        buttons.pack(padx=12, pady=(0, 10), anchor="e")
+        tk.Button(buttons, text="Yes, do it", command=lambda: self.answer(True), bg="#ff8a3d", fg="white",
+                  relief="flat", padx=10).pack(side="left", padx=(0, 6))
+        tk.Button(buttons, text="No", command=lambda: self.answer(False), relief="flat", padx=10).pack(side="left")
+        window.bind("<Return>", lambda _e: self.answer(True))
+        window.bind("<Escape>", lambda _e: self.answer(False))
+        window.update_idletasks()
+        x, y = cursor
+        window.geometry(f"+{max(0, x + 20)}+{max(0, y + 20)}")
+        window.after(30000, lambda: self.answer(False))
+        window.focus_force()
+
+    def answer(self, value):
+        if self.answered:
+            return
+        self.answered = True
+        try:
+            self.window.destroy()
+        finally:
+            self.on_answer(value)
+
+
 class Buddy:
     """Push-to-talk flow. Call press()/release() from the hook; ask_text() from the GUI."""
 
@@ -1036,6 +1075,7 @@ class Buddy:
         self.look_ahead = None                # screenshot the model starts reading while you talk/type
         self.gpu_server = None                # llama-server on the GPU (keyit_gpu), started on demand
         self.gpu_failed = {}                  # model -> why the GPU can't run it (then: Ollama)
+        self.windows = []                     # open windows when the question started (for actions)
         threading.Thread(target=self._prepare, daemon=True).start()
 
     # -- setup
@@ -1204,6 +1244,7 @@ class Buddy:
             time.sleep(0.05)
             look["png"], _ = capture_monitor(look["monitor"], self.settings["screenshot_max_side"])
             look["system"] = self._system_prompt()
+            look["windows"] = list(self.windows)
             look["targets"] = self._snapshot_ui(look["monitor"])
         except Exception:
             logging.exception("Look-ahead screenshot failed")
@@ -1347,6 +1388,14 @@ class Buddy:
 
     def _system_prompt(self):
         prompt = SYSTEM_PROMPT
+        try:
+            self.windows = keyit_actions.list_windows()
+        except Exception:
+            logging.debug("Could not list windows", exc_info=True)
+            self.windows = []
+        prompt += "\n" + keyit_actions.ACTION_RULES
+        if self.windows:
+            prompt += "\nOpen windows (front first):\n" + keyit_actions.describe_windows(self.windows)
         if self.context_provider:
             try:
                 context = self.context_provider()
@@ -1365,6 +1414,7 @@ class Buddy:
             # Screenshot from the moment the hotkey went down; Ollama may already have read it
             png, system, history = look["png"], look["system"], look["history"]
             targets = look["targets"]
+            self.windows = look.get("windows", self.windows)
             wait_text = "Almost there\u2026" if look["read"].is_set() else "Still reading your screen\u2026"
         else:
             # Remove the buddy from the screen before taking the screenshot
@@ -1418,9 +1468,68 @@ class Buddy:
         first = (first_token_at or time.perf_counter()) - started
         self.last_timing = {"first_token_s": first, "total_s": total, "points": len(points)}
         self.on_status(f"Answered in {total:.1f}s (first words after {first:.1f}s)")
-        if screen_points:
+        actions = keyit_actions.parse_actions(reply)
+        if actions and not keyit_actions.is_request(question):
+            logging.info("Not acting: '%s' is a how-to question", question)
+            if not screen_points and targets is not None:
+                # "How do I close this?" -> [DO:click:Close]: point at it instead of clicking it
+                targets["done"].wait(3.0)
+                for action, argument in actions:
+                    target = keyit_targets.find_by_label(argument, targets["items"]) if action == "click" else None
+                    if target is not None:
+                        screen_points.append(to_screen(keyit_targets.to_normalized(target, targets["rect"]),
+                                                       self.monitor))
+            actions = []
+        self.last_reply = {"question": question, "reply": reply, "spoken": spoken, "points": screen_points,
+                           "actions": actions}
+        if actions:
+            self._do_actions(actions, targets, spoken, generation, question)
+        elif screen_points:
             self.post(self.overlay.tour, screen_points, spoken)
         else:
             self.post(self.overlay.say, spoken)
             self.post(self.overlay.hide_later, 9000)
-        self.last_reply = {"question": question, "reply": reply, "spoken": spoken, "points": screen_points}
+
+    # -- doing things
+    def _do_actions(self, actions, targets, spoken, generation, question=""):
+        """Run the model's [DO:...] actions one by one and say what happened."""
+        if targets is not None:
+            targets["done"].wait(3.0)
+        items = targets["items"] if targets is not None else []
+        results = []
+        for action, argument in actions:
+            if generation != self.generation:
+                return                                            # cancelled (Esc / new question)
+            try:
+                results.append(keyit_actions.run(action, argument, self.windows, items, confirm=self.confirm,
+                                                  question=question))
+            except Exception as error:
+                logging.exception("Buddy action %s failed", action)
+                results.append(f"I couldn't {action} that: {error}")
+            if action in ("close", "minimize", "open"):
+                time.sleep(0.4)
+                try:
+                    self.windows = keyit_actions.list_windows()  # later steps see the new window list
+                except Exception:
+                    pass
+        summary = " ".join(results)
+        self.last_reply["action_results"] = results
+        self.on_status(summary)
+        if self.settings["buddy_speak"] and summary != spoken:
+            self.speaker.say(summary)
+        self.post(self.overlay.say, summary)
+        self.post(self.overlay.hide_later, 6000)
+
+    def confirm(self, question, timeout_s=30):
+        """Ask yes/no in a small box next to the mouse (worker threads only). False on timeout."""
+        answer = {"value": False}
+        done = threading.Event()
+
+        def show():
+            ConfirmBox(self.root, cursor_position(), question, lambda value: (answer.update(value=value), done.set()))
+
+        if self.settings["buddy_speak"]:
+            self.speaker.say(question.split("\n")[0])
+        self.post(show)
+        done.wait(timeout_s)
+        return answer["value"]

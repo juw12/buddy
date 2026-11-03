@@ -187,6 +187,19 @@ def snap(point, targets, monitor_rect):
     return to_normalized(best, monitor_rect, label), best
 
 
+def find_by_label(label, targets):
+    """The visible element whose name best matches `label` (clickable ones win ties). None if no match."""
+    best, best_score = None, 0.0
+    for target in targets:
+        match = _name_match(label, target["name"])
+        if match <= 0:
+            continue
+        score = match + (0.2 if target["kind"] in CLICKABLE else 0.0) + (0.1 if target["foreground"] else 0.0)
+        if score > best_score:
+            best, best_score = target, score
+    return best if best_score >= 0.5 else None
+
+
 def to_normalized(target, monitor_rect, label=None):
     """Element center as Buddy's 0..1000 screenshot point (x, y, label)."""
     left, top, right, bottom = target["rect"]

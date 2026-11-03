@@ -46,6 +46,8 @@ while you were still talking takes about 5 s. The GPU server stops after 30 min 
 If the GPU path isn't available, Buddy uses Ollama on the CPU. You can untick *Use GPU (fast)* in
 Settings to always use the CPU.
 
+**Doing things:** ask Buddy to do something and it does it. For example: "close the file explorer", "close this", "minimize Outlook", "open notepad", "open google.com", "click Insert", "type hello", or "save it" (Ctrl+S). It only acts on requests; "how do I…" questions just get an answer and an arrow. If a window is frozen, Buddy asks before force-closing it. Frozen File Explorer windows are fixed by restarting Explorer, so the taskbar blinks once. Risky shortcuts like Alt+F4 also ask first.
+
 **Pointing:** the arrow snaps onto the exact button, tab or text box through Windows UI Automation.
 This works in Office, browsers, Electron apps and the taskbar. In apps that draw their own UI, the
 arrow goes to the model's estimate.
