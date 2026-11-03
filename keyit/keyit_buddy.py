@@ -47,6 +47,7 @@ WHISPER_RATE = 16000
 MAX_POINTS = 3
 MODEL_OPTIONS = {"num_ctx": 8192}   # keep identical for warm-up and questions
 TAP_SECONDS = 0.35            # Ctrl+Alt+Space shorter than this = type, longer = talk
+CHIME_SKIP_SECONDS = 0.25     # drop the start of the recording so speech recognition doesn't hear the chime
 SELECTION_MAX_CHARS = 4000
 HISTORY_TURNS = 4
 
@@ -959,13 +960,14 @@ class AskBox:
 class Buddy:
     """Push-to-talk flow. Call press()/release() from the hook; ask_text() from the GUI."""
 
-    def __init__(self, settings, root, post, on_status=None, overlay=None, context_provider=None):
+    def __init__(self, settings, root, post, on_status=None, overlay=None, context_provider=None, sound=None):
         self.settings = buddy_settings(settings)
         self.root = root
         self.post = post                      # thread-safe "run on UI thread"
         self.on_status = on_status or (lambda text: None)
         self.overlay = overlay or BuddyOverlay(root)   # e.g. the Pips pet when hosted
         self.context_provider = context_provider       # extra facts about the user (optional)
+        self.sound = sound                             # play_effect(name) from the KeyIt player
         self.speaker = Speaker(self.settings["buddy_voice"])
         self.stt = None
         self.stt_name = None
@@ -981,6 +983,16 @@ class Buddy:
     # -- setup
     def client(self):
         return OllamaClient(self.settings["ollama_url"])
+
+    def chime(self, name):
+        """Buddy's wake-up / got-it sounds (Settings: 'Chime when Buddy wakes up')."""
+        if self.sound is None or not self.settings.get("buddy_sounds", True):
+            return False
+        try:
+            self.sound(name)
+        except Exception:
+            return False
+        return True
 
     def _prepare(self):
         try:
@@ -1003,6 +1015,7 @@ class Buddy:
 
         self.cancel()
         self.pressed_at = time.perf_counter()
+        self.chimed = self.chime("buddy_wake")
         self.monitor = monitor_under_cursor()
         cursor = cursor_position()
         try:
@@ -1039,15 +1052,22 @@ class Buddy:
             self.post(self.overlay.hide_later, 5000)
             return
         audio, _ = mic.stop()
+        if getattr(self, "chimed", False):
+            skip = int(CHIME_SKIP_SECONDS * mic.sample_rate)
+            if audio.size > 2 * skip:
+                audio = audio[skip:]
+        self.chime("buddy_got_it")
         self.post(self.overlay.thinking, "Transcribing\u2026")
         threading.Thread(target=self._from_voice, args=(audio, mic.sample_rate), daemon=True).start()
 
     def _open_ask_box(self):
         """Read the highlighted text (if any) before the box takes focus, then open the box at the mouse."""
         selection = selected_text_quick()
-        self.post(self.open_ask_box, selection)
+        self.post(self.open_ask_box, selection, False)       # the hotkey already chimed
 
-    def open_ask_box(self, selection=""):
+    def open_ask_box(self, selection="", chime=True):
+        if chime:
+            self.chime("buddy_wake")
         AskBox(self.root, monitor_under_cursor(), cursor_position(), selection,
                on_submit=lambda question: self.ask_text(question, selection=selection))
 

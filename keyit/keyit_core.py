@@ -19,6 +19,8 @@ os.environ.setdefault("PYGAME_HIDE_SUPPORT_PROMPT", "1")
 import pygame  # noqa: E402
 from pynput import keyboard  # noqa: E402
 
+import keyit_sfx  # noqa: E402
+
 APP_NAME = "KeyIt"
 VERSION = "0.1.0"
 
@@ -41,6 +43,12 @@ PITCH_VARIANTS = (0.96, 0.98, 1.0, 1.02, 1.04)
 VOLUME_JITTER = (0.85, 1.0)
 STEREO_WIDTH = 0.35           # 0 = mono, 1 = hard left/right
 MISSED_KEYUP_TIMEOUT_S = 1.1  # longer than the max Windows key-repeat delay (1 s)
+MOUSE_VOLUME = 0.6            # mouse clicks sit a bit under the keyboard
+CHIME_VOLUME = 0.6            # Buddy's wake-up / got-it chimes (own switch, not the keyboard mute)
+
+# --------------------------------------------------------------------------- mouse codes
+# Negative so they can never clash with keyboard scan codes in the shared sound queue
+MOUSE_BUTTONS = {-1: "left", -2: "right", -3: "middle", -4: "side"}
 
 # --------------------------------------------------------------------------- key codes
 # Mechvibes/iohook codes = Windows scan code set 1; extended keys = 0xE000 | scan
@@ -85,7 +93,7 @@ def ensure_user_dirs():
 
 
 def load_settings():
-    settings = {"pack": "synth-thock", "volume": 0.75, "enabled": True}
+    settings = {"pack": "synth-thock", "volume": 0.75, "enabled": True, "mouse_sounds": True, "buddy_sounds": True}
     try:
         settings.update(json.loads(SETTINGS_FILE.read_text(encoding="utf-8")))
     except (FileNotFoundError, json.JSONDecodeError):
@@ -131,6 +139,12 @@ def array_to_sound(array):
     if mixer_channels == 1:
         array = array[:, 0]
     return pygame.sndarray.make_sound(np.ascontiguousarray(array, dtype=np.int16))
+
+
+def float_to_sound(signal):
+    """-1..1 mono float signal (keyit_sfx) -> pygame Sound."""
+    samples = np.clip(signal, -1.0, 1.0) * 32767
+    return array_to_sound(samples[:, None])
 
 
 def pitch_variants(array):
@@ -224,6 +238,8 @@ class Player:
         self.pack = None
         self.events = queue.SimpleQueue()
         self._lock = threading.Lock()
+        self.effects = {name: [float_to_sound(signal) for signal in signals]
+                        for name, signals in keyit_sfx.all_effects().items()}
         self.load_pack(settings["pack"])
         threading.Thread(target=self._worker, name="keyit-audio", daemon=True).start()
 
@@ -248,8 +264,24 @@ class Player:
     def _worker(self):
         while True:
             code, is_down, queued_at = self.events.get()
-            if self.settings["enabled"] and not self.suppressed:
+            if not self.settings["enabled"] or self.suppressed:
+                continue
+            if code in MOUSE_BUTTONS:
+                if self.settings.get("mouse_sounds", True):
+                    name = f"mouse_{MOUSE_BUTTONS[code]}_{'down' if is_down else 'up'}"
+                    self.play_effect(name, self.settings["volume"] * MOUSE_VOLUME)
+            else:
                 self.play(code, is_down, queued_at)
+
+    def play_effect(self, name, volume=None):
+        """Play a synthesized effect (mouse click, Buddy chime). Safe to call from any thread."""
+        if self.suppressed or name not in self.effects:
+            return
+        channel = random.choice(self.effects[name]).play()
+        if channel is not None:
+            level = CHIME_VOLUME if volume is None else volume
+            level *= random.uniform(*VOLUME_JITTER) if name.startswith("mouse") else 1.0
+            channel.set_volume(level, level)
 
     def play(self, code, is_down, queued_at=None):
         with self._lock:
@@ -289,6 +321,121 @@ def tap_menu_mask_key():
         pass
 
 
+# --------------------------------------------------------------------------- mouse clicks
+class MouseClicks:
+    """Hears mouse button presses through Windows Raw Input and feeds them to the Player.
+
+    Raw Input is posted to our own hidden window, so - unlike a low-level mouse hook - Windows never
+    waits for Python before moving the cursor. Only button flags are read; positions are ignored.
+    """
+
+    WM_INPUT = 0x00FF
+    WM_QUIT = 0x0012
+    RID_INPUT = 0x10000003
+    RIM_TYPEMOUSE = 0
+    RIDEV_INPUTSINK = 0x00000100      # also while another app is in front
+    RIDEV_REMOVE = 0x00000001
+    HWND_MESSAGE = -3
+    # RI_MOUSE_* button flags -> (mouse code, is_down)
+    BUTTON_FLAGS = (
+        (0x0001, -1, True), (0x0002, -1, False),       # left
+        (0x0004, -2, True), (0x0008, -2, False),       # right
+        (0x0010, -3, True), (0x0020, -3, False),       # middle
+        (0x0040, -4, True), (0x0080, -4, False),       # side button 4 (back)
+        (0x0100, -4, True), (0x0200, -4, False),       # side button 5 (forward)
+    )
+
+    def __init__(self, player):
+        self.player = player
+        self.thread = None
+        self.thread_id = None
+        self.ready = threading.Event()
+        self.error = None
+
+    def start(self):
+        if os.name != "nt" or self.thread is not None:
+            return
+        self.thread = threading.Thread(target=self._run, name="keyit-mouse", daemon=True)
+        self.thread.start()
+        self.ready.wait(2.0)
+
+    def stop(self):
+        if self.thread_id is not None:
+            ctypes.windll.user32.PostThreadMessageW(self.thread_id, self.WM_QUIT, 0, 0)
+        self.thread = None
+
+    def _run(self):
+        from ctypes import wintypes
+
+        class RAWINPUTDEVICE(ctypes.Structure):
+            _fields_ = [("usUsagePage", wintypes.USHORT), ("usUsage", wintypes.USHORT),
+                        ("dwFlags", wintypes.DWORD), ("hwndTarget", wintypes.HWND)]
+
+        class RAWINPUTHEADER(ctypes.Structure):
+            _fields_ = [("dwType", wintypes.DWORD), ("dwSize", wintypes.DWORD),
+                        ("hDevice", wintypes.HANDLE), ("wParam", wintypes.WPARAM)]
+
+        class BUTTONS(ctypes.Structure):
+            _fields_ = [("usButtonFlags", wintypes.USHORT), ("usButtonData", wintypes.USHORT)]
+
+        class BUTTONS_UNION(ctypes.Union):
+            _fields_ = [("ulButtons", wintypes.ULONG), ("buttons", BUTTONS)]
+
+        class RAWMOUSE(ctypes.Structure):
+            _fields_ = [("usFlags", wintypes.USHORT), ("u", BUTTONS_UNION), ("ulRawButtons", wintypes.ULONG),
+                        ("lLastX", wintypes.LONG), ("lLastY", wintypes.LONG),
+                        ("ulExtraInformation", wintypes.ULONG)]
+
+        class RAWINPUT(ctypes.Structure):
+            _fields_ = [("header", RAWINPUTHEADER), ("mouse", RAWMOUSE)]
+
+        user32 = ctypes.WinDLL("user32", use_last_error=True)
+        user32.CreateWindowExW.restype = wintypes.HWND
+        user32.CreateWindowExW.argtypes = [wintypes.DWORD, wintypes.LPCWSTR, wintypes.LPCWSTR, wintypes.DWORD,
+                                           ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
+                                           wintypes.HWND, wintypes.HMENU, wintypes.HINSTANCE, wintypes.LPVOID]
+        user32.RegisterRawInputDevices.argtypes = [ctypes.POINTER(RAWINPUTDEVICE), wintypes.UINT, wintypes.UINT]
+        user32.GetRawInputData.restype = wintypes.UINT
+        user32.GetRawInputData.argtypes = [wintypes.HANDLE, wintypes.UINT, wintypes.LPVOID,
+                                           ctypes.POINTER(wintypes.UINT), wintypes.UINT]
+        user32.GetMessageW.argtypes = [ctypes.POINTER(wintypes.MSG), wintypes.HWND, wintypes.UINT, wintypes.UINT]
+        user32.DispatchMessageW.argtypes = [ctypes.POINTER(wintypes.MSG)]
+        user32.DestroyWindow.argtypes = [wintypes.HWND]
+
+        self.thread_id = ctypes.windll.kernel32.GetCurrentThreadId()
+        hwnd = user32.CreateWindowExW(0, "STATIC", "KeyIt mouse clicks", 0, 0, 0, 0, 0,
+                                      wintypes.HWND(self.HWND_MESSAGE), None, None, None)
+        device = RAWINPUTDEVICE(0x01, 0x02, self.RIDEV_INPUTSINK, hwnd)     # generic desktop / mouse
+        if not hwnd or not user32.RegisterRawInputDevices(ctypes.byref(device), 1, ctypes.sizeof(device)):
+            self.error = f"mouse clicks unavailable (Windows error {ctypes.get_last_error()})"
+            print(self.error, file=sys.stderr)
+            self.ready.set()
+            return
+        self.ready.set()
+
+        data = RAWINPUT()
+        header_size = ctypes.sizeof(RAWINPUTHEADER)
+        message = wintypes.MSG()
+        while user32.GetMessageW(ctypes.byref(message), None, 0, 0) > 0:
+            if message.message == self.WM_INPUT:
+                size = wintypes.UINT(ctypes.sizeof(data))
+                got = user32.GetRawInputData(wintypes.HANDLE(message.lParam), self.RID_INPUT,
+                                             ctypes.byref(data), ctypes.byref(size), header_size)
+                if got not in (0, 0xFFFFFFFF) and data.header.dwType == self.RIM_TYPEMOUSE:
+                    flags = data.mouse.u.buttons.usButtonFlags
+                    if flags & 0x03FF:
+                        for bit, code, is_down in self.BUTTON_FLAGS:
+                            if flags & bit:
+                                self.player.submit(code, is_down)
+            user32.DispatchMessageW(ctypes.byref(message))   # lets Windows clean up the raw input
+
+        device.dwFlags = self.RIDEV_REMOVE
+        device.hwndTarget = None
+        user32.RegisterRawInputDevices(ctypes.byref(device), 1, ctypes.sizeof(device))
+        user32.DestroyWindow(hwnd)
+        self.thread_id = None
+
+
 class KeyboardHook:
     """Global low-level keyboard hook; ignores auto-repeat; Ctrl+Alt+M toggles mute.
 
@@ -303,12 +450,15 @@ class KeyboardHook:
         self.buddy = None             # object with press()/release()/cancel(); set by the GUI
         self.buddy_active = False
         self.listener = keyboard.Listener(win32_event_filter=self._filter)
+        self.mouse = MouseClicks(player)
 
     def start(self):
         self.listener.start()
         self.listener.wait()
+        self.mouse.start()
 
     def stop(self):
+        self.mouse.stop()
         self.listener.stop()
 
     def _filter(self, msg, data):

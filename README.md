@@ -3,7 +3,7 @@
 Buddy is the app. It owns the tray icon, the main window, autostart and quitting.
 It has three features:
 - **Focus**: the Pips desktop pet and focus tracker, running inside Buddy.
-- **Keyboard sounds**: KeyIt.
+- **Keyboard & mouse sounds**: KeyIt, plus a soft click for every mouse button (Settings: *Mouse clicks too*).
 - **AI helper**: a local helper that looks at your screen and answers questions about it.
 
 Click the orange Buddy icon by the clock to open the main window. Its tabs are Home, Focus, Keyboard sounds and AI helper.
@@ -30,7 +30,8 @@ the import stops. Add `--force` to replace that profile; the old one is moved to
 - Like Clicky, a small orange buddy rests next to your mouse all the time. It shows a waveform while it listens, a spinner while it thinks, and flies to whatever it points at. To see it only while you ask, untick *Settings → Keep Buddy next to my mouse all the time*.
   Buddy answers in the pet's speech bubble, reads it aloud, and draws an orange beam from the pet
   to whatever it is talking about.
-- **Ctrl+Alt+M**: mute keyboard sounds.
+- **Ctrl+Alt+M**: mute keyboard and mouse sounds.
+- Buddy plays a short chime when it wakes up (Ctrl+Alt+Space or *Ask Buddy*) and a blip when it got your question. Turn it off with *Wake-up chime* in Settings.
 - **Ctrl+Alt+P**: Pips's own hotkey (unchanged).
 - Right-click the pet, then go to **Buddy** to find *Ask Buddy about my screen*, *Keyboard sounds*, and *Sounds & AI settings*.
 

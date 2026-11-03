@@ -139,7 +139,7 @@ class KeyItApp:
             # Inside Buddy everything is Buddy: one Settings tab with two sections
             settings_tab = ttk.Frame(notebook, padding=(10, 8, 10, 6))
             settings_tab.columnconfigure(0, weight=1)
-            sounds = ttk.LabelFrame(settings_tab, text=" Keyboard sounds ", padding=(10, 4, 10, 8))
+            sounds = ttk.LabelFrame(settings_tab, text=" Keyboard & mouse sounds ", padding=(10, 4, 10, 8))
             buddy_tab = ttk.LabelFrame(settings_tab, text=" Buddy's brain (local AI) ", padding=(10, 4, 10, 8))
             sounds.grid(row=0, column=0, sticky="ew")
             buddy_tab.grid(row=1, column=0, sticky="ew", pady=(10, 0))
@@ -158,6 +158,9 @@ class KeyItApp:
         self.enabled_var = tk.BooleanVar(value=self.settings["enabled"])
         ttk.Checkbutton(sounds, text="Sound on        (Ctrl+Alt+M)", variable=self.enabled_var,
                         command=self._on_enabled_clicked).grid(row=1, column=0, columnspan=3, sticky="w")
+        self.mouse_sounds_var = tk.BooleanVar(value=self.settings.get("mouse_sounds", True))
+        ttk.Checkbutton(sounds, text="Mouse clicks too", variable=self.mouse_sounds_var,
+                        command=self._on_mouse_sounds_toggled).grid(row=1, column=1, columnspan=2, sticky="e")
 
         ttk.Label(sounds, text="Volume").grid(row=2, column=0, sticky="w", pady=(10, 0))
         self.volume_var = tk.DoubleVar(value=self.settings["volume"] * 100)
@@ -274,6 +277,10 @@ class KeyItApp:
     def toggle_enabled(self):
         self.hook.toggle()
 
+    def _on_mouse_sounds_toggled(self):
+        self.settings["mouse_sounds"] = self.mouse_sounds_var.get()
+        core.save_settings(self.settings)
+
     def _on_volume_changed(self, _value=None):
         self.settings["volume"] = round(self.volume_var.get() / 100, 3)
         self._update_volume_label()
@@ -379,9 +386,12 @@ class KeyItApp:
                         command=self._on_buddy_option).grid(row=4, column=2, sticky="w", pady=(8, 0))
 
         self.cursor_always_var = tk.BooleanVar(value=self.settings["buddy_cursor_always"])
-        ttk.Checkbutton(tab, text="Keep Buddy next to my mouse all the time  (off: only while you ask)",
+        ttk.Checkbutton(tab, text="Keep Buddy next to my mouse all the time",
                         variable=self.cursor_always_var, command=self._on_cursor_always_toggled).grid(
-            row=5, column=0, columnspan=3, sticky="w", pady=(8, 0))
+            row=5, column=0, columnspan=2, sticky="w", pady=(8, 0))
+        self.buddy_sounds_var = tk.BooleanVar(value=self.settings.get("buddy_sounds", True))
+        ttk.Checkbutton(tab, text="Wake-up chime", variable=self.buddy_sounds_var,
+                        command=self._on_buddy_sounds_toggled).grid(row=5, column=2, sticky="w", pady=(8, 0))
 
         self.question_var = tk.StringVar()
         if self.host is None:                            # inside Buddy the ask box is on the Home tab
@@ -463,6 +473,12 @@ class KeyItApp:
         if self.buddy:
             self.buddy.overlay.set_always_on(self.settings["buddy_cursor_always"])
 
+    def _on_buddy_sounds_toggled(self):
+        self.settings["buddy_sounds"] = self.buddy_sounds_var.get()
+        core.save_settings(self.settings)
+        if self.settings["buddy_sounds"]:
+            self.player.play_effect("buddy_wake")       # let them hear what they switched on
+
     def _on_buddy_toggled(self):
         self.settings["buddy_enabled"] = self.buddy_enabled_var.get()
         core.save_settings(self.settings)
@@ -482,6 +498,7 @@ class KeyItApp:
                 on_status=lambda text: self.post(self._set_buddy_status, text),
                 overlay=self.host.make_overlay() if self.host else None,
                 context_provider=self.host.buddy_context if self.host else None,
+                sound=self.player.play_effect,
             )
         self.hook.buddy = self.buddy
         self.buddy.overlay.set_always_on(self.settings["buddy_cursor_always"])
