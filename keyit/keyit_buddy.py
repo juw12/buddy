@@ -340,19 +340,47 @@ def resample(audio, source_rate, target_rate):
     return np.interp(positions, np.arange(audio.size), smoothed).astype(np.float32)
 
 
+def default_voice():
+    """No voice picked yet: the natural voice when it's on this PC, else the first Windows voice."""
+    import keyit_voice
+
+    return keyit_voice.DEFAULT if keyit_voice.is_downloaded() else ""
+
+
 class Speaker:
-    """Windows SAPI voice on its own COM thread. say() queues, stop() interrupts."""
+    """Buddy's voice. Natural voices (keyit_voice, Kokoro) or a Windows SAPI voice on its own COM thread.
+    say() queues, stop() interrupts."""
 
     SVSF_ASYNC = 1
     SVSF_PURGE = 2
 
-    def __init__(self, voice_name=""):
+    def __init__(self, voice_name="", on_status=lambda text: None):
         self.jobs = queue.SimpleQueue()
-        self.voice_name = voice_name
+        self.on_status = on_status
+        self.voice_name = voice_name or default_voice()
         self.voices = []
+        self.natural = None                    # keyit_voice.NaturalVoice once a natural voice is picked
         self._ready = threading.Event()
         threading.Thread(target=self._run, name="keyit-tts", daemon=True).start()
         self._ready.wait(30)   # first run in the exe generates COM bindings (several seconds)
+        self._use(self.voice_name)
+
+    def _use(self, name):
+        import keyit_voice
+
+        self.voice_name = name
+        if not keyit_voice.is_natural(name):
+            return
+        if self.natural is None:
+            self.natural = keyit_voice.NaturalVoice(keyit_voice.voice_id(name), on_status=self.on_status)
+        else:
+            self.natural.set_voice(keyit_voice.voice_id(name))
+
+    def _natural_on(self):
+        import keyit_voice
+
+        return (self.natural is not None and keyit_voice.is_natural(self.voice_name)
+                and not self.natural.failed)
 
     def _run(self):
         import comtypes
@@ -383,14 +411,30 @@ class Speaker:
                 return
 
     def say(self, text):
-        if text.strip():
+        if not text.strip():
+            return
+        if self._natural_on():
+            self.natural.say(text)
+        else:
             self.jobs.put(("say", text))
 
     def stop(self):
+        if self.natural is not None:
+            self.natural.stop()
         self.jobs.put(("stop", None))
 
     def set_voice(self, name):
-        self.jobs.put(("voice", name))
+        self.stop()
+        self._use(name)
+        if not self._natural_on():
+            self.jobs.put(("voice", name))
+
+    def test(self):
+        """Settings' Test button."""
+        self.stop()
+        if self.natural is not None and self._natural_on() and not self.natural.ready.is_set():
+            self.on_status("Loading the natural voice...")
+        self.say("Hi, I'm Buddy. This is how I sound.")
 
 
 # --------------------------------------------------------------------------- screen
@@ -1063,7 +1107,7 @@ class Buddy:
         self.overlay = overlay or BuddyOverlay(root)   # e.g. the Pips pet when hosted
         self.context_provider = context_provider       # extra facts about the user (optional)
         self.sound = sound                             # play_effect(name) from the KeyIt player
-        self.speaker = Speaker(self.settings["buddy_voice"])
+        self.speaker = Speaker(self.settings["buddy_voice"], on_status=self.on_status)
         self.stt = None
         self.stt_name = None
         self.mic = None

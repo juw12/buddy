@@ -921,6 +921,18 @@ def main(argv=None):
             uia, automation = keyit_buddy._uia()               # selection reading for the ask box
             assert automation.GetRootElement(), "UI Automation unavailable"
             logger.info("UI Automation ready for highlighted-text questions")
+            import keyit_voice                                  # natural voices: libraries are bundled
+            import kokoro_onnx  # noqa: F401
+            import sounddevice  # noqa: F401
+
+            if keyit_voice.is_downloaded():
+                voice = keyit_voice.NaturalVoice("af_heart")
+                assert voice.ready.wait(60) and not voice.failed, f"natural voice: {voice.failed}"
+                samples, rate = voice.kokoro.create("Hi.", voice="af_heart", speed=1.0, lang="en-us")
+                assert len(samples) > rate // 10, "natural voice made no audio"
+                logger.info("Natural voice works (%.1fs of audio for 'Hi.')", len(samples) / rate)
+            else:
+                logger.info("Natural voice libraries load; voice files not downloaded yet")
         except Exception:
             logger.exception("Self-test failed")
             app.quit()

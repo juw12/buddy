@@ -38,13 +38,20 @@ def third_party_and_stdlib_imports():
 
 
 whisper_datas, whisper_binaries, whisper_hidden = collect_all("faster_whisper")
+# natural voices (keyit_voice): Kokoro + espeak-ng phonemizer; espeakng_loader ships the espeak DLL and its data
+voice_datas, voice_binaries, voice_hidden = [], [], []
+for package in ("kokoro_onnx", "phonemizer", "espeakng_loader", "joblib", "dlinfo", "attrs", "cloudpickle"):
+    datas_, binaries_, hidden_ = collect_all(package)
+    voice_datas += datas_
+    voice_binaries += binaries_
+    voice_hidden += hidden_
 
 analysis = Analysis(
     ["buddy.py"],
     pathex=[str(folder) for folder in SOURCE_DIRS],
-    binaries=whisper_binaries + collect_dynamic_libs("ctranslate2"),
-    datas=whisper_datas,
-    hiddenimports=third_party_and_stdlib_imports() + whisper_hidden + [
+    binaries=whisper_binaries + voice_binaries + collect_dynamic_libs("ctranslate2"),
+    datas=whisper_datas + voice_datas,
+    hiddenimports=third_party_and_stdlib_imports() + whisper_hidden + voice_hidden + [
         "pystray._win32",
         "pynput.keyboard._win32",
         "pynput.mouse._win32",

@@ -381,9 +381,12 @@ class KeyItApp:
                         command=self._on_gpu_toggled).grid(row=3, column=2, sticky="w", pady=(8, 0))
 
         ttk.Label(tab, text="Voice").grid(row=4, column=0, sticky="w", pady=(8, 0))
-        self.voice_box = ttk.Combobox(tab, state="readonly", width=30)
-        self.voice_box.grid(row=4, column=1, sticky="ew", padx=8, pady=(8, 0))
+        voice_row = ttk.Frame(tab)
+        voice_row.grid(row=4, column=1, sticky="ew", padx=8, pady=(8, 0))
+        self.voice_box = ttk.Combobox(voice_row, state="readonly", width=30, height=20)
+        self.voice_box.pack(side="left", fill="x", expand=True)
         self.voice_box.bind("<<ComboboxSelected>>", self._on_buddy_option)
+        ttk.Button(voice_row, text="Test", width=6, command=self._test_voice).pack(side="left", padx=(6, 0))
         self.speak_var = tk.BooleanVar(value=self.settings["buddy_speak"])
         ttk.Checkbutton(tab, text="Speak", variable=self.speak_var,
                         command=self._on_buddy_option).grid(row=4, column=2, sticky="w", pady=(8, 0))
@@ -439,6 +442,10 @@ class KeyItApp:
         threading.Thread(target=work, daemon=True).start()
 
     def _load_voices(self):
+        """Natural voices first (they sound human), then the Windows voices."""
+        import keyit_buddy as buddy_module
+        import keyit_voice
+
         def work():
             try:
                 import comtypes
@@ -446,12 +453,38 @@ class KeyItApp:
 
                 comtypes.CoInitialize()
                 tokens = comtypes.client.CreateObject("SAPI.SpVoice").GetVoices()
-                voices = [tokens.Item(i).GetDescription() for i in range(tokens.Count)]
+                windows_voices = [tokens.Item(i).GetDescription() for i in range(tokens.Count)]
             except Exception:
-                voices = []
-            current = self.settings["buddy_voice"] or (voices[0] if voices else "")
+                windows_voices = []
+            voices = keyit_voice.names() + windows_voices
+            current = (self.settings["buddy_voice"] or buddy_module.default_voice()
+                       or (windows_voices[0] if windows_voices else ""))
             self.post(self.voice_box.config, {"values": voices})
             self.post(self.voice_box.set, current)
+
+        threading.Thread(target=work, daemon=True).start()
+
+    def _test_voice(self):
+        """Say a short line with the voice picked in the list."""
+        import keyit_voice
+
+        self._on_buddy_option()
+        if keyit_voice.is_natural(self.voice_box.get()) and not keyit_voice.is_downloaded():
+            self._set_buddy_status(f"Downloading the natural voices once (~{keyit_voice.DOWNLOAD_MB} MB)...")
+        chosen = self.voice_box.get()
+
+        def work():
+            if self.buddy:
+                speaker = self.buddy.speaker
+            else:                                        # brain off: a speaker just for the test
+                import keyit_buddy as buddy_module
+
+                if getattr(self, "_test_speaker", None) is None:
+                    self._test_speaker = buddy_module.Speaker(
+                        chosen, on_status=lambda text: self.post(self._set_buddy_status, text))
+                speaker = self._test_speaker
+                speaker.set_voice(chosen)
+            speaker.test()
 
         threading.Thread(target=work, daemon=True).start()
 
