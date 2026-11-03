@@ -53,6 +53,14 @@ def _root_at(x, y):
     return user32.GetAncestor(hwnd, GA_ROOT) if hwnd else None
 
 
+def clickable_now(hwnd, x, y):
+    """Would a click at (x, y) land in this window right now? (nothing else on top, not even Buddy)"""
+    from keyit_buddy import physical_pixels
+
+    with physical_pixels():
+        return _root_at(x, y) == hwnd
+
+
 def _visible_at(hwnd, x, y):
     root = _root_at(x, y)
     if root == hwnd:
@@ -132,7 +140,7 @@ def _candidate_windows(monitor_rect, exclude_pid):
 def snapshot(monitor_rect, exclude_pid=None):
     """Visible UI elements on one monitor (physical pixels), front window first.
 
-    Returns dicts: name, kind, rect (l, t, r, b in physical pixels), window, foreground.
+    Returns dicts: name, kind, rect (l, t, r, b in physical pixels), window, foreground, hwnd.
     Run it on a worker thread; it takes ~0.1-0.4 s per visible window. Frozen or suspended apps are
     skipped, and every UI Automation call has a timeout, so it can't hang.
     """
@@ -182,7 +190,7 @@ def snapshot(monitor_rect, exclude_pid=None):
                 if not _visible_at(hwnd, cx, cy):          # covered by another window
                     continue
                 targets.append({"name": name, "kind": kind, "rect": (left, top, right, bottom),
-                                "window": title, "foreground": hwnd == foreground})
+                                "window": title, "foreground": hwnd == foreground, "hwnd": int(hwnd)})
     logging.info("UI snapshot: %d visible elements in %.2fs", len(targets), time.perf_counter() - started)
     return targets
 
@@ -237,12 +245,35 @@ def snap(point, targets, monitor_rect):
     return to_normalized(best, monitor_rect, label), best
 
 
+NEGATIONS = {"not", "no", "never", "without"}
+
+
+def _plain(text):
+    """lowercase, curly quotes straightened, "don't" -> "do not", '&' accelerators dropped."""
+    text = text.lower().replace("\u2019", "'").replace("\u2018", "'").replace("&", "")
+    text = re.sub(r"n't\b", " not", text)
+    return " ".join(re.findall(r"[a-z0-9]+", text))
+
+
 def find_by_label(label, targets):
-    """The visible element whose name best matches `label` (clickable ones win ties). None if no match."""
+    """The visible element to CLICK for `label`, or None. Strict, because a wrong click can't be undone:
+    every word of the label must be in the element's name, and "don't"/"not" must agree on both sides
+    ("Don't Save" never matches "Save"). An exact name wins; then the closest name; clickable kinds first."""
+    wanted = _plain(label)
+    wanted_words = set(wanted.split()) - (STOP_WORDS - NEGATIONS)
+    if not wanted_words:
+        return None
     best, best_score = None, 0.0
     for target in targets:
-        match = _name_match(label, target["name"])
-        if match <= 0:
+        name = _plain(target["name"])
+        name_words = set(name.split())
+        if (wanted_words & NEGATIONS) != (name_words & NEGATIONS):
+            continue
+        if name == wanted:
+            match = 2.0
+        elif wanted_words <= name_words:
+            match = len(wanted_words) / len(name_words)        # "Save" -> "Save as" is weaker than "Save"
+        else:
             continue
         score = match + (0.2 if target["kind"] in CLICKABLE else 0.0) + (0.1 if target["foreground"] else 0.0)
         if score > best_score:

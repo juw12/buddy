@@ -1022,6 +1022,7 @@ class ConfirmBox:
         self.on_answer = on_answer
         self.answered = False
         self.window = window = tk.Toplevel(root)
+        window.title("Buddy asks")             # findable by screen readers and tests
         window.overrideredirect(True)
         window.attributes("-topmost", True)
         frame = tk.Frame(window, bg="#fff7ef", highlightbackground="#ff8a3d", highlightthickness=2)

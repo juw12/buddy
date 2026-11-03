@@ -104,6 +104,10 @@ DIRECT_COMMANDS = [
     ("maximize", re.compile(r"^\s*(?:please\s+)?maximi[sz]e\s+(?:the\s+)?(.+?)(?:\s+window)?\s*[.!]*$", re.I)),
     ("focus", re.compile(r"^\s*(?:please\s+)?(?:switch|go)\s+to\s+(?:the\s+)?(.+?)(?:\s+window)?\s*[.!]*$", re.I)),
     ("open", re.compile(r"^\s*(?:please\s+)?(?:open|launch|start)\s+(.+?)\s*[.!]*$", re.I)),
+    # "click (on) (the) don't save (button) (in notepad)" -> label "don't save"; the window is read from the question
+    ("click", re.compile(r"^\s*(?:please\s+)?(?:click|tap)\s+(?:on\s+)?(?:the\s+)?(.+?)"
+                         r"(?:\s+(?:button|menu|tab|link|item|option))?"
+                         r"(?:\s+(?:in|on)\s+(?:the\s+)?(?!in\b|on\b)\S+(?:\s+\S+)?)?\s*[.!]*$", re.I)),
 ]
 
 
@@ -229,6 +233,30 @@ def _target_named_in(question):
     if name in NOT_A_WINDOW or set(name.split()) & UI_PART_WORDS:
         return ""                                  # "in the search box" is a place on screen, not an app
     return name
+
+
+_get_window = ctypes.WINFUNCTYPE(ctypes.c_void_p, ctypes.c_void_p, ctypes.c_uint)(("GetWindow", user32))
+
+
+def _monitor_of(hwnd):
+    """Physical-pixel rect of the monitor a window is on."""
+    from keyit_buddy import _monitor_rect, physical_pixels
+
+    rect = wintypes.RECT()
+    with physical_pixels():
+        user32.GetWindowRect(ctypes.c_void_p(hwnd), ctypes.byref(rect))
+        return _monitor_rect((rect.left + rect.right) // 2, (rect.top + rect.bottom) // 2)
+
+
+def _owned_by(hwnd, handles):
+    """Is hwnd one of these windows, or a dialog they own (like Notepad's 'Save changes?' box)?"""
+    for _ in range(5):
+        if not hwnd:
+            return False
+        if hwnd in handles:
+            return True
+        hwnd = _get_window(hwnd, 4)                                   # GW_OWNER
+    return False
 
 
 def resolve_window(argument, question, windows):
@@ -498,12 +526,19 @@ def run(action, argument, windows, targets=None, confirm=lambda question: False,
         wanted = _target_named_in(question)
         if wanted and not named:
             return f"I don't see {wanted} open, so I didn't click anything."
-        if named:                                   # only inside the window the user named
+        if named:                                   # only inside the window the user named (or its dialogs)
+            handles = {w["hwnd"] for w in named}
             titles = {w["title"] for w in named}
-            pool = [t for t in (targets or []) if t.get("window") in titles]
+            pool = [t for t in (targets or [])
+                    if (_owned_by(t["hwnd"], handles) if t.get("hwnd") else t.get("window") in titles)]
         else:                                       # or the window the user was working in
             pool = [t for t in (targets or []) if t.get("foreground")]
         target = keyit_targets.find_by_label(argument, pool)
+        if target is None and len(named) == 1 and bring_to_front(named[0]["hwnd"]):
+            time.sleep(0.5)                       # it was behind other windows: bring it up and look again
+            fresh = keyit_targets.snapshot(_monitor_of(named[0]["hwnd"]))
+            pool = [t for t in fresh if _owned_by(t.get("hwnd"), handles)]
+            target = keyit_targets.find_by_label(argument, pool)
         if target is None:
             return f"I couldn't find {argument} in that window."
         if WINDOW_BUTTONS.match(target["name"].strip()):
@@ -512,7 +547,15 @@ def run(action, argument, windows, targets=None, confirm=lambda question: False,
                                                                "This could delete or send something."):
             return "OK, I didn't click it."
         left, top, right, bottom = target["rect"]
-        click_at((left + right) / 2, (top + bottom) / 2)
+        x, y = (left + right) / 2, (top + bottom) / 2
+        hwnd = target.get("hwnd")
+        if hwnd:                    # the screen may have changed since the snapshot: never click something else
+            if not keyit_targets.clickable_now(hwnd, x, y):
+                bring_to_front(hwnd)
+                time.sleep(0.2)
+            if not keyit_targets.clickable_now(hwnd, x, y):
+                return f"Something is covering {target['name'][:40]}, so I didn't click it."
+        click_at(x, y)
         return f"Clicked {target['name'][:40]}."
     if action in ("type", "keys"):
         named = windows_named_in(question, windows) if question else []
