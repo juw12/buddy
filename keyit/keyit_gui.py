@@ -412,17 +412,19 @@ class KeyItApp:
         ttk.Checkbutton(tab, text="Wake-up chime", variable=self.buddy_sounds_var,
                         command=self._on_buddy_sounds_toggled).grid(row=5, column=2, sticky="w", pady=(8, 0))
 
+        self._build_look_row(tab, row=6)
+
         self.question_var = tk.StringVar()
         if self.host is None:                            # inside Buddy the ask box is on the Home tab
-            ttk.Label(tab, text="Or type").grid(row=6, column=0, sticky="w", pady=(12, 0))
+            ttk.Label(tab, text="Or type").grid(row=7, column=0, sticky="w", pady=(12, 0))
             entry = ttk.Entry(tab, textvariable=self.question_var)
-            entry.grid(row=6, column=1, sticky="ew", padx=8, pady=(12, 0))
+            entry.grid(row=7, column=1, sticky="ew", padx=8, pady=(12, 0))
             entry.bind("<Return>", lambda _e: self.ask_typed())
-            ttk.Button(tab, text="Ask", command=self.ask_typed).grid(row=6, column=2, pady=(12, 0))
+            ttk.Button(tab, text="Ask", command=self.ask_typed).grid(row=7, column=2, pady=(12, 0))
 
         self.buddy_status = ttk.Label(tab, foreground="#777", wraplength=430, justify="left",
                                       text="Runs 100% on this PC with Ollama. A screenshot is taken only when you ask.")
-        self.buddy_status.grid(row=7, column=0, columnspan=3, sticky="w", pady=(12, 0))
+        self.buddy_status.grid(row=8, column=0, columnspan=3, sticky="w", pady=(12, 0))
         self.refresh_models()
         self._load_voices()
         if self.settings["buddy_enabled"]:
@@ -524,6 +526,74 @@ class KeyItApp:
         if self.buddy:
             self.buddy.maas_failed_until = 0.0
             threading.Thread(target=self.buddy._prepare, daemon=True).start()
+
+    # -- Look: colour and icon of the pointer next to the mouse
+    CUSTOM_COLOR = "Custom\u2026"
+
+    def _build_look_row(self, tab, row):
+        import buddy_overlay
+
+        ttk.Label(tab, text="Look").grid(row=row, column=0, sticky="w", pady=(8, 0))
+        look_row = ttk.Frame(tab)
+        look_row.grid(row=row, column=1, columnspan=2, sticky="w", padx=8, pady=(8, 0))
+        self.look_preview = tk.Label(look_row, bd=0, bg="#2b2e40")
+        self.look_preview.pack(side="left", padx=(0, 8))
+        self.color_box = ttk.Combobox(look_row, state="readonly", width=10,
+                                      values=list(buddy_overlay.COLORS) + [self.CUSTOM_COLOR])
+        self.color_box.pack(side="left")
+        self.color_box.bind("<<ComboboxSelected>>", self._on_color_picked)
+        self.icon_box = ttk.Combobox(look_row, state="readonly", width=14, values=list(buddy_overlay.ICONS))
+        self.icon_box.pack(side="left", padx=(6, 0))
+        self.icon_box.bind("<<ComboboxSelected>>", self._on_icon_picked)
+        self._show_look()
+
+    def _show_look(self):
+        """Lists + preview follow the saved colour and icon."""
+        import buddy_overlay
+        from PIL import ImageTk
+
+        color = buddy_overlay.normalize_color(self.settings.get("buddy_color"))
+        icon = buddy_overlay.normalize_icon(self.settings.get("buddy_icon"))
+        color_name = next((name for name, value in buddy_overlay.COLORS.items() if value == color), color)
+        self.color_box.set(color_name)
+        self.icon_box.set(next(name for name, value in buddy_overlay.ICONS.items() if value == icon))
+        self._look_photo = ImageTk.PhotoImage(buddy_overlay.preview_image(color, icon, 40), master=self.root)
+        self.look_preview.config(image=self._look_photo)
+
+    def _on_color_picked(self, _event=None):
+        import buddy_overlay
+        from tkinter import colorchooser
+
+        choice = self.color_box.get()
+        if choice == self.CUSTOM_COLOR:
+            _, picked = colorchooser.askcolor(color=self.settings.get("buddy_color"),
+                                              title="Buddy colour", parent=self.root)
+            if not picked:
+                self._show_look()
+                return
+            color = picked
+        else:
+            color = buddy_overlay.COLORS.get(choice, buddy_overlay.DEFAULT_COLOR)
+        self._apply_look(color=color)
+
+    def _on_icon_picked(self, _event=None):
+        import buddy_overlay
+
+        self._apply_look(icon=buddy_overlay.ICONS.get(self.icon_box.get(), buddy_overlay.DEFAULT_ICON))
+
+    def _apply_look(self, color=None, icon=None):
+        import buddy_overlay
+        import keyit_buddy as buddy_module
+
+        if color is not None:
+            self.settings["buddy_color"] = buddy_overlay.normalize_color(color)
+        if icon is not None:
+            self.settings["buddy_icon"] = buddy_overlay.normalize_icon(icon)
+        core.save_settings(self.settings)
+        buddy_module.set_accent(self.settings["buddy_color"])
+        if self.buddy:
+            self.buddy.overlay.set_style(self.settings["buddy_color"], self.settings["buddy_icon"])
+        self._show_look()
 
     def _on_cursor_always_toggled(self):
         self.settings["buddy_cursor_always"] = self.cursor_always_var.get()

@@ -30,6 +30,8 @@ the import stops. Add `--force` to replace that profile; the old one is moved to
 - **Brain** (Settings): *Smart (MAAS)* uses your company's AI gateway (vision-model, ~1-2 s answers, much smarter; your screenshot + question go to the company gateway, logging in with the MAAS account from the Pips token card). *Local GPU* / *Local CPU* keep everything on this PC (~5-15 s / ~1 min). If MAAS can't be reached, Buddy answers locally for 5 minutes and then tries MAAS again.
 - **Ctrl+Alt+Space**, tap it: a small ask box opens at your mouse, so you can type when you can't talk. If you had text highlighted, Buddy reads it too (through Windows accessibility, never the clipboard). Just pressing Enter means "explain this".
 - Like Clicky, a small orange buddy rests next to your mouse all the time. It shows a waveform while it listens, a spinner while it thinks, and flies to whatever it points at. To see it only while you ask, untick *Settings → Keep Buddy next to my mouse all the time*.
+- **Look** (Settings): pick the buddy's colour (10 colours or *Custom…*) and icon (arrow, mouse pointer, paper plane, dot, star, heart or the Buddy face). The colour is also used for its bubbles and the ask/confirm boxes.
+- The buddy runs on its own thread with its own tiny window, so it keeps following the mouse even when the PC or the rest of Buddy is busy; after a hiccup it jumps straight back to the mouse instead of crawling after it.
   Buddy answers in the pet's speech bubble, reads it aloud, and draws an orange beam from the pet
   to whatever it is talking about.
 - **Ctrl+Alt+M**: mute keyboard and mouse sounds.
