@@ -13,12 +13,15 @@ normalized screenshot coordinates (the convention Qwen-VL models are trained on)
 """
 import base64
 import ctypes
+import http.client
 import io
 import json
 import logging
 import math
+import os
 import queue
 import re
+import socket
 import threading
 import time
 import urllib.error
@@ -45,7 +48,12 @@ DEFAULTS = {
 WHISPER_MODELS = ["auto", "windows", "tiny.en", "base.en", "small.en", "base", "small"]
 WHISPER_RATE = 16000
 MAX_POINTS = 3
-MODEL_OPTIONS = {"num_ctx": 8192}   # keep identical for warm-up and questions
+# Keep identical for warm-up, look-ahead and questions, or Ollama reloads the model (~15-45 s).
+# Half the cores = the fast ones on hybrid laptop CPUs: measured as fast as all 8 here (84 s vs 88 s
+# for a screenshot) while leaving the other half free, so the PC stays usable while Buddy thinks.
+MODEL_OPTIONS = {"num_ctx": 8192, "num_thread": max(2, (os.cpu_count() or 4) // 2)}
+KEEP_ALIVE = "30m"            # how long Ollama keeps the model in memory after the last question
+LOOK_AHEAD_MAX_AGE = 300      # s; a look-ahead screenshot older than this is not reused
 TAP_SECONDS = 0.35            # Ctrl+Alt+Space shorter than this = type, longer = talk
 CHIME_SKIP_SECONDS = 0.25     # drop the start of the recording so speech recognition doesn't hear the chime
 SELECTION_MAX_CHARS = 4000
@@ -148,7 +156,7 @@ class OllamaClient:
             "messages": messages,
             "stream": True,
             "think": False,                 # answer right away; silent reasoning took minutes on this laptop
-            "keep_alive": "15m",
+            "keep_alive": KEEP_ALIVE,
             "options": dict(MODEL_OPTIONS, temperature=0.2),
         }
         with self._request("/api/chat", payload, timeout=timeout) as response:
@@ -167,9 +175,51 @@ class OllamaClient:
     def warm_up(self, model):
         """Load the model into memory so the first real question is fast."""
         # Same options as real questions, or Ollama reloads the model on the first question (~45 s here)
-        payload = {"model": model, "messages": [], "keep_alive": "15m", "options": dict(MODEL_OPTIONS)}
+        payload = {"model": model, "messages": [], "keep_alive": KEEP_ALIVE, "options": dict(MODEL_OPTIONS)}
         with self._request("/api/chat", payload, timeout=300) as response:
             response.read()
+
+    def prefill(self, model, messages, stop):
+        """Make Ollama read the screenshot now. A later chat that starts with the same messages reuses
+        that work (measured: 1.2 s instead of ~85 s). Setting `stop` aborts by closing the connection.
+        Returns True when Ollama finished reading."""
+        address = urllib.parse.urlparse(self.base_url)
+        connection = http.client.HTTPConnection(address.hostname, address.port or 80, timeout=900)
+        payload = {
+            "model": model,
+            "messages": messages,
+            "stream": False,
+            "think": False,
+            "keep_alive": KEEP_ALIVE,
+            "options": dict(MODEL_OPTIONS, temperature=0.2, num_predict=1),
+        }
+        finished = threading.Event()
+
+        def abort_when_stopped():
+            while not finished.is_set():
+                if stop.wait(0.5):
+                    # shutdown() (not just close()) breaks the blocking read on Windows and drops the
+                    # connection, so Ollama stops reading the image
+                    sock = connection.sock
+                    if sock is not None:
+                        try:
+                            sock.shutdown(socket.SHUT_RDWR)
+                        except OSError:
+                            pass
+                    connection.close()
+                    return
+
+        threading.Thread(target=abort_when_stopped, daemon=True).start()
+        try:
+            connection.request("POST", "/api/chat", json.dumps(payload), {"Content-Type": "application/json"})
+            response = connection.getresponse()
+            response.read()
+            return response.status == 200 and not stop.is_set()
+        except (OSError, http.client.HTTPException):
+            return False                               # aborted or Ollama unavailable: the question still works
+        finally:
+            finished.set()
+            connection.close()
 
 
 # --------------------------------------------------------------------------- speech in/out
@@ -978,6 +1028,7 @@ class Buddy:
         self.history = []
         self.busy = threading.Lock()
         self.generation = 0
+        self.look_ahead = None                # screenshot Ollama starts reading while you talk/type
         threading.Thread(target=self._prepare, daemon=True).start()
 
     # -- setup
@@ -1018,6 +1069,7 @@ class Buddy:
         self.chimed = self.chime("buddy_wake")
         self.monitor = monitor_under_cursor()
         cursor = cursor_position()
+        self._start_look_ahead()
         try:
             self.mic = MicCapture()
             self.mic.start()
@@ -1063,6 +1115,9 @@ class Buddy:
     def _open_ask_box(self):
         """Read the highlighted text (if any) before the box takes focus, then open the box at the mouse."""
         selection = selected_text_quick()
+        look = self.look_ahead
+        if look is not None:
+            look["taken"].wait(1.5)                          # keep the box out of the screenshot
         self.post(self.open_ask_box, selection, False)       # the hotkey already chimed
 
     def open_ask_box(self, selection="", chime=True):
@@ -1074,6 +1129,7 @@ class Buddy:
     def cancel(self):
         self.generation += 1
         self.speaker.stop()
+        self._stop_look_ahead()
         if self.mic:
             try:
                 self.mic.stop()
@@ -1082,6 +1138,67 @@ class Buddy:
             self.mic = None
         self.post(self.overlay.hide)
         self.post(AskBox.close_current)
+
+    # -- look-ahead: start reading the screen the moment the hotkey goes down
+    def _start_look_ahead(self):
+        self._stop_look_ahead()
+        look = {
+            "monitor": self.monitor,
+            "history": list(self.history[-2 * HISTORY_TURNS:]),
+            "at": time.monotonic(),
+            "png": None,
+            "system": None,
+            "taken": threading.Event(),       # screenshot captured
+            "read": threading.Event(),        # Ollama finished reading it
+            "stop": threading.Event(),        # cancelled
+        }
+        self.look_ahead = look
+        threading.Thread(target=self._look_ahead, args=(look,), daemon=True).start()
+
+    def _look_ahead(self, look):
+        try:
+            cleared = threading.Event()
+            self.post(lambda: (self.overlay.clear_for_screenshot(), cleared.set()))
+            cleared.wait(1.0)
+            time.sleep(0.05)
+            look["png"], _ = capture_monitor(look["monitor"], self.settings["screenshot_max_side"])
+            look["system"] = self._system_prompt()
+        except Exception:
+            logging.exception("Look-ahead screenshot failed")
+            return
+        finally:
+            look["taken"].set()
+        messages = self._messages(look["system"], look["history"], "", look["png"])
+        started = time.perf_counter()
+        if self.client().prefill(self.settings["buddy_model"], messages, look["stop"]):
+            look["read"].set()
+            logging.info("Buddy read the screen ahead in %.1fs", time.perf_counter() - started)
+
+    def _stop_look_ahead(self):
+        look, self.look_ahead = self.look_ahead, None
+        if look is not None:
+            look["stop"].set()
+
+    def _take_look_ahead(self):
+        """The look-ahead for this question, if it matches the screen being asked about."""
+        look, self.look_ahead = self.look_ahead, None
+        if look is None:
+            return None
+        look["taken"].wait(2.0)
+        fresh = time.monotonic() - look["at"] < LOOK_AHEAD_MAX_AGE
+        if look["png"] is not None and fresh and look["monitor"] == self.monitor:
+            return look
+        look["stop"].set()                     # stale: free Ollama for the real question
+        return None
+
+    @staticmethod
+    def _messages(system, history, content, png):
+        """System + recent turns + this question with the screenshot. The look-ahead uses the same
+        start with empty text, so Ollama can reuse the image work for the real question."""
+        messages = [{"role": "system", "content": system}]
+        messages += history
+        messages.append({"role": "user", "content": content, "images": [base64.b64encode(png).decode()]})
+        return messages
 
     # -- question flow (worker threads)
     def _from_voice(self, audio, sample_rate):
@@ -1146,24 +1263,26 @@ class Buddy:
 
     def _ask_locked(self, question, generation, selection=""):
         started = time.perf_counter()
-        # Remove the buddy from the screen before taking the screenshot
-        done = threading.Event()
-        self.post(lambda: (self.overlay.clear_for_screenshot(), done.set()))
-        done.wait(1.0)
-        time.sleep(0.05)
-        png, image = capture_monitor(self.monitor, self.settings["screenshot_max_side"])
-        self.post(self.overlay.thinking, f"“{question}”\nLooking at your screen… (about a minute)")
+        look = self._take_look_ahead()
+        if look is not None:
+            # Screenshot from the moment the hotkey went down; Ollama may already have read it
+            png, system, history = look["png"], look["system"], look["history"]
+            wait_text = "Almost there\u2026" if look["read"].is_set() else "Still reading your screen\u2026"
+        else:
+            # Remove the buddy from the screen before taking the screenshot
+            done = threading.Event()
+            self.post(lambda: (self.overlay.clear_for_screenshot(), done.set()))
+            done.wait(1.0)
+            time.sleep(0.05)
+            png, _ = capture_monitor(self.monitor, self.settings["screenshot_max_side"])
+            system, history = self._system_prompt(), self.history[-2 * HISTORY_TURNS:]
+            wait_text = "Looking at your screen\u2026 (about a minute)"
+        self.post(self.overlay.thinking, f"\u201c{question}\u201d\n{wait_text}")
 
-        messages = [{"role": "system", "content": self._system_prompt()}]
-        messages += self.history[-2 * HISTORY_TURNS:]
         content = question
         if selection:
             content += f"\n\nThe text I highlighted on screen:\n\"\"\"\n{selection[:SELECTION_MAX_CHARS]}\n\"\"\""
-        messages.append({
-            "role": "user",
-            "content": content,
-            "images": [base64.b64encode(png).decode()],
-        })
+        messages = self._messages(system, history, content, png)
 
         reply, spoken_upto = "", 0
         first_token_at = None
