@@ -43,7 +43,7 @@ kernel32 = ctypes.windll.kernel32
 user32.IsHungAppWindow.argtypes = [wintypes.HWND]
 user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
 user32.SendMessageTimeoutW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM,
-                                       wintypes.UINT, wintypes.UINT, ctypes.POINTER(wintypes.DWORD)]
+                                       wintypes.UINT, wintypes.UINT, ctypes.POINTER(ctypes.c_size_t)]  # PDWORD_PTR
 WM_CLOSE = 0x0010
 SW_MINIMIZE, SW_MAXIMIZE, SW_RESTORE = 6, 3, 9
 GWL_EXSTYLE = -20
@@ -212,26 +212,58 @@ def label(window):
     return title if window["app"].lower() in title.lower() else f'{window["app"]} "{title}"'
 
 
+def _front_root():
+    front = user32.GetForegroundWindow()
+    return user32.GetAncestor(front, 2) if front else None          # GA_ROOT
+
+
 def bring_to_front(hwnd):
-    """SetForegroundWindow, with the Alt-key trick Windows needs from background apps."""
+    """Make hwnd the active window. True only if it really is in front afterwards
+    (keys and text are never sent unless this succeeded)."""
     if user32.IsIconic(hwnd):
         user32.ShowWindow(hwnd, SW_RESTORE)
-    user32.keybd_event(0x12, 0, 0, 0)
-    user32.keybd_event(0x12, 0, 2, 0)
-    user32.SetForegroundWindow(hwnd)
-    time.sleep(0.15)
+    for _ in range(3):
+        if _front_root() == hwnd:
+            return True
+        user32.keybd_event(0x12, 0, 0, 0)                           # Alt tap: lets a background app
+        user32.keybd_event(0x12, 0, 2, 0)                           # take the foreground
+        user32.SetForegroundWindow(hwnd)
+        time.sleep(0.25)
+    return _front_root() == hwnd
+
+
+def _asking_user(hwnd):
+    """The app answered the close with a question ('Save changes?'): a visible window it owns,
+    or its main window disabled behind a modal dialog."""
+    if not user32.IsWindowEnabled(hwnd):
+        return True
+    owned = []
+
+    def visit(other, _):
+        if user32.IsWindowVisible(other) and user32.GetWindow(other, 4) == hwnd:   # GW_OWNER
+            owned.append(other)
+        return True
+
+    callback = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)(visit)
+    user32.EnumWindows(callback, 0)
+    return bool(owned)
 
 
 def close_window(window):
-    """Polite close (the app may still ask to save). True if the window is gone."""
-    result = wintypes.DWORD()
-    user32.SendMessageTimeoutW(window["hwnd"], WM_CLOSE, 0, 0, 0x0002, 2000, ctypes.byref(result))
+    """Polite close. Returns "closed", "asking" (the app shows e.g. 'Save changes?') or "stuck"."""
+    hwnd = window["hwnd"]
+    result = ctypes.c_size_t()
+    user32.SendMessageTimeoutW(hwnd, WM_CLOSE, 0, 0, 0x0002, 2000, ctypes.byref(result))
     deadline = time.monotonic() + CLOSE_WAIT_S
     while time.monotonic() < deadline:
-        if not user32.IsWindow(window["hwnd"]) or not user32.IsWindowVisible(window["hwnd"]):
-            return True
+        if not user32.IsWindow(hwnd) or not user32.IsWindowVisible(hwnd):
+            return "closed"
+        if not user32.IsHungAppWindow(hwnd) and _asking_user(hwnd):
+            return "asking"
         time.sleep(0.2)
-    return False
+    if not user32.IsHungAppWindow(hwnd) and _asking_user(hwnd):
+        return "asking"
+    return "stuck"
 
 
 def force_close(window):
@@ -254,12 +286,16 @@ VK = {"ctrl": 0x11, "control": 0x11, "alt": 0x12, "shift": 0x10, "win": 0x5B, "w
       **{f"f{n}": 0x6F + n for n in range(1, 13)}}
 
 
+# Own prototype: other modules set different argtypes on the shared windll.user32 function object
+_vk_key_scan = ctypes.WINFUNCTYPE(ctypes.c_short, ctypes.c_wchar)(("VkKeyScanW", ctypes.windll.user32))
+
+
 def _vk(key):
     key = key.strip().lower()
     if key in VK:
         return VK[key]
     if len(key) == 1:
-        return user32.VkKeyScanW(ord(key)) & 0xFF
+        return _vk_key_scan(key) & 0xFF
     raise ValueError(f"unknown key '{key}'")
 
 
@@ -335,8 +371,11 @@ def run(action, argument, windows, targets=None, confirm=lambda question: False,
         if window is None:
             return f"I couldn't find a window called {argument}."
         if action == "close":
-            if close_window(window):
+            outcome = close_window(window)
+            if outcome == "closed":
                 return f"Closed {label(window)}."
+            if outcome == "asking":
+                return f"{window['app']} is asking you something first, like saving. Answer it there."
             if confirm(f"{label(window)} isn't responding.\nForce it closed?"
                        + ("\n(Restarts File Explorer; the taskbar blinks)" if window["process"] == "explorer" else "")):
                 return force_close(window)
@@ -347,8 +386,9 @@ def run(action, argument, windows, targets=None, confirm=lambda question: False,
         if action == "maximize":
             user32.ShowWindow(window["hwnd"], SW_MAXIMIZE)
             return f"Maximized {label(window)}."
-        bring_to_front(window["hwnd"])
-        return f"Switched to {label(window)}."
+        if bring_to_front(window["hwnd"]):
+            return f"Switched to {label(window)}."
+        return f"Windows didn't let me switch to {label(window)}."
     if action == "open":
         if not argument:
             return "Open what?"
@@ -363,8 +403,12 @@ def run(action, argument, windows, targets=None, confirm=lambda question: False,
         click_at((left + right) / 2, (top + bottom) / 2)
         return f"Clicked {target['name'][:40]}."
     if action in ("type", "keys"):
-        if windows:
-            bring_to_front(windows[0]["hwnd"])
+        named = windows_named_in(question, windows) if question else []
+        window = named[0] if len({w["app"] for w in named}) == 1 else (windows[0] if windows else None)
+        if window is None:
+            return "I don't know which window to type in."
+        if not bring_to_front(window["hwnd"]):
+            return f"I couldn't switch to {label(window)}, so I didn't type anything."
         if action == "type":
             type_text(argument)
             return "Typed it."

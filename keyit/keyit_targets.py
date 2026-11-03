@@ -42,6 +42,8 @@ user32.WindowFromPoint.argtypes = [wintypes.POINT]
 user32.GetAncestor.restype = wintypes.HWND
 user32.GetAncestor.argtypes = [wintypes.HWND, wintypes.UINT]
 user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
+user32.SendMessageTimeoutW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM,
+                                       wintypes.UINT, wintypes.UINT, ctypes.POINTER(ctypes.c_size_t)]
 GA_ROOT = 2
 OWN_PID = os.getpid()
 
@@ -77,43 +79,91 @@ def _window_is_visible(hwnd, rect, monitor_rect):
     return False
 
 
+def _automation_with_timeouts():
+    """UI Automation client whose calls give up after ~1.5 s instead of hanging on a frozen app."""
+    import comtypes.client
+    from keyit_buddy import _uia
+
+    uia, automation = _uia()
+    try:
+        automation8 = comtypes.client.CreateObject(uia.CUIAutomation8, interface=uia.IUIAutomation2)
+        automation8.ConnectionTimeout = 1000
+        automation8.TransactionTimeout = 1500
+        return uia, automation8
+    except Exception:
+        logging.debug("UIA timeouts unavailable; using the plain client", exc_info=True)
+        return uia, automation
+
+
+def _answers(hwnd, timeout_ms=300):
+    """Does the window's thread process messages? (suspended Store apps and frozen apps don't)"""
+    result = ctypes.c_size_t()
+    return bool(user32.SendMessageTimeoutW(hwnd, 0, 0, 0, 0x0002, timeout_ms, ctypes.byref(result)))
+
+
+def _candidate_windows(monitor_rect, exclude_pid):
+    """Visible, responsive top-level windows on the monitor, front first (plain Win32, never hangs)."""
+    dwmapi = ctypes.windll.dwmapi
+    found = []
+
+    def visit(hwnd, _):
+        if not user32.IsWindowVisible(hwnd) or user32.IsIconic(hwnd):
+            return True
+        cloaked = wintypes.DWORD()
+        dwmapi.DwmGetWindowAttribute(hwnd, 14, ctypes.byref(cloaked), ctypes.sizeof(cloaked))
+        if cloaked.value:
+            return True
+        pid = wintypes.DWORD()
+        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+        if pid.value == exclude_pid:
+            return True
+        rect = wintypes.RECT()
+        user32.GetWindowRect(hwnd, ctypes.byref(rect))
+        window_rect = (rect.left, rect.top, rect.right, rect.bottom)
+        if _window_is_visible(hwnd, window_rect, monitor_rect):
+            found.append(hwnd)
+        return True
+
+    callback = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)(visit)
+    user32.EnumWindows(callback, 0)
+    return [hwnd for hwnd in found if _answers(hwnd)]
+
+
 def snapshot(monitor_rect, exclude_pid=None):
     """Visible UI elements on one monitor (physical pixels), front window first.
 
     Returns dicts: name, kind, rect (l, t, r, b in physical pixels), window, foreground.
-    Run it on a worker thread; it takes ~0.1-0.4 s per visible window.
+    Run it on a worker thread; it takes ~0.1-0.4 s per visible window. Frozen or suspended apps are
+    skipped, and every UI Automation call has a timeout, so it can't hang.
     """
-    from keyit_buddy import _uia, physical_pixels
+    from keyit_buddy import physical_pixels
 
     exclude_pid = os.getpid() if exclude_pid is None else exclude_pid
     started = time.perf_counter()
     targets = []
     with physical_pixels():
-        uia, automation = _uia()
+        uia, automation = _automation_with_timeouts()
         request = automation.CreateCacheRequest()
         for prop in (uia.UIA_NamePropertyId, uia.UIA_ControlTypePropertyId,
-                     uia.UIA_BoundingRectanglePropertyId, uia.UIA_NativeWindowHandlePropertyId,
-                     uia.UIA_ProcessIdPropertyId):
+                     uia.UIA_BoundingRectanglePropertyId):
             request.AddProperty(prop)
         on_screen = automation.CreatePropertyCondition(uia.UIA_IsOffscreenPropertyId, False)
         condition = automation.CreateAndCondition(on_screen, automation.ControlViewCondition)
         request.TreeFilter = condition
         foreground = user32.GetForegroundWindow()
-        windows = automation.GetRootElement().FindAllBuildCache(uia.TreeScope_Children, condition, request)
-        for index in range(windows.Length if windows else 0):
+        for hwnd in _candidate_windows(monitor_rect, exclude_pid):
             if time.perf_counter() - started > SNAPSHOT_BUDGET_S:
                 logging.info("UI snapshot stopped early after %.1fs", time.perf_counter() - started)
                 break
-            window = windows.GetElement(index)
-            hwnd = window.CachedNativeWindowHandle
-            if not hwnd or window.CachedProcessId == exclude_pid:
+            title_buffer = ctypes.create_unicode_buffer(256)
+            user32.GetWindowTextW(hwnd, title_buffer, 256)
+            title = title_buffer.value
+            try:
+                window = automation.ElementFromHandle(hwnd)
+                found = window.FindAllBuildCache(uia.TreeScope_Descendants, condition, request)
+            except Exception:                                   # timed out / app went away
+                logging.debug("UI snapshot skipped %r", title, exc_info=True)
                 continue
-            box = window.CachedBoundingRectangle
-            window_rect = (box.left, box.top, box.right, box.bottom)
-            if not _window_is_visible(hwnd, window_rect, monitor_rect):
-                continue
-            title = window.CachedName or ""
-            found = window.FindAllBuildCache(uia.TreeScope_Descendants, condition, request)
             for j in range(min(found.Length if found else 0, MAX_ELEMENTS_PER_WINDOW)):
                 element = found.GetElement(j)
                 kind = KINDS.get(element.CachedControlType)
