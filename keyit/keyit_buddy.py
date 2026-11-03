@@ -47,7 +47,8 @@ DEFAULTS = {
     "buddy_speak": True,
     "screenshot_max_side": 1280,
     "buddy_cursor_always": True,      # Clicky-style: the buddy rests next to the mouse all the time
-    "buddy_engine": "auto",           # "auto": GPU (fast) when possible, else Ollama; "cpu": always Ollama
+    "buddy_engine": "auto",           # "maas": company MAAS (smart, off-PC); "auto": GPU when possible,
+                                      # else Ollama; "cpu": always Ollama
 }
 # "auto" = Whisper base.en if it can be downloaded/loaded, else the built-in Windows recognizer
 WHISPER_MODELS = ["auto", "windows", "tiny.en", "base.en", "small.en", "base", "small"]
@@ -1140,12 +1141,21 @@ class Buddy:
         self.look_ahead = None                # screenshot the model starts reading while you talk/type
         self.gpu_server = None                # llama-server on the GPU (keyit_gpu), started on demand
         self.gpu_failed = {}                  # model -> why the GPU can't run it (then: Ollama)
+        self.maas_client = None               # keyit_maas.MaasClient when Settings -> Brain = Smart
+        self.maas_failed_until = 0.0          # after a MAAS failure: local brain until this time
         self.windows = []                     # open windows when the question started (for actions)
         threading.Thread(target=self._prepare, daemon=True).start()
 
     # -- setup
     def client(self):
-        """The GPU brain when it can run the chosen model, else Ollama."""
+        """Smart brain (company MAAS) when picked and working; else the GPU brain when it can run the
+        chosen model; else Ollama."""
+        if self.settings.get("buddy_engine", "auto") == "maas" and time.monotonic() >= self.maas_failed_until:
+            if self.maas_client is None:
+                import keyit_maas
+
+                self.maas_client = keyit_maas.MaasClient()
+            return self.maas_client
         model = self.settings["buddy_model"]
         if self.settings.get("buddy_engine", "auto") == "cpu" or model in self.gpu_failed:
             if self.gpu_server is not None:
@@ -1162,6 +1172,12 @@ class Buddy:
                 self.gpu_server.stop()
             self.gpu_server = keyit_gpu.GpuServer(model)
         return keyit_gpu.GpuClient(self.gpu_server)
+
+    def _maas_broke(self, error):
+        """The smart brain failed (network, login, gateway): answer locally for the next 5 minutes."""
+        logging.warning("Smart brain (MAAS) failed, using the local brain for 5 min: %s", error)
+        self.maas_failed_until = time.monotonic() + 300
+        self.on_status("Smart brain unreachable - answering on this PC for a few minutes.")
 
     def _gpu_broke(self, error):
         """The GPU server failed: use Ollama from now on (until the model changes)."""
@@ -1185,6 +1201,12 @@ class Buddy:
         try:
             self.on_status("Loading model into memory…")
             client = self.client()
+            if getattr(client, "smart", False):
+                try:
+                    client.warm_up()
+                except Exception as error:
+                    self._maas_broke(error)
+                    client = self.client()
             try:
                 client.warm_up(self.settings["buddy_model"])
             except RuntimeError as error:
@@ -1193,7 +1215,10 @@ class Buddy:
                 self._gpu_broke(error)
                 client = self.client()
                 client.warm_up(self.settings["buddy_model"])
-            where = "GPU, fast" if getattr(client, "gpu", False) else "CPU via Ollama"
+            if getattr(client, "smart", False):
+                where = "Smart brain, company MAAS"
+            else:
+                where = "GPU, fast" if getattr(client, "gpu", False) else "CPU via Ollama"
             self.on_status(f"Ready ({where}) – Ctrl+Alt+Space: tap to type, hold to talk.")
         except Exception as error:
             self.on_status(self._explain_error(error).replace("\n", " "))
@@ -1380,6 +1405,18 @@ class Buddy:
         """Answer chunks from the GPU brain; if it breaks before answering, from Ollama instead."""
         client = self.client()
         model = self.settings["buddy_model"]
+        if getattr(client, "smart", False):
+            started = False
+            try:
+                for chunk in client.chat_stream(model, messages):
+                    started = True
+                    yield chunk
+                return
+            except Exception as error:
+                if started:
+                    raise
+                self._maas_broke(error)
+                client = self.client()                 # the local brain answers this one
         if not getattr(client, "gpu", False):
             yield from client.chat_stream(model, messages)
             return

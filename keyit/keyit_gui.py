@@ -17,6 +17,17 @@ from keyit_recorder import IMPORTANT_KEYS, RecordingSession, build_pack, slice_k
 MIN_KEYS_TO_BUILD = 10
 
 
+
+# Settings -> Brain. "Smart" sends the screenshot + question to your company's MAAS gateway (fast, much smarter);
+# the local ones never leave this PC.
+BRAINS = {"Smart (MAAS)": "maas", "Local GPU": "auto", "Local CPU": "cpu"}
+BRAIN_NOTES = {
+    "maas": "Smart brain: company MAAS (vision-model), answers in ~1-2 s. Your screenshot and question go to "
+            "the company AI gateway. Falls back to this PC if it can't be reached.",
+    "auto": "Local GPU brain: everything stays on this PC. Answers in ~5-15 s.",
+    "cpu": "Local CPU brain (Ollama): everything stays on this PC, but slow (about a minute).",
+}
+
 class _NullTray:
     """Stand-in when a host app (Pips) owns the tray icon."""
 
@@ -376,9 +387,11 @@ class KeyItApp:
         self.whisper_box.set(self.settings["whisper_model"])
         self.whisper_box.grid(row=3, column=1, sticky="w", padx=8, pady=(8, 0))
         self.whisper_box.bind("<<ComboboxSelected>>", self._on_buddy_option)
-        self.gpu_var = tk.BooleanVar(value=self.settings.get("buddy_engine", "auto") != "cpu")
-        ttk.Checkbutton(tab, text="Use GPU (fast)", variable=self.gpu_var,
-                        command=self._on_gpu_toggled).grid(row=3, column=2, sticky="w", pady=(8, 0))
+        self.brain_box = ttk.Combobox(tab, state="readonly", width=16, values=list(BRAINS))
+        engine = self.settings.get("buddy_engine", "auto")
+        self.brain_box.set(next((label for label, value in BRAINS.items() if value == engine), "Local GPU"))
+        self.brain_box.grid(row=3, column=2, sticky="w", pady=(8, 0))
+        self.brain_box.bind("<<ComboboxSelected>>", self._on_brain_changed)
 
         ttk.Label(tab, text="Voice").grid(row=4, column=0, sticky="w", pady=(8, 0))
         voice_row = ttk.Frame(tab)
@@ -503,10 +516,13 @@ class KeyItApp:
             if self.buddy:
                 threading.Thread(target=self.buddy._prepare, daemon=True).start()
 
-    def _on_gpu_toggled(self):
-        self.settings["buddy_engine"] = "auto" if self.gpu_var.get() else "cpu"
+    def _on_brain_changed(self, _event=None):
+        engine = BRAINS.get(self.brain_box.get(), "auto")
+        self.settings["buddy_engine"] = engine
         core.save_settings(self.settings)
+        self._set_buddy_status(BRAIN_NOTES[engine])
         if self.buddy:
+            self.buddy.maas_failed_until = 0.0
             threading.Thread(target=self.buddy._prepare, daemon=True).start()
 
     def _on_cursor_always_toggled(self):

@@ -38,6 +38,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 __all__ = [
+    "access_token",
     "enabled",
     "today_summary",
     "daily_totals",
@@ -441,3 +442,15 @@ def invalidate_cache() -> None:
         _logged.clear()
     except Exception:
         logger.exception("maas.invalidate_cache failed")
+
+
+def access_token(force: bool = False) -> str | None:
+    """Bearer token for the MAAS gateway (Buddy's "Smart" brain uses it); ``None`` when not logged in.
+    Cached ~25 min like the usage calls; ``force=True`` logs in again (after a 401)."""
+    try:
+        if not enabled():
+            return None
+        return _get_token(force=force)
+    except Exception:
+        logger.exception("maas.access_token failed")
+        return None
