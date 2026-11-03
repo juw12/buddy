@@ -40,7 +40,8 @@ def third_party_and_stdlib_imports():
 whisper_datas, whisper_binaries, whisper_hidden = collect_all("faster_whisper")
 # natural voices (keyit_voice): Kokoro + espeak-ng phonemizer; espeakng_loader ships the espeak DLL and its data
 voice_datas, voice_binaries, voice_hidden = [], [], []
-for package in ("kokoro_onnx", "phonemizer", "espeakng_loader", "joblib", "dlinfo", "attrs", "cloudpickle"):
+for package in ("kokoro_onnx", "phonemizer", "espeakng_loader", "joblib", "dlinfo", "attrs", "cloudpickle",
+                "misaki", "jieba", "pypinyin", "cn2an", "proces", "regex", "ordered_set"):   # + Chinese
     datas_, binaries_, hidden_ = collect_all(package)
     voice_datas += datas_
     voice_binaries += binaries_

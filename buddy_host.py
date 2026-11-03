@@ -931,6 +931,11 @@ def main(argv=None):
                 samples, rate = voice.kokoro.create("Hi.", voice="af_heart", speed=1.0, lang="en-us")
                 assert len(samples) > rate // 10, "natural voice made no audio"
                 logger.info("Natural voice works (%.1fs of audio for 'Hi.')", len(samples) / rate)
+                for text in ("你好，我是Buddy。", "Hola, soy Buddy."):           # Chinese (misaki) and espeak languages
+                    voice.set_voice("zf_xiaobei" if "你" in text else "ef_dora")
+                    samples, rate = voice._speak(text)
+                    assert len(samples) > rate // 2, f"natural voice made no audio for {text!r}"
+                    logger.info("Natural voice works for %a (%.1fs)", text, len(samples) / rate)
             else:
                 logger.info("Natural voice libraries load; voice files not downloaded yet")
         except Exception:

@@ -25,7 +25,7 @@ DOWNLOAD_MB = 120
 SAMPLE_RATE = 24000
 PREFIX = "Natural: "
 
-# (label in Settings, Kokoro voice id) - the best-rated English voices first
+# (label in Settings, Kokoro voice id). The id's first letter is the language, the second the gender.
 VOICES = [
     ("Heart (US woman)", "af_heart"),
     ("Bella (US woman)", "af_bella"),
@@ -38,8 +38,34 @@ VOICES = [
     ("Isabella (UK woman)", "bf_isabella"),
     ("George (UK man)", "bm_george"),
     ("Fable (UK man)", "bm_fable"),
+    ("Xiaobei (Chinese woman)", "zf_xiaobei"),
+    ("Xiaoni (Chinese woman)", "zf_xiaoni"),
+    ("Xiaoxiao (Chinese woman)", "zf_xiaoxiao"),
+    ("Xiaoyi (Chinese woman)", "zf_xiaoyi"),
+    ("Yunjian (Chinese man)", "zm_yunjian"),
+    ("Yunxi (Chinese man)", "zm_yunxi"),
+    ("Yunyang (Chinese man)", "zm_yunyang"),
+    ("Dora (Spanish woman)", "ef_dora"),
+    ("Alex (Spanish man)", "em_alex"),
+    ("Siwis (French woman)", "ff_siwis"),
+    ("Sara (Italian woman)", "if_sara"),
+    ("Nicola (Italian man)", "im_nicola"),
+    ("Dora (Portuguese woman, Brazil)", "pf_dora"),
+    ("Alex (Portuguese man, Brazil)", "pm_alex"),
+    ("Alpha (Hindi woman)", "hf_alpha"),
+    ("Beta (Hindi woman)", "hf_beta"),
+    ("Omega (Hindi man)", "hm_omega"),
 ]
 DEFAULT = PREFIX + VOICES[0][0]
+LANGUAGES = {"a": "en-us", "b": "en-gb", "e": "es", "f": "fr-fr", "h": "hi", "i": "it", "p": "pt-br", "z": "zh"}
+# when the text's script doesn't fit the chosen voice, this voice of the same gender reads it
+PARTNERS = {("zh", "f"): "zf_xiaobei", ("zh", "m"): "zm_yunjian", ("hi", "f"): "hf_alpha", ("hi", "m"): "hm_omega",
+            ("en-us", "f"): "af_heart", ("en-us", "m"): "am_michael"}
+HAN = re.compile(r"[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]")
+DEVANAGARI = re.compile(r"[\u0900-\u097f]")
+LATIN = re.compile(r"[A-Za-z]")
+FULL_WIDTH = str.maketrans({"，": ",", "。": ".", "！": "!", "？": "?", "：": ":", "；": ";", "、": ",",
+                            "（": "(", "）": ")", "“": '"', "”": '"', "「": '"', "」": '"'})
 
 
 def names():
@@ -56,6 +82,28 @@ def voice_id(name):
         if label == known_label:
             return known_id
     return VOICES[0][1]
+
+
+def language_of(voice):
+    return LANGUAGES.get(voice[:1], "en-us")
+
+
+def voice_for(text, voice):
+    """(voice, language) to read this text: the chosen voice, unless the text is in another script
+    (Chinese answer + English voice -> a Chinese voice of the same gender, and the other way round)."""
+    language = language_of(voice)
+    gender = voice[1:2] if voice[1:2] in ("f", "m") else "f"
+    if HAN.search(text):
+        wanted = "zh"
+    elif DEVANAGARI.search(text):
+        wanted = "hi"
+    elif language in ("zh", "hi") and LATIN.search(text):
+        wanted = "en-us"                                   # plain English with a Chinese/Hindi voice
+    else:
+        return voice, language
+    if wanted == language:
+        return voice, language
+    return PARTNERS[(wanted, gender)], wanted
 
 
 def voices_dir():
@@ -97,8 +145,11 @@ def download(progress=lambda text: None):
 
 def split_text(text, max_chars=90, min_chars=30):
     """Pieces of about one breath, so audio for the next piece is ready before the current one ends:
-    tiny sentences ("Sure!") join the next one, long ones are cut at commas/semicolons."""
-    sentences = [s for s in re.split(r"(?<=[.!?])\s+", " ".join(text.split())) if s]
+    tiny sentences ("Sure!") join the next one, long ones are cut at commas/semicolons.
+    Chinese is denser (~0.2 s per character), so its pieces are a third as long."""
+    if HAN.search(text):
+        max_chars, min_chars = max_chars // 3, min_chars // 3
+    sentences = [s for s in re.split(r"(?<=[.!?])\s+|(?<=[。！？])", " ".join(text.split())) if s.strip()]
     joined = []
     for sentence in sentences:
         if joined and len(joined[-1]) < min_chars:
@@ -108,7 +159,7 @@ def split_text(text, max_chars=90, min_chars=30):
     pieces = []
     for sentence in joined:
         while len(sentence) > max_chars:
-            cut = max(sentence.rfind(mark, min_chars, max_chars) for mark in (", ", "; ", ": ", " - "))
+            cut = max(sentence.rfind(mark, min_chars, max_chars) for mark in (", ", "; ", ": ", " - ", "，", "、", "；"))
             if cut < 0:
                 cut = sentence.rfind(" ", min_chars, max_chars)
             if cut < 0:
@@ -131,6 +182,7 @@ class NaturalVoice:
         self.audio = queue.Queue(maxsize=3)
         self.generation = 0
         self.kokoro = None
+        self.zh_g2p = None                     # misaki Chinese G2P, loaded on first Chinese text
         self.failed = None
         self.ready = threading.Event()
         threading.Thread(target=self._make_loop, name="buddy-voice-make", daemon=True).start()
@@ -153,9 +205,31 @@ class NaturalVoice:
     def set_voice(self, voice):
         self.voice = voice
 
-    def speak_test(self):
-        self.stop()
-        self.say("Hi, I'm Buddy. This is how I sound.")
+    def _speak(self, text):
+        """Audio for one piece, in the language its script needs."""
+        voice, language = voice_for(text, self.voice)
+        if language != "zh":
+            return self.kokoro.create(text, voice=voice, speed=self.speed, lang=language)
+        return self.kokoro.create(self._chinese_phonemes(text), voice=voice, speed=self.speed, is_phonemes=True)
+
+    def _chinese_phonemes(self, text):
+        """Chinese runs through misaki (pinyin -> IPA, works for traditional characters too),
+        English words in between through espeak, punctuation to the ASCII marks the model knows."""
+        if self.zh_g2p is None:
+            from misaki import zh
+
+            logging.getLogger("jieba").setLevel(logging.WARNING)
+            self.zh_g2p = zh.ZHG2P()
+        chinese = "\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff，。！？：；、"
+        parts = []
+        for run in re.findall(f"[{chinese}]+|[^{chinese}]+", text):
+            if HAN.search(run):
+                parts.append(self.zh_g2p(run).translate(FULL_WIDTH))
+            elif LATIN.search(run):
+                parts.append(" " + self.kokoro.tokenizer.phonemize(run.strip(), "en-us") + " ")
+            else:
+                parts.append(run.translate(FULL_WIDTH))
+        return " ".join("".join(parts).split())
 
     # -- threads
     def _load(self):
@@ -194,7 +268,7 @@ class NaturalVoice:
                     text = f"{text} {more}"
             try:
                 started = time.perf_counter()
-                samples, rate = self.kokoro.create(text, voice=self.voice, speed=self.speed, lang="en-us")
+                samples, rate = self._speak(text)
                 took = time.perf_counter() - started
                 logging.debug("Voice: %.1fs audio in %.1fs", len(samples) / rate, took)
             except Exception:

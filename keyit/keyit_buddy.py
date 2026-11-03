@@ -340,6 +340,26 @@ def resample(audio, source_rate, target_rate):
     return np.interp(positions, np.arange(audio.size), smoothed).astype(np.float32)
 
 
+TEST_LINES = {
+    "zh": "你好，我是Buddy。這就是我的聲音。",
+    "es": "Hola, soy Buddy. Así es como sueno.",
+    "fr-fr": "Bonjour, je suis Buddy. Voici ma voix.",
+    "it": "Ciao, sono Buddy. Questa è la mia voce.",
+    "pt-br": "Olá, eu sou o Buddy. Esta é a minha voz.",
+    "hi": "नमस्ते, मैं बडी हूँ। मेरी आवाज़ ऐसी है।",
+}
+
+
+def test_line(voice_name):
+    """What the Test button says, in the voice's own language."""
+    import keyit_voice
+
+    if keyit_voice.is_natural(voice_name):
+        language = keyit_voice.language_of(keyit_voice.voice_id(voice_name))
+        return TEST_LINES.get(language, "Hi, I'm Buddy. This is how I sound.")
+    return "Hi, I'm Buddy. This is how I sound."
+
+
 def default_voice():
     """No voice picked yet: the natural voice when it's on this PC, else the first Windows voice."""
     import keyit_voice
@@ -434,7 +454,7 @@ class Speaker:
         self.stop()
         if self.natural is not None and self._natural_on() and not self.natural.ready.is_set():
             self.on_status("Loading the natural voice...")
-        self.say("Hi, I'm Buddy. This is how I sound.")
+        self.say(test_line(self.voice_name))
 
 
 # --------------------------------------------------------------------------- screen
