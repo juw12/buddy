@@ -66,6 +66,14 @@ LOG_PATH = LOG_DIR / "widget.log"
 # Ensure log directory exists
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 
+# Keep the log small: past 2 MB it moves to widget.log.1 at start-up (the frozen app has no
+# logging.handlers, so no RotatingFileHandler)
+try:
+    if LOG_PATH.exists() and LOG_PATH.stat().st_size > 2_000_000:
+        LOG_PATH.replace(LOG_PATH.with_name(LOG_PATH.name + ".1"))
+except OSError:
+    pass
+
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,

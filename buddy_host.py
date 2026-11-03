@@ -507,11 +507,13 @@ class BuddyApp:
         self._quitting = False
 
         self.quit_event = None
+        self.ask_event = None
         if instance is not None:
             try:
                 import win32event
 
                 self.quit_event = win32event.CreateEvent(None, True, False, QUIT_EVENT_NAME)
+                self.ask_event = win32event.CreateEvent(None, False, False, ASK_EVENT_NAME)   # auto-reset
             except Exception:
                 logger.warning("Quit event unavailable", exc_info=True)
 
@@ -737,6 +739,9 @@ class BuddyApp:
                     logger.info("Quit requested from outside (--quit)")
                     self.quit()
                     return
+            if self.ask_event is not None and \
+                    win32event.WaitForSingleObject(self.ask_event, 0) == win32event.WAIT_OBJECT_0:
+                self._ask_from_outside()
             if self.instance.show_requested():          # Buddy was started again: show it
                 self.open_home()
         except Exception:
@@ -768,6 +773,21 @@ class BuddyApp:
         if pet is not None:
             pet.say("Hi, I'm Buddy! Ask me anything - tap Ctrl+Alt+Space to type, or hold it and talk. "
                     "I also keep your focus score and click your keys.", duration=14, priority=2)
+
+    def _ask_from_outside(self):
+        """Buddy.exe --ask "...": same as typing it into the Ctrl+Alt+Space box."""
+        try:
+            path = _ask_file()
+            question = path.read_text(encoding="utf-8").strip()
+            path.unlink(missing_ok=True)
+        except OSError:
+            return
+        buddy = getattr(self.window, "buddy", None)
+        if not question or buddy is None:
+            logger.info("Ignored --ask (%s)", "empty" if not question else "AI is off")
+            return
+        logger.info("Question from --ask: %s", question)
+        buddy.ask_text(question)
 
     # ------------------------------------------------------------------ quit
     def quit(self):
@@ -816,6 +836,27 @@ def _prepare_pips(cfg):
 
 
 QUIT_EVENT_NAME = "Local\\Buddy.App.QuitRequest"
+ASK_EVENT_NAME = "Local\\Buddy.App.AskRequest"
+
+
+def _ask_file():
+    return keyit_core.USER_DIR / "ask_request.txt"
+
+
+def request_ask(question):
+    """Hand a typed question to the running Buddy (Buddy.exe --ask "open notepad"), like the Ctrl+Alt+Space box."""
+    try:
+        import win32event
+
+        event = win32event.OpenEvent(win32event.EVENT_MODIFY_STATE, False, ASK_EVENT_NAME)
+    except Exception:
+        logger.info("Buddy isn't running - start it first")
+        return 1
+    keyit_core.ensure_user_dirs()
+    _ask_file().write_text(question, encoding="utf-8")
+    win32event.SetEvent(event)
+    logger.info("Asked Buddy: %s", question)
+    return 0
 
 
 def request_quit():
@@ -837,9 +878,12 @@ def main(argv=None):
     parser.add_argument("--selftest", action="store_true", help="start everything offscreen, check, exit 0")
     parser.add_argument("--no-track", action="store_true", help="don't track app usage")
     parser.add_argument("--quit", action="store_true", help="ask a running Buddy to quit cleanly, then exit")
+    parser.add_argument("--ask", metavar="TEXT", help='give the running Buddy a typed question, e.g. --ask "open notepad"')
     args = parser.parse_args(argv)
     if args.quit:
         return request_quit()
+    if args.ask:
+        return request_ask(args.ask)
 
     pips_app.SingleInstance.MUTEX = "Local\\Buddy.App.Instance"
     pips_app.SingleInstance.EVENT = "Local\\Buddy.App.ShowRequest"

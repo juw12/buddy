@@ -54,6 +54,7 @@ LOG_PATH = BASE_DIR / "logs" / "widget.log"
 _logger = logging.getLogger("productivity.tracker")
 _logger.addHandler(logging.NullHandler())
 _logger_ready = False
+_UNREADABLE_PIDS: set = set()
 
 
 def _get_logger() -> logging.Logger:
@@ -61,6 +62,8 @@ def _get_logger() -> logging.Logger:
     global _logger_ready
     if not _logger_ready:
         _logger_ready = True
+        if logging.getLogger().handlers:
+            return _logger          # the app already logs to widget.log; a 2nd handler doubled every line
         try:
             LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
             handler = logging.FileHandler(LOG_PATH, encoding="utf-8")
@@ -268,7 +271,9 @@ class Tracker:
                 return None
             return os.path.basename(path).lower() or None
         except Exception as exc:
-            _warn(f"_exe_basename(pid={pid}): {exc}")
+            if pid not in _UNREADABLE_PIDS:               # e.g. an elevated app: once, not every second
+                _UNREADABLE_PIDS.add(pid)
+                _warn(f"_exe_basename(pid={pid}): {exc}")
             return None
         finally:
             if handle is not None:

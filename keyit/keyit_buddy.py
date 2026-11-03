@@ -1468,6 +1468,7 @@ class Buddy:
         first = (first_token_at or time.perf_counter()) - started
         self.last_timing = {"first_token_s": first, "total_s": total, "points": len(points)}
         self.on_status(f"Answered in {total:.1f}s (first words after {first:.1f}s)")
+        logging.info("Answered in %.1fs: %r", total, " ".join(reply.split())[:200])
         actions = keyit_actions.parse_actions(reply)
         if actions and not keyit_actions.is_request(question):
             logging.info("Not acting: '%s' is a how-to question", question)
@@ -1480,6 +1481,14 @@ class Buddy:
                         screen_points.append(to_screen(keyit_targets.to_normalized(target, targets["rect"]),
                                                        self.monitor))
             actions = []
+        dropped = [(a, arg) for a, arg in actions if not keyit_actions.asked_for(a, question)]
+        if dropped:
+            logging.info("Dropped actions the user didn't ask for: %s", dropped)
+            actions = [item for item in actions if item not in dropped]
+        direct = keyit_actions.direct_command(question)
+        if direct and not any(a == direct[0] for a, _ in actions):
+            logging.info("Using the user's own command %s (model gave %s)", direct, actions or "none")
+            actions = [direct]
         self.last_reply = {"question": question, "reply": reply, "spoken": spoken, "points": screen_points,
                            "actions": actions}
         if actions:
@@ -1513,6 +1522,7 @@ class Buddy:
                 except Exception:
                     pass
         summary = " ".join(results)
+        logging.info("Action result: %s", summary)
         self.last_reply["action_results"] = results
         self.on_status(summary)
         if self.settings["buddy_speak"] and summary != spoken:

@@ -23,6 +23,14 @@ CLOSE_WAIT_S = 3.0
 QUESTION_STARTS = ("how ", "where ", "what ", "why ", "which ", "when ", "who ", "is ", "are ", "does ",
                    "do i ", "explain", "tell me", "show me")
 RISKY_KEYS = {"alt+f4", "ctrl+w", "ctrl+shift+w", "delete", "shift+delete", "ctrl+q", "ctrl+shift+esc"}
+# Buddy only clicks when YOUR words ask for a click (the model once "clicked Close" on the wrong app)
+CLICK_WORDS = re.compile(r"\b(click|press|tap|select|choose|hit|push|toggle|check|uncheck|tick)\b", re.IGNORECASE)
+# Window buttons are never clicked: "close/minimize X" actions check that X exists first
+WINDOW_BUTTONS = re.compile(r"^(close|close window|close tab|minimi[sz]e|maximi[sz]e|restore( down)?|exit)$",
+                            re.IGNORECASE)
+RISKY_CLICKS = re.compile(r"\b(delete|remove|discard|don'?t save|do not save|erase|reset|uninstall|format|send|"
+                          r"sign out|log ?out|empty|clear all|overwrite|replace all|purchase|buy|pay)\b",
+                          re.IGNORECASE)
 
 ACTION_RULES = """
 You can also DO simple things on this PC, but only when the user asks you to do them (not when they ask how).
@@ -68,6 +76,46 @@ def parse_actions(text):
         if action in ACTIONS:
             found.append((action, (match.group(2) or "").strip()))
     return found[:MAX_ACTIONS]
+
+
+# Each action needs a matching word in what the USER said, so a model slip can't close or type anything
+ACTION_WORDS = {
+    "close": r"close|quit|exit|shut|kill|get rid of",
+    "minimize": r"minimi[sz]e|hide",
+    "maximize": r"maximi[sz]e|full ?screen|bigger|enlarge",
+    "focus": r"switch|go to|focus|show|bring|activate",
+    "open": r"open|launch|start|run|go to|visit",
+    "click": CLICK_WORDS.pattern,
+    "type": r"type|write|enter|fill|put|insert",
+    "keys": r"press|shortcut|hotkey|save|copy|paste|undo|redo|select all|cut|find|refresh|reload|zoom|print|"
+            r"new tab|ctrl|alt|shift|\+",
+}
+
+
+def asked_for(action, question):
+    """Did the user's own words ask for this kind of action?"""
+    pattern = ACTION_WORDS.get(action)
+    return bool(pattern and re.search(rf"\b(?:{pattern})", question, re.IGNORECASE))
+
+
+DIRECT_COMMANDS = [
+    ("close", re.compile(r"^\s*(?:please\s+)?(?:close|quit|exit)\s+(?:the\s+)?(.+?)(?:\s+window)?\s*[.!]*$", re.I)),
+    ("minimize", re.compile(r"^\s*(?:please\s+)?minimi[sz]e\s+(?:the\s+)?(.+?)(?:\s+window)?\s*[.!]*$", re.I)),
+    ("maximize", re.compile(r"^\s*(?:please\s+)?maximi[sz]e\s+(?:the\s+)?(.+?)(?:\s+window)?\s*[.!]*$", re.I)),
+    ("focus", re.compile(r"^\s*(?:please\s+)?(?:switch|go)\s+to\s+(?:the\s+)?(.+?)(?:\s+window)?\s*[.!]*$", re.I)),
+    ("open", re.compile(r"^\s*(?:please\s+)?(?:open|launch|start)\s+(.+?)\s*[.!]*$", re.I)),
+]
+
+
+def direct_command(question):
+    """'close notepad' -> ('close', 'notepad'): simple one-step commands don't depend on the model."""
+    if " and " in question.lower():
+        return None
+    for action, pattern in DIRECT_COMMANDS:
+        match = pattern.match(question)
+        if match:
+            return action, match.group(1).strip()
+    return None
 
 
 def is_request(question):
@@ -165,6 +213,24 @@ def windows_named_in(question, windows):
     return named
 
 
+TARGET_IN_QUESTION = re.compile(r"\b(?:in|into|to)\s+(?:the\s+|my\s+)?([a-z0-9][\w .+-]{1,40}?)(?:\s+window)?\s*[?.!]*$",
+                                re.IGNORECASE)
+NOT_A_WINDOW = {"this", "it", "here", "there"}
+UI_PART_WORDS = {"box", "field", "bar", "search", "chat", "tab", "cell", "page", "document", "input", "form",
+                 "message", "comment", "column", "row", "line", "sheet"}
+
+
+def _target_named_in(question):
+    """'type hello in notepad' -> 'notepad' (the window the user wants), or '' if they named none."""
+    match = TARGET_IN_QUESTION.search(question.strip())
+    if not match:
+        return ""
+    name = match.group(1).strip().lower()
+    if name in NOT_A_WINDOW or set(name.split()) & UI_PART_WORDS:
+        return ""                                  # "in the search box" is a place on screen, not an app
+    return name
+
+
 def resolve_window(argument, question, windows):
     """Which window an action means. The user's own words beat the model's guess:
     - the model named a specific window that exists -> that one
@@ -175,9 +241,9 @@ def resolve_window(argument, question, windows):
     specific = wanted not in PLACEHOLDERS and wanted not in ("", "this", "this window", "current",
                                                              "current window", "it", "that")
     if specific:
-        window = find_window(argument, windows)
-        if window is not None:
-            return window
+        # The model named a window: that one or nothing (never another window from the sentence:
+        # "open notepad and close the file explorer" once closed Notepad)
+        return find_window(argument, windows)
     named = windows_named_in(question, windows)
     if len({w["app"] for w in named}) == 1:
         return named[0]
@@ -343,23 +409,51 @@ def click_at(x, y):
     user32.mouse_event(0x0004, 0, 0, 0, 0)
 
 
+def _visible_top_windows():
+    handles = set()
+
+    def visit(hwnd, _):
+        if user32.IsWindowVisible(hwnd) and user32.GetWindowTextLengthW(hwnd) > 0:
+            handles.add(hwnd)
+        return True
+
+    user32.EnumWindows(ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)(visit), 0)
+    return handles
+
+
+def _shown_after(before, wait_s=8.0):
+    """Wait for a new visible window (the app we just opened). True if one appeared."""
+    deadline = time.monotonic() + wait_s
+    while time.monotonic() < deadline:
+        time.sleep(0.3)
+        if _visible_top_windows() - before:
+            return True
+    return False
+
+
 def open_thing(target):
-    """Open an app name, folder/file path or web address."""
+    """Open an app name, folder/file path or web address, and check that something actually appeared."""
     text = target.strip().strip('"')
     lowered = text.lower()
+    before = _visible_top_windows()
     if re.match(r"^(https?://|www\.)", lowered) or re.match(r"^[\w-]+\.(com|org|net|io|ai|dev|gov|edu)\b", lowered):
-        os.startfile(text if lowered.startswith("http") else "https://" + text)
-        return f"Opening {text}."
+        url = text if lowered.startswith("http") else "https://" + text
+        os.startfile(url)
+        return f"Opening {text}."                 # the browser may reuse an existing window
     expanded = os.path.expandvars(os.path.expanduser(text))
+    label_text = text
     if os.path.exists(expanded):
         os.startfile(expanded)
-        return f"Opening {os.path.basename(expanded.rstrip(os.sep)) or expanded}."
-    command = APP_ALIASES.get(lowered, lowered)
-    if command.endswith(":"):
-        os.startfile(command)
+        label_text = os.path.basename(expanded.rstrip(os.sep)) or expanded
     else:
-        subprocess.Popen(["cmd", "/c", "start", "", command], creationflags=0x08000000)
-    return f"Opening {text}."
+        command = APP_ALIASES.get(lowered, lowered)
+        try:
+            os.startfile(command)                 # ShellExecute: finds apps via PATH and App Paths
+        except OSError:
+            return f"I couldn't find an app called {text}."
+    if _shown_after(before):
+        return f"Opened {label_text}."
+    return f"I started {label_text}, but no window showed up yet."
 
 
 # --------------------------------------------------------------------------- running one action
@@ -396,17 +490,43 @@ def run(action, argument, windows, targets=None, confirm=lambda question: False,
     if action == "click":
         import keyit_targets
 
-        target = keyit_targets.find_by_label(argument, targets or [])
+        if question and not CLICK_WORDS.search(question):
+            return "I only click things when you ask me to click them."
+        if WINDOW_BUTTONS.match(argument.strip()):
+            return "Tell me which window to close or minimize, like \"close notepad\"."
+        named = windows_named_in(question, windows) if question else []
+        wanted = _target_named_in(question)
+        if wanted and not named:
+            return f"I don't see {wanted} open, so I didn't click anything."
+        if named:                                   # only inside the window the user named
+            titles = {w["title"] for w in named}
+            pool = [t for t in (targets or []) if t.get("window") in titles]
+        else:                                       # or the window the user was working in
+            pool = [t for t in (targets or []) if t.get("foreground")]
+        target = keyit_targets.find_by_label(argument, pool)
         if target is None:
-            return f"I couldn't find {argument} on the screen."
+            return f"I couldn't find {argument} in that window."
+        if WINDOW_BUTTONS.match(target["name"].strip()):
+            return "That's a window button; say \"close\" or \"minimize\" with the app's name instead."
+        if RISKY_CLICKS.search(target["name"]) and not confirm(f"Click \"{target['name'][:40]}\"?\n"
+                                                               "This could delete or send something."):
+            return "OK, I didn't click it."
         left, top, right, bottom = target["rect"]
         click_at((left + right) / 2, (top + bottom) / 2)
         return f"Clicked {target['name'][:40]}."
     if action in ("type", "keys"):
         named = windows_named_in(question, windows) if question else []
-        window = named[0] if len({w["app"] for w in named}) == 1 else (windows[0] if windows else None)
+        wanted = _target_named_in(question)
+        if wanted and not named:
+            return f"I don't see {wanted} open, so I didn't type anything."
+        if len({w["app"] for w in named}) > 1:
+            return "Which window should I type in?"
+        window = named[0] if named else (windows[0] if windows else None)
         if window is None:
             return "I don't know which window to type in."
+        if action == "type" and wanted:
+            argument = re.sub(rf"\s+(in|into)\s+(the\s+)?{re.escape(wanted)}(\s+window)?\s*$", "", argument,
+                              flags=re.IGNORECASE)                # "hello in notepad" -> "hello"
         if not bring_to_front(window["hwnd"]):
             return f"I couldn't switch to {label(window)}, so I didn't type anything."
         if action == "type":
