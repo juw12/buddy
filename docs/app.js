@@ -1064,6 +1064,27 @@
   }, { threshold: 0.5 });
   brainObserver.observe($(".brain-box"));
 
+  /* Live count of the free brain's questions left today (it is shared by everyone) */
+  (async () => {
+    const box = $("#freeLeft");
+    if (!box) return;
+    try {
+      const response = await fetch("https://buddy-brain.juwenmondial.workers.dev/health", { cache: "no-store" });
+      if (!response.ok) return;
+      const health = await response.json();
+      const left = health?.today?.left;
+      const used = health?.today?.used;
+      if (typeof left !== "number" || typeof used !== "number") return;
+      box.textContent = left > 0
+        ? `Free brain right now: ${left} of ${left + used} questions left today (resets at midnight UTC).`
+        : "The free brain is out of questions for today. It resets at midnight UTC; the Local brain always works.";
+      box.hidden = false;
+    } catch {
+      /* offline or blocked: just don't show it */
+    }
+  })();
+
+
   /* =====================================================================
      A taste of KeyIt: a tiny synthesized clack
      ===================================================================== */
