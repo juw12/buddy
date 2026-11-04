@@ -1,0 +1,30 @@
+name: Mac one-line installer
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "docs/mac-install.sh"
+      - ".github/workflows/mac-install-check.yml"
+
+jobs:
+  install:
+    strategy:
+      matrix:
+        os: [macos-14, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax
+        run: bash -n docs/mac-install.sh
+      - name: Run the installer exactly like a user would
+        run: curl -fsSL https://juw12.github.io/buddy/mac-install.sh | bash
+      - name: Check the result
+        run: |
+          APP=/Applications/Buddy.app
+          test -d "$APP"
+          lipo -archs "$APP/Contents/MacOS/Buddy"
+          codesign --verify --deep --strict "$APP"
+          if xattr -p com.apple.quarantine "$APP" 2>/dev/null; then echo "quarantine still set"; exit 1; fi
+          sleep 5
+          pgrep -x Buddy && echo "Buddy is running"
+          pkill -x Buddy || true
