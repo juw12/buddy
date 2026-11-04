@@ -1,0 +1,111 @@
+name: Buddy Lite for Mac
+
+on:
+  push:
+    paths:
+      - "mac/**"
+      - ".github/workflows/mac.yml"
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Upload Buddy-mac.zip to the latest release"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-14            # Apple Silicon
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r mac/requirements.txt pytest pyinstaller
+
+      - name: Unit tests
+        run: python -m pytest mac/tests -q
+
+      - name: Self-test from source (real AppKit, fake brain)
+        working-directory: mac
+        run: |
+          python BuddyMac.py --selftest "$RUNNER_TEMP/selftest_source" || echo "SOURCE_SELFTEST_FAILED=1" >> "$GITHUB_ENV"
+
+      - name: App icon
+        run: |
+          mkdir -p build/Buddy.iconset
+          for size in 16 32 64 128 256 512; do
+            sips -z $size $size docs/assets/buddy.png --out build/Buddy.iconset/icon_${size}x${size}.png >/dev/null
+            double=$((size * 2))
+            sips -z $double $double docs/assets/buddy.png --out build/Buddy.iconset/icon_${size}x${size}@2x.png >/dev/null
+          done
+          iconutil -c icns build/Buddy.iconset -o build/Buddy.icns
+
+      - name: Build Buddy.app
+        working-directory: mac
+        run: |
+          VERSION=$(python -c "from buddy_mac import core; print(core.VERSION)")
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          pyinstaller --noconfirm --windowed --name Buddy \
+            --osx-bundle-identifier io.github.juw12.buddy \
+            --icon ../build/Buddy.icns \
+            --hidden-import Speech --hidden-import AVFoundation --hidden-import Quartz \
+            BuddyMac.py
+          PLIST=dist/Buddy.app/Contents/Info.plist
+          plutil -replace CFBundleShortVersionString -string "$VERSION" "$PLIST"
+          plutil -replace CFBundleVersion -string "$VERSION" "$PLIST"
+          plutil -insert LSUIElement -bool true "$PLIST"
+          plutil -insert LSMinimumSystemVersion -string "12.0" "$PLIST"
+          plutil -insert NSMicrophoneUsageDescription -string "Buddy listens while you hold Control+Option+Space, so you can ask out loud." "$PLIST"
+          plutil -insert NSSpeechRecognitionUsageDescription -string "Buddy turns your question into text with Apple's speech recognition (on this Mac when possible)." "$PLIST"
+          # Ad-hoc signature (no Apple Developer ID): required to run on Apple Silicon
+          codesign --force --deep --sign - dist/Buddy.app
+          codesign --verify --deep --strict --verbose=2 dist/Buddy.app
+          du -sh dist/Buddy.app
+
+      - name: Self-test the built app
+        working-directory: mac
+        run: |
+          ./dist/Buddy.app/Contents/MacOS/Buddy --selftest "$RUNNER_TEMP/selftest_app"
+          python - <<'EOF'
+          import json, os, sys
+          report = json.load(open(os.path.join(os.environ["RUNNER_TEMP"], "selftest_app", "report.json")))
+          print(json.dumps(report["checks"], indent=1))
+          sys.exit(0 if report["passed"] else 1)
+          EOF
+
+      - name: Zip
+        working-directory: mac/dist
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent Buddy.app Buddy-mac.zip
+          ls -lh Buddy-mac.zip
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: selftest
+          path: |
+            ${{ runner.temp }}/selftest_source
+            ${{ runner.temp }}/selftest_app
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Buddy-mac
+          path: mac/dist/Buddy-mac.zip
+
+      - name: Publish to the latest release
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=$(gh release view --json tagName --jq .tagName)
+          gh release upload "$TAG" mac/dist/Buddy-mac.zip --clobber
