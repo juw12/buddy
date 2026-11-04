@@ -1,6 +1,8 @@
 # Buddy
 
-<p align="center"><a href="https://juw12.github.io/buddy/"><img src="docs/media/buddy-demo.gif" alt="Buddy finds Save As in Notepad" width="640"></a><br><sub>An AI buddy that lives next to your mouse. <a href="https://juw12.github.io/buddy/">Website and live demo</a> · <a href="https://github.com/juw12/buddy/releases/latest/download/Buddy-win64.zip">Download for Windows</a></sub></p>
+<p align="center"><a href="https://juw12.github.io/buddy/"><img src="docs/media/buddy-demo.gif" alt="Buddy finds Save As in Notepad" width="640"></a><br><sub>An AI buddy that lives next to your mouse. <a href="https://juw12.github.io/buddy/">Website and live demo</a> · <a href="https://github.com/juw12/buddy/releases/latest/download/Buddy-win64.zip">Download for Windows</a> · <a href="https://github.com/juw12/buddy/releases/latest/download/Buddy-mac.zip">Mac (Lite)</a></sub></p>
+
+> **On a Mac?** [Buddy Lite for Mac](mac/README.md) points and answers (hold Control+Option+Space). Clicking and typing for you, the Pips pet and key sounds are Windows-only for now.
 
 Buddy is the app. It owns the tray icon, the main window, autostart and quitting.
 It has three features:
