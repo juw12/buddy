@@ -76,6 +76,7 @@ jobs:
           plutil -insert LSUIElement -bool true "$PLIST"
           plutil -insert LSMinimumSystemVersion -string "12.0" "$PLIST"
           plutil -insert NSMicrophoneUsageDescription -string "Buddy listens while you hold Control+Option+Space, so you can ask out loud." "$PLIST"
+          plutil -insert NSLocalNetworkUsageDescription -string "Buddy sends your question to the brain you set: Ollama on this Mac or a server on your network." "$PLIST"
           plutil -insert NSSpeechRecognitionUsageDescription -string "Buddy turns your question into text with Apple's speech recognition (on this Mac when possible)." "$PLIST"
           # Ad-hoc signature (no Apple Developer ID): required to run on Apple Silicon
           codesign --force --deep --sign - dist/Buddy.app

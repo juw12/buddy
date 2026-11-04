@@ -1,6 +1,6 @@
 # Buddy Lite for Mac
 
-A buddy next to your mouse, on macOS 12 or newer (Apple Silicon).
+A buddy next to your mouse, on macOS 12 or newer. One universal download runs natively on Apple Silicon and Intel Macs.
 
 - **Hold Control+Option+Space** and ask out loud. Release to send.
 - **Tap Control+Option+Space** to type instead.
@@ -19,6 +19,8 @@ Windows-only for now.
    `xattr -dr com.apple.quarantine /Applications/Buddy.app` once in Terminal.
 4. Allow **Screen Recording** (so Buddy can see what you ask about), and **Microphone** and
    **Speech Recognition** (for hold-to-talk). Quit and reopen Buddy after allowing Screen Recording.
+   If macOS asks to let Buddy find devices on your **local network**, allow it: that's how it reaches a
+   brain such as Ollama.
 
 ## Brain
 
