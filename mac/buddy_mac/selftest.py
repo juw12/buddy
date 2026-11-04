@@ -115,10 +115,11 @@ class SelfTestController(Controller):
             lines = ocr.read_text(jpeg)
             self.report["text_recognition"] = [list(line) for line in lines]
             # A rough point near the words must move onto them
-            snapped = core.snap_points([(450.0, 300.0, "Save As")], lines)
+            start = (320.0, 420.0)
+            snapped = core.snap_points([(*start, "Save As")], lines)
             self.report["text_snap"] = list(snapped[0])
             self.report["checks"]["text_recognition"] = any("save" in text.lower() for text, *_ in lines) \
-                and snapped[0][:2] != (450.0, 300.0)
+                and snapped[0][:2] != start
         except Exception as error:                                # noqa: BLE001
             self.report["text_recognition_error"] = repr(error)
             self.report["checks"]["text_recognition"] = False
@@ -192,7 +193,10 @@ class SelfTestController(Controller):
                     "brain_called", "hotkey_registered", "menu_bar_item", "text_recognition"]
         self.report["passed"] = reason == "done" and all(checks.get(name) for name in required)
         (self.out_dir / "report.json").write_text(json.dumps(self.report, indent=1), encoding="utf-8")
-        print(json.dumps({"passed": self.report["passed"], "checks": checks}, indent=1), flush=True)
+        print(json.dumps({"passed": self.report["passed"], "checks": checks,
+                          "text_recognition": self.report.get("text_recognition"),
+                          "text_snap": self.report.get("text_snap"),
+                          "text_recognition_error": self.report.get("text_recognition_error")}, indent=1), flush=True)
         self.server.shutdown()
         AppHelper.stopEventLoop()
         NSApp.terminate_(None)
