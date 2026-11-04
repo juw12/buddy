@@ -229,3 +229,12 @@ def test_snap_points_moves_onto_matching_text():
     assert core.snap_points([(900, 900, "Dock")], boxes) == [(900, 900, "Dock")]
     # Matching text but too far away: unchanged
     assert core.snap_points([(950, 950, "File")], boxes) == [(950, 950, "File")]
+
+
+def test_snap_points_word_inside_a_line():
+    # Vision reads the menu bar as one line: "Format" sits in the middle of it
+    boxes = [("Edit Format View", 200, 170, 400, 196)]
+    (x, y, _), = core.snap_points([(330, 140, "Format")], boxes)
+    assert 260 <= x <= 340 and 170 <= y <= 196
+    (x, _, _), = core.snap_points([(480, 140, "Edit menu")], boxes)
+    assert x < 250

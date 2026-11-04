@@ -1,4 +1,4 @@
-"""Buddy Lite for Mac: the parts that don't touch AppKit (settings, prompt, reply parsing, brain, screen look).
+﻿"""Buddy Lite for Mac: the parts that don't touch AppKit (settings, prompt, reply parsing, brain, screen look).
 
 Kept free of PyObjC so it can be unit-tested anywhere. The screen look uses the built-in macOS tools
 `screencapture` and `sips`, so no image library is needed.
@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 APP_NAME = "Buddy"
-VERSION = "0.2.0"
+VERSION = "0.3.0"
 
 SUPPORT_DIR = Path.home() / "Library" / "Application Support" / APP_NAME
 SETTINGS_PATH = SUPPORT_DIR / "settings.json"
@@ -151,18 +151,25 @@ def _words(text: str) -> str:
 
 
 def _match_score(label: str, text: str) -> tuple[float, float]:
-    """(score 0..1, fraction of the text box where the label sits) for a label vs. one line of screen text."""
+    """(score 0..1, where the label's centre sits across the text box, 0..1) for a label vs. one line of text.
+
+    Text recognition often reads a row of controls as one line ("Edit Format View", "Save As... Ctrl+Shift+S"),
+    so a label may be the start or the middle of a line; the point then goes to that part of the line.
+    """
     from difflib import SequenceMatcher
 
     wanted, seen = _words(label), _words(text)
     if not wanted or not seen:
-        return 0.0, 1.0
+        return 0.0, 0.5
     if wanted == seen:
-        return 1.0, 1.0
-    if seen.startswith(wanted + " "):
-        # "save as" inside the row "save as ctrl shift s": point at the start of the row, not its middle
-        return 0.9 - 0.15 * min(1.0, (len(seen) - len(wanted)) / 40), len(wanted) / len(seen)
-    return SequenceMatcher(None, wanted, seen).ratio(), 1.0
+        return 1.0, 0.5
+    padded = f" {seen} "
+    at = padded.find(f" {wanted} ")
+    if at != -1 and len(seen.split()) <= 6:
+        centre = (at + len(wanted) / 2) / len(seen)
+        extra = (len(seen) - len(wanted)) / 40
+        return (0.9 if at == 0 else 0.86) - 0.12 * min(1.0, extra), min(1.0, max(0.0, centre))
+    return SequenceMatcher(None, wanted, seen).ratio(), 0.5
 
 
 def snap_points(points, text_boxes):
@@ -174,10 +181,10 @@ def snap_points(points, text_boxes):
     for x, y, label in points:
         best = None
         for text, x0, y0, x1, y1 in text_boxes:
-            score, share = _match_score(label, text)
+            score, centre = _match_score(label, text)
             if score < SNAP_MIN_SCORE:
                 continue
-            target_x = x0 + (x1 - x0) * share / 2
+            target_x = x0 + (x1 - x0) * centre
             target_y = (y0 + y1) / 2
             distance = ((target_x - x) ** 2 + (target_y - y) ** 2) ** 0.5
             if distance > SNAP_MAX_DISTANCE:
