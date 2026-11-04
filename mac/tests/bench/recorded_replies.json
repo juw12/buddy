@@ -1,0 +1,178 @@
+[
+ {
+  "scene": "menu_open",
+  "question": "Where is Save As?",
+  "box": [
+   162.5,
+   399.6,
+   415.0,
+   460.7
+  ],
+  "reply": "You can find Save As under the File menu. To access it, first click on File, then click on Save As. \n[POINT:183,141:File]\n[POINT:210,430:Save As]"
+ },
+ {
+  "scene": "menu_open",
+  "question": "How do I open a different file?",
+  "box": [
+   162.5,
+   277.2,
+   415.0,
+   338.4
+  ],
+  "reply": "To open a different file, you need to access the \"File\" menu and then choose the \"Open\" option. This will allow you to select and open another file. \n[POINT:184,302:File menu]\n[POINT:205,243:Open]"
+ },
+ {
+  "scene": "menu_open",
+  "question": "Where is the Edit menu?",
+  "box": [
+   204.9,
+   156.0,
+   252.6,
+   209.2
+  ],
+  "reply": "The Edit menu is located in the menu bar at the top of the Notepad window. You can click on \"Edit\" to access its options. \n[POINT:487,143:Edit]"
+ },
+ {
+  "scene": "menu_open",
+  "question": "Where is the equals button on the calculator?",
+  "box": [
+   925.3,
+   568.8,
+   972.5,
+   629.9
+  ],
+  "reply": "The equals button on the calculator is located at the bottom right corner of the calculator window. You can find it by looking at the calculator and moving down to the last row of buttons, and then moving to the right until you see the equals sign. \n[POINT:920,570:equals button]"
+ },
+ {
+  "scene": "menu_open",
+  "question": "Which key is 7 on the calculator?",
+  "box": [
+   772.5,
+   367.2,
+   819.7,
+   428.4
+  ],
+  "reply": "The key 7 on the calculator is the second button from the left on the top row of the calculator. You can find it by looking at the calculator on the right side of the screen. [POINT:804,384:7]"
+ },
+ {
+  "scene": "menu_open",
+  "question": "Where is the Recycle Bin?",
+  "box": [
+   17.5,
+   28.0,
+   105.0,
+   138.1
+  ],
+  "reply": "The Recycle Bin is on the left side of the screen. It's represented by a small trash can icon and labeled as \"Recycle Bin\". \n[POINT:53,63:Recycle Bin]"
+ },
+ {
+  "scene": "plain",
+  "question": "Where is the File menu?",
+  "box": [
+   157.5,
+   156.0,
+   202.4,
+   209.2
+  ],
+  "reply": "The File menu is located at the top of the Notepad window. You can find it next to the Edit menu.\n[POINT:184,143:File]"
+ },
+ {
+  "scene": "plain",
+  "question": "How do I close Notepad?",
+  "box": [
+   685.0,
+   88.0,
+   737.5,
+   152.0
+  ],
+  "reply": "To close Notepad, you can click on the close button at the top right corner of the Notepad window. \n[POINT:708,94:Close button]"
+ },
+ {
+  "scene": "plain",
+  "question": "Where is the Format menu?",
+  "box": [
+   255.1,
+   156.0,
+   324.6,
+   209.2
+  ],
+  "reply": "The Format menu is located in the menu bar, next to the Edit menu. You can find it by looking at the top of the Notepad window, it's the third item from the left. \n[POINT:324,146:Format]"
+ },
+ {
+  "scene": "plain",
+  "question": "How do I open the Q3 report?",
+  "box": [
+   17.5,
+   166.1,
+   105.0,
+   276.2
+  ],
+  "reply": "You can open the Q3 report by going to the desktop and clicking on the Q3 report icon there. \nThe file is located on the left side of the screen. \n[POINT:94,251:Q3 report.xlsx]"
+ },
+ {
+  "scene": "plain",
+  "question": "Where is the Start button?",
+  "box": [
+   353.7,
+   923.0,
+   396.3,
+   991.0
+  ],
+  "reply": "This is not a Windows system, so there is no Start button. You're using a Mac, and you can access applications and settings through the Dock at the bottom of the screen or the menu bar at the top. \n[POINT:500,965:Dock]"
+ },
+ {
+  "scene": "plain",
+  "question": "Where can I see the time?",
+  "box": [
+   918.2,
+   929.7,
+   985.0,
+   984.3
+  ],
+  "reply": "The time is displayed at the bottom right corner of your screen. You can see it next to the date. \n[POINT:941,951:Time]"
+ },
+ {
+  "scene": "plain",
+  "question": "Where is the Calculator on the taskbar?",
+  "box": [
+   553.8,
+   923.0,
+   596.2,
+   991.0
+  ],
+  "reply": "The Calculator is not on the taskbar, it's a floating window. You can see it on the right side of the screen, partially visible.\n[POINT:870,500:Calculator]"
+ },
+ {
+  "scene": "dialog",
+  "question": "How do I close without saving?",
+  "box": [
+   485.1,
+   520.6,
+   593.7,
+   576.6
+  ],
+  "reply": "To close without saving, you can click on the Don't Save button in the dialog box. This will discard any changes made to the file and close the window.\n[POINT:557,539:Don't Save]"
+ },
+ {
+  "scene": "dialog",
+  "question": "Which button keeps my changes?",
+  "box": [
+   407.0,
+   520.6,
+   475.1,
+   576.6
+  ],
+  "reply": "The button that keeps your changes is the one labeled Save. To keep your changes, click on the Save button.\n[POINT:454,543:Save]"
+ },
+ {
+  "scene": "dialog",
+  "question": "How do I go back to editing?",
+  "box": [
+   603.7,
+   520.6,
+   685.0,
+   576.6
+  ],
+  "reply": "You can go back to editing by choosing Don't Save, then you can go back to the document and continue editing. \n[POINT:543,537:Don't Save]"
+ }
+]

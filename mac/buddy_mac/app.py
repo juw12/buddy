@@ -38,7 +38,7 @@ from AppKit import (
 from Foundation import NSMakeRect, NSObject
 from PyObjCTools import AppHelper
 
-from . import core
+from . import core, ocr
 from .hotkey import HotKey
 from .overlay import Overlay
 from .voice import Listener, Speaker
@@ -367,9 +367,14 @@ class Controller:
 
         def work():
             jpeg = None
+            text_boxes = []
+            reader = None
             try:
                 jpeg = core.take_screenshot(screen, main_height)
                 self.events.append(("screenshot", len(jpeg)))
+                # Read the screen's text while the brain thinks, to snap the arrow onto what it names
+                reader = threading.Thread(target=lambda: text_boxes.extend(ocr.read_text(jpeg)), daemon=True)
+                reader.start()
             except Exception as error:                        # noqa: BLE001
                 self.events.append(("screenshot_failed", str(error)))
                 logging.warning("screen look failed: %s", error)
@@ -383,7 +388,9 @@ class Controller:
                 )
                 self.history = brain.history
                 self.events.append(("brain", brain.model))
-                AppHelper.callAfter(self._answered, token, reply, screen)
+                if reader is not None:
+                    reader.join(timeout=2.0)
+                AppHelper.callAfter(self._answered, token, reply, screen, list(text_boxes))
             except Exception as error:                        # noqa: BLE001
                 logging.warning("brain failed: %s", error)
                 AppHelper.callAfter(self._failed, token, error)
@@ -396,10 +403,15 @@ class Controller:
             if shown:
                 self.overlay.say(shown)
 
-    def _answered(self, token, reply, screen):
+    def _answered(self, token, reply, screen, text_boxes=()):
         if token != self.ask_token:
             return
         spoken, points = core.parse_reply(reply)
+        if text_boxes:
+            snapped = core.snap_points(points, text_boxes)
+            if snapped != points:
+                logging.info("snapped %s -> %s using %d text lines", points, snapped, len(text_boxes))
+            points = snapped
         self.events.append(("answer", spoken))
         self.events.append(("points", points))
         if self.settings["speak"]:

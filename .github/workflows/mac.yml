@@ -44,6 +44,10 @@ jobs:
         run: |
           "$PY" -m pytest mac/tests -q
 
+      - name: Pointing benchmark (Vision text snapping)
+        run: |
+          "$PY" mac/tests/bench_snap.py
+
       - name: Self-test from source (real AppKit, fake brain)
         working-directory: mac
         run: |
@@ -68,7 +72,7 @@ jobs:
             --target-architecture universal2 \
             --osx-bundle-identifier io.github.juw12.buddy \
             --icon ../build/Buddy.icns \
-            --hidden-import Speech --hidden-import AVFoundation --hidden-import Quartz \
+            --hidden-import Speech --hidden-import AVFoundation --hidden-import Quartz --hidden-import Vision \
             BuddyMac.py
           PLIST=dist/Buddy.app/Contents/Info.plist
           plutil -replace CFBundleShortVersionString -string "$VERSION" "$PLIST"

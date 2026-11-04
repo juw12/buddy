@@ -136,6 +136,62 @@ def visible_text(partial: str) -> str:
     return parse_reply(partial)[0]
 
 
+# --------------------------------------------------------------------------- snapping to on-screen text
+# Small vision models usually name the right thing ("Save As") but land a little off. If the screen shows
+# that text, move the point onto it. Text boxes come from on-device text recognition (ocr.py on a Mac).
+_FILLER_WORDS = {"the", "button", "menu", "icon", "tab", "key", "option", "item", "link", "field", "box"}
+SNAP_MAX_DISTANCE = 320       # in 0..1000 units: only snap to text near where the model pointed
+SNAP_MIN_SCORE = 0.78
+
+
+def _words(text: str) -> str:
+    text = text.lower().replace("\u2026", " ").replace("...", " ")
+    text = re.sub(r"[^\w\s']", " ", text)
+    return " ".join(word for word in text.split() if word not in _FILLER_WORDS)
+
+
+def _match_score(label: str, text: str) -> tuple[float, float]:
+    """(score 0..1, fraction of the text box where the label sits) for a label vs. one line of screen text."""
+    from difflib import SequenceMatcher
+
+    wanted, seen = _words(label), _words(text)
+    if not wanted or not seen:
+        return 0.0, 1.0
+    if wanted == seen:
+        return 1.0, 1.0
+    if seen.startswith(wanted + " "):
+        # "save as" inside the row "save as ctrl shift s": point at the start of the row, not its middle
+        return 0.9 - 0.15 * min(1.0, (len(seen) - len(wanted)) / 40), len(wanted) / len(seen)
+    return SequenceMatcher(None, wanted, seen).ratio(), 1.0
+
+
+def snap_points(points, text_boxes):
+    """Move each (x, y, label) onto the screen text that matches its label, if there is one close by.
+
+    text_boxes: [(text, x0, y0, x1, y1), ...] in 0..1000 screenshot coordinates.
+    """
+    snapped = []
+    for x, y, label in points:
+        best = None
+        for text, x0, y0, x1, y1 in text_boxes:
+            score, share = _match_score(label, text)
+            if score < SNAP_MIN_SCORE:
+                continue
+            target_x = x0 + (x1 - x0) * share / 2
+            target_y = (y0 + y1) / 2
+            distance = ((target_x - x) ** 2 + (target_y - y) ** 2) ** 0.5
+            if distance > SNAP_MAX_DISTANCE:
+                continue
+            rank = (round(score, 2), -distance)
+            if best is None or rank > best[0]:
+                best = (rank, target_x, target_y)
+        if best is None:
+            snapped.append((x, y, label))
+        else:
+            snapped.append((round(best[1], 1), round(best[2], 1), label))
+    return snapped
+
+
 @dataclass
 class ScreenRect:
     """A display in Cocoa coordinates: origin at the bottom-left of the main display, in points."""

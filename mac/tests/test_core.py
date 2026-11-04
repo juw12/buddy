@@ -210,3 +210,22 @@ def _serve_error(status, payload):
     server = ThreadingHTTPServer(("127.0.0.1", 0), _Error)
     threading.Thread(target=server.serve_forever, daemon=True).start()
     return server
+
+
+def test_snap_points_moves_onto_matching_text():
+    boxes = [
+        ("File", 160, 170, 200, 195),
+        ("Save As... Ctrl+Shift+S", 160, 420, 400, 445),
+        ("Save", 160, 380, 200, 405),
+        ("Do you want to save changes?", 500, 500, 800, 520),
+    ]
+    # Rough point near the menu, label "Save As": lands on the left part of the Save As row
+    (x, y, label), = core.snap_points([(200, 300, "Save As")], boxes)
+    assert 160 <= x <= 230 and 420 <= y <= 445 and label == "Save As"
+    # "Save" prefers the exact "Save" line over the longer rows
+    (x, y, _), = core.snap_points([(190, 400, "Save button")], boxes)
+    assert (x, y) == (180.0, 392.5)
+    # No matching text nearby: unchanged
+    assert core.snap_points([(900, 900, "Dock")], boxes) == [(900, 900, "Dock")]
+    # Matching text but too far away: unchanged
+    assert core.snap_points([(950, 950, "File")], boxes) == [(950, 950, "File")]
