@@ -41,7 +41,8 @@ jobs:
           "$PY" -m pip install pytest pyinstaller
 
       - name: Unit tests
-        run: "$PY" -m pytest mac/tests -q
+        run: |
+          "$PY" -m pytest mac/tests -q
 
       - name: Self-test from source (real AppKit, fake brain)
         working-directory: mac
