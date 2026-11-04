@@ -1,12 +1,14 @@
-"""Buddy's "Smart" brain: your company's MAAS gateway instead of the small model on this laptop.
+"""Buddy's "Smart" brain: a big vision model on your company's AI gateway instead of the small model
+on this laptop. A large hosted vision model answers in ~1-2 s instead of ~10 s locally, and is far smarter.
 
-vision-model (Qwen3.5-397B, reads images) answers in ~1-2 s instead of ~10 s locally, and is far smarter.
-The screenshot and question go to the company gateway (ai-gateway.example.com), so this is opt-in
-(Settings -> Brain). It logs in with the MAAS account already set up for Pips' token card (pips/maas_tokens).
+The screenshot and question go to that gateway, so this is opt-in (Settings -> Brain). Point it at any
+OpenAI-compatible chat endpoint with the BUDDY_SMART_URL and BUDDY_SMART_MODEL environment variables. It logs
+in with the MAAS account set up for Pips' token card (pips/maas_tokens).
 
 Same methods Buddy uses on its other brains: warm_up, prefill, chat_stream.
 """
 import json
+import os
 import logging
 import time
 import urllib.error
@@ -14,8 +16,9 @@ import urllib.request
 
 import keyit_gpu
 
-CHAT_URL = "https://ai-gateway.example.com/v1/chat/completions"
-MODEL = "vision-model"                      # Qwen3.5-397B-A17B: vision, no "thinking" delay when switched off
+# Your gateway's OpenAI-compatible chat endpoint and a model that can read images
+CHAT_URL = os.environ.get("BUDDY_SMART_URL", "https://ai-gateway.example.com/v1/chat/completions")
+MODEL = os.environ.get("BUDDY_SMART_MODEL", "vision-model")
 MAX_TOKENS = 400
 
 

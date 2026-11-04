@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buddy: the AI buddy that points at things and does them</title>
+  <meta name="description" content="Buddy is a free Windows AI helper that sits next to your mouse, points at the exact button, talks back in a natural voice, and can do the task for you when you ask.">
+  <link rel="icon" href="assets/buddy.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- The page's own little buddy follows your mouse, like the real one -->
+<div id="pageBuddy" class="page-buddy" aria-hidden="true">
+  <svg class="arrow" viewBox="-3 -3 34 34" width="34" height="34"><g id="pbShape"><polygon points="0,0 6,26 12,18 24,22" /></g></svg>
+  <div class="pb-bubble"></div>
+</div>
+
+<header class="nav">
+  <a class="brand" href="#top" data-say="hi, that's me (◕‿◕)">
+    <img src="assets/buddy.png" alt="" width="34" height="34">
+    <span>Buddy</span>
+  </a>
+  <nav class="links">
+    <a href="#demo">Demo</a>
+    <a href="#features">Features</a>
+    <a href="#voices">Voices</a>
+    <a href="#brains">Brains</a>
+    <a href="#compare">Compare</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <button id="followToggle" class="follow-toggle" type="button" aria-pressed="true" title="Turn the page buddy on or off">
+    <svg viewBox="-3 -3 30 32" width="14" height="15"><polygon points="0,0 6,26 12,18 24,22" /></svg>
+    <span>buddy: on</span>
+  </button>
+  <a class="btn btn-primary btn-sm" href="https://github.com/juw12/buddy/releases/latest/download/Buddy-win64.zip" download data-say="free, ~151 MB. unzip & run!">Download</a>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="stickers" aria-hidden="true">
+      <span class="sticker s1">free on Windows</span>
+      <span class="sticker s2">can run 100% on your PC</span>
+      <span class="sticker s3">7 languages ✦</span>
+    </div>
+
+    <p class="eyebrow"><span class="dot"></span> an AI buddy that lives next to your mouse</p>
+    <h1>It doesn't just <span class="hl-point">point</span>.<br>It <span class="hl-do">does it</span> for you.</h1>
+    <p class="lede">
+      Hold <kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>Space</kbd> and ask. Buddy flies to the exact button on your screen,
+      explains it in a natural voice, and if you ask it to, clicks, types, opens or closes things for you.
+      It asks first when something is risky.
+    </p>
+    <div class="cta-row">
+      <a class="btn btn-primary btn-lg" href="https://github.com/juw12/buddy/releases/latest/download/Buddy-win64.zip" download data-say="that's me! free, ~151 MB">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M3 5.5 10.5 4.4v7.1H3zm0 13 7.5 1.1v-7H3zm8.5 1.3L21 21v-8.5h-9.5zm0-15.6v7.3H21V3z"/></svg>
+        Download for Windows
+      </a>
+      <a class="btn btn-ghost btn-lg" href="#demo">Try it right here ↓</a>
+    </div>
+    <p class="fineprint">Windows 10 / 11 · 64-bit · ~151 MB zip · no installer, no account</p>
+
+    <ul class="proof">
+      <li><b>~1 s</b><span>to first words<br>with the Smart brain</span></li>
+      <li><b>7</b><span>languages of natural,<br>offline voices</span></li>
+      <li><b>0</b><span>clicks without your words<br>asking for them</span></li>
+    </ul>
+  </section>
+
+  <!-- ============ LIVE DEMO ============ -->
+  <section id="demo" class="demo-section">
+    <div class="section-head">
+      <p class="kicker">live demo · no video, the real thing (well, a tiny copy)</p>
+      <h2>Go on, boss it around.</h2>
+      <p>Pick something to say, or type your own. Watch how Buddy listens, thinks, points and acts, and how every action lands in the log.</p>
+    </div>
+
+    <div class="demo">
+      <div class="stage-wrap" id="stageWrap">
+        <div class="stage" id="stage">
+          <div class="wallpaper"></div>
+
+          <!-- desktop icons -->
+          <div class="desk-icons">
+            <div class="desk-icon"><span class="di di-bin">🗑</span><span>Recycle Bin</span></div>
+            <div class="desk-icon"><span class="di di-xls">X</span><span>Q3 report.xlsx</span></div>
+            <div class="desk-icon"><img src="assets/buddy.png" alt=""><span>Buddy</span></div>
+          </div>
+
+          <!-- Notepad -->
+          <div class="win notepad" id="notepad">
+            <div class="titlebar" id="npTitle">
+              <span class="ticon np-icon"></span>
+              <span class="ttext" id="npTitleText">notes.txt - Notepad</span>
+              <span class="tctl">—</span><span class="tctl">▢</span><span class="tctl tclose" id="npClose">✕</span>
+            </div>
+            <div class="menubar">
+              <span id="menuFile">File</span><span>Edit</span><span>Format</span><span>View</span><span>Help</span>
+            </div>
+            <div class="menu" id="fileMenu">
+              <div>New<kbd>Ctrl+N</kbd></div>
+              <div>Open…<kbd>Ctrl+O</kbd></div>
+              <div>Save<kbd>Ctrl+S</kbd></div>
+              <div id="menuSaveAs">Save As…<kbd>Ctrl+Shift+S</kbd></div>
+              <hr>
+              <div>Exit</div>
+            </div>
+            <div class="doc" id="npDoc"></div>
+            <div class="statusbar"><span>Ln 1, Col 1</span><span>100%</span><span>UTF-8</span></div>
+          </div>
+
+          <!-- Notepad's own save prompt -->
+          <div class="win dialog" id="saveDialog">
+            <div class="titlebar"><span class="ttext">Notepad</span><span class="tctl tclose">✕</span></div>
+            <div class="dlg-body">Do you want to save changes to<br><b>notes.txt</b>?</div>
+            <div class="dlg-btns">
+              <button type="button" id="dlgSave" class="win-btn primary">Save</button>
+              <button type="button" id="dlgDont" class="win-btn">Don't Save</button>
+              <button type="button" id="dlgCancel" class="win-btn">Cancel</button>
+            </div>
+          </div>
+
+          <!-- Calculator -->
+          <div class="win calc" id="calc">
+            <div class="titlebar"><span class="ticon calc-icon"></span><span class="ttext">Calculator</span><span class="tctl">—</span><span class="tctl tclose">✕</span></div>
+            <div class="calc-screen">0</div>
+            <div class="calc-keys">
+              <span>%</span><span>CE</span><span>C</span><span>⌫</span>
+              <span>7</span><span>8</span><span>9</span><span>×</span>
+              <span>4</span><span>5</span><span>6</span><span>−</span>
+              <span>1</span><span>2</span><span>3</span><span>+</span>
+              <span>±</span><span>0</span><span>.</span><span class="eq">=</span>
+            </div>
+          </div>
+
+          <!-- Buddy's own Yes/No box (same look as the app) -->
+          <div class="confirm" id="confirmBox" role="dialog" aria-label="Buddy asks">
+            <div class="confirm-title"><img src="assets/buddy.png" alt=""> Buddy asks</div>
+            <p id="confirmText">Press Alt+F4?</p>
+            <div class="confirm-btns">
+              <button type="button" id="confirmYes" class="cbtn yes">Yes, do it</button>
+              <button type="button" id="confirmNo" class="cbtn">No</button>
+            </div>
+          </div>
+
+          <div class="toast" id="toast"></div>
+
+          <!-- taskbar -->
+          <div class="taskbar">
+            <div class="tb-icons">
+              <span class="tb tb-start" id="tbStart"><i></i><i></i><i></i><i></i></span>
+              <span class="tb tb-search">⌕</span>
+              <span class="tb tb-edge"></span>
+              <span class="tb tb-np on" id="tbNotepad"></span>
+              <span class="tb tb-calc" id="tbCalc"></span>
+              <span class="tb tb-buddy"><img src="assets/buddy.png" alt=""></span>
+            </div>
+            <div class="tb-clock"><span id="clockTime">10:51</span><span id="clockDate">03/11/2026</span></div>
+          </div>
+
+          <!-- the user's own mouse pointer -->
+          <svg class="sys-cursor" id="sysCursor" viewBox="0 0 16 24" width="16" height="24" aria-hidden="true">
+            <path d="M1 1v19l5-5 3.5 7.5 3-1.4L9 13.8h7z" fill="#fff" stroke="#111" stroke-width="1.3" stroke-linejoin="round"/>
+          </svg>
+
+          <!-- Buddy -->
+          <div class="sbuddy" id="sbuddy" aria-hidden="true">
+            <div class="pulse" id="sbPulse"></div>
+            <svg class="arrow" viewBox="-3 -3 30 32" width="30" height="32"><polygon points="0,0 6,26 12,18 24,22" /></svg>
+            <div class="wave"><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="spin"></div>
+            <div class="bubble" id="sbBubble"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- under the screen: the hotkey & transcript strip -->
+      <div class="hotbar">
+        <div class="keys" id="keys"><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>Space</kbd></div>
+        <div class="said"><span class="you">you</span><span id="saidText" class="said-text">hold the keys and talk… or pick one →</span></div>
+        <div class="status" id="status"><span class="led"></span><span id="statusText">ready</span></div>
+      </div>
+
+      <aside class="panel">
+        <h3>Try saying</h3>
+        <div class="chips" id="chips">
+          <button type="button" class="chip" data-run="saveas">“Where's Save As?”</button>
+          <button type="button" class="chip" data-run="explain">“What does this error mean?”</button>
+          <button type="button" class="chip" data-run="type">“Type my to-do list”</button>
+          <button type="button" class="chip" data-run="calc">“Open Calculator”</button>
+          <button type="button" class="chip" data-run="close">“Close Notepad”</button>
+          <button type="button" class="chip" data-run="altf4">“Press Alt+F4”</button>
+        </div>
+        <div class="followups" id="followups"></div>
+        <form class="ask" id="askForm" autocomplete="off">
+          <input id="askInput" type="text" placeholder="…or type anything" aria-label="Ask the demo buddy">
+          <button type="submit" aria-label="Send">↵</button>
+        </form>
+        <h3 class="log-h">Action log <small>everything Buddy does is written down</small></h3>
+        <ol class="log" id="log">
+          <li class="empty">nothing yet. Buddy's hands are in its pockets.</li>
+        </ol>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============ MARQUEE ============ -->
+  <section class="marquee" aria-label="Things you can say to Buddy">
+    <div class="marquee-track">
+      <span>“where's the export button?”</span><span>“open notepad”</span><span>“minimize Outlook”</span>
+      <span>“click Insert”</span><span>“what does this formula do?”</span><span>“close the file explorer”</span>
+      <span>“type hello”</span><span>“save it”</span><span>“open google.com”</span><span>“how do I pin this tab?”</span>
+      <span>“explain this”</span><span>“click Don't Save”</span>
+      <span>“where's the export button?”</span><span>“open notepad”</span><span>“minimize Outlook”</span>
+      <span>“click Insert”</span><span>“what does this formula do?”</span><span>“close the file explorer”</span>
+      <span>“type hello”</span><span>“save it”</span><span>“open google.com”</span><span>“how do I pin this tab?”</span>
+      <span>“explain this”</span><span>“click Don't Save”</span>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section class="how">
+    <div class="section-head">
+      <p class="kicker">how it works</p>
+      <h2>Ask. Look. Point. Do.</h2>
+    </div>
+    <ol class="steps">
+      <li>
+        <span class="step-n">1</span>
+        <div class="step-art"><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd class="wide">Space</kbd></div>
+        <h3>Hold to talk, tap to type</h3>
+        <p>Hold the keys and speak, then let go to send. Tap them instead and a little ask box opens at your mouse. Highlighted text comes along too, so “explain this” just works.</p>
+      </li>
+      <li>
+        <span class="step-n">2</span>
+        <div class="step-art"><span class="scan"><i></i></span></div>
+        <h3>It looks at your screen</h3>
+        <p>Only when you ask, Buddy takes one look at the screen under your mouse and reads its real buttons, tabs and boxes through Windows UI Automation, the same thing screen readers use.</p>
+      </li>
+      <li>
+        <span class="step-n">3</span>
+        <div class="step-art"><svg viewBox="-3 -3 30 32" width="34" height="36" class="art-arrow"><polygon points="0,0 6,26 12,18 24,22"/></svg><span class="art-btn">Insert</span></div>
+        <h3>It points at the exact thing</h3>
+        <p>The orange arrow flies over and snaps onto the actual button, not a rough guess, while Buddy explains out loud in a natural voice.</p>
+      </li>
+      <li>
+        <span class="step-n">4</span>
+        <div class="step-art"><span class="mini-confirm">Yes, do it</span></div>
+        <h3>…and does it, if asked</h3>
+        <p>“Click Insert.” “Minimize Outlook.” “Type hello.” Buddy does it, checks that it's still the right window right before it clicks, and asks first when something is risky.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ============ FEATURES (bento) ============ -->
+  <section id="features" class="features">
+    <div class="section-head">
+      <p class="kicker">what's inside</p>
+      <h2>Small buddy. Lots of tricks.</h2>
+    </div>
+    <div class="bento">
+      <article class="card c-wide c-dark" data-say="i'm basically a very polite intern">
+        <span class="tag">hands</span>
+        <h3>Really does things</h3>
+        <p>Open apps and websites, close, minimize and switch windows, click buttons, type text and press shortcuts. You ask, Buddy acts.</p>
+        <div class="verbs"><span>open</span><span>close</span><span>minimize</span><span>focus</span><span>click</span><span>type</span><span>keys</span></div>
+      </article>
+      <article class="card">
+        <span class="tag">eyes</span>
+        <h3>Snaps to real UI</h3>
+        <p>Office, browsers, Electron apps, even the taskbar. The arrow lands on the real element. In apps that draw their own UI, Buddy uses its best estimate.</p>
+      </article>
+      <article class="card">
+        <span class="tag">ears</span>
+        <h3>Reads what you highlight</h3>
+        <p>Select an error, an email or a formula and ask “what's this?”. Buddy reads the selection through Windows accessibility and never touches your clipboard.</p>
+      </article>
+      <article class="card c-orange">
+        <span class="tag">voice</span>
+        <h3>Sounds like a person</h3>
+        <p>Natural voices that run on your own PC in 7 languages. They start talking while the rest of the answer is still being made.</p>
+        <a class="mini-link" href="#voices">hear them →</a>
+      </article>
+      <article class="card">
+        <span class="tag">brain</span>
+        <h3>Pick your brain</h3>
+        <p>Smart (company AI gateway, ~1–2 s) or Local (private, on your GPU or CPU). If Smart can't be reached, Buddy quietly switches to Local.</p>
+        <a class="mini-link" href="#brains">compare →</a>
+      </article>
+      <article class="card c-pets">
+        <span class="tag">focus</span>
+        <h3>A desk pet that keeps you on track</h3>
+        <p>Pips lives on your taskbar, tracks your focus, runs pomodoros and gets cuddly when you pet it with your mouse. 12 species.</p>
+        <img src="assets/hero_pets.png" alt="Twelve Pips pets: cat, bunny, panda, fox, fish, octopus, penguin, frog, bee, butterfly, owl and dragon">
+      </article>
+      <article class="card">
+        <span class="tag">clack</span>
+        <h3>Keyboard &amp; mouse sounds</h3>
+        <p>KeyIt gives every key and click a satisfying sound. <kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>M</kbd> mutes it for meetings.</p>
+        <button type="button" class="clack-pad" id="clackPad">type here to hear a clack ⌨</button>
+      </article>
+      <article class="card">
+        <span class="tag">nerd</span>
+        <h3>Scriptable</h3>
+        <p>Hand Buddy a request from a shortcut or a script:</p>
+        <code class="cli">Buddy.exe --ask "open notepad"</code>
+      </article>
+      <article class="card c-wide c-look" data-say="ooh, try purple">
+        <span class="tag">look</span>
+        <h3>Make it yours</h3>
+        <p>Pick a colour and an icon in Settings → Look. The bubbles and the "Buddy asks" box follow your colour. Try it on the buddy chasing your mouse right now:</p>
+        <div class="look-picker">
+          <div class="swatches" id="lookColors" role="group" aria-label="Colour"></div>
+          <div class="icon-picks" id="lookIcons" role="group" aria-label="Icon"></div>
+        </div>
+      </article>
+      <article class="card c-wide c-dark c-speed" data-say="i don't lag. much.">
+        <span class="tag">smooth</span>
+        <h3>Keeps up on a slow PC</h3>
+        <p>The buddy runs on its own thread with its own tiny window, so it sticks to your mouse even while your laptop is busy. After a hiccup it jumps straight back instead of crawling after you.</p>
+        <div class="lag-bars">
+          <div><span>before, PC busy</span><i style="--w: 100%"></i><b>~250 px behind</b></div>
+          <div><span>now, PC busy</span><i style="--w: 6.4%"></i><b>~16 px</b></div>
+        </div>
+        <small class="lag-note">Measured with a mouse moving ~500 px/s.</small>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ SAFETY ============ -->
+  <section class="safety">
+    <div class="safety-copy">
+      <p class="kicker">the part we're proudest of</p>
+      <h2>A helper with hands needs good manners.</h2>
+      <ul class="rules">
+        <li><b>Only your words count.</b> Buddy acts on what <em>you</em> asked, never on instructions it finds written on the screen.</li>
+        <li><b>“How do I…?” gets an arrow, not an action.</b> It only acts when you ask it to do something.</li>
+        <li><b>It clicks only when you say click, press or select.</b> “Don't Save” never matches “Save”. Every word has to match.</li>
+        <li><b>Right window, every time.</b> “Close Notepad” can only close Notepad. If the app isn't open, Buddy refuses instead of typing somewhere else.</li>
+        <li><b>Checks before it clicks.</b> It brings the right window to the front and confirms the spot is still inside it a moment before clicking.</li>
+        <li><b>Asks before risky things</b> like Alt+F4 or force-closing a frozen app.</li>
+        <li><b>Everything is logged</b> in a plain text file you can read.</li>
+      </ul>
+    </div>
+    <div class="safety-art" aria-hidden="true">
+      <div class="confirm static">
+        <div class="confirm-title"><img src="assets/buddy.png" alt=""> Buddy asks</div>
+        <p>“Teams” isn't responding. Force-close it?<br><small>Unsaved changes in Teams may be lost.</small></p>
+        <div class="confirm-btns"><span class="cbtn yes">Yes, do it</span><span class="cbtn">No</span></div>
+      </div>
+      <pre class="logfile"><span class="dim">widget.log</span>
+10:51:02 buddy point   File ▸ Save As… (Notepad)
+10:51:19 buddy type    Notepad · 3 lines
+10:52:40 buddy ask     Press Alt+F4? → No
+10:53:05 buddy click   "Don't Save" (Notepad)
+10:53:05 buddy check   target still in Notepad ✓</pre>
+    </div>
+  </section>
+
+  <!-- ============ VOICES ============ -->
+  <section id="voices" class="voices">
+    <div class="section-head">
+      <p class="kicker">natural voices · made on your PC</p>
+      <h2>Buddy speaks your language.</h2>
+      <p>These clips came straight out of Buddy's own voice engine. Nothing was recorded in a studio and nothing was sent to the cloud. When an answer is in Chinese or Hindi, a matching voice reads it automatically.</p>
+    </div>
+    <div class="voice-grid" id="voiceGrid"></div>
+  </section>
+
+  <!-- ============ BRAINS ============ -->
+  <section id="brains" class="brains">
+    <div class="section-head">
+      <p class="kicker">two brains, your choice</p>
+      <h2>Fast and smart, or fully private.</h2>
+    </div>
+    <div class="brain-box">
+      <div class="brain-tabs" role="tablist">
+        <button type="button" role="tab" class="active" data-brain="smart">Smart</button>
+        <button type="button" role="tab" data-brain="gpu">Local GPU</button>
+        <button type="button" role="tab" data-brain="cpu">Local CPU</button>
+      </div>
+      <div class="brain-body">
+        <div class="brain-speed">
+          <div class="race"><span class="racer" id="racer"><svg viewBox="-3 -3 30 32" width="22" height="24"><polygon points="0,0 6,26 12,18 24,22"/></svg></span></div>
+          <div class="speed-label"><b id="brainSpeed">~1–2 s</b><span>typical answer</span></div>
+        </div>
+        <dl class="brain-facts">
+          <div><dt>Runs on</dt><dd id="brainWhere">your company's AI gateway (vision-model)</dd></div>
+          <div><dt>What leaves your PC</dt><dd id="brainLeaves">The screenshot and your question, to the company gateway only</dd></div>
+          <div><dt>Best for</dt><dd id="brainBest">Everyday use at work. Snappy and much smarter.</dd></div>
+          <div><dt>Needs</dt><dd id="brainNeeds">Your company MAAS login, on the company network</dd></div>
+        </dl>
+      </div>
+      <p class="brain-note">Whichever brain you pick, Buddy's voice and its hands stay on your PC. If Smart can't be reached, Buddy answers with the Local brain for 5 minutes, then tries Smart again.</p>
+    </div>
+  </section>
+
+  <!-- ============ COMPARE ============ -->
+  <section id="compare" class="compare">
+    <div class="section-head">
+      <p class="kicker">vs. the other guy</p>
+      <h2>Love Clicky? Meet its Windows cousin who does chores.</h2>
+      <p>Clicky is a lovely idea, and it inspired Buddy. Here's where they differ.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th></th><th class="us"><img src="assets/buddy.png" alt=""> Buddy</th><th>Clicky</th></tr></thead>
+        <tbody>
+          <tr><td>Built for Windows</td><td class="us yes">Yes, native</td><td>Mac first. Windows through paid HeyClicky</td></tr>
+          <tr><td>Price on Windows</td><td class="us yes">Free</td><td>Paid</td></tr>
+          <tr><td>Points at things on screen</td><td class="us yes">Yes, snaps to the real element</td><td class="yes">Yes</td></tr>
+          <tr><td>Does things for you</td><td class="us yes">Click, type, open, close, minimize, shortcuts</td><td class="no">Points and explains</td></tr>
+          <tr><td>Asks before risky actions</td><td class="us yes">Yes, plus a full action log</td><td class="na">n/a (no actions)</td></tr>
+          <tr><td>Can run fully on your PC</td><td class="us yes">Yes, with Local brain, voices and speech</td><td class="no">Cloud services</td></tr>
+          <tr><td>Voice</td><td class="us yes">Natural, on-device, 7 languages</td><td>Cloud voice (ElevenLabs)</td></tr>
+          <tr><td>Choice of brain</td><td class="us yes">Smart · Local GPU · Local CPU</td><td>Claude</td></tr>
+          <tr><td>Bonus</td><td class="us yes">Focus pet, pomodoro, key sounds</td><td>No</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="footnote">Clicky details are from heyclicky.com and its public repo (Nov 2026) and may change. Spotted something out of date? Tell us and we'll fix it.</p>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section id="faq" class="faq">
+    <div class="section-head">
+      <p class="kicker">questions</p>
+      <h2>Good questions (｡•̀ᴗ-)✧</h2>
+    </div>
+    <div class="faq-list">
+      <details open>
+        <summary>Is it really free?</summary>
+        <p>Yes. Download the zip, unzip it anywhere and run <code>Buddy.exe</code>. There's no installer, no account and no Python needed.</p>
+      </details>
+      <details>
+        <summary>Will it click things on its own?</summary>
+        <p>No. Buddy points by default. It only acts when your own words ask it to, it clicks only when you say click, press or select, and it asks Yes/No before risky things like Alt+F4 or force-closing a frozen app. It never clicks a window's own close or minimize buttons. Every action is written to a log file.</p>
+      </details>
+      <details>
+        <summary>Does it watch my screen all the time?</summary>
+        <p>No. It takes a single look at the monitor under your mouse only at the moment you ask. With the Local brain, that look never leaves your PC. With the Smart brain, the screenshot and your question go to your company's internal AI gateway and nowhere else.</p>
+      </details>
+      <details>
+        <summary>What do I need?</summary>
+        <p>Windows 10 or 11 (64-bit) and a ~151 MB download. A microphone is optional because you can tap the hotkey and type. The natural voices download once (~120 MB) and then work offline. The Local brain uses <a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a> with a small vision model. On a laptop GPU it answers in about 5–15 s.</p>
+      </details>
+      <details>
+        <summary>Which languages does it speak?</summary>
+        <p>English (US and UK), Chinese (Mandarin), Spanish, French, Italian, Portuguese (Brazil) and Hindi. If an answer switches to Chinese or Hindi, a voice of the same gender reads that part automatically, and English words inside Chinese still sound like English.</p>
+      </details>
+      <details>
+        <summary>Can I use the Smart brain outside company?</summary>
+        <p>Smart runs on your company's AI gateway, so it needs a company MAAS login. Everyone else can use the Local brain, which is private and needs no account.</p>
+      </details>
+      <details>
+        <summary>Can I change how the buddy looks?</summary>
+        <p>Yes. In Settings → Look, pick one of 10 colours (or any custom colour) and an icon: arrow, mouse pointer, paper plane, dot, star, heart or the Buddy face. It changes straight away, and the speech bubbles and the "Buddy asks" box use your colour too.</p>
+      </details>
+      <details>
+        <summary>Can I hide the little arrow?</summary>
+        <p>Yes. By default it rests next to your mouse (like the one on this page, try the “buddy: on” switch up top). In Settings, untick <em>Keep Buddy next to my mouse all the time</em> and it only shows up when you ask.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <section class="final">
+    <img src="assets/buddy.png" alt="" width="96" height="96" class="final-logo">
+    <h2>Say hi to Buddy.</h2>
+    <p>Your computer just got a friend, and it's free.</p>
+    <a class="btn btn-light btn-lg" href="https://github.com/juw12/buddy/releases/latest/download/Buddy-win64.zip" download data-say="see you on your desktop ٩(◕‿◕)۶">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M3 5.5 10.5 4.4v7.1H3zm0 13 7.5 1.1v-7H3zm8.5 1.3L21 21v-8.5h-9.5zm0-15.6v7.3H21V3z"/></svg>
+      Download Buddy for Windows
+    </a>
+    <p class="fineprint light">Buddy-win64.zip · ~151 MB · unzip &amp; run</p>
+  </section>
+</main>
+
+<footer class="footer">
+  <div><img src="assets/buddy.png" alt="" width="22" height="22"> Buddy · made with care by Juwen Lie</div>
+  <div class="foot-links"><a href="#demo">Demo</a><a href="#faq">FAQ</a><a href="https://github.com/juw12/buddy/releases/latest/download/Buddy-win64.zip" download>Download</a></div>
+  <div class="kao">(っ◕‿◕)っ see you on your desktop</div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
