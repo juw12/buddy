@@ -5,6 +5,8 @@ A buddy next to your mouse, on macOS 12 or newer. One universal download runs na
 - **Hold Control+Option+Space** and ask out loud. Release to send.
 - **Tap Control+Option+Space** to type instead.
 - Buddy takes one look at the display under your mouse, flies to what it means and reads the answer aloud.
+- The arrow snaps onto the exact words it means ("Save As…") using Apple's on-device text recognition:
+  on our test desktop that lifts the free brain from 10 to 13 of 16 on target. Nothing extra leaves the Mac.
 - Menu bar buddy: Brain…, Send feedback…, Read answers aloud, Keep Buddy next to my mouse, Colour, Allow screen access…
 - Works out of the box on a free cloud brain. No account, no key, no model download.
 
