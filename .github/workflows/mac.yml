@@ -15,29 +15,38 @@ on:
 permissions:
   contents: write
 
+env:
+  # python.org's macOS installer is a universal2 build (Apple Silicon + Intel in one binary)
+  PYTHON_PKG: https://www.python.org/ftp/python/3.12.8/python-3.12.8-macos11.pkg
+  PY: /Library/Frameworks/Python.framework/Versions/3.12/bin/python3.12
+
 jobs:
   build:
-    runs-on: macos-14            # Apple Silicon
+    runs-on: macos-14            # Apple Silicon: builds the universal app and tests the arm64 half
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+      - name: Universal Python (python.org)
+        run: |
+          curl -sSLo /tmp/python.pkg "$PYTHON_PKG"
+          sudo installer -pkg /tmp/python.pkg -target / >/dev/null
+          "$PY" -c "import platform, sysconfig; print(platform.machine(), sysconfig.get_platform())"
+          lipo -archs "$("$PY" -c 'import sys; print(sys.executable)')"
 
       - name: Install
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r mac/requirements.txt pytest pyinstaller
+          "$PY" -m pip install --upgrade pip
+          "$PY" -m pip install --only-binary=:all: -r mac/requirements.txt
+          "$PY" -m pip install pytest pyinstaller
 
       - name: Unit tests
-        run: python -m pytest mac/tests -q
+        run: "$PY" -m pytest mac/tests -q
 
       - name: Self-test from source (real AppKit, fake brain)
         working-directory: mac
         run: |
-          python BuddyMac.py --selftest "$RUNNER_TEMP/selftest_source" || echo "SOURCE_SELFTEST_FAILED=1" >> "$GITHUB_ENV"
+          "$PY" BuddyMac.py --selftest "$RUNNER_TEMP/selftest_source" || echo "SOURCE_SELFTEST_FAILED=1" >> "$GITHUB_ENV"
 
       - name: App icon
         run: |
@@ -49,12 +58,13 @@ jobs:
           done
           iconutil -c icns build/Buddy.iconset -o build/Buddy.icns
 
-      - name: Build Buddy.app
+      - name: Build Buddy.app (universal2)
         working-directory: mac
         run: |
-          VERSION=$(python -c "from buddy_mac import core; print(core.VERSION)")
+          VERSION=$("$PY" -c "from buddy_mac import core; print(core.VERSION)")
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-          pyinstaller --noconfirm --windowed --name Buddy \
+          "$PY" -m PyInstaller --noconfirm --windowed --name Buddy \
+            --target-architecture universal2 \
             --osx-bundle-identifier io.github.juw12.buddy \
             --icon ../build/Buddy.icns \
             --hidden-import Speech --hidden-import AVFoundation --hidden-import Quartz \
@@ -69,18 +79,23 @@ jobs:
           # Ad-hoc signature (no Apple Developer ID): required to run on Apple Silicon
           codesign --force --deep --sign - dist/Buddy.app
           codesign --verify --deep --strict --verbose=2 dist/Buddy.app
+          echo "Main binary:"; lipo -archs dist/Buddy.app/Contents/MacOS/Buddy
+          # Every Mach-O inside must carry both architectures
+          thin=0
+          while IFS= read -r file; do
+            archs=$(lipo -archs "$file" 2>/dev/null || true)
+            if [ -n "$archs" ] && { [[ "$archs" != *x86_64* ]] || [[ "$archs" != *arm64* ]]; }; then
+              echo "NOT UNIVERSAL: $file ($archs)"; thin=1
+            fi
+          done < <(find dist/Buddy.app -type f \( -name "*.so" -o -name "*.dylib" -o -perm -111 \))
+          test $thin -eq 0
           du -sh dist/Buddy.app
 
-      - name: Self-test the built app
+      - name: Self-test the built app (Apple Silicon)
         working-directory: mac
         run: |
-          ./dist/Buddy.app/Contents/MacOS/Buddy --selftest "$RUNNER_TEMP/selftest_app"
-          python - <<'EOF'
-          import json, os, sys
-          report = json.load(open(os.path.join(os.environ["RUNNER_TEMP"], "selftest_app", "report.json")))
-          print(json.dumps(report["checks"], indent=1))
-          sys.exit(0 if report["passed"] else 1)
-          EOF
+          ./dist/Buddy.app/Contents/MacOS/Buddy --selftest "$RUNNER_TEMP/selftest_arm64"
+          "$PY" -c "import json,sys; r=json.load(open('$RUNNER_TEMP/selftest_arm64/report.json')); print(r['checks']); sys.exit(0 if r['passed'] else 1)"
 
       - name: Zip
         working-directory: mac/dist
@@ -91,10 +106,10 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: selftest
+          name: selftest-arm64
           path: |
             ${{ runner.temp }}/selftest_source
-            ${{ runner.temp }}/selftest_app
+            ${{ runner.temp }}/selftest_arm64
           if-no-files-found: warn
 
       - uses: actions/upload-artifact@v4
@@ -102,10 +117,45 @@ jobs:
           name: Buddy-mac
           path: mac/dist/Buddy-mac.zip
 
-      - name: Publish to the latest release
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish }}
+  intel:
+    needs: build
+    runs-on: macos-15-intel      # a real Intel Mac: run the same zip natively on x86_64
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: Buddy-mac
+
+      - name: Unzip and check
+        run: |
+          uname -m
+          ditto -x -k Buddy-mac.zip .
+          lipo -archs Buddy.app/Contents/MacOS/Buddy
+          codesign --verify --deep --strict Buddy.app
+
+      - name: Self-test on Intel
+        run: |
+          ./Buddy.app/Contents/MacOS/Buddy --selftest "$RUNNER_TEMP/selftest_intel"
+          python3 -c "import json,sys; r=json.load(open('$RUNNER_TEMP/selftest_intel/report.json')); print(r['checks']); sys.exit(0 if r['passed'] else 1)"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: selftest-intel
+          path: ${{ runner.temp }}/selftest_intel
+          if-no-files-found: warn
+
+  publish:
+    needs: [build, intel]
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: Buddy-mac
+      - name: Upload to the latest release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG=$(gh release view --json tagName --jq .tagName)
-          gh release upload "$TAG" mac/dist/Buddy-mac.zip --clobber
+          TAG=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)
+          gh release upload "$TAG" Buddy-mac.zip --clobber --repo "$GITHUB_REPOSITORY"
