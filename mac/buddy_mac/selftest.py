@@ -17,7 +17,7 @@ from pathlib import Path
 from AppKit import NSApp, NSScreen
 from PyObjCTools import AppHelper
 
-from . import core
+from . import core, ocr
 from .app import Controller
 
 CANNED_REPLY = (
@@ -83,6 +83,7 @@ class SelfTestController(Controller):
         self.report["checks"]["speech_in_available"] = self.listener.ok
         self.report["checks"]["speech_out_available"] = self.speaker.ok
         self.report["checks"]["menu_bar_item"] = self.status_item is not None
+        self._check_text_recognition()
         plan = [
             (0.8, self._shot, "01_idle"),
             (1.0, self._state, ("listening", "“where's save as”")),
@@ -94,6 +95,33 @@ class SelfTestController(Controller):
         ]
         for delay, action, argument in plan:
             AppHelper.callLater(delay, action, argument)
+
+    def _check_text_recognition(self):
+        """The arrow snaps onto text read by Apple's Vision framework: prove it is bundled and works."""
+        from AppKit import (NSBitmapImageRep, NSColor, NSFont, NSFontAttributeName, NSForegroundColorAttributeName,
+                            NSImage, NSJPEGFileType, NSMakeRect, NSRectFill, NSString)
+
+        try:
+            picture = NSImage.alloc().initWithSize_((640, 200))
+            picture.lockFocus()
+            NSColor.whiteColor().set()
+            NSRectFill(NSMakeRect(0, 0, 640, 200))
+            attributes = {NSFontAttributeName: NSFont.systemFontOfSize_(48),
+                          NSForegroundColorAttributeName: NSColor.blackColor()}
+            NSString.stringWithString_("Save As").drawAtPoint_withAttributes_((60, 70), attributes)
+            picture.unlockFocus()
+            bitmap = NSBitmapImageRep.imageRepWithData_(picture.TIFFRepresentation())
+            jpeg = bytes(bitmap.representationUsingType_properties_(NSJPEGFileType, {}))
+            lines = ocr.read_text(jpeg)
+            self.report["text_recognition"] = [list(line) for line in lines]
+            # A rough point near the words must move onto them
+            snapped = core.snap_points([(450.0, 300.0, "Save As")], lines)
+            self.report["text_snap"] = list(snapped[0])
+            self.report["checks"]["text_recognition"] = any("save" in text.lower() for text, *_ in lines) \
+                and snapped[0][:2] != (450.0, 300.0)
+        except Exception as error:                                # noqa: BLE001
+            self.report["text_recognition_error"] = repr(error)
+            self.report["checks"]["text_recognition"] = False
 
     # -------------------------------------------------------------- steps
     def _state(self, argument):
@@ -161,7 +189,7 @@ class SelfTestController(Controller):
         checks["error_bubble"] = any(what == "error" for what, _ in self.events)
         checks["brain_called"] = len(_FakeBrain.requests) >= 1
         required = ["answer_parsed", "two_points", "pointer_landed", "renders_ok", "error_bubble",
-                    "brain_called", "hotkey_registered", "menu_bar_item"]
+                    "brain_called", "hotkey_registered", "menu_bar_item", "text_recognition"]
         self.report["passed"] = reason == "done" and all(checks.get(name) for name in required)
         (self.out_dir / "report.json").write_text(json.dumps(self.report, indent=1), encoding="utf-8")
         print(json.dumps({"passed": self.report["passed"], "checks": checks}, indent=1), flush=True)
