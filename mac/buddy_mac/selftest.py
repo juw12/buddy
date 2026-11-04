@@ -66,6 +66,7 @@ class SelfTestController(Controller):
         settings.update(
             brain_url=f"http://127.0.0.1:{self.server.server_port}/v1/chat/completions",
             brain_model="fake-vision",
+            fallback=False,                     # the unreachable step must fail, not ask the real free brain
             speak=False,
         )
         super().__init__(settings=settings, persist=False)

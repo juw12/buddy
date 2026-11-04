@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 APP_NAME = "Buddy"
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 
 SUPPORT_DIR = Path.home() / "Library" / "Application Support" / APP_NAME
 SETTINGS_PATH = SUPPORT_DIR / "settings.json"
@@ -39,11 +39,21 @@ COLORS = {
     "Graphite": "#475569",
 }
 
+# Buddy's free brain: a small Cloudflare Worker (cloud/brain in the repo), no account or key needed.
+# Shared by everyone, so it has a daily cap; a local Ollama is the unlimited, private alternative.
+FREE_BRAIN_URL = "https://buddy-brain.juwenmondial.workers.dev/v1/chat/completions"
+FREE_BRAIN_MODEL = "buddy-free"
+LOCAL_BRAIN_URL = "http://localhost:11434/v1/chat/completions"
+LOCAL_BRAIN_MODEL = "qwen3-vl:4b-instruct"
+FEEDBACK_URL = "https://github.com/juw12/buddy/issues/new?template=feedback.yml"
+
 DEFAULTS = {
-    # Any OpenAI-compatible chat endpoint that accepts images. The default is a local Ollama.
-    "brain_url": "http://localhost:11434/v1/chat/completions",
-    "brain_model": "qwen3-vl:4b-instruct",
+    # Any OpenAI-compatible chat endpoint that accepts images. The default needs no setup.
+    "brain_url": FREE_BRAIN_URL,
+    "brain_model": FREE_BRAIN_MODEL,
     "brain_key": "",
+    # When the brain can't answer (offline, busy, out of free questions), try the other free one
+    "fallback": True,
     "speak": True,
     "follow_mouse": True,
     "color": "Orange",
@@ -65,10 +75,11 @@ Rules:
   [POINT:x,y:short label]
   x and y are the CENTER of the element in normalized coordinates from 0 to 1000,
   where 0,0 is the top-left and 1000,1000 is the bottom-right of the screenshot.
+- Both numbers are whole numbers from 0 to 1000, for example [POINT:512,88:Save button].
 - If nothing needs pointing at, do not add any tag."""
 
 POINT_PATTERN = re.compile(
-    r"\[\s*POINT\s*:\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*(?::\s*([^\]]*))?\]",
+    r"\[\s*POINT\s*:\s*(\.?\d+(?:\.\d+)?)\s*,\s*(\.?\d+(?:\.\d+)?)\s*(?::\s*([^\]]*))?\]",
     re.IGNORECASE,
 )
 
@@ -98,11 +109,19 @@ def hex_to_rgb(color: str) -> tuple[float, float, float]:
 
 
 # --------------------------------------------------------------------------- replies
+def _thousandths(value: str) -> float:
+    """Some models write one coordinate on a 0..1 scale ("183,0.440"): treat a decimal <= 1 as a fraction."""
+    number = float(value)
+    if "." in value and number <= 1:
+        return round(number * 1000, 1)
+    return number
+
+
 def parse_reply(text: str) -> tuple[str, list[tuple[float, float, str]]]:
     """Split a model reply into (spoken_text, [(x_norm, y_norm, label), ...])."""
     points = []
     for match in POINT_PATTERN.finditer(text):
-        x, y = float(match.group(1)), float(match.group(2))
+        x, y = _thousandths(match.group(1)), _thousandths(match.group(2))
         if 0 <= x <= 1000 and 0 <= y <= 1000:
             points.append((x, y, (match.group(3) or "").strip()))
     spoken = POINT_PATTERN.sub("", text)
@@ -175,6 +194,19 @@ def take_screenshot(screen: ScreenRect, main_height: float) -> bytes:
 
 
 # --------------------------------------------------------------------------- brain
+class BrainError(RuntimeError):
+    """A brain that didn't answer. status is the HTTP status (None = couldn't connect), code the reason."""
+
+    def __init__(self, message: str, status: int | None = None, code: str = ""):
+        super().__init__(message)
+        self.status = status
+        self.code = code
+
+    @property
+    def worth_retrying_elsewhere(self) -> bool:
+        return self.status is None or self.status == 429 or self.status >= 500
+
+
 @dataclass
 class Brain:
     """Any OpenAI-compatible /chat/completions endpoint that reads images (Ollama, LM Studio, a gateway...)."""
@@ -200,7 +232,8 @@ class Brain:
             "max_tokens": 400,
             "stream": True,
         }
-        headers = {"Content-Type": "application/json"}
+        # A real User-Agent: Cloudflare (which hosts the free brain) blocks the default "Python-urllib" one
+        headers = {"Content-Type": "application/json", "User-Agent": f"Buddy/{VERSION} (macOS)"}
         if self.key:
             headers["Authorization"] = f"Bearer {self.key}"
         request = urllib.request.Request(self.url, json.dumps(body).encode(), headers)
@@ -208,10 +241,17 @@ class Brain:
         try:
             response = urllib.request.urlopen(request, timeout=self.timeout)
         except urllib.error.HTTPError as error:
-            detail = error.read(300).decode(errors="replace")
-            raise RuntimeError(f"brain error {error.code}: {detail}") from error
-        except urllib.error.URLError as error:
-            raise RuntimeError(f"can't reach the brain at {self.url} ({error.reason})") from error
+            detail = error.read(600).decode(errors="replace")
+            code, message = "", detail[:300]
+            try:
+                info = json.loads(detail).get("error") or {}
+                code, message = info.get("code") or "", info.get("message") or message
+            except (ValueError, AttributeError):
+                pass
+            raise BrainError(f"brain error {error.code}: {message}", error.code, code) from error
+        except (urllib.error.URLError, TimeoutError, ConnectionError) as error:
+            reason = getattr(error, "reason", error)
+            raise BrainError(f"can't reach the brain at {self.url} ({reason})", None, "unreachable") from error
         with response:
             reply = "".join(self._read(response, on_text))
         logging.info("brain %s answered in %.1fs", self.model, time.perf_counter() - started)
@@ -242,11 +282,62 @@ class Brain:
                 break
             chunk = json.loads(payload)
             piece = ((chunk.get("choices") or [{}])[0].get("delta") or {}).get("content")
+            if piece is not None and not isinstance(piece, str):
+                piece = str(piece)
             if piece:
                 so_far += piece
                 if on_text:
                     on_text(so_far)
                 yield piece
+
+
+def brain_candidates(settings: dict) -> list[tuple[str, str, str]]:
+    """(url, model, key) to try in order: the chosen brain, then the other free one if fallback is on.
+
+    A brain with an API key (a company or paid model) never falls back to the free cloud brain, so
+    screenshots meant for it are not sent anywhere else. Falling back to a local Ollama is always private.
+    """
+    url = settings.get("brain_url") or FREE_BRAIN_URL
+    key = settings.get("brain_key", "")
+    chosen = (url, settings.get("brain_model") or FREE_BRAIN_MODEL, key)
+    candidates = [chosen]
+    if settings.get("fallback", True):
+        if url != FREE_BRAIN_URL and not key:
+            candidates.append((FREE_BRAIN_URL, FREE_BRAIN_MODEL, ""))
+        if url != LOCAL_BRAIN_URL:
+            candidates.append((LOCAL_BRAIN_URL, LOCAL_BRAIN_MODEL, ""))
+    return candidates
+
+
+def ask_with_fallback(question: str, jpeg: bytes | None, settings: dict, history: list, on_text=None):
+    """Ask the chosen brain; if it can't answer (offline, busy, out of free questions) try the next one.
+
+    Returns (reply, brain_that_answered). Raises the chosen brain's BrainError if none could answer.
+    """
+    first_error = None
+    for url, model, key in brain_candidates(settings):
+        brain = Brain(url, model, key, history=list(history))
+        try:
+            return brain.ask(question, jpeg, on_text), brain
+        except BrainError as error:
+            logging.warning("brain %s failed: %s", model, error)
+            first_error = first_error or error
+            if not error.worth_retrying_elsewhere:
+                break
+    raise first_error
+
+
+def friendly_error(error: Exception) -> str:
+    """What Buddy says when no brain could answer."""
+    code = getattr(error, "code", "")
+    if code == "daily_cap":
+        return ("The free brain is out of questions for today. It's back tomorrow, or install Ollama "
+                "for unlimited private answers: menu bar, then Brain.")
+    if code == "rate_limited":
+        return "That's a lot of questions in a minute. Give me a few seconds and ask again."
+    if code == "unreachable" or "can't reach the brain" in str(error):
+        return "I can't reach my brain. Check the internet, or set one up: menu bar, then Brain."
+    return f"Something went wrong: {str(error)[:140]}"
 
 
 def setup_logging() -> None:

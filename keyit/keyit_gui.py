@@ -20,11 +20,14 @@ MIN_KEYS_TO_BUILD = 10
 
 # Settings -> Brain. "Smart" sends the screenshot + question to your company's MAAS gateway (fast, much smarter);
 # the local ones never leave this PC.
-BRAINS = {"Smart (MAAS)": "maas", "Local GPU": "auto", "Local CPU": "cpu"}
+BRAINS = {"Free (cloud)": "free", "Smart (MAAS)": "maas", "Local GPU": "auto", "Local CPU": "cpu"}
 BRAIN_NOTES = {
+    "free": "Free cloud brain: no setup, answers in ~5 s. Your screenshot and question go to Cloudflare "
+            "Workers AI (not stored). Shared daily limit; falls back to this PC if it can't answer.",
     "maas": "Smart brain: company MAAS (vision-model), answers in ~1-2 s. Your screenshot and question go to "
             "the company AI gateway. Falls back to this PC if it can't be reached.",
-    "auto": "Local GPU brain: everything stays on this PC. Answers in ~5-15 s.",
+    "auto": "Local GPU brain: everything stays on this PC. Answers in ~5-15 s. "
+            "If this PC has no local brain (no Ollama), Buddy uses the free cloud brain instead.",
     "cpu": "Local CPU brain (Ollama): everything stays on this PC, but slow (about a minute).",
 }
 
@@ -151,7 +154,7 @@ class KeyItApp:
             settings_tab = ttk.Frame(notebook, padding=(10, 8, 10, 6))
             settings_tab.columnconfigure(0, weight=1)
             sounds = ttk.LabelFrame(settings_tab, text=" Keyboard & mouse sounds ", padding=(10, 4, 10, 8))
-            buddy_tab = ttk.LabelFrame(settings_tab, text=" Buddy's brain (local AI) ", padding=(10, 4, 10, 8))
+            buddy_tab = ttk.LabelFrame(settings_tab, text=" Buddy's brain ", padding=(10, 4, 10, 8))
             sounds.grid(row=0, column=0, sticky="ew")
             buddy_tab.grid(row=1, column=0, sticky="ew", pady=(10, 0))
             notebook.add(settings_tab, text="  Settings  ")
@@ -525,6 +528,7 @@ class KeyItApp:
         self._set_buddy_status(BRAIN_NOTES[engine])
         if self.buddy:
             self.buddy.maas_failed_until = 0.0
+            self.buddy.local_missing = False          # check the local brain again
             threading.Thread(target=self.buddy._prepare, daemon=True).start()
 
     # -- Look: colour and icon of the pointer next to the mouse

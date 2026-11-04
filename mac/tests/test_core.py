@@ -53,7 +53,8 @@ def test_capture_rect_is_top_left_based():
 def test_settings_roundtrip_and_bad_color(tmp_path):
     path = tmp_path / "settings.json"
     settings = core.load_settings(path)
-    assert settings["brain_url"].endswith("/v1/chat/completions")
+    assert settings["brain_url"] == core.FREE_BRAIN_URL
+    assert settings["brain_model"] == core.FREE_BRAIN_MODEL
     settings["color"] = "Purple"
     core.save_settings(settings, path)
     assert core.load_settings(path)["color"] == "Purple"
@@ -140,3 +141,72 @@ def test_brain_unreachable_message():
         assert "can't reach the brain" in str(error)
     else:
         raise AssertionError("expected an error")
+
+
+def test_parse_reply_fraction_coordinates():
+    # Llama 4 Scout often writes y as a 0..1 fraction
+    assert core.parse_reply("Here. [POINT:183,0.440:Save As]")[1] == [(183.0, 440.0, "Save As")]
+    assert core.parse_reply("Here. [POINT:450,.44:x]")[1] == [(450.0, 440.0, "x")]
+    assert core.parse_reply("Here. [POINT:0,1:corner]")[1] == [(0.0, 1.0, "corner")]
+
+
+def test_brain_candidates_fallback_rules():
+    free = (core.FREE_BRAIN_URL, core.FREE_BRAIN_MODEL, "")
+    local = (core.LOCAL_BRAIN_URL, core.LOCAL_BRAIN_MODEL, "")
+    assert core.brain_candidates(dict(core.DEFAULTS)) == [free, local]
+    old_default = dict(core.DEFAULTS, brain_url=core.LOCAL_BRAIN_URL, brain_model=core.LOCAL_BRAIN_MODEL)
+    assert core.brain_candidates(old_default) == [local, free]
+    # A brain with a key (company / paid) never sends screenshots to the free cloud brain
+    company = dict(core.DEFAULTS, brain_url="https://example.com/v1/chat/completions", brain_model="m", brain_key="k")
+    assert core.brain_candidates(company) == [("https://example.com/v1/chat/completions", "m", "k"), local]
+    assert core.brain_candidates(dict(core.DEFAULTS, fallback=False)) == [free]
+
+
+def test_fallback_after_daily_cap(monkeypatch):
+    server = _serve()
+    try:
+        _Brain.stream = False
+        capped = _serve_error(429, {"error": {"message": "out", "code": "daily_cap"}})
+        settings = dict(core.DEFAULTS, brain_url=f"http://127.0.0.1:{capped.server_port}/v1/chat/completions")
+        monkeypatch.setattr(core, "FREE_BRAIN_URL", "http://127.0.0.1:9/v1/chat/completions")
+        monkeypatch.setattr(core, "LOCAL_BRAIN_URL", f"http://127.0.0.1:{server.server_port}/v1/chat/completions")
+        reply, brain = core.ask_with_fallback("hi", None, settings, [])
+        assert reply.startswith("Plain answer")
+        assert brain.url == core.LOCAL_BRAIN_URL
+        capped.shutdown()
+    finally:
+        _Brain.stream = True
+        server.shutdown()
+
+
+def test_no_fallback_on_bad_request_and_friendly_text():
+    bad = _serve_error(400, {"error": {"message": "bad", "code": "bad_request"}})
+    settings = dict(core.DEFAULTS, brain_url=f"http://127.0.0.1:{bad.server_port}/v1/chat/completions")
+    try:
+        core.ask_with_fallback("hi", None, settings, [])
+        raise AssertionError("expected BrainError")
+    except core.BrainError as error:
+        assert error.status == 400 and error.code == "bad_request"
+    finally:
+        bad.shutdown()
+    assert "out of questions" in core.friendly_error(core.BrainError("x", 429, "daily_cap"))
+    assert "can't reach" in core.friendly_error(core.BrainError("x", None, "unreachable"))
+
+
+def _serve_error(status, payload):
+    class _Error(BaseHTTPRequestHandler):
+        def do_POST(self):
+            self.rfile.read(int(self.headers.get("Content-Length", 0)))
+            body = json.dumps(payload).encode()
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *args):
+            pass
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), _Error)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    return server

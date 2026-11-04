@@ -1002,6 +1002,14 @@
      Brains
      ===================================================================== */
   const BRAINS = {
+    free: {
+      speed: "~5 s",
+      race: "3s",
+      where: "Buddy's free cloud brain (Llama 4 Scout on Cloudflare Workers AI)",
+      leaves: "The screenshot and your question, to Cloudflare to answer. Not stored.",
+      best: "Trying Buddy right now, on Windows or Mac",
+      needs: "Nothing. Shared by everyone, so there's a daily limit",
+    },
     smart: {
       speed: "~1–2 s",
       race: "1.2s",
@@ -1051,7 +1059,7 @@
   const brainObserver = new IntersectionObserver((entries) => {
     if (entries.some((entry) => entry.isIntersecting)) {
       brainObserver.disconnect();
-      showBrain("smart");
+      showBrain("free");
     }
   }, { threshold: 0.5 });
   brainObserver.observe($(".brain-box"));

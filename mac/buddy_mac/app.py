@@ -98,6 +98,9 @@ class _Delegate(NSObject):
     def brainClicked_(self, sender):
         self.controller.edit_brain()
 
+    def feedbackClicked_(self, sender):
+        subprocess.run(["open", core.FEEDBACK_URL], check=False)
+
     def speakClicked_(self, sender):
         self.controller.toggle("speak", sender)
 
@@ -181,6 +184,7 @@ class Controller:
             warning.setEnabled_(False)
         menu.addItem_(NSMenuItem.separatorItem())
         add("Brain…", "brainClicked:")
+        add("Send feedback…", "feedbackClicked:")
         speak = add("Read answers aloud", "speakClicked:")
         speak.setState_(1 if self.settings["speak"] else 0)
         follow = add("Keep Buddy next to my mouse", "followClicked:")
@@ -231,8 +235,12 @@ class Controller:
         alert = NSAlert.alloc().init()
         alert.setMessageText_("Buddy's brain")
         alert.setInformativeText_(
-            "Any OpenAI-compatible chat endpoint that can read images: a local Ollama "
-            "(ollama pull qwen3-vl:4b-instruct), LM Studio, or a hosted model with an API key."
+            "Out of the box Buddy uses its free cloud brain: no setup, shared daily limit, screenshots are "
+            "answered by Cloudflare Workers AI and not stored.\n\n"
+            "For unlimited private answers use a local Ollama: endpoint "
+            f"{core.LOCAL_BRAIN_URL}, model {core.LOCAL_BRAIN_MODEL} (ollama pull it first). "
+            "Any OpenAI-compatible endpoint that reads images works, with an API key if it needs one.\n\n"
+            f"Free brain: {core.FREE_BRAIN_URL}, model {core.FREE_BRAIN_MODEL}"
         )
         view = NSView.alloc().initWithFrame_(NSMakeRect(0, 0, 380, 96))
         fields = {}
@@ -352,12 +360,8 @@ class Controller:
         self.overlay.home()
         self.overlay.set_state("thinking", "")
         screen, main_height = _screen_under_mouse()
-        brain = core.Brain(
-            self.settings["brain_url"],
-            self.settings["brain_model"],
-            self.settings.get("brain_key", ""),
-            history=self.history,
-        )
+        settings = dict(self.settings)
+        history = list(self.history)
         self.events.append(("ask", question))
         logging.info("ask: %s", question)
 
@@ -370,12 +374,19 @@ class Controller:
                 self.events.append(("screenshot_failed", str(error)))
                 logging.warning("screen look failed: %s", error)
             try:
-                reply = brain.ask(question, jpeg, on_text=lambda text: AppHelper.callAfter(self._partial, token, text))
+                reply, brain = core.ask_with_fallback(
+                    question,
+                    jpeg,
+                    settings,
+                    history,
+                    on_text=lambda text: AppHelper.callAfter(self._partial, token, text),
+                )
                 self.history = brain.history
+                self.events.append(("brain", brain.model))
                 AppHelper.callAfter(self._answered, token, reply, screen)
             except Exception as error:                        # noqa: BLE001
                 logging.warning("brain failed: %s", error)
-                AppHelper.callAfter(self._failed, token, str(error))
+                AppHelper.callAfter(self._failed, token, error)
 
         threading.Thread(target=work, daemon=True).start()
 
@@ -411,15 +422,11 @@ class Controller:
             self.overlay.fly_to(x, y)
             self.overlay.say(text)
 
-    def _failed(self, token, message):
+    def _failed(self, token, error):
         if token != self.ask_token:
             return
-        self.events.append(("error", message))
-        if "can't reach the brain" in message:
-            text = "I can't reach my brain. Click the buddy in the menu bar, then Brain…, to set one up."
-        else:
-            text = f"Something went wrong: {message[:140]}"
-        self._say_briefly(text, seconds=7)
+        self.events.append(("error", str(error)))
+        self._say_briefly(core.friendly_error(error), seconds=7)
         if self.on_answered:
             self.on_answered(None, [])
 

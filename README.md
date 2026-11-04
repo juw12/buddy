@@ -2,7 +2,11 @@
 
 <p align="center"><a href="https://juw12.github.io/buddy/"><img src="docs/media/buddy-demo.gif" alt="Buddy finds Save As in Notepad" width="640"></a><br><sub>An AI buddy that lives next to your mouse. <a href="https://juw12.github.io/buddy/">Website and live demo</a> · <a href="https://github.com/juw12/buddy/releases/latest/download/Buddy-win64.zip">Download for Windows</a> · <a href="https://github.com/juw12/buddy/releases/latest/download/Buddy-mac.zip">Mac (Lite)</a></sub></p>
 
-> **On a Mac?** [Buddy Lite for Mac](mac/README.md) points and answers (hold Control+Option+Space). Clicking and typing for you, the Pips pet and key sounds are Windows-only for now.
+> **Works out of the box:** Buddy starts on a free cloud brain, so there's no account, key or model download. For unlimited, private answers, add a local brain with [Ollama](https://ollama.com). The free brain's source is in [cloud/brain](cloud/brain).
+>
+> **On a Mac?** [Buddy Lite for Mac](mac/README.md) points and answers (hold Control+Option+Space). One line in Terminal installs it: `curl -fsSL https://juw12.github.io/buddy/mac-install.sh | bash`. Clicking and typing for you, the Pips pet and key sounds are Windows-only for now.
+>
+> **Tried it?** [Tell us how it went](https://github.com/juw12/buddy/issues/new?template=feedback.yml). It takes a minute.
 
 Buddy is the app. It owns the tray icon, the main window, autostart and quitting.
 It has three features:
@@ -31,7 +35,7 @@ the import stops. Add `--force` to replace that profile; the old one is moved to
 ## Use
 - **Ctrl+Alt+Space**, hold it: ask Buddy about your screen by voice. Release to send, and press Esc to cancel.
 - **Voice**: Settings -> Voice. "Natural: ..." voices sound human (Kokoro, offline, ~120 MB downloaded once into %APPDATA%\Buddy\voices) in English (US/UK), Chinese (Mandarin), Spanish, French, Italian, Portuguese (Brazil) and Hindi. If Buddy answers in Chinese or Hindi while another language's voice is picked, a voice of the same gender reads that part; the Microsoft voices are the old robotic ones. Press **Test** to hear one. Natural voices run on the CPU, so on a very busy PC they can start a second or two later.
-- **Brain** (Settings): *Smart (MAAS)* uses a big vision model on your company's AI gateway (~1-2 s answers, much smarter; your screenshot + question go to that gateway, logging in with the MAAS account from the Pips token card). Set `BUDDY_SMART_URL` (an OpenAI-compatible chat endpoint) and `BUDDY_SMART_MODEL` to point it at your gateway. *Local GPU* / *Local CPU* keep everything on this PC (~5-15 s / ~1 min). If MAAS can't be reached, Buddy answers locally for 5 minutes and then tries MAAS again.
+- **Brain** (Settings): *Free (cloud)* needs no setup: Llama 4 Scout on Cloudflare Workers AI through a small Worker ([cloud/brain](cloud/brain)), ~5 s answers, a shared daily limit, and the screenshot + question go to Cloudflare to be answered (not stored). With *Local GPU* picked and no local brain on the PC, Buddy uses the free brain automatically. *Smart (MAAS)* uses a big vision model on your company's AI gateway (~1-2 s answers, much smarter; your screenshot + question go to that gateway, logging in with the MAAS account from the Pips token card). Set `BUDDY_SMART_URL` (an OpenAI-compatible chat endpoint) and `BUDDY_SMART_MODEL` to point it at your gateway. *Local GPU* / *Local CPU* keep everything on this PC (~5-15 s / ~1 min). If MAAS can't be reached, Buddy answers locally for 5 minutes and then tries MAAS again.
 - **Ctrl+Alt+Space**, tap it: a small ask box opens at your mouse, so you can type when you can't talk. If you had text highlighted, Buddy reads it too (through Windows accessibility, never the clipboard). Just pressing Enter means "explain this".
 - Like Clicky, a small orange buddy rests next to your mouse all the time. It shows a waveform while it listens, a spinner while it thinks, and flies to whatever it points at. To see it only while you ask, untick *Settings → Keep Buddy next to my mouse all the time*.
 - **Look** (Settings): pick the buddy's colour (10 colours or *Custom…*) and icon (arrow, mouse pointer, paper plane, dot, star, heart or the Buddy face). The colour is also used for its bubbles and the ask/confirm boxes.
@@ -43,7 +47,7 @@ the import stops. Add `--force` to replace that profile; the old one is moved to
 - **Ctrl+Alt+P**: Pips's own hotkey (unchanged).
 - Right-click the pet, then go to **Buddy** to find *Ask Buddy about my screen*, *Keyboard sounds*, and *Sounds & AI settings*.
 
-The AI part needs [Ollama](https://ollama.com) running locally with a vision model,
+For the private Local brain, run [Ollama](https://ollama.com) locally with a vision model,
 for example `ollama pull qwen3-vl:4b-instruct`. Everything stays on this PC. Buddy also tells the model
 your current Pips focus score, so answers can take your day into account.
 

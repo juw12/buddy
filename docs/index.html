@@ -67,7 +67,8 @@
       </a>
       <a class="btn btn-ghost btn-lg" href="#demo">Try it right here ↓</a>
     </div>
-    <p class="fineprint">Windows 10 / 11: the full Buddy, ~151 MB · Mac: Buddy Lite (points &amp; answers), macOS 12+ on Apple Silicon &amp; Intel · no installer, no account</p>
+    <p class="fineprint">Windows 10 / 11: the full Buddy, ~151 MB · Mac: Buddy Lite (points &amp; answers), macOS 12+ on Apple Silicon &amp; Intel · no installer, no account · <b>works out of the box with a free brain</b></p>
+    <p class="fineprint">Mac, one line in Terminal: <code>curl -fsSL https://juw12.github.io/buddy/mac-install.sh | bash</code></p>
 
     <figure class="hero-film" id="heroFilm">
       <div class="film-bar">
@@ -308,7 +309,7 @@
       <article class="card">
         <span class="tag">brain</span>
         <h3>Pick your brain</h3>
-        <p>Smart (company AI gateway, ~1–2 s) or Local (private, on your GPU or CPU). If Smart can't be reached, Buddy quietly switches to Local.</p>
+        <p>Free (works out of the box, no setup), Smart (company AI gateway, ~1–2 s) or Local (private, on your GPU or CPU). No local brain? Buddy uses the free one.</p>
         <a class="mini-link" href="#brains">compare →</a>
       </article>
       <article class="card c-pets">
@@ -394,28 +395,29 @@
   <!-- ============ BRAINS ============ -->
   <section id="brains" class="brains">
     <div class="section-head">
-      <p class="kicker">two brains, your choice</p>
-      <h2>Fast and smart, or fully private.</h2>
+      <p class="kicker">pick a brain, or don't</p>
+      <h2>Free out of the box. Fully private if you want.</h2>
     </div>
     <div class="brain-box">
       <div class="brain-tabs" role="tablist">
-        <button type="button" role="tab" class="active" data-brain="smart">Smart</button>
+        <button type="button" role="tab" class="active" data-brain="free">Free</button>
+        <button type="button" role="tab" data-brain="smart">Smart</button>
         <button type="button" role="tab" data-brain="gpu">Local GPU</button>
         <button type="button" role="tab" data-brain="cpu">Local CPU</button>
       </div>
       <div class="brain-body">
         <div class="brain-speed">
           <div class="race"><span class="racer" id="racer"><svg viewBox="-3 -3 30 32" width="22" height="24"><polygon points="0,0 6,26 12,18 24,22"/></svg></span></div>
-          <div class="speed-label"><b id="brainSpeed">~1–2 s</b><span>typical answer</span></div>
+          <div class="speed-label"><b id="brainSpeed">~5 s</b><span>typical answer</span></div>
         </div>
         <dl class="brain-facts">
-          <div><dt>Runs on</dt><dd id="brainWhere">your company's AI gateway (vision-model)</dd></div>
-          <div><dt>What leaves your PC</dt><dd id="brainLeaves">The screenshot and your question, to the company gateway only</dd></div>
-          <div><dt>Best for</dt><dd id="brainBest">Everyday use at work. Snappy and much smarter.</dd></div>
-          <div><dt>Needs</dt><dd id="brainNeeds">Your company MAAS login, on the company network</dd></div>
+          <div><dt>Runs on</dt><dd id="brainWhere">Buddy's free cloud brain (Llama 4 Scout on Cloudflare Workers AI)</dd></div>
+          <div><dt>What leaves your PC</dt><dd id="brainLeaves">The screenshot and your question, to Cloudflare to answer. Not stored.</dd></div>
+          <div><dt>Best for</dt><dd id="brainBest">Trying Buddy right now, on Windows or Mac</dd></div>
+          <div><dt>Needs</dt><dd id="brainNeeds">Nothing. Shared by everyone, so there's a daily limit</dd></div>
         </dl>
       </div>
-      <p class="brain-note">Whichever brain you pick, Buddy's voice and its hands stay on your PC. If Smart can't be reached, Buddy answers with the Local brain for 5 minutes, then tries Smart again.</p>
+      <p class="brain-note">Whichever brain you pick, Buddy's voice and its hands stay on your PC. If a cloud brain can't answer, Buddy uses the Local brain for 5 minutes, then tries again. No local brain installed? Buddy starts on the free one.</p>
     </div>
   </section>
 
@@ -430,7 +432,7 @@
       <table>
         <thead><tr><th></th><th class="us"><img src="assets/buddy.png" alt=""> Buddy</th><th>Clicky</th></tr></thead>
         <tbody>
-          <tr><td>Price</td><td class="us yes">Free, no message limits</td><td>Free plan with 25 talk + 25 agent messages a month. Pro $20, Max $100 a month</td></tr>
+          <tr><td>Price</td><td class="us yes">Free. Unlimited with the Local brain; the no-setup free brain has a shared daily limit</td><td>Free plan with 25 talk + 25 agent messages a month. Pro $20, Max $100 a month</td></tr>
           <tr><td>Account needed</td><td class="us yes">No. Unzip and run</td><td class="no">Yes</td></tr>
           <tr><td>Runs on</td><td class="us yes">Windows 10 / 11, plus Buddy Lite for Mac</td><td class="yes">Mac and Windows</td></tr>
           <tr><td>Points at things on screen</td><td class="us yes">Yes, snaps to the real button</td><td class="yes">Yes, draws on your screen</td></tr>
@@ -438,12 +440,12 @@
           <tr><td>Asks before risky actions</td><td class="us yes">Yes, a Yes/No prompt plus a full action log</td><td class="na">Not stated</td></tr>
           <tr><td>Can run fully on your PC, offline</td><td class="us yes">Yes, with the Local brain, voices and speech</td><td class="no">No, cloud only (screenshots aren't stored)</td></tr>
           <tr><td>Voice</td><td class="us yes">Natural, on-device, 7 languages</td><td>Cloud voice</td></tr>
-          <tr><td>Choice of brain</td><td class="us yes">Smart, Local GPU, Local CPU or your own endpoint</td><td>Their cloud models</td></tr>
+          <tr><td>Choice of brain</td><td class="us yes">Free cloud (no setup), Smart, Local GPU, Local CPU or your own endpoint</td><td>Their cloud models</td></tr>
           <tr><td>Bonus</td><td class="us yes">Focus pet, pomodoro, key sounds</td><td>No</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="footnote">Clicky details are from heyclicky.com, checked 4 Nov 2026, and may change. Spotted something out of date? Tell us and we'll fix it.</p>
+    <p class="footnote">Clicky details are from heyclicky.com, checked 4 Nov 2026, and may change. Spotted something out of date? <a href="https://github.com/juw12/buddy/issues/new?template=feedback.yml" target="_blank" rel="noopener">Tell us</a> and we'll fix it.</p>
   </section>
 
   <!-- ============ FAQ ============ -->
@@ -455,7 +457,7 @@
     <div class="faq-list">
       <details open>
         <summary>Is it really free?</summary>
-        <p>Yes. Download the zip, unzip it anywhere and run <code>Buddy.exe</code>. There's no installer, no account and no Python needed.</p>
+        <p>Yes. Download the zip, unzip it anywhere and run <code>Buddy.exe</code>. There's no installer, no account and no Python needed. It answers straight away with a free cloud brain. That brain is shared by everyone, so it has a daily limit. For unlimited, private answers, install <a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a> and pick the Local brain.</p>
       </details>
       <details>
         <summary>Will it click things on its own?</summary>
@@ -463,15 +465,15 @@
       </details>
       <details>
         <summary>Does it watch my screen all the time?</summary>
-        <p>No. It takes a single look at the monitor under your mouse only at the moment you ask. With the Local brain, that look never leaves your PC. With the Smart brain, the screenshot and your question go to your company's internal AI gateway and nowhere else.</p>
+        <p>No. It takes a single look at the monitor under your mouse only at the moment you ask. With the Local brain, that look never leaves your PC. With the Smart brain, the screenshot and your question go to your company's internal AI gateway and nowhere else. With the free brain, they go to Cloudflare Workers AI to be answered and aren't stored; the free brain only keeps a count of questions per day.</p>
       </details>
       <details>
         <summary>What do I need?</summary>
-        <p>Windows 10 or 11 (64-bit) and a ~151 MB download. A microphone is optional because you can tap the hotkey and type. The natural voices download once (~120 MB) and then work offline. The Local brain uses <a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a> with a small vision model. On a laptop GPU it answers in about 5–15 s.</p>
+        <p>Windows 10 or 11 (64-bit) and a ~151 MB download. A microphone is optional because you can tap the hotkey and type. The natural voices download once (~120 MB) and then work offline. The free brain needs nothing but internet. The Local brain uses <a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a> with a small vision model. On a laptop GPU it answers in about 5–15 s.</p>
       </details>
       <details>
         <summary>Does it work on a Mac?</summary>
-        <p>Yes, as <strong>Buddy Lite for Mac</strong> (macOS 12+, Apple Silicon and Intel, one download). Hold <kbd>Control</kbd><kbd>Option</kbd><kbd>Space</kbd> and ask, or tap it to type. It looks at the display under your mouse, points at the answer and reads it aloud with Apple's speech recognition and system voices. Lite means pointing and answers only: clicking and typing for you, the desk pet and key sounds are Windows-only for now. For the brain, use <a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a> on the Mac or any OpenAI-compatible endpoint. It isn't notarized yet, so the first time you open it, right-click Buddy → Open. <a href="https://github.com/juw12/buddy/tree/main/mac" target="_blank" rel="noopener">Mac setup guide</a>.</p>
+        <p>Yes, as <strong>Buddy Lite for Mac</strong> (macOS 12+, Apple Silicon and Intel, one download). Hold <kbd>Control</kbd><kbd>Option</kbd><kbd>Space</kbd> and ask, or tap it to type. It looks at the display under your mouse, points at the answer and reads it aloud with Apple's speech recognition and system voices. Lite means pointing and answers only: clicking and typing for you, the desk pet and key sounds are Windows-only for now. It starts on the free brain, so there's nothing to set up. For private answers, use <a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a> on the Mac. Easiest install: paste <code>curl -fsSL https://juw12.github.io/buddy/mac-install.sh | bash</code> into Terminal. It puts Buddy in Applications and opens it with no "unidentified developer" warning. If you download the zip instead, right-click Buddy → Open the first time. <a href="https://github.com/juw12/buddy/tree/main/mac" target="_blank" rel="noopener">Mac setup guide</a>.</p>
       </details>
       <details>
         <summary>Which languages does it speak?</summary>
@@ -479,7 +481,11 @@
       </details>
       <details>
         <summary>Can I use the Smart brain outside company?</summary>
-        <p>Smart runs on your company's AI gateway, so it needs a company MAAS login. Everyone else can use the Local brain, which is private and needs no account.</p>
+        <p>Smart runs on your company's AI gateway, so it needs a company MAAS login. Everyone else gets the free brain out of the box, or the Local brain, which is private and needs no account.</p>
+      </details>
+      <details>
+        <summary>How good is the free brain?</summary>
+        <p>Good enough to be useful, but not as sharp as the big Smart model. It usually finds the right menu or button, and on Windows Buddy snaps the arrow onto the real button. Sometimes it points a little off, so read the answer too. It allows about 180 questions a day for everyone combined, and a few per minute for each person.</p>
       </details>
       <details>
         <summary>Can I change how the buddy looks?</summary>
@@ -502,12 +508,13 @@
       Download Buddy for Windows
     </a>
     <p class="fineprint light">Buddy-win64.zip · ~151 MB · unzip &amp; run · On a Mac? <a href="https://github.com/juw12/buddy/releases/latest/download/Buddy-mac.zip">Get Buddy Lite for Mac</a></p>
+    <p class="fineprint light">Tried it? <a href="https://github.com/juw12/buddy/issues/new?template=feedback.yml" target="_blank" rel="noopener">Tell us how it went</a>. It takes a minute and really helps.</p>
   </section>
 </main>
 
 <footer class="footer">
   <div><img src="assets/buddy.png" alt="" width="22" height="22"> Buddy · made with care by Juwen Lie</div>
-  <div class="foot-links"><a href="#demo">Demo</a><a href="#faq">FAQ</a><a href="https://github.com/juw12/buddy/releases/latest/download/Buddy-win64.zip" download>Download</a></div>
+  <div class="foot-links"><a href="#demo">Demo</a><a href="#faq">FAQ</a><a href="https://github.com/juw12/buddy/issues/new?template=feedback.yml" target="_blank" rel="noopener">Feedback</a><a href="https://github.com/juw12/buddy/releases/latest/download/Buddy-win64.zip" download>Download</a></div>
   <div class="kao">(っ◕‿◕)っ see you on your desktop</div>
 </footer>
 

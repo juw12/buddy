@@ -50,8 +50,9 @@ DEFAULTS = {
     "buddy_cursor_always": True,      # Clicky-style: the buddy rests next to the mouse all the time
     "buddy_color": buddy_overlay.DEFAULT_COLOR,   # Settings -> Look: colour of the pointer and bubbles
     "buddy_icon": buddy_overlay.DEFAULT_ICON,     # Settings -> Look: arrow, pointer, plane, dot, star, heart, face
-    "buddy_engine": "auto",           # "maas": company MAAS (smart, off-PC); "auto": GPU when possible,
-                                      # else Ollama; "cpu": always Ollama
+    "buddy_engine": "auto",           # "free": Buddy's free cloud brain; "maas": company MAAS (smart, off-PC);
+                                      # "auto": GPU when possible, else Ollama, else the free cloud brain;
+                                      # "cpu": always Ollama
 }
 # "auto" = Whisper base.en if it can be downloaded/loaded, else the built-in Windows recognizer
 WHISPER_MODELS = ["auto", "windows", "tiny.en", "base.en", "small.en", "base", "small"]
@@ -80,10 +81,11 @@ Rules:
   [POINT:x,y:short label]
   x and y are the CENTER of the element in normalized coordinates from 0 to 1000,
   where 0,0 is the top-left and 1000,1000 is the bottom-right of the screenshot.
+- Both numbers are whole numbers from 0 to 1000, for example [POINT:512,88:Save button].
 - If nothing needs pointing at, do not add any tag."""
 
 POINT_PATTERN = re.compile(
-    r"\[\s*POINT\s*:\s*(\d+(?:\.\d+)?)\s*,\s*(\d+(?:\.\d+)?)\s*(?::\s*([^\]]*))?\]",
+    r"\[\s*POINT\s*:\s*(\.?\d+(?:\.\d+)?)\s*,\s*(\.?\d+(?:\.\d+)?)\s*(?::\s*([^\]]*))?\]",
     re.IGNORECASE,
 )
 FINISHED_SENTENCE = re.compile(r"\s*(.+?[.!?]+)(?=\s)", re.DOTALL)
@@ -101,11 +103,19 @@ def buddy_settings(settings):
 
 
 # --------------------------------------------------------------------------- parsing
+def _thousandths(value):
+    """Some models write a coordinate on a 0..1 scale ("183,0.440"): a decimal <= 1 is a fraction."""
+    number = float(value)
+    if "." in value and number <= 1:
+        return round(number * 1000, 1)
+    return number
+
+
 def parse_reply(text):
     """Split a model reply into (spoken_text, [(x_norm, y_norm, label), ...])."""
     points = []
     for match in POINT_PATTERN.finditer(text):
-        x, y = float(match.group(1)), float(match.group(2))
+        x, y = _thousandths(match.group(1)), _thousandths(match.group(2))
         if 0 <= x <= 1000 and 0 <= y <= 1000:
             points.append((x, y, (match.group(3) or "").strip()))
     spoken = POINT_PATTERN.sub("", text)
@@ -855,21 +865,36 @@ class Buddy:
         self.look_ahead = None                # screenshot the model starts reading while you talk/type
         self.gpu_server = None                # llama-server on the GPU (keyit_gpu), started on demand
         self.gpu_failed = {}                  # model -> why the GPU can't run it (then: Ollama)
-        self.maas_client = None               # keyit_maas.MaasClient when Settings -> Brain = Smart
-        self.maas_failed_until = 0.0          # after a MAAS failure: local brain until this time
+        self.maas_client = None               # off-PC brain: keyit_maas.MaasClient or keyit_free.FreeClient
+        self.maas_failed_until = 0.0          # after an off-PC brain failure: local brain until this time
+        self.local_missing = False            # "auto" and no local brain works here: use the free cloud brain
         self.windows = []                     # open windows when the question started (for actions)
         threading.Thread(target=self._prepare, daemon=True).start()
 
     # -- setup
-    def client(self):
-        """Smart brain (company MAAS) when picked and working; else the GPU brain when it can run the
-        chosen model; else Ollama."""
-        if self.settings.get("buddy_engine", "auto") == "maas" and time.monotonic() >= self.maas_failed_until:
-            if self.maas_client is None:
+    def _cloud_client(self, engine):
+        """The off-PC brain for "maas" (company gateway) or "free" (Buddy's free cloud brain)."""
+        wanted = "keyit_maas" if engine == "maas" else "keyit_free"
+        if self.maas_client is None or type(self.maas_client).__module__ != wanted:
+            if engine == "maas":
                 import keyit_maas
 
                 self.maas_client = keyit_maas.MaasClient()
-            return self.maas_client
+            else:
+                import keyit_free
+
+                self.maas_client = keyit_free.FreeClient()
+        return self.maas_client
+
+    def client(self):
+        """Smart brain (company MAAS) or the free cloud brain when picked and working; else the GPU brain
+        when it can run the chosen model; else Ollama. "auto" with no working local brain: free cloud brain."""
+        engine = self.settings.get("buddy_engine", "auto")
+        cloud_ok = time.monotonic() >= self.maas_failed_until
+        if engine in ("maas", "free") and cloud_ok:
+            return self._cloud_client(engine)
+        if engine == "auto" and self.local_missing and cloud_ok:
+            return self._cloud_client("free")
         model = self.settings["buddy_model"]
         if self.settings.get("buddy_engine", "auto") == "cpu" or model in self.gpu_failed:
             if self.gpu_server is not None:
@@ -888,10 +913,23 @@ class Buddy:
         return keyit_gpu.GpuClient(self.gpu_server)
 
     def _maas_broke(self, error):
-        """The smart brain failed (network, login, gateway): answer locally for the next 5 minutes."""
-        logging.warning("Smart brain (MAAS) failed, using the local brain for 5 min: %s", error)
+        """The off-PC brain failed (network, login, gateway, daily cap): answer locally for 5 minutes."""
+        name = getattr(self.maas_client, "label", "Smart brain")
+        logging.warning("%s failed, using the local brain for 5 min: %s", name, error)
         self.maas_failed_until = time.monotonic() + 300
-        self.on_status("Smart brain unreachable - answering on this PC for a few minutes.")
+        if getattr(error, "code", "") == "daily_cap":
+            self.on_status(f"{name} is out of questions for today - answering on this PC.")
+        else:
+            self.on_status(f"{name} unreachable - answering on this PC for a few minutes.")
+
+    def _use_free_instead(self, error):
+        """"auto" and the local brain can't run here (no Ollama, no model): use the free cloud brain."""
+        if self.settings.get("buddy_engine", "auto") != "auto" or self.local_missing:
+            return False
+        logging.info("No local brain (%s); using the free cloud brain", error)
+        self.local_missing = True
+        self.maas_failed_until = 0.0
+        return True
 
     def _gpu_broke(self, error):
         """The GPU server failed: use Ollama from now on (until the model changes)."""
@@ -922,14 +960,22 @@ class Buddy:
                     self._maas_broke(error)
                     client = self.client()
             try:
-                client.warm_up(self.settings["buddy_model"])
-            except RuntimeError as error:
-                if not getattr(client, "gpu", False):
+                try:
+                    client.warm_up(self.settings["buddy_model"])
+                except RuntimeError as error:
+                    if not getattr(client, "gpu", False):
+                        raise
+                    self._gpu_broke(error)
+                    client = self.client()
+                    client.warm_up(self.settings["buddy_model"])
+            except Exception as error:
+                if getattr(client, "smart", False) or not self._use_free_instead(error):
                     raise
-                self._gpu_broke(error)
                 client = self.client()
-                client.warm_up(self.settings["buddy_model"])
-            if getattr(client, "smart", False):
+                client.warm_up()
+            if getattr(client, "smart", False) and getattr(client, "label", "") == "Free cloud brain":
+                where = "Free cloud brain, no setup needed"
+            elif getattr(client, "smart", False):
                 where = "Smart brain, company MAAS"
             else:
                 where = "GPU, fast" if getattr(client, "gpu", False) else "CPU via Ollama"
@@ -1127,12 +1173,20 @@ class Buddy:
                     yield chunk
                 return
             except Exception as error:
-                if started:
+                if started or self.local_missing:      # no local brain to fall back to: say why
                     raise
                 self._maas_broke(error)
                 client = self.client()                 # the local brain answers this one
         if not getattr(client, "gpu", False):
-            yield from client.chat_stream(model, messages)
+            started = False
+            try:
+                for chunk in client.chat_stream(model, messages):
+                    started = True
+                    yield chunk
+            except (urllib.error.URLError, OSError) as error:
+                if started or not self._use_free_instead(error):
+                    raise
+                yield from self.client().chat_stream(model, messages)    # no Ollama here: free brain
             return
         started = False
         try:
@@ -1195,6 +1249,14 @@ class Buddy:
     def _explain_error(self, error):
         """Plain-language reason Buddy can't answer (instead of 'HTTP Error 404')."""
         model = self.settings["buddy_model"]
+        code = getattr(error, "code", "")
+        if code == "daily_cap":
+            return ("The free brain is out of questions for today. It's back tomorrow.\n"
+                    "For unlimited answers on this PC: install Ollama, then Settings -> Brain -> Local.")
+        if code == "rate_limited":
+            return "That's a lot of questions in a minute. Give me a few seconds and ask again."
+        if code == "unreachable":
+            return "I can't reach the free brain. Check the internet connection and ask again."
         if isinstance(error, urllib.error.HTTPError) and error.code == 404:
             return (f"I can't find my brain: Ollama has no '{model}' model.\n"
                     f"Fix: reinstall Ollama from ollama.com, then run:  ollama pull {model}")

@@ -1,0 +1,51 @@
+name: Feedback
+description: Tell us what worked, what didn't, or what you wish Buddy could do. Takes a minute.
+title: "[Feedback] "
+labels: ["feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for trying Buddy! Short answers are perfect. Please don't paste screenshots with private info.
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Which Buddy?
+      options:
+        - Windows
+        - Mac (Lite), Apple Silicon
+        - Mac (Lite), Intel
+    validations:
+      required: true
+  - type: dropdown
+    id: brain
+    attributes:
+      label: Which brain?
+      description: Windows: Settings -> Brain. Mac: menu bar -> Brain. Not sure? Pick "Free (cloud)".
+      options:
+        - Free (cloud)
+        - Local (Ollama / GPU)
+        - Company / my own endpoint
+        - Not sure
+  - type: dropdown
+    id: rating
+    attributes:
+      label: Did Buddy help?
+      options:
+        - "Yes, it pointed at the right thing"
+        - "Sort of: right answer, wrong spot"
+        - "No"
+        - "Couldn't get it running"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What did you ask, and what happened?
+      placeholder: 'I asked "where is Save As?" in Notepad. It said ... and pointed at ...'
+    validations:
+      required: true
+  - type: textarea
+    id: wish
+    attributes:
+      label: Anything you wish it did?
