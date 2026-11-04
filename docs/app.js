@@ -740,13 +740,43 @@
     if (entries.some((entry) => entry.isIntersecting) && !userTookOver) {
       demoObserver.disconnect();
       setTimeout(() => {
-        if (!userTookOver) {
+        if (userTookOver) {
+          return;
+        }
+        if (document.getElementById("heroVideo")) {
+          // The hero clip already shows the tour, so here it's the visitor's turn
+          setStatus("done", "your turn → pick something");
+          el.said.textContent = "your turn. Try “Where's Save As?” or “Press Alt+F4”";
+          el.said.classList.add("idle");
+        } else {
           autoplay();
         }
       }, 600);
     }
   }, { threshold: 0.45 });
   demoObserver.observe(stageWrap);
+
+
+  /* hero clip: respect reduced motion, and pause when it is off screen */
+  const heroVideo = document.getElementById("heroVideo");
+  if (heroVideo) {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      heroVideo.removeAttribute("autoplay");
+      heroVideo.pause();
+      heroVideo.controls = true;
+    } else {
+      new IntersectionObserver((entries) => {
+        const visible = entries.some((entry) => entry.isIntersecting);
+        if (visible) {
+          heroVideo.play().catch(() => {
+            heroVideo.controls = true;
+          });
+        } else {
+          heroVideo.pause();
+        }
+      }, { threshold: 0.2 }).observe(heroVideo);
+    }
+  }
 
   /* initial desktop */
   renderDoc();

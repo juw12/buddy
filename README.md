@@ -1,5 +1,7 @@
 # Buddy
 
+<p align="center"><a href="https://juw12.github.io/buddy/"><img src="docs/media/buddy-demo.gif" alt="Buddy finds Save As in Notepad" width="640"></a><br><sub>An AI buddy that lives next to your mouse. <a href="https://juw12.github.io/buddy/">Website and live demo</a> · <a href="https://github.com/juw12/buddy/releases/latest/download/Buddy-win64.zip">Download for Windows</a></sub></p>
+
 Buddy is the app. It owns the tray icon, the main window, autostart and quitting.
 It has three features:
 - **Focus**: the Pips desktop pet and focus tracker, running inside Buddy.
