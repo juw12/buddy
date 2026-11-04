@@ -115,7 +115,7 @@ class KeyboardFilterTests(unittest.TestCase):
 
     def key(self, msg, scan, extended=False):
         try:
-            self.hook._filter(msg, types.SimpleNamespace(scanCode=scan, flags=1 if extended else 0))
+            self.hook._filter(msg, types.SimpleNamespace(scanCode=scan, vkCode=0, flags=1 if extended else 0))
         except self.Suppressed:
             pass
 
@@ -203,6 +203,23 @@ class BuddyParsingTests(unittest.TestCase):
         self.assertEqual(out.size, 16000)
         spectrum = np.abs(np.fft.rfft(out))
         self.assertAlmostEqual(np.argmax(spectrum) * 16000 / out.size, 440, delta=2)
+
+
+class SnapTests(unittest.TestCase):
+    def test_exact_name_snaps_from_further(self):
+        import keyit_targets as kt
+
+        targets = [
+            {"name": "Edit", "kind": "menu item", "rect": (200, 70, 250, 100)},
+            {"name": "Save As...", "kind": "menu item", "rect": (140, 300, 500, 330)},
+        ]
+        monitor = (0, 0, 1600, 1000)
+        # The free brain put "Edit" a quarter screen off: an exact name still snaps
+        self.assertEqual(kt.snap((487, 143, "Edit"), targets, monitor)[1]["name"], "Edit")
+        # A partial name that far away does not
+        self.assertIsNone(kt.snap((600, 450, "Save"), targets, monitor)[1])
+        # Nothing snaps from across the screen
+        self.assertIsNone(kt.snap((480, 800, "Edit"), targets, monitor)[1])
 
 
 if __name__ == "__main__":

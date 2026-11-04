@@ -34,6 +34,9 @@ STOP_WORDS = set("""a an the to of in on at for and or is it this that you your 
 where what which then click press select open use go find here there with from by be will button tab
 menu icon field bar""".split())
 SNAP_RADIUS = 0.12            # max distance (fraction of the screen diagonal) for a name match
+# Small cloud models often name the right thing but land far off ("Edit" a quarter screen away): an exact
+# name match may snap from further away (measured on the website's demo desktop benchmark)
+EXACT_SNAP_RADIUS = 0.30
 SMALL_ELEMENT = 0.03          # an element under 3% of the screen is a precise target on its own
 
 user32 = ctypes.windll.user32
@@ -232,7 +235,7 @@ def snap(point, targets, monitor_rect):
         distance = math.hypot(dx, dy) / diagonal
         inside = distance == 0
         match = _name_match(label, target["name"]) if label else 0.0
-        if match > 0 and distance <= SNAP_RADIUS:
+        if match > 0 and distance <= (EXACT_SNAP_RADIUS if match >= 0.99 else SNAP_RADIUS):
             score = 1.0 + 2.0 * match - 4.0 * distance - area
         elif inside and area <= SMALL_ELEMENT and target["kind"] in CLICKABLE:
             score = 0.8 - 10.0 * area                    # the smallest clickable thing under the point
