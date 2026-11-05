@@ -1,0 +1,39 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: python -m pip install pytest numpy pygame pynput pystray mss sounddevice pillow pywin32
+      - name: Keyit (desktop Buddy) tests
+        run: python -m pytest keyit/tests -q
+      - name: Pips tests
+        run: python -m pytest pips/tests -q
+      - name: Pips installer checks
+        run: python pips/installer_tests.py
+
+  core:
+    # The Mac app's core is kept free of PyObjC, so its unit tests run anywhere.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install pytest
+      - run: python -m pytest mac/tests/test_core.py -q

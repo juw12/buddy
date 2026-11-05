@@ -6,6 +6,7 @@ Kept free of PyObjC so it can be unit-tested anywhere. The screen look uses the 
 from __future__ import annotations
 
 import base64
+import ipaddress
 import json
 import logging
 import os
@@ -14,6 +15,7 @@ import subprocess
 import tempfile
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -270,6 +272,29 @@ class BrainError(RuntimeError):
         return self.status is None or self.status == 429 or self.status >= 500
 
 
+def _is_loopback_url(url: str) -> bool:
+    """True for brains on this machine (Ollama, LM Studio): http://127.0.0.1, localhost, [::1]."""
+    host = (urllib.parse.urlsplit(url).hostname or "").lower()
+    if host == "localhost" or host.endswith(".localhost"):
+        return True
+    try:
+        return ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        return False
+
+
+# A local brain must never go through an HTTP proxy: corporate proxies answer "502 Bad Gateway"
+# for 127.0.0.1 instead of letting the connection reach Ollama (Python only bypasses proxies for
+# hosts listed in no_proxy, and many no_proxy lists omit 127.0.0.1).
+_DIRECT_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+
+
+def _open(request: urllib.request.Request, timeout: float):
+    if _is_loopback_url(request.full_url):
+        return _DIRECT_OPENER.open(request, timeout=timeout)
+    return urllib.request.urlopen(request, timeout=timeout)
+
+
 @dataclass
 class Brain:
     """Any OpenAI-compatible /chat/completions endpoint that reads images (Ollama, LM Studio, a gateway...)."""
@@ -302,7 +327,7 @@ class Brain:
         request = urllib.request.Request(self.url, json.dumps(body).encode(), headers)
         started = time.perf_counter()
         try:
-            response = urllib.request.urlopen(request, timeout=self.timeout)
+            response = _open(request, self.timeout)
         except urllib.error.HTTPError as error:
             detail = error.read(600).decode(errors="replace")
             code, message = "", detail[:300]

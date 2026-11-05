@@ -143,6 +143,30 @@ def test_brain_unreachable_message():
         raise AssertionError("expected an error")
 
 
+def test_local_brain_bypasses_http_proxy(monkeypatch):
+    # A proxy that is not listening: if Buddy used it for 127.0.0.1 the error would not be "can't reach".
+    monkeypatch.setenv("HTTP_PROXY", "http://127.0.0.1:1")
+    monkeypatch.setenv("http_proxy", "http://127.0.0.1:1")
+    monkeypatch.delenv("NO_PROXY", raising=False)
+    monkeypatch.delenv("no_proxy", raising=False)
+    server = _serve()
+    try:
+        _Brain.stream = False
+        brain = core.Brain(f"http://127.0.0.1:{server.server_port}/v1/chat/completions", "m")
+        assert brain.ask("hi", None) == "Plain answer. [POINT:1,2:x]"
+    finally:
+        _Brain.stream = True
+        server.shutdown()
+
+
+def test_loopback_url_detection():
+    assert core._is_loopback_url("http://127.0.0.1:11434/v1/chat/completions")
+    assert core._is_loopback_url("http://localhost:1234/v1")
+    assert core._is_loopback_url("http://[::1]:11434/v1")
+    assert not core._is_loopback_url("https://example.com/v1/chat/completions")
+    assert not core._is_loopback_url("http://192.168.1.20:11434/v1")
+
+
 def test_parse_reply_fraction_coordinates():
     # Llama 4 Scout often writes y as a 0..1 fraction
     assert core.parse_reply("Here. [POINT:183,0.440:Save As]")[1] == [(183.0, 440.0, "Save As")]
