@@ -415,19 +415,24 @@ class KeyItApp:
         ttk.Checkbutton(tab, text="Wake-up chime", variable=self.buddy_sounds_var,
                         command=self._on_buddy_sounds_toggled).grid(row=5, column=2, sticky="w", pady=(8, 0))
 
-        self._build_look_row(tab, row=6)
+        self.island_var = tk.BooleanVar(value=self.settings.get("buddy_island", True))
+        ttk.Checkbutton(tab, text="Buddy Island at the top of the screen (like a notch: click to type, hold to talk)",
+                        variable=self.island_var, command=self._on_island_toggled).grid(
+            row=6, column=0, columnspan=3, sticky="w", pady=(8, 0))
+
+        self._build_look_row(tab, row=7)
 
         self.question_var = tk.StringVar()
         if self.host is None:                            # inside Buddy the ask box is on the Home tab
-            ttk.Label(tab, text="Or type").grid(row=7, column=0, sticky="w", pady=(12, 0))
+            ttk.Label(tab, text="Or type").grid(row=8, column=0, sticky="w", pady=(12, 0))
             entry = ttk.Entry(tab, textvariable=self.question_var)
-            entry.grid(row=7, column=1, sticky="ew", padx=8, pady=(12, 0))
+            entry.grid(row=8, column=1, sticky="ew", padx=8, pady=(12, 0))
             entry.bind("<Return>", lambda _e: self.ask_typed())
-            ttk.Button(tab, text="Ask", command=self.ask_typed).grid(row=7, column=2, pady=(12, 0))
+            ttk.Button(tab, text="Ask", command=self.ask_typed).grid(row=8, column=2, pady=(12, 0))
 
         self.buddy_status = ttk.Label(tab, foreground="#777", wraplength=430, justify="left",
                                       text="Runs 100% on this PC with Ollama. A screenshot is taken only when you ask.")
-        self.buddy_status.grid(row=8, column=0, columnspan=3, sticky="w", pady=(12, 0))
+        self.buddy_status.grid(row=9, column=0, columnspan=3, sticky="w", pady=(12, 0))
         self.refresh_models()
         self._load_voices()
         if self.settings["buddy_enabled"]:
@@ -605,6 +610,19 @@ class KeyItApp:
         if self.buddy:
             self.buddy.overlay.set_always_on(self.settings["buddy_cursor_always"])
 
+    def _on_island_toggled(self):
+        self.settings["buddy_island"] = self.island_var.get()
+        core.save_settings(self.settings)
+        if self.buddy and self.hook.buddy is self.buddy:
+            self.buddy.set_island(self.settings["buddy_island"], on_menu=self._open_settings_from_island)
+
+    def _open_settings_from_island(self):
+        """Right click on the island: Buddy's settings (thread-safe)."""
+        if self.host is not None and hasattr(self.host, "open_home"):
+            self.post(self.host.open_home, "settings")
+        else:
+            self.post(self.show)
+
     def _on_buddy_sounds_toggled(self):
         self.settings["buddy_sounds"] = self.buddy_sounds_var.get()
         core.save_settings(self.settings)
@@ -634,11 +652,13 @@ class KeyItApp:
             )
         self.hook.buddy = self.buddy
         self.buddy.overlay.set_always_on(self.settings["buddy_cursor_always"])
+        self.buddy.set_island(self.settings.get("buddy_island", True), on_menu=self._open_settings_from_island)
 
     def _stop_buddy(self):
         self.hook.buddy = None
         if self.buddy:
             self.buddy.overlay.set_always_on(False)     # brain off = no buddy by the mouse
+            self.buddy.set_island(False)                # ... and no island
             self.buddy.cancel()
         self._set_buddy_status("Buddy is off.")
 

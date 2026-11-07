@@ -262,3 +262,50 @@ def test_snap_points_word_inside_a_line():
     assert 260 <= x <= 340 and 170 <= y <= 196
     (x, _, _), = core.snap_points([(480, 140, "Edit menu")], boxes)
     assert x < 250
+
+
+# --------------------------------------------------------------------------- Buddy Island (notch) geometry
+MACBOOK_PRO_14 = core.ScreenRect(0, 0, 1512, 982)
+# NSScreen.auxiliaryTopLeftArea / auxiliaryTopRightArea on a 14" MacBook Pro (points): the notch is 185 wide
+LEFT_AREA = (0, 950, 663.5, 32)
+RIGHT_AREA = (848.5, 950, 663.5, 32)
+
+
+def test_notch_found_between_the_menu_bar_areas():
+    notch = core.notch_rect(MACBOOK_PRO_14, LEFT_AREA, RIGHT_AREA)
+    assert notch == core.ScreenRect(663.5, 950, 185, 32)
+
+
+def test_no_notch_on_plain_displays():
+    assert core.notch_rect(MACBOOK_PRO_14, None, None) is None
+    assert core.notch_rect(MACBOOK_PRO_14, (0, 950, 756, 32), (756, 950, 756, 32)) is None   # no gap
+
+
+def test_island_wraps_the_notch_and_hangs_from_the_top():
+    notch = core.notch_rect(MACBOOK_PRO_14, LEFT_AREA, RIGHT_AREA)
+    rest = core.island_rect(MACBOOK_PRO_14, 32, notch, "idle")
+    assert rest.y + rest.height == 982                               # flush with the top edge
+    assert rest.x + rest.width / 2 == notch.x + notch.width / 2      # centred on the camera
+    assert rest.width == notch.width + 2 * core.ISLAND_WINGS and rest.height == 32
+    busy = core.island_rect(MACBOOK_PRO_14, 32, notch, "thinking")
+    assert busy.width > rest.width and busy.height == rest.height
+    answer = core.island_rect(MACBOOK_PRO_14, 32, notch, "talking", answer_height=60)
+    assert answer.height == 32 + 60 and answer.y + answer.height == 982
+    assert answer.width >= core.ISLAND_ANSWER_WIDTH
+
+
+def test_island_without_notch_sits_in_the_middle_of_the_menu_bar():
+    display = core.ScreenRect(-1920, 0, 1920, 1080)
+    rest = core.island_rect(display, 25, None, "idle")
+    assert rest.width == core.ISLAND_NO_NOTCH_WIDTH
+    assert rest.x + rest.width / 2 == -960
+    assert rest.y + rest.height == 1080 and rest.height == 25
+
+
+def test_island_never_wider_than_the_display():
+    narrow = core.ScreenRect(0, 0, 300, 600)
+    assert core.island_rect(narrow, 24, None, "talking", 40).width == 300 - 16
+
+
+def test_island_is_on_by_default():
+    assert core.DEFAULTS["island"] is True

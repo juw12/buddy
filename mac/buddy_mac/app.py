@@ -40,6 +40,7 @@ from PyObjCTools import AppHelper
 
 from . import core, ocr
 from .hotkey import HotKey
+from .island import Island, IslandMirror
 from .overlay import Overlay
 from .voice import Listener, Speaker
 
@@ -107,6 +108,9 @@ class _Delegate(NSObject):
     def followClicked_(self, sender):
         self.controller.toggle("follow_mouse", sender)
 
+    def islandClicked_(self, sender):
+        self.controller.toggle("island", sender)
+
     def colorClicked_(self, sender):
         self.controller.set_color(sender.representedObject())
 
@@ -134,12 +138,16 @@ class Controller:
         self.pressed = False
         self.listening = False
         self.ask_panel = None
+        self.island = None
         self.events = []                    # (what, detail) for the self-test report
         self.on_answered = None             # self-test hook
 
     # ------------------------------------------------------------------ startup
     def start(self):
-        self.overlay = Overlay(core.COLORS[self.settings["color"]], self.settings["follow_mouse"])
+        pointer = Overlay(core.COLORS[self.settings["color"]], self.settings["follow_mouse"])
+        # The island in the notch shows the same states as the pointer (listening, thinking, the answer)
+        self.overlay = IslandMirror(pointer, lambda: self.island)
+        self._set_island(self.settings.get("island", True))
         self.speaker = Speaker()
         self.listener = Listener(self._heard_partial, self._heard, self._voice_error)
         self.hotkey = HotKey(self._key_down, self._key_up)
@@ -189,6 +197,8 @@ class Controller:
         speak.setState_(1 if self.settings["speak"] else 0)
         follow = add("Keep Buddy next to my mouse", "followClicked:")
         follow.setState_(1 if self.settings["follow_mouse"] else 0)
+        island = add("Buddy Island in the notch", "islandClicked:")
+        island.setState_(1 if self.settings.get("island", True) else 0)
 
         colors = NSMenu.alloc().init()
         self.color_items = {}
@@ -220,6 +230,8 @@ class Controller:
         item.setState_(1 if self.settings[key] else 0)
         if key == "follow_mouse":
             self.overlay.follow_mouse = self.settings[key]
+        if key == "island":
+            self._set_island(self.settings[key])
         if key == "speak" and not self.settings[key]:
             self.speaker.stop()
         self._save()
@@ -230,6 +242,25 @@ class Controller:
             item.setState_(1 if other == name else 0)
         self.overlay.set_color(core.COLORS[name])
         self._save()
+
+    def _set_island(self, enabled):
+        """Buddy Island: click = type, hold = talk (same as the hotkey), click an answer = dismiss."""
+        if enabled and self.island is None:
+            try:
+                self.island = Island(core.COLORS[self.settings["color"]], on_press=self._key_down,
+                                     on_release=self._key_up, on_dismiss=self.dismiss)
+            except Exception:                                   # noqa: BLE001
+                logging.exception("Buddy Island could not start")
+                self.island = None
+        elif self.island is not None:
+            self.island.show(enabled)
+        self.events.append(("island", bool(enabled)))
+
+    def dismiss(self):
+        """Clicked the answer in the island: stop talking and fold back into the notch."""
+        self.ask_token += 1
+        self.speaker.stop()
+        self.overlay.home()
 
     def edit_brain(self):
         alert = NSAlert.alloc().init()

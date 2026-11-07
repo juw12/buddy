@@ -83,6 +83,7 @@ class SelfTestController(Controller):
         self.report["checks"]["speech_in_available"] = self.listener.ok
         self.report["checks"]["speech_out_available"] = self.speaker.ok
         self.report["checks"]["menu_bar_item"] = self.status_item is not None
+        self._check_island()
         self._check_text_recognition()
         plan = [
             (0.8, self._shot, "01_idle"),
@@ -124,6 +125,29 @@ class SelfTestController(Controller):
             self.report["text_recognition_error"] = repr(error)
             self.report["checks"]["text_recognition"] = False
 
+    def _check_island(self):
+        """Buddy Island: hangs from the top edge of the menu-bar display, centred on the notch or display."""
+        from .island import screen_geometry
+
+        island = self.island
+        checks = self.report["checks"]
+        if island is None:
+            checks["island_at_top"] = False
+            return
+        frame, menu_bar, notch = screen_geometry()
+        f = island.frame
+        self.report["island"] = {
+            "display": [frame.x, frame.y, frame.width, frame.height],
+            "menu_bar": menu_bar,
+            "notch": None if notch is None else [notch.x, notch.y, notch.width, notch.height],
+            "frame": [round(f.x, 1), round(f.y, 1), round(f.width, 1), round(f.height, 1)],
+        }
+        centre = (notch.x + notch.width / 2.0) if notch is not None else (frame.x + frame.width / 2.0)
+        checks["island_at_top"] = (abs((f.y + f.height) - (frame.y + frame.height)) < 0.5
+                                   and abs((f.x + f.width / 2.0) - centre) < 0.5
+                                   and island.window.isVisible())
+        checks["island_clickable"] = not island.window.ignoresMouseEvents()
+
     # -------------------------------------------------------------- steps
     def _state(self, argument):
         self.overlay.set_state(*argument)
@@ -134,6 +158,13 @@ class SelfTestController(Controller):
             self.overlay.render_png(offscreen)
         except Exception as error:                        # noqa: BLE001
             self.report["steps"].append({"shot": name, "render_error": str(error)})
+        island_path = self.out_dir / f"{name}_island.png"
+        island_ok = False
+        if self.island is not None:
+            try:
+                island_ok = bool(self.island.render_png(island_path)) and island_path.stat().st_size > 0
+            except Exception as error:                    # noqa: BLE001
+                self.report["steps"].append({"shot": name, "island_error": str(error)})
         screen_path = self.out_dir / f"{name}_screen.png"
         result = subprocess.run(["screencapture", "-x", str(screen_path)], capture_output=True, timeout=20)
         self.report["steps"].append({
@@ -142,6 +173,8 @@ class SelfTestController(Controller):
             "text": self.overlay.text,
             "buddy_pos": [round(v, 1) for v in self.overlay.pos],
             "render_ok": offscreen.exists() and offscreen.stat().st_size > 0,
+            "island_mode": self.island.mode if self.island is not None else None,
+            "island_ok": island_ok,
             "screen_ok": result.returncode == 0 and screen_path.exists(),
         })
 
@@ -189,8 +222,14 @@ class SelfTestController(Controller):
         checks["renders_ok"] = all(step.get("render_ok", True) for step in self.report["steps"] if "shot" in step)
         checks["error_bubble"] = any(what == "error" for what, _ in self.events)
         checks["brain_called"] = len(_FakeBrain.requests) >= 1
+        shots = [step for step in self.report["steps"] if "island_mode" in step]
+        checks["island_renders"] = bool(shots) and all(step["island_ok"] for step in shots)
+        # The island followed the pointer's story: listening, thinking, then the answer
+        modes = [step["island_mode"] for step in shots]
+        checks["island_mirrors"] = "listening" in modes and "thinking" in modes and "talking" in modes
         required = ["answer_parsed", "two_points", "pointer_landed", "renders_ok", "error_bubble",
-                    "brain_called", "hotkey_registered", "menu_bar_item", "text_recognition"]
+                    "brain_called", "hotkey_registered", "menu_bar_item", "text_recognition",
+                    "island_at_top", "island_clickable", "island_renders", "island_mirrors"]
         self.report["passed"] = reason == "done" and all(checks.get(name) for name in required)
         (self.out_dir / "report.json").write_text(json.dumps(self.report, indent=1), encoding="utf-8")
         print(json.dumps({"passed": self.report["passed"], "checks": checks,

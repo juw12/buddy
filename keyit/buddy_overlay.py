@@ -370,41 +370,45 @@ BUBBLE_MAX_TEXT_HEIGHT = 520
 class _TextRenderer:
     """Wrapped white text on the ink colour, drawn by Windows so every script gets a font."""
 
-    def __init__(self):
-        self.font = gdi32.CreateFontW(-15, 0, 0, 0, 400, 0, 0, 0, 1, 0, 0, ANTIALIASED_QUALITY, 0, "Segoe UI")
+    def __init__(self, font_px=15, weight=400):
+        self.font = gdi32.CreateFontW(-int(font_px), 0, 0, 0, int(weight), 0, 0, 0, 1, 0, 0, ANTIALIASED_QUALITY, 0,
+                                      "Segoe UI")
         self.cache = {}
 
-    def render(self, text):
-        image = self.cache.get(text)
+    def render(self, text, width=BUBBLE_TEXT_WIDTH, background=INK, color="#ffffff",
+               max_height=BUBBLE_MAX_TEXT_HEIGHT):
+        """Wrapped text as an RGB(A) image; the Buddy Island uses its own size and a black background."""
+        key = (text, width, background, color, max_height)
+        image = self.cache.get(key)
         if image is not None:
             return image
         hdc = gdi32.CreateCompatibleDC(None)
         old_font = gdi32.SelectObject(hdc, self.font)
         try:
             flags = DT_WORDBREAK | DT_NOPREFIX | DT_EXPANDTABS
-            rect = wintypes.RECT(0, 0, BUBBLE_TEXT_WIDTH, 0)
+            rect = wintypes.RECT(0, 0, int(width), 0)
             user32.DrawTextW(hdc, text, -1, ctypes.byref(rect), flags | DT_CALCRECT)
-            width = max(1, min(BUBBLE_TEXT_WIDTH, rect.right))
-            height = max(1, min(BUBBLE_MAX_TEXT_HEIGHT, rect.bottom))
+            text_width = max(1, min(int(width), rect.right))
+            height = max(1, min(int(max_height), rect.bottom))
             bits = ctypes.c_void_p()
             info = BITMAPINFO()
             info.bmiHeader.biSize = ctypes.sizeof(BITMAPINFOHEADER)
-            info.bmiHeader.biWidth = width
+            info.bmiHeader.biWidth = text_width
             info.bmiHeader.biHeight = -height
             info.bmiHeader.biPlanes = 1
             info.bmiHeader.biBitCount = 32
             bitmap = gdi32.CreateDIBSection(hdc, ctypes.byref(info), 0, ctypes.byref(bits), None, 0)
             old_bitmap = gdi32.SelectObject(hdc, bitmap)
-            brush = gdi32.CreateSolidBrush(_colorref(INK))
-            area = wintypes.RECT(0, 0, width, height)
+            brush = gdi32.CreateSolidBrush(_colorref(background))
+            area = wintypes.RECT(0, 0, text_width, height)
             user32.FillRect(hdc, ctypes.byref(area), brush)
             gdi32.DeleteObject(brush)
             gdi32.SetBkMode(hdc, 1)
-            gdi32.SetTextColor(hdc, _colorref("#ffffff"))
+            gdi32.SetTextColor(hdc, _colorref(color))
             user32.DrawTextW(hdc, text, -1, ctypes.byref(area), flags)
             gdi32.GdiFlush()
-            raw = ctypes.string_at(bits, width * height * 4)
-            pixels = np.frombuffer(raw, dtype=np.uint8).reshape(height, width, 4)
+            raw = ctypes.string_at(bits, text_width * height * 4)
+            pixels = np.frombuffer(raw, dtype=np.uint8).reshape(height, text_width, 4)
             image = Image.fromarray(np.ascontiguousarray(pixels[..., 2::-1])).convert("RGBA")
             gdi32.SelectObject(hdc, old_bitmap)
             gdi32.DeleteObject(bitmap)
@@ -413,7 +417,7 @@ class _TextRenderer:
             gdi32.DeleteDC(hdc)
         if len(self.cache) > 32:
             self.cache.clear()
-        self.cache[text] = image
+        self.cache[key] = image
         return image
 
     def bubble(self, text, color):
