@@ -396,6 +396,8 @@ h3 { font-size: 1.2rem; line-height: 1.2; }
 .card p { color: var(--muted); font-size: .94rem; margin: 10px 0 0; }
 .tag { display: inline-block; font: 700 .7rem var(--body); letter-spacing: .1em; text-transform: uppercase; color: var(--orange); background: var(--orange-pale); border-radius: 999px; padding: 4px 10px; margin-bottom: 14px; }
 .c-wide { grid-column: span 2; }
+.c-full { grid-column: 1 / -1; }
+.c-full p { max-width: 72ch; }
 .c-dark { background: var(--ink); border-color: var(--ink); color: #fff; }
 .c-dark p { color: #b9bccb; }
 .c-dark .tag { background: rgba(255,132,36,.18); }

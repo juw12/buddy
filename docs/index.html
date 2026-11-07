@@ -27,6 +27,7 @@
   <nav class="links">
     <a href="#demo">Demo</a>
     <a href="#features">Features</a>
+    <a href="island/">Island</a>
     <a href="#voices">Voices</a>
     <a href="#brains">Brains</a>
     <a href="#compare">Compare</a>
@@ -330,6 +331,13 @@
         <p>Hand Buddy a request from a shortcut or a script:</p>
         <code class="cli">Buddy.exe --ask "open notepad"</code>
       </article>
+      <article class="card c-full c-dark" id="island" data-say="i live in your notch now">
+        <span class="tag">island</span>
+        <h3>Lives in your notch, on every screen</h3>
+        <p>On Windows a slim island waits at the top of the screen; on a MacBook it wraps the real notch. Rest your mouse on it, then click to type or hold to talk, and the answer shows right there. On a phone, tablet or any browser, the same island is a small web app: tap to type, hold to talk, or share a screenshot and Buddy points at the answer.</p>
+        <div class="verbs"><span>Windows</span><span>Mac notch</span><span>iPhone</span><span>Android</span><span>any browser</span></div>
+        <a class="mini-link" href="island/">open Buddy Island →</a>
+      </article>
       <article class="card c-wide c-look" data-say="ooh, try purple">
         <span class="tag">look</span>
         <h3>Make it yours</h3>
@@ -475,6 +483,10 @@
       <details>
         <summary>Does it work on a Mac?</summary>
         <p>Yes, as <strong>Buddy Lite for Mac</strong> (macOS 12+, Apple Silicon and Intel, one download). Hold <kbd>Control</kbd><kbd>Option</kbd><kbd>Space</kbd> and ask, or tap it to type. It looks at the display under your mouse, points at the answer and reads it aloud with Apple's speech recognition and system voices. Lite means pointing and answers only: clicking and typing for you, the desk pet and key sounds are Windows-only for now. It starts on the free brain, so there's nothing to set up. For private answers, use <a href="https://ollama.com" target="_blank" rel="noopener">Ollama</a> on the Mac. Easiest install: paste <code>curl -fsSL https://juw12.github.io/buddy/mac-install.sh | bash</code> into Terminal. It puts Buddy in Applications and opens it with no "unidentified developer" warning. If you download the zip instead, right-click Buddy → Open the first time. <a href="https://github.com/juw12/buddy/tree/main/mac" target="_blank" rel="noopener">Mac setup guide</a>.</p>
+      </details>
+      <details>
+        <summary>Does it work on my phone?</summary>
+        <p>Yes, as <a href="island/">Buddy Island</a>, a small web app on the free brain. Open it and add it to your home screen. Tap the island to type, hold it to talk, or attach a screenshot (on Android, share it straight from the share sheet) and Buddy points at the answer on your picture and reads it aloud. A web app can't see your other apps, so you show it a screenshot. It also can't sit in the iPhone's real Dynamic Island: that needs a native iOS app. Tip: <code>…/island/?talk=1</code> on an iPhone Shortcut (Action Button or Back Tap) opens Buddy listening.</p>
       </details>
       <details>
         <summary>Which languages does it speak?</summary>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Buddy Island: ask Buddy from the top of any screen</title>
+  <meta name="description" content="Buddy in your phone's Dynamic Island, notch or punch-hole, and in a tiny always-on-top window on any computer. Tap to type, hold to talk, share a screenshot. Free, no account.">
+  <meta name="theme-color" content="#000000">
+  <meta name="color-scheme" content="light dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Buddy">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="../assets/buddy.ico">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="island.css">
+</head>
+<body>
+  <!-- The island: sits in (and grows out of) the Dynamic Island, notch or punch-hole -->
+  <div class="island-wrap">
+    <button id="island" class="island" type="button" data-state="idle"
+            aria-label="Ask Buddy. Tap to type, press and hold to talk." aria-describedby="islandHint">
+      <span class="glyph" aria-hidden="true"><span class="dot"></span><span class="bars"><i></i><i></i><i></i><i></i></span><span class="spin"></span></span>
+      <span id="islandLabel" class="label">Ask Buddy</span>
+    </button>
+    <div id="answer" class="answer" hidden>
+      <p id="answerText" class="answer-text" aria-live="polite"></p>
+      <figure id="answerShot" class="answer-shot" hidden>
+        <img id="answerImg" alt="Your photo, with Buddy's markers on what it means">
+        <div id="answerMarks" class="marks" aria-hidden="true"></div>
+      </figure>
+      <div class="answer-actions">
+        <button id="speakAgain" class="chip" type="button">Read aloud</button>
+        <button id="closeAnswer" class="chip" type="button">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <main class="page">
+    <header class="intro">
+      <img class="logo" src="../assets/buddy.png" alt="" width="44" height="44">
+      <h1>Buddy Island</h1>
+      <p id="islandHint" class="lede">Buddy lives in the island at the top. <strong>Tap</strong> it to type, <strong>press and hold</strong> it to talk, or share a screenshot to Buddy from any app.</p>
+    </header>
+
+    <section class="setup" aria-labelledby="setupTitle">
+      <h2 id="setupTitle">Keep it one tap away</h2>
+      <ul id="setupList" class="setup-list">
+        <li data-os="ios"><strong>iPhone / iPad:</strong> Share&nbsp;→ <em>Add to Home Screen</em>. Then Settings → Accessibility → Touch → <em>Back Tap</em> (or the Action button) → a Shortcut that opens <code id="iosUrl">juw12.github.io/buddy/island/?talk=1</code>.</li>
+        <li data-os="android"><strong>Android:</strong> <button id="installBtn" class="link-btn" type="button" hidden>Install Buddy</button><span id="installHint">Menu → <em>Install app</em></span>. Then <em>Share</em> any screenshot → <em>Buddy</em>.</li>
+        <li data-os="desktop"><strong>Computer:</strong> <button id="popoutBtn" class="link-btn" type="button">Pop Buddy out</button> into a tiny window that stays on top of everything (Chrome, Edge). On Windows and Mac the full app also sits in your notch: <a href="../#features">get Buddy</a>.</li>
+      </ul>
+      <p id="quota" class="quota">Free brain: checking how many questions are left today…</p>
+    </section>
+
+    <p class="privacy">Your question, and the photo if you add one, go to Buddy's free brain (Cloudflare Workers AI) to be answered. Nothing is stored. <a href="../">About Buddy</a></p>
+  </main>
+
+  <!-- Composer: thumb-reach bar at the bottom -->
+  <form id="composer" class="composer" autocomplete="off">
+    <input id="photoInput" type="file" accept="image/*" hidden>
+    <button id="photoBtn" class="icon-btn" type="button" aria-label="Add a photo or screenshot">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 7h3l2-2h6l2 2h3v12H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+    </button>
+    <div class="field">
+      <img id="photoThumb" class="thumb" alt="Photo you added" hidden>
+      <label for="question" class="sr-only">Your question</label>
+      <input id="question" name="question" type="text" enterkeyhint="send" placeholder="Ask Buddy…" maxlength="2000">
+      <button id="removePhoto" class="remove-photo" type="button" aria-label="Remove the photo" hidden>×</button>
+    </div>
+    <button id="micBtn" class="icon-btn" type="button" aria-label="Hold to talk">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </button>
+    <button id="sendBtn" class="send-btn" type="submit" aria-label="Send">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </form>
+
+  <script src="island.js"></script>
+</body>
+</html>

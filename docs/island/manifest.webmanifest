@@ -1,0 +1,32 @@
+{
+  "name": "Buddy Island",
+  "short_name": "Buddy",
+  "description": "Ask Buddy from the Dynamic Island, notch or top of any screen. Tap to type, hold to talk, share a screenshot.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#fffaf4",
+  "theme_color": "#000000",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ],
+  "share_target": {
+    "action": "./share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url",
+      "files": [{"name": "image", "accept": ["image/*"]}]
+    }
+  },
+  "shortcuts": [
+    {"name": "Talk to Buddy", "short_name": "Talk", "url": "./?talk=1",
+     "icons": [{"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"}]}
+  ]
+}

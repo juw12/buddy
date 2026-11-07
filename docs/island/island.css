@@ -1,0 +1,215 @@
+/* Buddy Island (phones, tablets, any browser). Brand: Buddy orange on cream; the island itself is black so
+   it merges with the Dynamic Island, notch or punch-hole camera. */
+:root {
+  --orange: #ff8424;
+  --orange-ink: #b34700;          /* orange text on cream: 5.1:1 */
+  --ink: #1f2130;
+  --muted: #555a6b;               /* 7.0:1 on cream */
+  --paper: #fffaf4;
+  --card: #ffffff;
+  --line: #eadccb;
+  --island: #000000;
+  --island-grey: #a1a1aa;         /* 7.8:1 on black */
+  --radius: 18px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --font: "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #f1efe9;
+    --muted: #b4b7c3;
+    --paper: #14151b;
+    --card: #1e2029;
+    --line: #2d303b;
+    --orange-ink: #ffa45c;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body {
+  min-height: 100dvh;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.5 var(--font);
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+}
+a { color: var(--orange-ink); }
+code { font-size: .9em; overflow-wrap: anywhere; }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ------------------------------------------------------------------ the island */
+.island-wrap {
+  position: fixed;
+  /* Phones with a Dynamic Island / notch report a top safe area: start inside it so the island grows out
+     of the camera cut-out. Plain screens: float 10px from the top, like the Windows and Mac versions. */
+  top: max(10px, calc(var(--safe-top) - 48px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(92vw, 440px);
+  pointer-events: none;
+}
+.island {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 148px;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 0 18px 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--island);
+  color: #fff;
+  font: 600 15px/1.2 var(--font);
+  cursor: pointer;
+  touch-action: none;                /* press-and-hold must not scroll or open the context menu */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  transition: min-width .35s cubic-bezier(.2, .9, .3, 1.2), min-height .35s cubic-bezier(.2, .9, .3, 1.2),
+              border-radius .35s ease;
+  box-shadow: 0 8px 24px -10px rgba(0, 0, 0, .55);
+}
+.island:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
+.island .label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.island[data-state="idle"] .label { color: var(--island-grey); font-weight: 500; }
+.island[data-state="listening"], .island[data-state="thinking"] { min-width: 260px; }
+.island[data-state="answer"] { min-width: 260px; }
+
+.glyph { position: relative; width: 22px; height: 22px; flex: none; display: grid; place-items: center; }
+.glyph > * { grid-area: 1 / 1; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--orange); }
+.bars, .spin { display: none; }
+.bars { gap: 2.5px; align-items: center; height: 18px; }
+.bars i { display: block; width: 3px; height: 100%; border-radius: 2px; background: var(--orange);
+          animation: bar .9s ease-in-out infinite; }
+.bars i:nth-child(2) { animation-delay: -.2s; }
+.bars i:nth-child(3) { animation-delay: -.45s; }
+.bars i:nth-child(4) { animation-delay: -.7s; }
+.spin { width: 16px; height: 16px; border-radius: 50%; border: 2.4px solid var(--orange);
+        border-right-color: transparent; animation: spin .8s linear infinite; }
+.island[data-state="listening"] .dot, .island[data-state="thinking"] .dot { display: none; }
+.island[data-state="listening"] .bars { display: flex; }
+.island[data-state="thinking"] .spin { display: block; }
+@keyframes bar { 0%, 100% { transform: scaleY(.35); } 50% { transform: scaleY(1); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* The answer drops out of the island like a Live Activity */
+.answer {
+  pointer-events: auto;
+  width: 100%;
+  margin-top: 8px;
+  padding: 16px 18px 12px;
+  border-radius: 28px;
+  background: var(--island);
+  color: #fff;
+  box-shadow: 0 18px 40px -16px rgba(0, 0, 0, .6);
+  animation: drop .35s cubic-bezier(.2, .9, .3, 1.15);
+  max-height: calc(100dvh - 160px);
+  overflow-y: auto;
+}
+@keyframes drop { from { transform: translateY(-14px) scale(.96); opacity: 0; } to { transform: none; opacity: 1; } }
+.answer-text { margin: 0; font-size: 16px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.answer-shot { position: relative; margin: 12px 0 0; border-radius: 14px; overflow: hidden; }
+.answer-shot img { display: block; width: 100%; height: auto; }
+.marks .mark {
+  position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%;
+  border: 3px solid var(--orange); background: rgba(255, 132, 36, .25);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, .45);
+}
+.marks .mark span {
+  position: absolute; left: 26px; top: -4px; padding: 2px 8px; border-radius: 8px;
+  background: #000; color: #fff; font-size: 13px; white-space: nowrap;
+}
+.answer-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+.chip {
+  min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid #3f3f46;
+  background: #18181b; color: #fff; font: 600 14px var(--font); cursor: pointer;
+}
+.chip:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+
+/* ------------------------------------------------------------------ page */
+.page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: calc(max(10px, var(--safe-top)) + 76px) 20px calc(120px + var(--safe-bottom));
+}
+.intro { text-align: center; }
+.logo { display: block; margin: 0 auto 6px; }
+h1 { margin: 0; font-size: 28px; line-height: 1.2; letter-spacing: -.01em; }
+.lede { margin: 8px auto 0; max-width: 34em; color: var(--muted); }
+.lede strong { color: var(--ink); }
+.setup {
+  margin-top: 28px; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--card);
+}
+h2 { margin: 0 0 10px; font-size: 18px; line-height: 1.3; }
+.setup-list { margin: 0; padding-left: 18px; display: grid; gap: 10px; }
+.setup-list li { color: var(--muted); }
+.setup-list strong { color: var(--ink); }
+.setup-list li.here { color: var(--ink); }
+.link-btn {
+  min-height: 44px; padding: 0 14px; margin: 2px 0; border-radius: 999px; border: 0;
+  background: var(--orange); color: #1f2130; font: 700 15px var(--font); cursor: pointer;
+}
+.link-btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.quota { margin: 14px 0 0; font-size: 14px; color: var(--muted); }
+.privacy { margin: 20px 4px 0; font-size: 13px; color: var(--muted); }
+
+/* ------------------------------------------------------------------ composer */
+.composer {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 9;
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px max(12px, env(safe-area-inset-left, 0px)) calc(10px + var(--safe-bottom)) max(12px, env(safe-area-inset-right, 0px));
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--line);
+}
+.field {
+  position: relative; flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px;
+  min-height: 46px; padding: 0 6px 0 14px; border-radius: 999px; border: 1.5px solid var(--line);
+  background: var(--card);
+}
+.field:focus-within { border-color: var(--orange); }
+.field input {
+  flex: 1; min-width: 0; height: 44px; border: 0; outline: 0; background: transparent; color: var(--ink);
+  font: 16px var(--font);   /* 16px: iOS does not zoom into the field */
+}
+.field input::placeholder { color: var(--muted); }
+.thumb { width: 30px; height: 30px; border-radius: 8px; object-fit: cover; flex: none; }
+.remove-photo {
+  width: 44px; height: 44px; border: 0; border-radius: 50%; background: transparent; color: var(--muted);
+  font: 700 22px var(--font); cursor: pointer;
+}
+.icon-btn, .send-btn {
+  flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%;
+  border: 1.5px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer;
+  touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+.send-btn { border: 0; background: var(--orange); color: #1f2130; }
+.icon-btn:focus-visible, .send-btn:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+.icon-btn[aria-pressed="true"] { background: #000; color: var(--orange); border-color: #000; }
+
+/* Popped-out window (Document Picture-in-Picture): only the island and the answer */
+body.pip { min-height: 0; background: #000; }
+body.pip .page, body.pip .composer { display: none; }
+body.pip .island-wrap { top: 8px; width: calc(100vw - 16px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .island, .answer { transition: none; animation: none; }
+  .bars i, .spin { animation-duration: 2.4s; }
+}
