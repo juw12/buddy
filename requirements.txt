@@ -8,3 +8,10 @@ mss
 comtypes
 pywin32
 faster-whisper
+# natural voices (Settings -> Voice): Kokoro + espeak-ng phonemizer, plus Chinese text support.
+# buddy.spec bundles these into Buddy.exe; without them the built app's self-test fails.
+kokoro-onnx
+phonemizer-fork
+espeakng-loader
+misaki[zh]
+ordered-set
