@@ -1,4 +1,4 @@
-﻿"""Buddy Lite for Mac: the parts that don't touch AppKit (settings, prompt, reply parsing, brain, screen look).
+"""Buddy Lite for Mac: the parts that don't touch AppKit (settings, prompt, reply parsing, brain, screen look).
 
 Kept free of PyObjC so it can be unit-tested anywhere. The screen look uses the built-in macOS tools
 `screencapture` and `sips`, so no image library is needed.

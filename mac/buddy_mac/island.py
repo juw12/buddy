@@ -98,9 +98,9 @@ def screen_geometry(screen=None):
     return rect, menu_bar, notch
 
 
-class _Ticker(NSObject):
+class _IslandTicker(NSObject):
     def initWithCallback_(self, callback):
-        self = objc.super(_Ticker, self).init()
+        self = objc.super(_IslandTicker, self).init()
         if self is None:
             return None
         self.callback = callback
@@ -162,7 +162,7 @@ class Island:
         self.bar = core.ISLAND_MIN_HEIGHT
         self._make_window()
         self._relayout(animate=False)
-        self._ticker = _Ticker.alloc().initWithCallback_(self._tick)
+        self._ticker = _IslandTicker.alloc().initWithCallback_(self._tick)
         self._timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
             1.0 / FPS, self._ticker, "tick:", None, True
         )
