@@ -4,6 +4,7 @@ A buddy next to your mouse, on macOS 12 or newer. One universal download runs na
 
 - **Hold Control+Option+Space** and ask out loud. Release to send.
 - **Tap Control+Option+Space** to type instead.
+- **Buddy Island:** on a MacBook with a notch, Buddy wraps the notch. Click the island to type, hold it to talk, click an answer to dismiss it. On Macs without a notch it hangs from the top centre of the screen. Turn it off in the menu: *Buddy Island in the notch*.
 - Buddy takes one look at the display under your mouse, flies to what it means and reads the answer aloud.
 - The arrow snaps onto the exact words it means ("Save As…") using Apple's on-device text recognition:
   on our test desktop that lifts the free brain from 10 to 13 of 16 on target. Nothing extra leaves the Mac.

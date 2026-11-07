@@ -6,6 +6,8 @@
 >
 > **On a Mac?** [Buddy Lite for Mac](mac/README.md) points and answers (hold Control+Option+Space). One line in Terminal installs it: `curl -fsSL https://juw12.github.io/buddy/mac-install.sh | bash`. Clicking and typing for you, the Pips pet and key sounds are Windows-only for now.
 >
+> **On a phone, tablet or any other computer?** Open [juw12.github.io/buddy/island](https://juw12.github.io/buddy/island/) and add it to your home screen: tap to type, hold to talk, or share a screenshot to Buddy. See [Buddy Island](#buddy-island).
+>
 > **Tried it?** [Tell us how it went](https://github.com/juw12/buddy/issues/new?template=feedback.yml). It takes a minute.
 
 Buddy is the app. It owns the tray icon, the main window, autostart and quitting.
@@ -67,6 +69,30 @@ Buddy only does what *your words* ask for. "Close notepad" can only close Notepa
 **Pointing:** the arrow snaps onto the exact button, tab or text box through Windows UI Automation.
 This works in Office, browsers, Electron apps and the taskbar. In apps that draw their own UI, the
 arrow goes to the model's estimate.
+
+## Buddy Island
+Buddy lives in your screen's notch, so it is always one move away, on every device:
+
+- **Windows:** a slim black island sits at the top centre of the monitor your mouse is on, flush with the
+  top edge (or as a floating pill under a top taskbar). It never takes clicks until you rest the mouse on
+  it for a moment; then it opens to *Ask Buddy*. **Click** it to type, **hold** it to talk. While Buddy
+  works, the island shows the waveform, the thinking spinner and a short answer. Click the answer to dismiss
+  it, right-click for Settings. It hides during full-screen apps and presentations, and never shows up in
+  the screenshot Buddy takes. Turn it off with *Settings → Buddy Island at the top of the screen*.
+- **Mac:** on MacBooks with a notch the island wraps the real notch (its wings grow out of both sides);
+  on other Macs it hangs from the top centre of the screen. Click to type, hold to talk. Menu: *Buddy Island
+  in the notch*.
+- **Phone, tablet, Chromebook, Linux, any browser:** [juw12.github.io/buddy/island](https://juw12.github.io/buddy/island/)
+  is a small web app on the free brain. Add it to the home screen (Share → *Add to Home Screen* on iPhone,
+  *Install* on Android/Chrome). Tap the island to type, hold it to talk, attach or **share a screenshot**
+  to Buddy (Android share sheet) and it points at the answer on your picture and reads it out. On a computer,
+  *Pop Buddy out* keeps a tiny always-on-top island over your other windows (Chrome/Edge). Links:
+  `…/island/?q=your+question` asks straight away, `…/island/?talk=1` starts listening (handy for an iPhone
+  Shortcut on the Action Button or Back Tap).
+
+Honest limits: a web page can't put itself into the iPhone's real Dynamic Island (that needs a native iOS
+app with a Live Activity), and a phone web app can't see your other apps, so on a phone you show Buddy a
+screenshot. The web island uses the shared free brain and its daily limit; nothing is stored.
 
 ## Data
 - Pips data (tasks, history, config) is stored in `pips/data` and `pips/config.json`. In the app, that is

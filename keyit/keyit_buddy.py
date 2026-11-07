@@ -32,6 +32,7 @@ from ctypes import wintypes
 
 import numpy as np
 
+import buddy_island
 import buddy_overlay
 import keyit_actions
 import keyit_core as core
@@ -50,6 +51,7 @@ DEFAULTS = {
     "buddy_cursor_always": True,      # Clicky-style: the buddy rests next to the mouse all the time
     "buddy_color": buddy_overlay.DEFAULT_COLOR,   # Settings -> Look: colour of the pointer and bubbles
     "buddy_icon": buddy_overlay.DEFAULT_ICON,     # Settings -> Look: arrow, pointer, plane, dot, star, heart, face
+    "buddy_island": True,             # Buddy Island: a notch at the top of the screen (click = type, hold = talk)
     "buddy_engine": "auto",           # "free": Buddy's free cloud brain; "maas": company MAAS (smart, off-PC);
                                       # "auto": GPU when possible, else Ollama, else the free cloud brain;
                                       # "cpu": always Ollama
@@ -847,7 +849,9 @@ class Buddy:
         self.root = root
         self.post = post                      # thread-safe "run on UI thread"
         self.on_status = on_status or (lambda text: None)
-        self.overlay = overlay or BuddyOverlay(root)   # e.g. the Pips pet when hosted
+        self.island = None                             # Buddy Island at the top of the screen (set_island)
+        # The pointer by the mouse (e.g. the Pips pet when hosted); the island mirrors what it shows
+        self.overlay = buddy_island.IslandMirror(overlay or BuddyOverlay(root), lambda: self.island)
         set_accent(self.settings["buddy_color"])
         self.overlay.set_style(self.settings["buddy_color"], self.settings["buddy_icon"])
         self.context_provider = context_provider       # extra facts about the user (optional)
@@ -872,6 +876,25 @@ class Buddy:
         threading.Thread(target=self._prepare, daemon=True).start()
 
     # -- setup
+    def set_island(self, enabled, on_menu=None):
+        """Settings: 'Buddy Island at the top of the screen'. Click it = type, hold it = talk (like the
+        hotkey), click an answer = dismiss, right click = on_menu (e.g. open the settings)."""
+        if enabled and self.island is None:
+            try:
+                self.island = buddy_island.BuddyIsland(
+                    color=self.settings["buddy_color"],
+                    on_press=self.press,
+                    on_release=self.release,
+                    on_dismiss=self.cancel,
+                    on_menu=on_menu,
+                )
+            except Exception:
+                logging.exception("Buddy Island could not start")
+                self.island = None
+        elif not enabled and self.island is not None:
+            island, self.island = self.island, None
+            island.close()
+
     def _cloud_client(self, engine):
         """The off-PC brain for "maas" (company gateway) or "free" (Buddy's free cloud brain)."""
         wanted = "keyit_maas" if engine == "maas" else "keyit_free"

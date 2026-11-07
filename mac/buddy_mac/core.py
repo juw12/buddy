@@ -1,4 +1,4 @@
-﻿"""Buddy Lite for Mac: the parts that don't touch AppKit (settings, prompt, reply parsing, brain, screen look).
+"""Buddy Lite for Mac: the parts that don't touch AppKit (settings, prompt, reply parsing, brain, screen look).
 
 Kept free of PyObjC so it can be unit-tested anywhere. The screen look uses the built-in macOS tools
 `screencapture` and `sips`, so no image library is needed.
@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 APP_NAME = "Buddy"
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 
 SUPPORT_DIR = Path.home() / "Library" / "Application Support" / APP_NAME
 SETTINGS_PATH = SUPPORT_DIR / "settings.json"
@@ -59,6 +59,9 @@ DEFAULTS = {
     "speak": True,
     "follow_mouse": True,
     "color": "Orange",
+    # Buddy Island: Buddy lives in the MacBook notch (or a notch-shaped strip on Macs without one).
+    # Click it to type, press and hold it to talk; it grows while Buddy listens, thinks and answers.
+    "island": True,
 }
 
 MAX_POINTS = 3
@@ -211,6 +214,54 @@ class ScreenRect:
 
     def contains(self, px: float, py: float) -> bool:
         return self.x <= px < self.x + self.width and self.y <= py < self.y + self.height
+
+
+# --------------------------------------------------------------------------- Buddy Island geometry
+ISLAND_WINGS = 30.0          # resting: how far the island shows on each side of the notch (room for the dot)
+ISLAND_BUSY_WINGS = 92.0     # listening / thinking: wider wings for the waveform and a word or two
+ISLAND_NO_NOTCH_WIDTH = 132.0
+ISLAND_ANSWER_WIDTH = 420.0
+ISLAND_MIN_HEIGHT = 24.0     # menu bar height when macOS doesn't say (no notch, menu bar hidden)
+
+
+def notch_rect(frame: ScreenRect, left_area, right_area) -> ScreenRect | None:
+    """The camera notch of a display, from NSScreen.auxiliaryTopLeftArea / auxiliaryTopRightArea (macOS 12+):
+    the gap between the two menu-bar areas. None on displays without a notch (or older macOS)."""
+    if not left_area or not right_area:
+        return None
+    lx, ly, lw, lh = left_area
+    rx, ry, rw, rh = right_area
+    gap_left = lx + lw
+    gap_right = rx
+    height = max(lh, rh)
+    if gap_right - gap_left < 20 or height <= 0:
+        return None
+    return ScreenRect(gap_left, frame.y + frame.height - height, gap_right - gap_left, height)
+
+
+def island_rect(frame: ScreenRect, menu_bar_height: float, notch: ScreenRect | None, mode: str,
+                answer_height: float = 0.0) -> ScreenRect:
+    """Where the island is drawn (Cocoa points). It always hangs from the top edge of the display, centred on
+    the notch (or the display), as tall as the menu bar; an answer grows it downwards."""
+    top = frame.y + frame.height
+    bar = max(ISLAND_MIN_HEIGHT, menu_bar_height, notch.height if notch else 0.0)
+    if notch is not None:
+        centre = notch.x + notch.width / 2.0
+        core_width = notch.width
+    else:
+        centre = frame.x + frame.width / 2.0
+        core_width = ISLAND_NO_NOTCH_WIDTH - 2 * ISLAND_WINGS
+    if mode == "talking":
+        width = max(ISLAND_ANSWER_WIDTH, core_width + 2 * ISLAND_WINGS)
+        height = bar + max(0.0, answer_height)
+    elif mode in ("listening", "thinking"):
+        width = core_width + 2 * ISLAND_BUSY_WINGS
+        height = bar
+    else:
+        width = core_width + 2 * ISLAND_WINGS
+        height = bar
+    width = min(width, frame.width - 16)
+    return ScreenRect(centre - width / 2.0, top - height, width, height)
 
 
 def point_to_cocoa(point: tuple[float, float, str], screen: ScreenRect) -> tuple[float, float, str]:
