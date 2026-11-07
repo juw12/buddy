@@ -447,7 +447,11 @@ Rules:
     mine.classList.add("here");
     list.prepend(mine);
   }
-  $("iosUrl").textContent = `${location.origin}${location.pathname}?talk=1`;
+  // A Shortcut on the phone needs a public https address; keep the canonical one otherwise
+  // (e.g. when the page is opened from a local test server).
+  if (location.protocol === "https:") {
+    $("iosUrl").textContent = `${location.host}${location.pathname}?talk=1`;
+  }
 
   let installEvent = null;
   window.addEventListener("beforeinstallprompt", (event) => {
