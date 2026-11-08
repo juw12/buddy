@@ -41,12 +41,13 @@ import buddy_home  # noqa: E402
 import buddy_updater  # noqa: E402
 
 BUDDY_NAME = "Buddy"
-BUDDY_VERSION = "1.1.2"
+BUDDY_VERSION = "1.1.3"
 CONTEXT_REFRESH_MS = 60_000
 UPDATE_FIRST_CHECK_MS = 60_000              # first update check a minute after start...
 UPDATE_EVERY_MS = 3 * 3600 * 1000           # ...then every 3 hours
 UPDATE_IDLE_S = 90                          # a ready update installs after 90 s without keyboard/mouse use
 UPDATE_IDLE_POLL_MS = 15_000
+PREVIOUS_KEEP_MS = 10 * 60 * 1000           # the old version is kept 10 min after an update
 logger = logging.getLogger("buddy")
 
 
@@ -901,6 +902,9 @@ class BuddyApp:
 
     def _announce_update_result(self):
         """First start after an update: say what happened (and what's new)."""
+        install = buddy_updater.install_dir()
+        if install is not None:                       # half-finished downloads from a crash or an old run
+            threading.Thread(target=buddy_updater.cleanup, args=(install,), daemon=True).start()
         pending = self.settings.pop("update_pending", None)
         if not pending:
             return
@@ -910,9 +914,9 @@ class BuddyApp:
         if buddy_updater.parse_version(pending) == buddy_updater.parse_version(BUDDY_VERSION):
             extra = (" New: " + "; ".join(notes[:2])) if notes else ""
             self.tell(f"Updated to Buddy {BUDDY_VERSION} \u2713 (was {previous}).{extra}", seconds=12)
-            install = buddy_updater.install_dir()
-            if install is not None:
-                threading.Thread(target=buddy_updater.cleanup, args=(install,), daemon=True).start()
+            if install is not None:                   # still fine after 10 min: the old copy isn't needed
+                self.root.after(PREVIOUS_KEEP_MS, lambda: threading.Thread(
+                    target=buddy_updater.drop_previous, args=(install,), daemon=True).start())
         else:
             self.tell(f"The update to {pending} didn't work, so I'm still on {BUDDY_VERSION}. "
                       "I'll try again later.", seconds=12)
