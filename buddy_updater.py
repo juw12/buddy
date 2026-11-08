@@ -379,8 +379,29 @@ def apply(install: Path, ready: Path, version: str, log: Path | None = None) -> 
     logger.info("Update helper started: %s -> %s (Buddy %s)", ready, install, version)
 
 
+def previous_dir(install: Path) -> Path:
+    """Where the helper keeps the version before the last update (the safety copy)."""
+    return Path(install).parent / f"{Path(install).name}.previous"
+
+
+def drop_previous(install: Path) -> bool:
+    """Remove the safety copy of the old version once the new one has run fine. True if it was removed.
+
+    Only touches "<install>.previous" next to a Buddy that still has its Buddy.exe, never the install itself."""
+    install = Path(install)
+    previous = previous_dir(install)
+    if not previous.is_dir() or not (install / "Buddy.exe").exists():
+        return False
+    shutil.rmtree(previous, ignore_errors=True)
+    removed = not previous.exists()
+    logger.info("Old Buddy copy %s: %s", previous, "removed" if removed else "could not be removed fully")
+    return removed
+
+
 def cleanup(install: Path) -> None:
-    """After a successful update: drop leftovers of older downloads (keeps update.log and .previous)."""
+    """Drop leftovers of older or half-finished downloads (keeps update.log and .previous).
+
+    Safe at start-up: nothing is downloading yet then (the first update check waits a minute)."""
     work = work_dir(install)
     if not work.exists():
         return

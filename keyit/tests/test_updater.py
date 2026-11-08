@@ -227,3 +227,42 @@ def test_apply_starts_the_helper_through_launch_hidden(tmp_path, monkeypatch):
     args, cwd = launched[0]
     assert args[0] == "powershell.exe" and "-EncodedCommand" in args
     assert Path(cwd) == install.parent
+
+
+def test_drop_previous_removes_only_the_old_copy(tmp_path):
+    install = tmp_path / "Buddy"
+    (install / "app").mkdir(parents=True)
+    (install / "Buddy.exe").write_bytes(b"new")
+    previous = buddy_updater.previous_dir(install)
+    assert previous == tmp_path / "Buddy.previous"
+    (previous / "app").mkdir(parents=True)
+    (previous / "Buddy.exe").write_bytes(b"old")
+
+    assert buddy_updater.drop_previous(install) is True
+    assert not previous.exists()
+    assert (install / "Buddy.exe").read_bytes() == b"new"
+    assert buddy_updater.drop_previous(install) is False          # nothing left to drop
+
+
+def test_drop_previous_keeps_the_copy_when_the_install_looks_broken(tmp_path):
+    install = tmp_path / "Buddy"
+    install.mkdir()                                                # no Buddy.exe: the old copy is the way back
+    previous = buddy_updater.previous_dir(install)
+    previous.mkdir()
+    (previous / "Buddy.exe").write_bytes(b"old")
+
+    assert buddy_updater.drop_previous(install) is False
+    assert (previous / "Buddy.exe").exists()
+
+
+def test_cleanup_drops_half_finished_downloads_but_keeps_the_log(tmp_path):
+    install = tmp_path / "Buddy"
+    install.mkdir()
+    work = buddy_updater.work_dir(install)
+    (work / "1.0.9" / "app").mkdir(parents=True)
+    (work / "Buddy-1.1.0.zip.part").write_bytes(b"half")
+    (work / "update.log").write_text("history", encoding="utf-8")
+
+    buddy_updater.cleanup(install)
+    assert sorted(p.name for p in work.iterdir()) == ["update.log"]
+    buddy_updater.cleanup(tmp_path / "Missing")                    # no work folder: nothing happens
