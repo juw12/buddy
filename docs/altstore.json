@@ -23,7 +23,7 @@
         {
           "version": "1.1.0",
           "date": "2026-11-08",
-          "localizedDescription": "\u2022 Safer updates on Windows: if the update helper runs again after an update is already installed, it now leaves Buddy alone instead of swapping folders and rolling back.\n\u2022 Mac and iPhone keep their updates when a release only ships a Windows fix (the update manifest carries them forward from the last release that has them).",
+          "localizedDescription": "\u2022 Tidies half-finished update downloads every time Buddy starts\n\u2022 Removes the old-version safety copy once the new Buddy has run fine for 10 minutes\n\u2022 Includes 1.1.2: the hidden update helper now starts reliably on every PC, and the island shows download progress",
           "downloadURL": "https://github.com/juw12/buddy/releases/download/v1.1.0/Buddy-iOS.ipa",
           "size": 283340,
           "minOSVersion": "17.0"
