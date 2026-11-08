@@ -41,7 +41,7 @@ import buddy_home  # noqa: E402
 import buddy_updater  # noqa: E402
 
 BUDDY_NAME = "Buddy"
-BUDDY_VERSION = "1.1.1"
+BUDDY_VERSION = "1.1.2"
 CONTEXT_REFRESH_MS = 60_000
 UPDATE_FIRST_CHECK_MS = 60_000              # first update check a minute after start...
 UPDATE_EVERY_MS = 3 * 3600 * 1000           # ...then every 3 hours
@@ -821,8 +821,16 @@ class BuddyApp:
                 return
             self.post(self._update_progress, f"Buddy {manifest['version']} is out - getting it ready in the background\u2026")
 
+            shown = {"step": -1}
+
             def progress(stage, done, total):
-                if stage == "selftest":
+                if stage == "download" and total:
+                    step = int(done * 100 / total) // 25          # 0, 25, 50, 75, 100 %: a few updates, no spam
+                    if step != shown["step"]:
+                        shown["step"] = step
+                        self.post(self._update_progress,
+                                  f"Downloading Buddy {manifest['version']}\u2026 {min(step * 25, 100)}%")
+                elif stage == "selftest":
                     self.post(self._update_progress, f"Testing Buddy {manifest['version']} before installing it\u2026")
 
             folder = buddy_updater.prepare(manifest, install, progress=progress)

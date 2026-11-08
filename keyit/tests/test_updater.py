@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import subprocess
+import time
 import sys
 import zipfile
 from pathlib import Path
@@ -195,3 +196,34 @@ def test_helper_with_nothing_to_install_touches_nothing(tmp_path):
     assert (install / "app" / "pips" / "data" / "focus.db").read_text(encoding="utf-8") == "my history"
     assert (tmp_path / "Buddy.previous").exists()
     assert not gone.exists()
+
+
+@pytest.mark.skipif(os.name != "nt", reason="the swap helper is PowerShell on Windows")
+def test_launch_hidden_really_runs_the_helper(tmp_path):
+    """The exact launch path apply() uses. 1.1.0/1.1.1 used DETACHED_PROCESS, and on some PCs the helper then
+    never ran at all - so this starts a real hidden PowerShell and waits for it to leave a mark."""
+    marker = tmp_path / "ran.txt"
+    script = f"Set-Content -LiteralPath '{marker}' -Value 'helper ran'"
+    encoded = base64.b64encode(script.encode("utf-16-le")).decode("ascii")
+    buddy_updater.launch_hidden(["powershell.exe", "-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden",
+                                 "-EncodedCommand", encoded], cwd=tmp_path)
+    for _ in range(60):
+        if marker.exists():
+            break
+        time.sleep(0.5)
+    assert marker.exists(), "the hidden helper never ran"
+    assert "helper ran" in marker.read_text(encoding="utf-8-sig")
+
+
+def test_apply_starts_the_helper_through_launch_hidden(tmp_path, monkeypatch):
+    install = tmp_path / "Buddy"
+    install.mkdir()
+    ready = tmp_path / ".buddy-update" / "9.9.9"
+    ready.mkdir(parents=True)
+    (ready / "Buddy.exe").write_bytes(b"MZ")
+    launched = []
+    monkeypatch.setattr(buddy_updater, "launch_hidden", lambda args, cwd=None: launched.append((args, cwd)))
+    buddy_updater.apply(install, ready, "9.9.9", tmp_path / "update.log")
+    args, cwd = launched[0]
+    assert args[0] == "powershell.exe" and "-EncodedCommand" in args
+    assert Path(cwd) == install.parent

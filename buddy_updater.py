@@ -50,6 +50,7 @@ SELFTEST_TIMEOUT_S = 300
 CREATE_NO_WINDOW = 0x08000000
 DETACHED_PROCESS = 0x00000008
 CREATE_NEW_PROCESS_GROUP = 0x00000200
+CREATE_BREAKAWAY_FROM_JOB = 0x01000000
 
 
 class UpdateError(Exception):
@@ -346,6 +347,25 @@ def helper_script(pid: int, install: Path, ready: Path, version: str, log: Path)
             .replace("__KEEP__", keep))
 
 
+def launch_hidden(args: list[str], cwd: Path | None = None) -> subprocess.Popen:
+    """Start a hidden helper that outlives Buddy.
+
+    No DETACHED_PROCESS: on some PCs a console program started without any console never runs at all
+    (seen live: the swap helper silently did nothing). A hidden console (CREATE_NO_WINDOW) always works.
+    It also tries to leave Buddy's job object, so a launcher that cleans up its job can't take the helper down.
+    """
+    base = CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW
+    last_error = None
+    for flags in (base | CREATE_BREAKAWAY_FROM_JOB, base):
+        try:
+            return subprocess.Popen(args, creationflags=flags, close_fds=True, cwd=str(cwd) if cwd else None,
+                                    stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                                    stderr=subprocess.DEVNULL)
+        except OSError as error:                        # the job does not allow breakaway: stay in it
+            last_error = error
+    raise UpdateError(f"could not start the update helper: {last_error}")
+
+
 def apply(install: Path, ready: Path, version: str, log: Path | None = None) -> None:
     """Start the hidden helper that swaps the folders once this Buddy has quit. The caller must quit next."""
     if not (Path(ready) / "Buddy.exe").exists():
@@ -354,10 +374,8 @@ def apply(install: Path, ready: Path, version: str, log: Path | None = None) -> 
     log.parent.mkdir(parents=True, exist_ok=True)
     script = helper_script(os.getpid(), install, ready, version, log)
     encoded = base64.b64encode(script.encode("utf-16-le")).decode("ascii")    # no .ps1 file: not blocked by policy
-    subprocess.Popen(["powershell.exe", "-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden",
-                      "-EncodedCommand", encoded],
-                     creationflags=DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP | CREATE_NO_WINDOW,
-                     close_fds=True, cwd=str(install.parent))
+    launch_hidden(["powershell.exe", "-NoProfile", "-NonInteractive", "-WindowStyle", "Hidden",
+                   "-EncodedCommand", encoded], cwd=install.parent)
     logger.info("Update helper started: %s -> %s (Buddy %s)", ready, install, version)
 
 
