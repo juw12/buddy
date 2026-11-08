@@ -38,7 +38,7 @@ from AppKit import (
 from Foundation import NSMakeRect, NSObject
 from PyObjCTools import AppHelper
 
-from . import core, ocr
+from . import core, ocr, updater
 from .hotkey import HotKey
 from .island import Island, IslandMirror
 from .overlay import Overlay
@@ -47,6 +47,9 @@ from .voice import Listener, Speaker
 HOLD_SECONDS = 0.35          # held longer than this = talk, shorter = type
 STEP_SECONDS = 2.4           # time on each point of a multi-step tour
 ALERT_FIRST_BUTTON = 1000    # NSAlertFirstButtonReturn
+UPDATE_FIRST_CHECK_S = 60    # first update check a minute after start, then every 3 hours
+UPDATE_EVERY_S = 3 * 3600
+UPDATE_IDLE_S = 90           # a ready update installs after 90 s without keyboard/mouse use
 
 PRIVACY_SCREEN = "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"
 
@@ -123,6 +126,9 @@ class _Delegate(NSObject):
     def aboutClicked_(self, sender):
         self.controller.about()
 
+    def updateClicked_(self, sender):
+        self.controller.check_for_updates(manual=True)
+
     def quitClicked_(self, sender):
         NSApp.terminate_(None)
 
@@ -141,6 +147,8 @@ class Controller:
         self.island = None
         self.events = []                    # (what, detail) for the self-test report
         self.on_answered = None             # self-test hook
+        self.update_ready = None            # new Buddy.app waiting to be installed
+        self.update_busy = False
 
     # ------------------------------------------------------------------ startup
     def start(self):
@@ -161,6 +169,74 @@ class Controller:
             AppHelper.callLater(7, self._home_if, self.ask_token)
         logging.info("Buddy Lite %s started (hotkey ok: %s, voice in: %s, voice out: %s)",
                      core.VERSION, self.hotkey.ok, self.listener.ok, self.speaker.ok)
+        if self.persist and updater.app_bundle() is not None:
+            AppHelper.callLater(UPDATE_FIRST_CHECK_S, self._update_tick)
+
+    # ------------------------------------------------------------------ automatic updates
+    def _update_tick(self):
+        AppHelper.callLater(UPDATE_EVERY_S, self._update_tick)
+        self.check_for_updates(manual=False)
+
+    def check_for_updates(self, manual=False):
+        if self.update_ready is not None:
+            self._install_update()
+            return
+        if self.update_busy:
+            return
+        if updater.app_bundle() is None:
+            if manual:
+                self._say_briefly("This Buddy runs from source - update it with git pull.")
+            return
+        self.update_busy = True
+        if manual:
+            self._say_briefly("Checking for a new Buddy\u2026", 3)
+
+        def work():
+            try:
+                manifest = updater.check(core.VERSION)
+                if manifest is None:
+                    AppHelper.callAfter(self._update_done, None, None, manual)
+                    return
+                AppHelper.callAfter(self._say_briefly, f"Buddy {manifest['version']} is out - getting it ready\u2026")
+                AppHelper.callAfter(self._update_done, manifest, updater.prepare(manifest), manual)
+            except Exception as error:                  # noqa: BLE001
+                logging.warning("Update failed: %s", error)
+                AppHelper.callAfter(self._update_done, None, str(error), manual)
+
+        threading.Thread(target=work, daemon=True).start()
+
+    def _update_done(self, manifest, result, manual):
+        self.update_busy = False
+        if manifest is None:
+            if manual:
+                self._say_briefly(f"Couldn't update: {result}" if result else
+                                  f"You have the newest Buddy ({core.VERSION}).", 6)
+            return
+        self.update_ready = (manifest["version"], result)
+        if manual:
+            self._install_update()
+        else:
+            self._say_briefly(f"Buddy {manifest['version']} is ready - I'll restart into it when you take a break.", 8)
+            AppHelper.callLater(15, self._install_when_idle)
+
+    def _install_when_idle(self):
+        if self.update_ready is None:
+            return
+        if updater.idle_seconds() >= UPDATE_IDLE_S and not self.pressed:
+            self._install_update()
+        else:
+            AppHelper.callLater(15, self._install_when_idle)
+
+    def _install_update(self):
+        version, new_app = self.update_ready
+        current = updater.app_bundle()
+        self._say_briefly(f"Updating to Buddy {version} - back in a few seconds!", 4)
+        try:
+            updater.apply(current, new_app, core.LOG_PATH.with_name("update.log"))
+        except Exception:                               # noqa: BLE001
+            logging.exception("Could not start the update helper")
+            return
+        AppHelper.callLater(2.5, NSApp.terminate_, None)
 
     def _ask_screen_permission(self):
         try:
@@ -216,6 +292,7 @@ class Controller:
         menu.addItem_(NSMenuItem.separatorItem())
         add("Allow screen access…", "screenAccessClicked:")
         add("Open log", "logClicked:")
+        add(f"Check for updates   ({core.VERSION})", "updateClicked:")
         add("About Buddy Lite", "aboutClicked:")
         add("Quit Buddy", "quitClicked:", "q")
         self.status_item.setMenu_(menu)

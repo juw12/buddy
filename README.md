@@ -90,9 +90,24 @@ Buddy lives in your screen's notch, so it is always one move away, on every devi
   `…/island/?q=your+question` asks straight away, `…/island/?talk=1` starts listening (handy for an iPhone
   Shortcut on the Action Button or Back Tap).
 
-Honest limits: a web page can't put itself into the iPhone's real Dynamic Island (that needs a native iOS
-app with a Live Activity), and a phone web app can't see your other apps, so on a phone you show Buddy a
+- **iPhone app (real Dynamic Island):** the free [Buddy for iPhone](ios/README.md) app lives in the actual
+  Dynamic Island as a Live Activity (and on the Lock Screen). Back Tap / Action Button → *Ask Buddy about my
+  screen* answers about your last screenshot without leaving your app. Install the unsigned
+  `Buddy-iOS.ipa` with Sideloadly or AltStore and your free Apple ID.
+
+Honest limits: the web island can't sit in the iPhone's real Dynamic Island (use the iPhone app for that),
+and a phone web app can't see your other apps, so on a phone you show Buddy a
 screenshot. The web island uses the shared free brain and its daily limit; nothing is stored.
+
+## Updates
+Buddy keeps itself up to date. Windows and Mac check
+[juw12.github.io/buddy/latest.json](https://juw12.github.io/buddy/latest.json) a minute after start and
+every 3 hours. They download the new version, check its size and SHA-256, run its self-test, and swap only
+when you are idle. Your settings, voices and history stay. If the new version fails, the old one comes back.
+Tray / menu bar: *Check for updates*. From a terminal: `Buddy.exe --update`. Log:
+`.buddy-update\update.log` next to the Buddy folder. The iPhone app shows a banner when a new version is out;
+AltStore users can add the source `https://juw12.github.io/buddy/altstore.json`. The web island refreshes
+itself.
 
 ## Data
 - Pips data (tasks, history, config) is stored in `pips/data` and `pips/config.json`. In the app, that is

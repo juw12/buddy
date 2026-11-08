@@ -1,0 +1,90 @@
+# Buddy for iPhone - XcodeGen spec.
+# On a Mac:  brew install xcodegen && cd ios && xcodegen generate && open Buddy.xcodeproj
+# CI (.github/workflows/ios.yml) builds it on a macOS runner, runs the tests and the app in the Simulator,
+# and publishes an unsigned Buddy-iOS.ipa that you sign with your own free Apple ID (Sideloadly / AltStore).
+name: Buddy
+options:
+  bundleIdPrefix: com.juw12
+  deploymentTarget:
+    iOS: "17.0"
+  developmentLanguage: en
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.1.0"
+    CURRENT_PROJECT_VERSION: "3"
+    TARGETED_DEVICE_FAMILY: "1"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""          # put your Apple team ID here to run it from Xcode
+
+targets:
+  Buddy:
+    type: application
+    platform: iOS
+    sources:
+      - path: Buddy
+      - path: Shared
+    info:
+      path: Buddy/Info.plist
+      properties:
+        CFBundleDisplayName: Buddy
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        NSSupportsLiveActivities: true
+        NSPhotoLibraryUsageDescription: "Buddy looks at your latest screenshot only when you tap \"Ask about my last screenshot\". Nothing is uploaded except the picture you ask about."
+        CFBundleURLTypes:
+          - CFBundleURLName: com.juw12.buddy
+            CFBundleURLSchemes: [buddy]
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.juw12.buddy
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_PREVIEWS: YES
+    dependencies:
+      - target: BuddyWidgets
+
+  # The Live Activity (Dynamic Island + Lock Screen) and the "Ask Buddy" widget.
+  BuddyWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Widgets
+      - path: Shared
+    info:
+      path: Widgets/Info.plist
+      properties:
+        CFBundleDisplayName: Buddy
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.juw12.buddy.widgets
+
+  # Plain logic tests (no app host needed): stream parsing, reply cleaning, versions, island text.
+  BuddyTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: BuddyTests
+      - path: Shared
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.juw12.buddy.tests
+
+schemes:
+  Buddy:
+    build:
+      targets:
+        Buddy: all
+        BuddyTests: [test]
+    test:
+      targets:
+        - BuddyTests
