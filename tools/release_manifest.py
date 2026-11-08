@@ -37,21 +37,28 @@ def release_notes(body: str) -> list[str]:
     return notes[:8]
 
 
-def build_manifest(release: dict) -> dict:
+def _platform_entry(release: dict, name: str) -> dict | None:
+    asset = {item["name"]: item for item in release.get("assets") or []}.get(name)
+    digest = str((asset or {}).get("digest") or "")
+    if not asset or not digest.startswith("sha256:"):
+        return None                                     # missing or unverifiable: leave it out
+    return {"version": str(release["tag_name"]).lstrip("vV"), "url": asset["browser_download_url"],
+            "size": asset["size"], "sha256": digest.split(":", 1)[1]}
+
+
+def build_manifest(release: dict, older: list[dict] | tuple = ()) -> dict:
+    """latest.json for `release`. A platform this release has no file for (e.g. a Windows-only fix) keeps
+    the newest earlier release that has one, with that release's own version, so nobody loses updates."""
     version = str(release["tag_name"]).lstrip("vV")
     published = (release.get("published_at") or datetime.now(timezone.utc).isoformat())[:10]
     manifest = {"version": version, "date": published, "notes": release_notes(release.get("body", "")),
                 "page": release.get("html_url") or f"https://github.com/{REPO}/releases/latest"}
-    by_name = {asset["name"]: asset for asset in release.get("assets") or []}
     for platform, name in ASSETS.items():
-        asset = by_name.get(name)
-        if not asset:
-            continue
-        digest = str(asset.get("digest") or "")
-        if not digest.startswith("sha256:"):
-            continue                                    # unverifiable: leave it out
-        manifest[platform] = {"version": version, "url": asset["browser_download_url"],
-                              "size": asset["size"], "sha256": digest.split(":", 1)[1]}
+        for candidate in [release, *older]:
+            entry = _platform_entry(candidate, name)
+            if entry:
+                manifest[platform] = entry
+                break
     return manifest
 
 
@@ -102,14 +109,19 @@ def build_altstore(manifest: dict, release: dict) -> dict:
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--release", help="saved release JSON instead of the GitHub API")
+    parser.add_argument("--release", help="saved latest-release JSON instead of the GitHub API")
+    parser.add_argument("--releases", help="saved release list JSON (newest first) instead of the GitHub API")
     parser.add_argument("--out", default=str(ROOT / "docs"))
     args = parser.parse_args(argv)
     if args.release:
-        release = json.loads(Path(args.release).read_text(encoding="utf-8-sig"))
+        releases = [json.loads(Path(args.release).read_text(encoding="utf-8-sig"))]
+    elif args.releases:
+        releases = json.loads(Path(args.releases).read_text(encoding="utf-8-sig"))
     else:
-        release = buddy_updater._get_json(f"https://api.github.com/repos/{REPO}/releases/latest")
-    manifest = build_manifest(release)
+        releases = buddy_updater._get_json(f"https://api.github.com/repos/{REPO}/releases?per_page=30")
+    published = [item for item in releases if not item.get("draft") and not item.get("prerelease")]
+    release, older = published[0], published[1:]
+    manifest = build_manifest(release, older)
     out = Path(args.out)
     (out / "latest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     (out / "altstore.json").write_text(json.dumps(build_altstore(manifest, release), indent=2) + "\n",

@@ -168,3 +168,30 @@ def test_helper_swaps_folders_and_keeps_user_data(tmp_path):
 
 def test_idle_seconds_is_a_number():
     assert buddy_updater.idle_seconds() >= 0
+
+
+def test_apply_refuses_when_the_new_version_is_missing(tmp_path):
+    with pytest.raises(buddy_updater.UpdateError):
+        buddy_updater.apply(tmp_path / "Buddy", tmp_path / ".buddy-update" / "9.9.9", "9.9.9", tmp_path / "update.log")
+
+
+@pytest.mark.skipif(os.name != "nt", reason="the swap helper is PowerShell on Windows")
+def test_helper_with_nothing_to_install_touches_nothing(tmp_path):
+    """A second run of the same helper (the update was already installed) must leave Buddy alone."""
+    install = tmp_path / "Buddy"
+    (install / "app" / "pips" / "data").mkdir(parents=True)
+    (install / "app" / "pips" / "data" / "focus.db").write_text("my history", encoding="utf-8")
+    (install / "app" / "buddy_host.py").write_text('BUDDY_VERSION = "2.0.0"\n', encoding="utf-8")
+    (tmp_path / "Buddy.previous").mkdir()
+    log = tmp_path / "update.log"
+    gone = tmp_path / ".buddy-update" / "2.0.0"
+    script = buddy_updater.helper_script(999999, install, gone, "2.0.0", log)
+    encoded = base64.b64encode(script.encode("utf-16-le")).decode("ascii")
+    result = subprocess.run(["powershell.exe", "-NoProfile", "-NonInteractive", "-EncodedCommand", encoded],
+                            capture_output=True, timeout=120)
+    assert result.returncode == 0, result.stderr.decode(errors="replace")
+    assert "nothing was touched" in log.read_text(encoding="utf-8")
+    assert buddy_updater.built_version(install) == "2.0.0"
+    assert (install / "app" / "pips" / "data" / "focus.db").read_text(encoding="utf-8") == "my history"
+    assert (tmp_path / "Buddy.previous").exists()
+    assert not gone.exists()

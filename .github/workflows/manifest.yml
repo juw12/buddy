@@ -26,13 +26,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Read the latest release
+      - name: Read the releases
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh api "repos/$GITHUB_REPOSITORY/releases/latest" > release.json
+        run: gh api "repos/$GITHUB_REPOSITORY/releases?per_page=30" > releases.json
       - name: Write docs/latest.json and docs/altstore.json
         run: |
-          python tools/release_manifest.py --release release.json
+          python tools/release_manifest.py --releases releases.json
           cat docs/latest.json
       - name: Commit if changed
         run: |
