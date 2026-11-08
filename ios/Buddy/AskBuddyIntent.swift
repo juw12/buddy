@@ -1,6 +1,5 @@
 import AppIntents
 import UIKit
-import UniformTypeIdentifiers
 
 /// "Ask Buddy" for Shortcuts, Siri, Back Tap and the Action button.
 /// With a picture (e.g. Take Screenshot -> Ask Buddy) it answers in the Dynamic Island without opening the app.
@@ -11,7 +10,7 @@ struct AskBuddyIntent: AppIntent, LiveActivityIntent {
     @Parameter(title: "Question", default: "")
     var question: String
 
-    @Parameter(title: "Picture", supportedContentTypes: [.image])
+    @Parameter(title: "Picture", supportedTypeIdentifiers: ["public.image"])
     var picture: IntentFile?
 
     @MainActor
