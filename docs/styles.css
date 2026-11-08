@@ -3,7 +3,7 @@
   --orange: #ff8424;
   --orange-soft: #ff8a3d;
   --orange-pale: #ffe3cc;
-  --orange-ink: #b34700;   /* orange text on cream/white/pale: 4.9:1+ (same as island.css) */
+  --orange-ink: #a64200;   /* orange text on cream/white/pale: 5.0:1+ (AA even on --orange-pale) */
   --ink: #1f2130;
   --ink-2: #2b2e40;
   --muted: #6b6f80;
@@ -355,8 +355,8 @@ h3 { font-size: 1.2rem; line-height: 1.2; }
   background: #1b1d2a; border-radius: 10px; font: 11.5px/1.5 "Cascadia Code", Consolas, monospace; color: #d6d8e4;
 }
 .log li { display: flex; gap: 8px; animation: slidein .25s ease; }
-.log li.empty { color: #7d8096; }
-.log .t { color: #7d8096; }
+.log li.empty { color: #9a9daf; }
+.log .t { color: #9a9daf; }
 .log .v { min-width: 44px; font-weight: 700; color: var(--orange-ink); }
 .log .v.k-ask { color: #f5c242; }
 .log .v.k-no { color: #ff8080; }
@@ -402,6 +402,8 @@ h3 { font-size: 1.2rem; line-height: 1.2; }
 .c-dark { background: var(--ink); border-color: var(--ink); color: #fff; }
 .c-dark p { color: #b9bccb; }
 .c-dark .tag { background: rgba(255,132,36,.18); }
+/* bright brand orange reads fine on ink (6.5:1); the darker --orange-ink is for light surfaces only */
+.c-dark .tag, .c-dark .mini-link, .said .you { color: var(--orange); }
 .c-dark h3 { font-size: 1.8rem; }
 .verbs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
 .verbs span { font: 600 .85rem "Cascadia Code", Consolas, monospace; padding: 6px 10px; border-radius: 8px; background: var(--ink-2); border: 1px solid #44485e; color: var(--orange); }
@@ -490,7 +492,7 @@ td:first-child { font-weight: 600; width: 32%; }
 td.us { background: #fff9f2; font-weight: 500; }
 td.yes::before { content: "✓ "; color: var(--green); font-weight: 800; }
 td.no::before { content: "✕ "; color: #b5b8c5; font-weight: 800; }
-td.na { color: #9a9daf; }
+td.na { color: var(--muted); }
 .footnote { text-align: center; color: var(--muted); font-size: .82rem; margin: 18px auto 0; max-width: 640px; }
 
 /* ---------- faq ---------- */
