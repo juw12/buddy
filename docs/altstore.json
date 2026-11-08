@@ -1,0 +1,32 @@
+{
+  "name": "Buddy",
+  "identifier": "com.juw12.buddy.source",
+  "subtitle": "Buddy, your AI helper in the Dynamic Island",
+  "website": "https://juw12.github.io/buddy/",
+  "iconURL": "https://juw12.github.io/buddy/island/icons/icon-512.png",
+  "tintColor": "#FF8424",
+  "apps": [
+    {
+      "name": "Buddy",
+      "bundleIdentifier": "com.juw12.buddy",
+      "developerName": "Juwen Lie",
+      "subtitle": "Ask anything from the Dynamic Island",
+      "localizedDescription": "Buddy lives in your Dynamic Island. Tap it to ask, or double-tap the back of your iPhone to send a screenshot - the answer appears right in the island while you stay in your app. Free brain, no account.",
+      "iconURL": "https://juw12.github.io/buddy/island/icons/icon-512.png",
+      "tintColor": "#FF8424",
+      "category": "utilities",
+      "screenshots": [
+        "https://juw12.github.io/buddy/media/iphone-island-answer.png",
+        "https://juw12.github.io/buddy/media/iphone-app.png"
+      ],
+      "versions": [],
+      "appPermissions": {
+        "entitlements": [],
+        "privacy": {
+          "NSPhotoLibraryUsageDescription": "Buddy looks at your latest screenshot only when you ask about it."
+        }
+      }
+    }
+  ],
+  "news": []
+}
