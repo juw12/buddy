@@ -13,5 +13,17 @@
     "url": "https://github.com/juw12/buddy/releases/download/v1.1.0/Buddy-win64.zip",
     "size": 166276453,
     "sha256": "56531a44a4111a8469cc7b0bbb675ae4c2a1c9172650806c4aeb51c32d5d3ea6"
+  },
+  "mac": {
+    "version": "1.1.0",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.1.0/Buddy-mac.zip",
+    "size": 17574506,
+    "sha256": "5e858079a1e47cc9065f35e5a8a985c91dd3e2e4afb9076080ed108ab4fa8577"
+  },
+  "ios": {
+    "version": "1.1.0",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.1.0/Buddy-iOS.ipa",
+    "size": 283340,
+    "sha256": "fd68997f55ad5a5064d9e6dfbc3da52a28b6cc89f5f5348ed358efa7379de69c"
   }
 }

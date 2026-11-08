@@ -19,7 +19,16 @@
         "https://juw12.github.io/buddy/media/iphone-island-answer.png",
         "https://juw12.github.io/buddy/media/iphone-app.png"
       ],
-      "versions": [],
+      "versions": [
+        {
+          "version": "1.1.0",
+          "date": "2026-11-08",
+          "localizedDescription": "\u2022 iPhone app (new): Buddy lives in the real Dynamic Island as a Live Activity, and on the Lock Screen. Set Back Tap or the Action Button to \"Ask Buddy about my screen\" and the answer appears in the island without leaving your app. Also: Siri (\"Ask Buddy\"), a Home/Lock Screen widget, read-aloud. Free sideload: install Buddy-iOS.ipa with Sideloadly or AltStore and your Apple ID ([guide](https://github.com/juw12/buddy/tree/main/ios)).\n\u2022 Auto-update on Windows and Mac: Buddy checks for a new version a minute after it starts and every 3 hours. It downloads it, checks its SHA-256, self-tests it, and swaps only while you're idle. Your settings, voices and history stay; if anything fails, the old version comes back. Tray / menu bar: Check for updates.\n\u2022 iPhone updates: the app shows a banner when a new version is out. AltStore users can add the source https://juw12.github.io/buddy/altstore.json.\n\u2022 Web island: refreshes itself to the newest version.",
+          "downloadURL": "https://github.com/juw12/buddy/releases/download/v1.1.0/Buddy-iOS.ipa",
+          "size": 283340,
+          "minOSVersion": "17.0"
+        }
+      ],
       "appPermissions": {
         "entitlements": [],
         "privacy": {
