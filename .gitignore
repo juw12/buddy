@@ -11,3 +11,10 @@ pips/backup/
 pips/.release/
 build/keep-profile/
 build.log
+
+# iPhone app build output
+ios/Buddy.xcodeproj/
+ios/build/
+ios/build-device/
+ios/ipa/
+ios/dist/

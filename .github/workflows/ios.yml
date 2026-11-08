@@ -1,0 +1,226 @@
+name: Buddy for iPhone
+
+# Builds the SwiftUI app + its Live Activity (Dynamic Island) widget on a macOS runner, runs the unit tests,
+# runs the app in an iPhone 16 Pro Simulator (real brain question, Live Activity check, screenshots of the
+# Dynamic Island) and packages an unsigned Buddy-iOS.ipa. You sign that IPA with your own free Apple ID in
+# Sideloadly or AltStore (no paid developer account). workflow_dispatch + publish uploads it to the latest release.
+
+on:
+  push:
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios.yml"
+  pull_request:
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios.yml"
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Upload Buddy-iOS.ipa to the latest release"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: ios
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+
+      - name: Generate the Xcode project (XcodeGen)
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Build app, Live Activity widget and tests (Simulator)
+        run: |
+          set +e
+          xcodebuild build-for-testing \
+            -project Buddy.xcodeproj -scheme Buddy \
+            -destination "generic/platform=iOS Simulator" \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO > build.log 2>&1
+          status=$?
+          grep -E "error:" build.log | sed 's|.*/ios/||' | sort -u > errors.txt
+          grep -E "warning:" build.log | grep -v "xcodebuild: WARNING" | sed 's|.*/ios/||' | sort -u > warnings.txt
+          echo "## Simulator build exit $status: $(wc -l < errors.txt) errors, $(wc -l < warnings.txt) warnings" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          head -100 errors.txt >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          echo "===== ERRORS ====="
+          cat errors.txt
+          echo "===== WARNINGS (first 60) ====="
+          head -60 warnings.txt
+          tail -25 build.log
+          exit $status
+
+      - name: Pick an iPhone with a Dynamic Island
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c '
+          import json, sys
+          devices = json.load(sys.stdin)["devices"]
+          wanted = ("iPhone 16 Pro", "iPhone 17 Pro", "iPhone 16", "iPhone 15 Pro", "iPhone 15")
+          for name in wanted:
+              for runtime in sorted(devices, reverse=True):
+                  if "iOS" not in runtime:
+                      continue
+                  for device in devices[runtime]:
+                      if device["name"] == name:
+                          print(device["udid"])
+                          raise SystemExit
+          for runtime in sorted(devices, reverse=True):
+              for device in devices[runtime]:
+                  if device["name"].startswith("iPhone"):
+                      print(device["udid"])
+                      raise SystemExit
+          ')
+          echo "UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl list devices | grep "$UDID"
+
+      - name: Unit tests
+        run: |
+          set -o pipefail
+          xcodebuild test-without-building \
+            -project Buddy.xcodeproj -scheme Buddy \
+            -destination "id=$UDID" \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee test.log | grep -E "Test Case|error|failed|passed|Executed" | tail -60
+
+      - name: Run Buddy in the Simulator (real question, Live Activity, screenshots)
+        run: |
+          mkdir -p screenshots
+          APP=build/Build/Products/Debug-iphonesimulator/Buddy.app
+          test -d "$APP/PlugIns/BuddyWidgets.appex" || { echo "::error::the Live Activity widget is not embedded"; exit 1; }
+          BUNDLE=com.juw12.buddy
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override --time "9:41" --batteryState charged --batteryLevel 100 || true
+          xcrun simctl install "$UDID" "$APP"
+          xcrun simctl privacy "$UDID" grant photos "$BUNDLE" || true
+
+          home () {
+            # Any other app in front: the Live Activity shows in the Dynamic Island
+            xcrun simctl launch "$UDID" com.apple.Preferences > /dev/null
+            sleep 4
+          }
+
+          # 1. Self-test: a real question to the free brain, answer streamed into the island
+          xcrun simctl launch "$UDID" "$BUNDLE" -selftest > /dev/null
+          CONTAINER=$(xcrun simctl get_app_container "$UDID" "$BUNDLE" data)
+          for i in $(seq 1 90); do
+            [ -f "$CONTAINER/Documents/selftest.json" ] && break
+            sleep 1
+          done
+          cat "$CONTAINER/Documents/selftest.json" || { echo "::error::self-test wrote no result"; exit 1; }
+          cp "$CONTAINER/Documents/selftest.json" screenshots/selftest.json
+          sleep 2
+          xcrun simctl io "$UDID" screenshot screenshots/01-real-answer-in-app.png
+          home
+          xcrun simctl io "$UDID" screenshot screenshots/02-real-answer-dynamic-island.png
+
+          # 2. Demo states (no network): thinking, answer, resting
+          for state in thinking answer ready; do
+            xcrun simctl terminate "$UDID" "$BUNDLE" 2>/dev/null || true
+            xcrun simctl launch "$UDID" "$BUNDLE" -demo "$state" > /dev/null
+            sleep 7
+            xcrun simctl io "$UDID" screenshot "screenshots/03-$state-in-app.png"
+            home
+            xcrun simctl io "$UDID" screenshot "screenshots/04-$state-dynamic-island.png"
+          done
+
+          xcrun simctl spawn "$UDID" log show --last 5m --predicate 'process == "Buddy" OR process == "BuddyWidgets"' --style compact > app.log 2>&1 || true
+          grep -iE "fatal|crash|could not start" app.log | tail -20 || true
+          ls -la screenshots
+
+          python3 - <<'PY'
+          import json
+          result = json.load(open("screenshots/selftest.json"))
+          print(json.dumps(result, indent=2))
+          assert result["activities_enabled"], "Live Activities are off in the Simulator"
+          assert result["island_showing"], "Buddy's Live Activity did not start"
+          if not result["brain_ok"]:
+              print("::warning::the free brain did not answer from the CI runner:", result.get("answer"))
+          PY
+
+      - name: Build the unsigned device app (Release, arm64) and package Buddy-iOS.ipa
+        run: |
+          xcodebuild -project Buddy.xcodeproj -scheme Buddy -configuration Release \
+            -sdk iphoneos -destination "generic/platform=iOS" \
+            -derivedDataPath build-device \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build > device.log 2>&1 \
+            || { grep -E "error:" device.log | sort -u | head -60; tail -30 device.log; exit 1; }
+          rm -rf ipa && mkdir -p ipa/Payload dist
+          cp -R build-device/Build/Products/Release-iphoneos/Buddy.app ipa/Payload/
+          (cd ipa && zip -qry ../dist/Buddy-iOS.ipa Payload)
+
+      - name: Check the IPA
+        run: |
+          APP=ipa/Payload/Buddy.app
+          VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP/Info.plist")
+          BUNDLE=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Info.plist")
+          LIVE=$(/usr/libexec/PlistBuddy -c "Print :NSSupportsLiveActivities" "$APP/Info.plist")
+          WIDGET_BUNDLE=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/PlugIns/BuddyWidgets.appex/Info.plist")
+          echo "version=$VERSION bundle=$BUNDLE live=$LIVE widget=$WIDGET_BUNDLE"
+          lipo -archs "$APP/Buddy"
+          lipo -archs "$APP/PlugIns/BuddyWidgets.appex/BuddyWidgets"
+          test "$BUNDLE" = "com.juw12.buddy"
+          test "$WIDGET_BUNDLE" = "com.juw12.buddy.widgets"
+          test "$LIVE" = "true"
+          lipo -archs "$APP/Buddy" | grep -q arm64
+          unzip -l dist/Buddy-iOS.ipa | grep -q 'Payload/Buddy.app/PlugIns/BuddyWidgets.appex/Info.plist'
+          ls -l dist/Buddy-iOS.ipa
+          echo "## Buddy-iOS.ipa $VERSION: $(du -h dist/Buddy-iOS.ipa | cut -f1), widget embedded, Live Activities on" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: buddy-ios-results
+          path: |
+            ios/build.log
+            ios/errors.txt
+            ios/warnings.txt
+            ios/test.log
+            ios/app.log
+            ios/device.log
+            ios/screenshots/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: Buddy-iOS
+          path: ios/dist/Buddy-iOS.ipa
+          retention-days: 30
+
+  publish:
+    needs: build
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: Buddy-iOS
+      - name: Upload to the latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)
+          gh release upload "$TAG" Buddy-iOS.ipa --clobber --repo "$GITHUB_REPOSITORY"
