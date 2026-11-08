@@ -1,5 +1,5 @@
 /* Buddy Island service worker: opens offline, and receives screenshots from the Android share sheet. */
-const SHELL = "buddy-island-v1";
+const SHELL = "buddy-island-v2";
 const SHARE_CACHE = "buddy-share";
 const FILES = ["./", "index.html", "island.css", "island.js", "manifest.webmanifest",
                "icons/icon-192.png", "icons/icon-512.png", "../assets/buddy.png"];

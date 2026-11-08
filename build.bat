@@ -33,6 +33,7 @@ if not exist dist\Buddy\app mkdir dist\Buddy\app
 copy /y buddy_host.py dist\Buddy\app\ >nul
 copy /y pips_import.py dist\Buddy\app\ >nul
 copy /y buddy_home.py dist\Buddy\app\ >nul
+copy /y buddy_updater.py dist\Buddy\app\ >nul
 robocopy assets dist\Buddy\app\assets /e /njh /njs /nfl /ndl >nul
 if errorlevel 8 goto :fail
 robocopy pips dist\Buddy\app\pips /e /njh /njs /nfl /ndl /xd data logs output backup .release __pycache__ /xf config.json >nul

@@ -43,9 +43,9 @@ final class BuddyModel: ObservableObject {
 
     var islandAvailable: Bool { IslandController.shared.enabled }
 
-    /// App opened / came to the front: make sure Buddy rests in the island.
+    /// App opened / came to the front: make sure Buddy is in the island (never overwrite what it shows now).
     func appearedInForeground() {
-        if keepInIsland && !phase.isBusy {
+        if keepInIsland && !phase.isBusy && !IslandController.shared.isShowing {
             IslandController.shared.rest(message: answer.isEmpty ? "" : ReplyText.short(answer, limit: 120))
         }
     }

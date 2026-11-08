@@ -13,6 +13,7 @@ import argparse
 import logging
 import math
 import re
+import threading
 import tkinter as tk
 import os
 import sys
@@ -37,10 +38,15 @@ import keyit_buddy  # noqa: E402
 import keyit_core  # noqa: E402
 import keyit_gui  # noqa: E402
 import buddy_home  # noqa: E402
+import buddy_updater  # noqa: E402
 
 BUDDY_NAME = "Buddy"
-BUDDY_VERSION = "0.1.0"
+BUDDY_VERSION = "1.1.0"
 CONTEXT_REFRESH_MS = 60_000
+UPDATE_FIRST_CHECK_MS = 60_000              # first update check a minute after start...
+UPDATE_EVERY_MS = 3 * 3600 * 1000           # ...then every 3 hours
+UPDATE_IDLE_S = 90                          # a ready update installs after 90 s without keyboard/mouse use
+UPDATE_IDLE_POLL_MS = 15_000
 logger = logging.getLogger("buddy")
 
 
@@ -492,7 +498,7 @@ def install_menu_scrolling():
 
 
 # --------------------------------------------------------------------------- the app
-TRAY_MENU = ("summon", "ask", "sounds", None, "pet", "focus", None, "quit")   # "summon" = left click = Open Buddy
+TRAY_MENU = ("summon", "ask", "sounds", None, "pet", "focus", None, "update", "quit")   # "summon" = left click
 
 
 class BuddyApp:
@@ -508,12 +514,17 @@ class BuddyApp:
 
         self.quit_event = None
         self.ask_event = None
+        self.update_event = None
+        self._update_state = "idle"          # idle / checking / preparing / ready / installing
+        self._update_ready = None            # (manifest, folder) once a verified update waits to be installed
+        self._update_manual = False
         if instance is not None:
             try:
                 import win32event
 
                 self.quit_event = win32event.CreateEvent(None, True, False, QUIT_EVENT_NAME)
                 self.ask_event = win32event.CreateEvent(None, False, False, ASK_EVENT_NAME)   # auto-reset
+                self.update_event = win32event.CreateEvent(None, False, False, UPDATE_EVENT_NAME)
             except Exception:
                 logger.warning("Quit event unavailable", exc_info=True)
 
@@ -547,6 +558,8 @@ class BuddyApp:
                 self.root.after(1000, self._poll_instance)
             self.root.after(1500, self.tabs.check_ai)
             self.root.after(4000, self._first_run)
+            self.root.after(6000, self._announce_update_result)
+            self.root.after(UPDATE_FIRST_CHECK_MS, self._update_tick)
         self.root.after(30_000, self._periodic_refresh)
         logger.info("Buddy started: focus=%s, sounds=%s, AI=%s", self.focus.pet is not None,
                     self.settings["enabled"], self.settings.get("buddy_enabled"))
@@ -700,6 +713,7 @@ class BuddyApp:
             "sounds": f"{sound}   (Ctrl+Alt+M)",
             "pet": f"Where are you, Buddy?   ({self.pet_hotkey()})",
             "focus": "Focus card",
+            "update": f"Check for updates   (v{BUDDY_VERSION})",
             "quit": "Quit Buddy",
         }
 
@@ -722,6 +736,7 @@ class BuddyApp:
             "pet": self.summon_pet,
             "hotkey": lambda: self.summon_pet(source="hotkey"),
             "focus": self.open_focus_card,
+            "update": lambda: self.check_for_updates(manual=True),
             "quit": self.quit,
         }
         action = actions.get(command)
@@ -742,11 +757,157 @@ class BuddyApp:
             if self.ask_event is not None and \
                     win32event.WaitForSingleObject(self.ask_event, 0) == win32event.WAIT_OBJECT_0:
                 self._ask_from_outside()
+            if self.update_event is not None and \
+                    win32event.WaitForSingleObject(self.update_event, 0) == win32event.WAIT_OBJECT_0:
+                logger.info("Update requested from outside (--update)")
+                self.check_for_updates(manual=True)
             if self.instance.show_requested():          # Buddy was started again: show it
                 self.open_home()
         except Exception:
             logger.exception("Show request failed")
         self.root.after(700, self._poll_instance)
+
+    # ------------------------------------------------------------------ automatic updates
+    def tell(self, text, seconds=8):
+        """A short status line in the island at the top of the screen and in the pet's speech bubble."""
+        logger.info("Buddy says: %s", text)
+        buddy = getattr(self.window, "buddy", None)
+        if buddy is not None:
+            try:
+                buddy.overlay.say(text)
+                buddy.overlay.hide_later(int(seconds * 1000))
+            except Exception:
+                logger.debug("Island message failed", exc_info=True)
+        pet = self.focus.pet if self.focus else None
+        if pet is not None:
+            try:
+                pet.say(text, duration=seconds, priority=2)
+            except Exception:
+                logger.debug("Pet message failed", exc_info=True)
+
+    def check_for_updates(self, manual=False):
+        """Tray 'Check for updates' / Buddy.exe --update: check now and install as soon as it is ready."""
+        if self._update_ready is not None:
+            self._install_update()
+            return
+        self._update_manual = manual or self._update_manual
+        self._update_tick(scheduled=False)
+
+    def _update_tick(self, scheduled=True):
+        if self._quitting:
+            return
+        if scheduled:
+            self.root.after(UPDATE_EVERY_MS, self._update_tick)
+        install = buddy_updater.install_dir()
+        if install is None:
+            if self._update_manual:
+                self.tell("This Buddy runs from its source code - update it with git pull.")
+                self._update_manual = False
+            return
+        if not self.settings.get("auto_update", True) and not self._update_manual:
+            return
+        if self._update_state != "idle":
+            return
+        self._update_state = "checking"
+        if self._update_manual:
+            self.tell("Checking for a new Buddy\u2026", seconds=4)
+        threading.Thread(target=self._update_worker, args=(install,), name="buddy-update", daemon=True).start()
+
+    def _update_worker(self, install):
+        try:
+            manifest = buddy_updater.check(BUDDY_VERSION)
+            if manifest is None:
+                self.post(self._update_finished, None, None, None)
+                return
+            self.post(self._update_progress, f"Buddy {manifest['version']} is out - getting it ready in the background\u2026")
+
+            def progress(stage, done, total):
+                if stage == "selftest":
+                    self.post(self._update_progress, f"Testing Buddy {manifest['version']} before installing it\u2026")
+
+            folder = buddy_updater.prepare(manifest, install, progress=progress)
+            self.post(self._update_finished, manifest, folder, None)
+        except Exception as error:
+            logger.warning("Update failed: %s", error, exc_info=True)
+            self.post(self._update_finished, None, None, str(error))
+
+    def _update_progress(self, text):
+        self._update_state = "preparing"
+        self.tell(text, seconds=6)
+
+    def _update_finished(self, manifest, folder, error):
+        manual, self._update_manual = self._update_manual, False
+        self._update_state = "idle"
+        if error:
+            if manual:
+                self.tell(f"I couldn't update just now ({error}). I'll try again later.", seconds=10)
+            return
+        if manifest is None:
+            if manual:
+                self.tell(f"You have the newest Buddy (v{BUDDY_VERSION}).", seconds=6)
+            return
+        self._update_ready = (manifest, folder)
+        self._update_state = "ready"
+        if manual:
+            self._install_update()
+        else:
+            self.tell(f"Buddy {manifest['version']} is ready - I'll restart into it when you take a short break.",
+                      seconds=10)
+            self.root.after(UPDATE_IDLE_POLL_MS, self._install_when_idle)
+
+    def _install_when_idle(self):
+        if self._quitting or self._update_ready is None or self._update_state != "ready":
+            return
+        buddy = getattr(self.window, "buddy", None)
+        busy = buddy is not None and buddy.busy.locked()
+        if not busy and buddy_updater.idle_seconds() >= UPDATE_IDLE_S:
+            self._install_update()
+        else:
+            self.root.after(UPDATE_IDLE_POLL_MS, self._install_when_idle)
+
+    def _install_update(self):
+        if self._update_ready is None or self._update_state == "installing":
+            return
+        manifest, folder = self._update_ready
+        version = manifest["version"]
+        self._update_state = "installing"
+        self.settings["update_pending"] = version
+        self.settings["update_from"] = BUDDY_VERSION
+        self.settings["update_notes"] = list(manifest.get("notes") or [])[:4]
+        keyit_core.save_settings(self.settings)
+        self.tell(f"Updating to Buddy {version} - back in a few seconds!", seconds=6)
+
+        def go():
+            try:
+                buddy_updater.apply(buddy_updater.install_dir(), folder, version)
+            except Exception:
+                logger.exception("Could not start the update helper")
+                self._update_state = "idle"
+                self.settings.pop("update_pending", None)
+                keyit_core.save_settings(self.settings)
+                self.tell("The update couldn't start - I'll keep running this version.", seconds=8)
+                return
+            self.quit()
+
+        self.root.after(2500, go)
+
+    def _announce_update_result(self):
+        """First start after an update: say what happened (and what's new)."""
+        pending = self.settings.pop("update_pending", None)
+        if not pending:
+            return
+        previous = self.settings.pop("update_from", "?")
+        notes = self.settings.pop("update_notes", []) or []
+        keyit_core.save_settings(self.settings)
+        if buddy_updater.parse_version(pending) == buddy_updater.parse_version(BUDDY_VERSION):
+            extra = (" New: " + "; ".join(notes[:2])) if notes else ""
+            self.tell(f"Updated to Buddy {BUDDY_VERSION} \u2713 (was {previous}).{extra}", seconds=12)
+            install = buddy_updater.install_dir()
+            if install is not None:
+                threading.Thread(target=buddy_updater.cleanup, args=(install,), daemon=True).start()
+        else:
+            self.tell(f"The update to {pending} didn't work, so I'm still on {BUDDY_VERSION}. "
+                      "I'll try again later.", seconds=12)
 
     def _make_it_all_buddy(self):
         """One-time: the AI, the pet and the app are all Buddy (brain on, pet called Buddy unless renamed)."""
@@ -837,6 +998,7 @@ def _prepare_pips(cfg):
 
 QUIT_EVENT_NAME = "Local\\Buddy.App.QuitRequest"
 ASK_EVENT_NAME = "Local\\Buddy.App.AskRequest"
+UPDATE_EVENT_NAME = "Local\\Buddy.App.UpdateRequest"
 
 
 def _ask_file():
@@ -873,17 +1035,34 @@ def request_quit():
     return 0
 
 
+def request_update():
+    """Buddy.exe --update: the running Buddy checks for a new version now and installs it right away."""
+    try:
+        import win32event
+
+        event = win32event.OpenEvent(win32event.EVENT_MODIFY_STATE, False, UPDATE_EVENT_NAME)
+    except Exception:
+        logger.info("Buddy isn't running - start it first")
+        return 1
+    win32event.SetEvent(event)
+    logger.info("Asked the running Buddy to update")
+    return 0
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="buddy", description="Buddy: focus pet, keyboard sounds and AI helper")
     parser.add_argument("--selftest", action="store_true", help="start everything offscreen, check, exit 0")
     parser.add_argument("--no-track", action="store_true", help="don't track app usage")
     parser.add_argument("--quit", action="store_true", help="ask a running Buddy to quit cleanly, then exit")
     parser.add_argument("--ask", metavar="TEXT", help='give the running Buddy a typed question, e.g. --ask "open notepad"')
+    parser.add_argument("--update", action="store_true", help="ask the running Buddy to update itself now")
     args = parser.parse_args(argv)
     if args.quit:
         return request_quit()
     if args.ask:
         return request_ask(args.ask)
+    if args.update:
+        return request_update()
 
     pips_app.SingleInstance.MUTEX = "Local\\Buddy.App.Instance"
     pips_app.SingleInstance.EVENT = "Local\\Buddy.App.ShowRequest"
