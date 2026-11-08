@@ -263,6 +263,10 @@ $Keep = @(__KEEP__)
 $Previous = "$Install.previous"
 function Note($text) { Add-Content -LiteralPath $Log -Value ("{0:yyyy-MM-dd HH:mm:ss} {1}" -f (Get-Date), $text) }
 function StartBuddy($folder) { Start-Process -FilePath (Join-Path $folder 'Buddy.exe') -WorkingDirectory $folder }
+if (-not (Test-Path -LiteralPath (Join-Path $New 'Buddy.exe'))) {
+    Note "update to ${Version} skipped - the new version is not there (already installed?); nothing was touched"
+    exit 0
+}
 Note "update to ${Version} - waiting for Buddy (pid ${WaitPid}) to close"
 $deadline = (Get-Date).AddSeconds(60)
 while ((Get-Process -Id $WaitPid -ErrorAction SilentlyContinue) -and ((Get-Date) -lt $deadline)) { Start-Sleep -Milliseconds 300 }
@@ -344,6 +348,8 @@ def helper_script(pid: int, install: Path, ready: Path, version: str, log: Path)
 
 def apply(install: Path, ready: Path, version: str, log: Path | None = None) -> None:
     """Start the hidden helper that swaps the folders once this Buddy has quit. The caller must quit next."""
+    if not (Path(ready) / "Buddy.exe").exists():
+        raise UpdateError(f"nothing to install: {ready} has no Buddy.exe")
     log = log or (work_dir(install) / "update.log")
     log.parent.mkdir(parents=True, exist_ok=True)
     script = helper_script(os.getpid(), install, ready, version, log)

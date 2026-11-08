@@ -41,7 +41,7 @@ import buddy_home  # noqa: E402
 import buddy_updater  # noqa: E402
 
 BUDDY_NAME = "Buddy"
-BUDDY_VERSION = "1.1.0"
+BUDDY_VERSION = "1.1.1"
 CONTEXT_REFRESH_MS = 60_000
 UPDATE_FIRST_CHECK_MS = 60_000              # first update check a minute after start...
 UPDATE_EVERY_MS = 3 * 3600 * 1000           # ...then every 3 hours
