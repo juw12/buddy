@@ -18,6 +18,7 @@
   function fitStage() {
     scale = stageWrap.clientWidth / STAGE_W;
     stage.style.transform = `scale(${scale})`;
+    stage.style.setProperty("--inv-scale", String(1 / scale));
     stageWrap.style.height = `${STAGE_H * scale}px`;
   }
   new ResizeObserver(fitStage).observe(stageWrap);

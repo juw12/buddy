@@ -220,6 +220,18 @@ h3 { font-size: 1.2rem; line-height: 1.2; }
 .win-btn.primary { background: #0067c0; border-color: #0067c0; color: #fff; }
 .win-btn.pressed { transform: scale(.94); filter: brightness(.9); }
 
+/* The stage is drawn at 800px and scaled down to fit, so on a phone the
+   mock dialog buttons render ~11px tall. Grow their hit area (not their look)
+   to at least 24 rendered px; --inv-scale is set by fitStage() in app.js. */
+.win-btn, .cbtn { position: relative; }
+.win-btn::after, .cbtn::after {
+  content: ""; position: absolute;
+  left: calc(min(0px, (100% - 24px * var(--inv-scale, 1)) / 2));
+  right: calc(min(0px, (100% - 24px * var(--inv-scale, 1)) / 2));
+  top: calc(min(0px, (100% - 24px * var(--inv-scale, 1)) / 2));
+  bottom: calc(min(0px, (100% - 24px * var(--inv-scale, 1)) / 2));
+}
+
 .calc { left: 612px; top: 60px; width: 172px; z-index: 4; background: #f3f3f3; }
 .calc-screen { text-align: right; font: 600 30px "Segoe UI"; padding: 8px 12px 4px; }
 .calc-keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; padding: 6px; }
