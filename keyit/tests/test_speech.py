@@ -1,5 +1,8 @@
 """Speech in: engine choice, settings migration, fallbacks, voice detection, resampling, dictation helpers."""
+import io
+import os
 import sys
+import tarfile
 import threading
 import time
 import types
@@ -21,7 +24,31 @@ def test_auto_picks_engine_for_language():
     assert speech.auto_engine("zh-CN") == "sensevoice"
     assert speech.auto_engine("zh-TW") == "sensevoice"
     assert speech.auto_engine("yue") == "sensevoice"
-    assert speech.auto_engine("ja-JP") == "sensevoice"
+    # measured on real recordings (bench/README.md): SenseVoice writes Japanese and Korean as Chinese
+    # characters (81% and 76% of the characters wrong), Dolphin gets 22% and 14% wrong
+    assert speech.auto_engine("ja-JP") == "dolphin"
+    assert speech.auto_engine("ko-KR") == "dolphin"
+    assert speech.auto_engine("id-ID") == "omnilingual"
+    for language in ("ms-MY", "th-TH", "vi-VN"):
+        assert speech.auto_engine(language) == "dolphin"
+    assert speech.auto_engine("auto") == "whisper-multi"
+    assert speech.auto_engine("fr-FR") == "parakeet"
+
+
+def test_language_helpers():
+    assert speech.primary("zh-TW") == "zh" and speech.primary("yue") == "yue" and speech.primary(None) == "en"
+    assert speech.whisper_language("id-ID") == "id"
+    assert speech.whisper_language("yue") == "zh"
+    assert speech.whisper_language("auto") == "" and speech.whisper_language("eu") == ""    # '' = detect it
+    assert speech.windows_can_hear("en-US") and speech.windows_can_hear("zh-TW")
+    assert not speech.windows_can_hear("id-ID") and not speech.windows_can_hear("auto")
+
+
+def test_every_engine_has_what_settings_needs():
+    for key, info in speech.ENGINES.items():
+        assert key in speech.SHORT_LABELS
+        assert info["archive"].startswith("sherpa-onnx-") and info["mb"] > 0
+    assert set(speech.ROUTES.values()) <= set(speech.ENGINES)
 
 
 def test_migrate_old_whisper_setting():
@@ -156,6 +183,177 @@ def test_fetch_resumes_after_dropped_connection(tmp_path, monkeypatch):
     speech._fetch("https://github.com/x", target, lambda text: None, "test")
     assert target.read_bytes() == payload
     assert calls == [0, len(payload) // 3]                         # second request resumed, not restarted
+
+
+def test_spoken_language_is_the_setting_or_what_was_detected():
+    s = speech.Speech("auto", "zh-TW")
+    assert s.spoken_language() == "zh-TW"
+    s = speech.Speech("auto", "auto")
+    assert s.spoken_language() == "auto"                           # nothing heard yet
+    s.engine = types.SimpleNamespace(detected="id")
+    assert s.spoken_language() == "id"
+    s.engine = FakeEngine("whisper")                               # an engine that doesn't say
+    assert s.spoken_language() == "auto"
+
+
+def test_no_english_only_fallback_for_other_languages(monkeypatch):
+    def broken_download(engine, progress):
+        raise OSError("HTTP Error 403: Forbidden")
+
+    monkeypatch.setattr(speech, "download", broken_download)
+    monkeypatch.setattr(speech, "is_ready", lambda engine: False)
+    statuses = []
+    made = []
+
+    def factory(kind, language):
+        made.append(kind)
+        return FakeEngine(kind)
+
+    s = speech.Speech("auto", "id-ID", on_status=statuses.append, legacy_factory=factory)
+    s.prepare(wait=True)
+    assert s.engine is None and made == []                         # Whisper base.en can't hear Indonesian
+    assert "voice input is off" in statuses[-1] and "Windows recognizer" not in statuses[-1]
+    assert s.transcribe(np.zeros(800, dtype=np.float32), 16000) == ""
+    assert made == []                                              # and Windows has no Indonesian recognizer
+    assert "Windows" not in s.describe()
+
+    s = speech.Speech("auto", "de-DE", on_status=statuses.append, legacy_factory=factory)
+    s.prepare(wait=True)
+    assert s.engine is None and made == []                         # German: no English-only Whisper either...
+    assert "using the Windows recognizer" in statuses[-1]          # ...but Windows has a German recognizer
+
+
+def test_waits_honestly_while_a_model_for_another_language_downloads(monkeypatch):
+    gate = threading.Event()
+    made = []
+
+    def slow_load(self):
+        gate.wait(5)
+
+    monkeypatch.setattr(speech.Speech, "_load", slow_load)
+    s = speech.Speech("auto", "id-ID", legacy_factory=lambda kind, language: made.append(kind))
+    s.prepare()
+    assert s.transcribe(np.zeros(1600, dtype=np.float32), 16000) == ""
+    assert made == []
+    assert "voice input starts when it is" in s.describe() and "Windows" not in s.describe()
+    gate.set()
+    s.loading.join(5)
+
+
+def test_failed_download_is_tried_again_later(monkeypatch):
+    attempts = []
+
+    def broken_download(engine, progress):
+        attempts.append(engine)
+        raise OSError("HTTP Error 403: Forbidden")
+
+    monkeypatch.setattr(speech, "download", broken_download)
+    monkeypatch.setattr(speech, "is_ready", lambda engine: False)
+    s = speech.Speech("auto", "id-ID")
+    s.prepare(wait=True)
+    assert attempts == ["omnilingual"]
+    s.transcribe(np.zeros(800, dtype=np.float32), 16000)           # right after the failure: not again yet
+    s.loading.join(5)
+    assert attempts == ["omnilingual"]
+    s.failed_at -= s.RETRY_AFTER                                   # a minute later
+    s.transcribe(np.zeros(800, dtype=np.float32), 16000)
+    s.loading.join(5)
+    assert attempts == ["omnilingual", "omnilingual"]
+
+
+def test_progress_text_shows_size_speed_and_time_left():
+    mb = speech.MEGABYTE
+    assert speech.progress_text("the speech model (once)", 88 * mb, 208 * mb, 3.1 * mb) == (
+        "Downloading the speech model (once)... 42% (88 of 208 MB, 3.1 MB/s, about 40 s left)")
+    assert speech.progress_text("x", 34 * mb) == "Downloading x... 34 MB so far"
+    assert speech.progress_text("x", 5 * mb, 208 * mb) == "Downloading x... 2% (5.0 of 208 MB)"
+    assert speech.progress_text("x", 208 * mb, 208 * mb, 2 * mb) == "Downloading x... 100% (208 of 208 MB, 2.0 MB/s)"
+    assert "a few seconds left" in speech.progress_text("x", 200 * mb, 208 * mb, 4 * mb)
+    assert "about 5 min left" in speech.progress_text("x", 8 * mb, 308 * mb, 1 * mb)
+
+
+def test_fetch_reports_megabytes(tmp_path, monkeypatch):
+    payload = b"x" * 3_000_000
+
+    class Response:
+        status = 200
+        headers = {"Content-Length": str(len(payload))}
+
+        def __init__(self):
+            self.stream = io.BytesIO(payload)
+
+        def read(self, size):
+            return self.stream.read(size)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+    monkeypatch.setattr(speech, "_opener", lambda: types.SimpleNamespace(open=lambda request, timeout: Response()))
+    texts = []
+    speech._fetch("https://github.com/x", tmp_path / "model.tar.bz2", texts.append, "the speech model (once)")
+    assert texts[0].startswith("Downloading the speech model (once)... ")
+    assert texts[-1].startswith("Downloading the speech model (once)... 100% (3.0 of 3.0 MB")
+
+
+def _archive(path, files, folder="model-x"):
+    with tarfile.open(path, "w:bz2") as tar:
+        for name, data in files.items():
+            info = tarfile.TarInfo(f"{folder}/{name}")
+            info.size = len(data)
+            tar.addfile(info, io.BytesIO(data))
+
+
+def test_unpack_keeps_the_wanted_files_and_replaces_a_half_unpacked_folder(tmp_path):
+    archive = tmp_path / "model-x.tar.bz2"
+    _archive(archive, {"model.int8.onnx": b"small" * 1000, "model.onnx": b"large" * 1000, "tokens.txt": b"a 1\n"})
+    model = tmp_path / "model-x"                                   # left behind by an unpack that was cut off
+    model.mkdir()
+    (model / "model.onnx").write_bytes(b"cut off")
+    texts = []
+    speech._unpack(archive, tmp_path, "model-x", ("int8.onnx", "tokens.txt"), texts.append)
+    assert sorted(entry.name for entry in model.iterdir()) == ["model.int8.onnx", "tokens.txt"]
+    assert (model / "model.int8.onnx").read_bytes() == b"small" * 1000
+    assert not (tmp_path / "model-x.unpacking").exists()
+    assert texts[-1] == "Unpacking the speech model... 100%"
+
+
+def test_unpack_cut_short_never_looks_like_a_ready_model(tmp_path):
+    archive = tmp_path / "model-x.tar.bz2"
+    _archive(archive, {"tokens.txt": b"a 1\n", "model.int8.onnx": os.urandom(300_000)})
+    archive.write_bytes(archive.read_bytes()[:-100_000])           # the end of the file is missing
+    with pytest.raises((tarfile.TarError, EOFError)):
+        speech._unpack(archive, tmp_path, "model-x")
+    assert not (tmp_path / "model-x").exists()                     # nothing that is_ready() could mistake
+
+
+def test_download_unpacks_once_and_fetches_a_damaged_archive_again(tmp_path, monkeypatch):
+    name = speech.ENGINES["dolphin"]["archive"]
+    fetched = []
+
+    def fake_fetch(url, target, progress, what, attempts=6):
+        fetched.append(target.name)
+        if target.name == speech.VAD_FILE:
+            target.write_bytes(b"vad")
+        elif len(fetched) == 2:
+            target.write_bytes(b"this is not a tar.bz2 file")     # damaged on the way
+        else:
+            _archive(target, {"model.int8.onnx": b"model", "tokens.txt": b"a 1\n"}, folder=name)
+
+    monkeypatch.setattr(speech, "models_dir", lambda: tmp_path)
+    monkeypatch.setattr(speech, "_fetch", fake_fetch)
+    texts = []
+    with pytest.raises(tarfile.TarError):
+        speech.download("dolphin", texts.append)
+    assert not speech.is_ready("dolphin")
+    assert not (tmp_path / (name + ".tar.bz2")).exists()           # so the next try downloads it again
+    speech.download("dolphin", texts.append)
+    assert speech.is_ready("dolphin")
+    assert fetched == [speech.VAD_FILE, name + ".tar.bz2", name + ".tar.bz2"]
+    assert not (tmp_path / (name + ".tar.bz2")).exists()
+    assert "Unpacking the speech model... 100%" in texts and texts[-1] == "Speech model ready."
 
 
 VAD = Path(__file__).resolve().parents[2] / "bench_models" / "silero_vad.onnx"

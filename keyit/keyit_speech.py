@@ -4,11 +4,14 @@ Engines (Settings -> Speech model):
   * Whisper base.en (OpenAI, English): the most accurate for English in Buddy's benchmark, ~210 MB once.
   * Parakeet V3 (NVIDIA, 25 European languages): for German, French, Spanish and the rest, ~490 MB once.
   * SenseVoice (Chinese, English, Cantonese, Japanese, Korean): fast, punctuated, ~170 MB once.
+  * Omnilingual (Meta): Indonesian, ~290 MB once.
+  * Dolphin (DataoceanAI): Malay, Japanese, Korean, Thai, Vietnamese, ~80 MB once.
+  * Whisper base (OpenAI, multilingual): finds out by itself which language is spoken, ~210 MB once.
   * Moonshine (English only): the quickest, ~250 MB once.
   * Whisper (faster-whisper): the old engine; its download (HuggingFace) is blocked on many office networks.
   * Windows: the recognizer built into Windows. Always there, but much less accurate.
 
-The first four come from GitHub release files (k2-fsa/sherpa-onnx) and run with sherpa-onnx on the CPU.
+All but the last two come from GitHub release files (k2-fsa/sherpa-onnx) and run with sherpa-onnx on the CPU.
 GitHub is reachable from offices where HuggingFace is not, which is why "auto" no longer silently ends up
 on the Windows recognizer there.
 
@@ -16,8 +19,10 @@ Every engine gets Silero voice activity detection first (0.6 MB): the recording 
 someone speaks, and a recording without speech (a key click, a fan, a breath) gives no text at all, so
 nothing made up ("Thank you.") is ever typed or asked.
 """
+import collections
 import logging
 import os
+import shutil
 import tarfile
 import threading
 import time
@@ -53,6 +58,25 @@ ENGINES = {
         "mb": 170,
         "languages": "zh en yue ja ko",
     },
+    "omnilingual": {
+        "label": "Omnilingual - Indonesian (and many more languages)",
+        "archive": "sherpa-onnx-omnilingual-asr-1600-languages-300M-ctc-v2-int8-2026-02-05",
+        "mb": 290,
+        "languages": "id",
+    },
+    "dolphin": {
+        "label": "Dolphin - Malay, Japanese, Korean, Thai, Vietnamese",
+        "archive": "sherpa-onnx-dolphin-base-ctc-multi-lang-int8-2025-04-02",
+        "mb": 80,
+        "languages": "ms ja ko th vi",
+    },
+    "whisper-multi": {
+        "label": "Whisper base - detects the language (less accurate than choosing it)",
+        "archive": "sherpa-onnx-whisper-base",
+        "mb": 210,
+        "languages": "auto",
+        "keep": ("int8.onnx", "tokens.txt"),
+    },
     "moonshine": {
         "label": "Moonshine - English, small",
         "archive": "sherpa-onnx-moonshine-base-en-int8",
@@ -74,6 +98,9 @@ SHORT_LABELS = {
     "whisper-en": "Whisper base.en - English",
     "parakeet": "Parakeet V3 - European languages",
     "sensevoice": "SenseVoice - Chinese + English",
+    "omnilingual": "Omnilingual - Indonesian",
+    "dolphin": "Dolphin - Malay, Japanese, Korean, Thai",
+    "whisper-multi": "Whisper base - detects the language",
     "moonshine": "Moonshine - English, small",
     "whisper": "Whisper (old engine)",
     "windows": "Windows recognizer (no download)",
@@ -98,15 +125,40 @@ def choice_for_label(text):
     return text if text in LABELS else "auto"
 
 
+# speech language -> engine, each one the best measured on real recordings (bench/README.md)
+ROUTES = {
+    "en": "whisper-en",
+    "zh": "sensevoice", "cmn": "sensevoice", "yue": "sensevoice",
+    "id": "omnilingual",
+    "ms": "dolphin", "ja": "dolphin", "ko": "dolphin", "th": "dolphin", "vi": "dolphin",
+    "auto": "whisper-multi",
+}
+WHISPER_LANGUAGES = {"en", "id", "ms", "zh", "ja", "ko", "th", "vi", "de", "es", "fr"}
+WINDOWS_LANGUAGES = {"en", "de", "fr", "es", "ja", "zh"}      # what the Windows recognizer exists for
+
+
+def primary(language):
+    """'zh-TW' -> 'zh', 'yue' -> 'yue', 'auto' -> 'auto', nothing -> 'en'."""
+    return (language or "en").replace("_", "-").split("-")[0].lower()
+
+
 def auto_engine(language):
-    """'auto' -> the engine for the speech language: Whisper for English, SenseVoice for Chinese/Japanese/Korean,
-    Parakeet for the other European languages (choices measured with bench/ - see README)."""
-    language = (language or "en").lower()
-    if language.startswith(("zh", "yue", "ja", "ko")):
-        return "sensevoice"
-    if language.startswith("en"):
-        return "whisper-en"
-    return "parakeet"
+    """'auto' -> the engine for the speech language: Whisper for English, SenseVoice for Chinese and Cantonese,
+    Omnilingual for Indonesian, Dolphin for Malay/Japanese/Korean/Thai/Vietnamese, multilingual Whisper when
+    the language itself is to be detected, Parakeet for the other European languages."""
+    return ROUTES.get(primary(language), "parakeet")
+
+
+def whisper_language(language):
+    """What multilingual Whisper is told: the chosen language, or '' so that it detects the language."""
+    code = primary(language)
+    code = {"yue": "zh", "cmn": "zh"}.get(code, code)
+    return code if code in WHISPER_LANGUAGES else ""
+
+
+def windows_can_hear(language):
+    """The recognizer built into Windows exists for a handful of languages only (not Indonesian, Korean...)."""
+    return primary(language) in WINDOWS_LANGUAGES
 
 
 def migrate(settings):
@@ -139,11 +191,41 @@ def _opener():
     return urllib.request.build_opener(urllib.request.ProxyHandler(urllib.request.getproxies()))
 
 
+MEGABYTE = 1_000_000
+SPEED_WINDOW = 5.0            # seconds of download the speed is averaged over
+TELL_EVERY = 0.5              # seconds between two progress lines
+
+
+def _megabytes(count):
+    megabytes = count / MEGABYTE
+    return f"{megabytes:.1f}" if megabytes < 10 else f"{megabytes:.0f}"
+
+
+def _time_left(seconds):
+    if seconds < 5:
+        return "a few seconds left"
+    if seconds < 90:
+        return f"about {max(5, round(seconds / 5) * 5)} s left"
+    return f"about {round(seconds / 60)} min left"
+
+
+def progress_text(what, done, total=0, speed=0.0):
+    """The status line of a download: how far, of how much, how fast and how long it still takes.
+    'Downloading the speech model (once)... 42% (88 of 208 MB, 3.1 MB/s, about 40 s left)'"""
+    if not total:
+        return f"Downloading {what}... {_megabytes(done)} MB so far"
+    text = f"Downloading {what}... {done * 100 // total}% ({_megabytes(done)} of {_megabytes(total)} MB"
+    if speed > 0:
+        text += f", {speed / MEGABYTE:.1f} MB/s"
+        if done < total:
+            text += f", {_time_left((total - done) / speed)}"
+    return text + ")"
+
+
 def _fetch(url, target, progress, what, attempts=6):
     """Download url -> target. Office proxies often cut long downloads; this resumes where it stopped
     (HTTP Range) and retries with a short pause, so a 490 MB model still arrives in one go for the user."""
     partial = target.with_name(target.name + ".part")
-    shown = -1
     for attempt in range(1, attempts + 1):
         done = partial.stat().st_size if partial.exists() else 0
         headers = {"User-Agent": "Buddy"}
@@ -156,16 +238,24 @@ def _fetch(url, target, progress, what, attempts=6):
                     done = 0                               # server ignored the range: start over
                 length = int(response.headers.get("Content-Length") or 0)
                 total = done + length if length else 0
+                marks = collections.deque([(time.monotonic(), done)])      # (when, bytes so far): the speed
+                told = 0.0
                 with open(partial, "ab" if done else "wb") as handle:
                     while True:
-                        block = response.read(1 << 20)
+                        block = response.read(1 << 18)
                         if not block:
                             break
                         handle.write(block)
                         done += len(block)
-                        if total and done * 100 // total != shown:
-                            shown = done * 100 // total
-                            progress(f"Downloading {what}... {shown}%")
+                        now = time.monotonic()
+                        marks.append((now, done))
+                        while len(marks) > 2 and now - marks[0][0] > SPEED_WINDOW:
+                            marks.popleft()
+                        if now - told >= TELL_EVERY or done == total:
+                            told = now
+                            elapsed = now - marks[0][0]
+                            speed = (done - marks[0][1]) / elapsed if elapsed >= 1 else 0.0
+                            progress(progress_text(what, done, total, speed))
             if total and done < total:
                 raise OSError(f"connection closed at {done} of {total} bytes")
             partial.replace(target)
@@ -193,18 +283,72 @@ def download(engine, progress=lambda text: None):
         info = ENGINES[engine]
         archive = folder / (info["archive"] + ".tar.bz2")
         if not archive.is_file():
-            _fetch(GITHUB + archive.name, archive, progress, f"the speech model (~{info['mb']} MB, once)")
-        progress("Unpacking the speech model...")
-        with tarfile.open(archive) as tar:
-            keep = info.get("keep")
-            members = [m for m in tar.getmembers() if not m.name.startswith(("/", "..")) and ".." not in m.name
-                       and (keep is None or m.isdir() or m.name.endswith(keep))]
-            try:
-                tar.extractall(folder, members=members, filter="data")
-            except TypeError:                                   # Python < 3.12
-                tar.extractall(folder, members=members)
+            _fetch(GITHUB + archive.name, archive, progress, "the speech model (once)")
+        try:
+            _unpack(archive, folder, info["archive"], info.get("keep"), progress)
+        except (tarfile.TarError, EOFError):
+            archive.unlink(missing_ok=True)                     # a damaged file: fetch it again next time
+            raise
         archive.unlink(missing_ok=True)
         progress("Speech model ready.")
+
+
+class _Watched:
+    """The archive while it is being read: tells how far the unpacking is, in percent."""
+
+    def __init__(self, handle, size, progress):
+        self.handle, self.size, self.progress = handle, size, progress
+        self.done = 0
+        self.shown = -1
+
+    def read(self, count=-1):
+        block = self.handle.read(count)
+        self.done += len(block)
+        percent = min(100, self.done * 100 // self.size) if self.size else 100
+        if percent != self.shown:
+            self.shown = percent
+            self.progress(f"Unpacking the speech model... {percent}%")
+        return block
+
+
+def _unpack(archive, folder, name, keep=None, progress=lambda text: None):
+    """Unpack archive (.tar.bz2) so that folder/name only appears once it is complete.
+
+    One pass over the compressed stream: listing the files first, as before, decompressed everything twice.
+    The files go to a staging folder that is renamed at the end, so an unpack cut short by a shutdown or a
+    full disk can never look like a model that is ready."""
+    staging = folder / (name + ".unpacking")
+    shutil.rmtree(staging, ignore_errors=True)
+    staging.mkdir(parents=True)
+    with open(archive, "rb") as handle:
+        watched = _Watched(handle, archive.stat().st_size, progress)
+        with tarfile.open(fileobj=watched, mode="r|bz2") as tar:
+            for member in tar:
+                if member.name.startswith(("/", "..")) or ".." in member.name:
+                    continue
+                if keep is not None and not (member.isdir() or member.name.endswith(keep)):
+                    continue
+                try:
+                    tar.extract(member, staging, filter="data")
+                except TypeError:                               # Python < 3.12
+                    tar.extract(member, staging)
+    unpacked = staging / name
+    if not unpacked.is_dir():                                   # an archive whose folder has another name
+        inside = [entry for entry in staging.iterdir() if entry.is_dir()]
+        if len(inside) != 1:
+            raise OSError(f"{archive.name} holds no {name} folder")
+        unpacked = inside[0]
+    final = folder / name
+    for attempt in range(3):
+        try:
+            shutil.rmtree(final, ignore_errors=True)            # a half-unpacked folder from an older version
+            unpacked.replace(final)
+            break
+        except OSError:                                         # a virus scanner still reading the new files
+            if attempt == 2:
+                raise
+            time.sleep(1)
+    shutil.rmtree(staging, ignore_errors=True)
 
 
 def _find(folder, *patterns):
@@ -260,18 +404,30 @@ class VoiceDetector:
 
 # --------------------------------------------------------------------------- engines
 class SherpaSpeech:
-    """Whisper / Parakeet / SenseVoice / Moonshine through sherpa-onnx, with Silero VAD in front."""
+    """Whisper / Parakeet / SenseVoice / Omnilingual / Dolphin / Moonshine through sherpa-onnx, with Silero
+    VAD in front. `detected` is the language the engine heard in the last recording ('' when it doesn't say)."""
 
-    def __init__(self, engine):
+    def __init__(self, engine, language=None):
         import sherpa_onnx
 
         self.engine = engine
+        self.detected = ""
         folder = models_dir() / ENGINES[engine]["archive"]
-        if engine == "whisper-en":
+        if engine in ("whisper-en", "whisper-multi"):
             self.recognizer = sherpa_onnx.OfflineRecognizer.from_whisper(
                 encoder=_find(folder, "*encoder.int8.onnx", "*encoder.onnx"),
                 decoder=_find(folder, "*decoder.int8.onnx", "*decoder.onnx"),
-                tokens=_find(folder, "*tokens.txt"), language="en", task="transcribe", num_threads=THREADS)
+                tokens=_find(folder, "*tokens.txt"),
+                language="en" if engine == "whisper-en" else whisper_language(language),
+                task="transcribe", num_threads=THREADS)
+        elif engine == "dolphin":
+            self.recognizer = sherpa_onnx.OfflineRecognizer.from_dolphin_ctc(
+                model=_find(folder, "model.int8.onnx", "model.onnx"), tokens=_find(folder, "tokens.txt"),
+                num_threads=THREADS)
+        elif engine == "omnilingual":
+            self.recognizer = sherpa_onnx.OfflineRecognizer.from_omnilingual_asr_ctc(
+                model=_find(folder, "model.int8.onnx", "model.onnx"), tokens=_find(folder, "tokens.txt"),
+                num_threads=THREADS)
         elif engine == "parakeet":
             self.recognizer = sherpa_onnx.OfflineRecognizer.from_transducer(
                 encoder=_find(folder, "encoder*.onnx"), decoder=_find(folder, "decoder*.onnx"),
@@ -307,7 +463,9 @@ class SherpaSpeech:
         stream = self.recognizer.create_stream()
         stream.accept_waveform(RATE, audio16k[span[0]:span[1]])
         self.recognizer.decode_stream(stream)
-        return stream.result.text.strip()
+        result = stream.result
+        self.detected = str(getattr(result, "lang", "") or "").strip().strip("<|>").lower()    # '<|yue|>'
+        return result.text.strip()
 
 
 def trim_to_speech(audio, sample_rate):
@@ -345,7 +503,11 @@ class Speech:
     """What Buddy uses: picks the engine, downloads it in the background, falls back while it isn't there.
 
     transcribe(audio, rate) never waits for a download: until the chosen engine is ready, the Windows
-    recognizer answers (and says so in the status line)."""
+    recognizer answers where Windows has one for the language (and the status line says so). For the other
+    languages (Indonesian, Korean, Thai...) voice input starts when the model is there, and a download that
+    failed is tried again on a later use."""
+
+    RETRY_AFTER = 60.0                                # seconds before a failed download is tried again
 
     def __init__(self, choice="auto", language="en-US", on_status=lambda text: None, legacy_factory=None):
         self.choice = choice
@@ -357,18 +519,29 @@ class Speech:
         self.fallback = None
         self.loading = None
         self.error = None
+        self.failed_at = 0.0
         self.lock = threading.Lock()
 
     @property
     def wanted(self):
         return auto_engine(self.language) if self.choice == "auto" else self.choice
 
+    def spoken_language(self):
+        """The language of the last recording, for the cleanup and spelling that follow: the setting, or with
+        auto-detect what the engine heard ('auto' when it didn't say)."""
+        if primary(self.language) != "auto":
+            return self.language
+        return getattr(self.engine, "detected", "") or "auto"
+
     def describe(self):
         if self.engine is not None:
             return self.engine_name
+        windows = windows_can_hear(self.language)
         if self.loading is not None and self.loading.is_alive():
-            return f"{label(self.wanted).split(' - ')[0]} getting ready (Windows recognizer meanwhile)"
-        return "Windows speech recognizer" + (f" ({self.error})" if self.error else "")
+            meanwhile = "Windows recognizer meanwhile" if windows else "voice input starts when it is"
+            return f"{label(self.wanted).split(' - ')[0]} getting ready ({meanwhile})"
+        state = "Windows speech recognizer" if windows else "Voice input waits for its speech model"
+        return state + (f" ({self.error})" if self.error else "")
 
     def prepare(self, wait=False):
         """Start downloading/loading the chosen engine in the background (call at startup)."""
@@ -388,7 +561,7 @@ class Speech:
             if wanted in ENGINES:
                 if not is_ready(wanted):
                     download(wanted, self.on_status)
-                engine = SherpaSpeech(wanted)
+                engine = SherpaSpeech(wanted, self.language)
                 name = label(wanted).split(" - ")[0]
             else:
                 try:                                       # VAD for the old engines too, when it can be had
@@ -403,30 +576,33 @@ class Speech:
         except Exception as error:                          # network blocked, disk full, missing package...
             logging.warning("Speech engine %s unavailable: %s", wanted, error, exc_info=True)
             self.error = _short(error)
-            if wanted in ENGINES and self.legacy_factory is not None:
+            self.failed_at = time.monotonic()
+            name = label(wanted).split(" - ")[0]
+            english = primary(self.language) == "en"       # the old Whisper here is base.en: English only
+            if wanted in ENGINES and self.legacy_factory is not None and english:
                 try:                                       # next best: Whisper, if its files can be had here
                     self.engine = self.legacy_factory("whisper", self.language)
                     self.engine_name = "Whisper base.en"
-                    self.on_status(f"Speech: {label(wanted).split(' - ')[0]} couldn't load ({self.error}); "
-                                   f"using Whisper.")
+                    self.on_status(f"Speech: {name} couldn't load ({self.error}); using Whisper.")
                     return
                 except Exception:
                     logging.info("Whisper fallback unavailable too", exc_info=True)
-            self.on_status(f"Speech: {label(wanted).split(' - ')[0]} couldn't load ({self.error}); "
-                           f"using the Windows recognizer.")
+            if windows_can_hear(self.language):
+                self.on_status(f"Speech: {name} couldn't load ({self.error}); using the Windows recognizer.")
+            else:
+                self.on_status(f"Speech: {name} couldn't load ({self.error}); voice input is off until its "
+                               f"model can be downloaded. Buddy tries again when you next use your voice.")
 
     def transcribe(self, audio, sample_rate):
         engine = self.engine
         if engine is None:
-            if self.loading is None:
-                self.prepare()
+            if self.loading is None or (not self.loading.is_alive()
+                                        and time.monotonic() - self.failed_at >= self.RETRY_AFTER):
+                self.prepare()                             # first use, or a failed download worth another try
+            if not windows_can_hear(self.language):
+                return ""                                  # Windows has no recognizer for this language
             engine = self._fallback()
-            if not isinstance(engine, SherpaSpeech):
-                trimmed = trim_to_speech(audio, sample_rate)
-                if trimmed is None:
-                    return ""
-                audio = trimmed
-        elif not isinstance(engine, SherpaSpeech):
+        if not isinstance(engine, SherpaSpeech):
             trimmed = trim_to_speech(audio, sample_rate)
             if trimmed is None:
                 return ""
