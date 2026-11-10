@@ -307,6 +307,12 @@
         <p>Natural voices that run on your own PC in 7 languages. They start talking while the rest of the answer is still being made.</p>
         <a class="mini-link" href="#voices">hear them →</a>
       </article>
+      <article class="card c-orange">
+        <span class="tag">dictation</span>
+        <h3>Type by voice, anywhere</h3>
+        <p>Hold <kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>D</kbd>, talk, let go: the words land in mail, chat, PLM forms or Word. Offline Whisper + voice detection: 4.9% word errors in our office-noise test vs 37% for the Windows recognizer. Drops “um”, follows “no wait”, learns your jargon, speaks Chinese too.</p>
+        <a class="mini-link" href="https://github.com/juw12/buddy#voice-buddy-vs-wispr-flow-vs-handy" target="_blank" rel="noopener">vs Wispr Flow &amp; Handy →</a>
+      </article>
       <article class="card">
         <span class="tag">brain</span>
         <h3>Pick your brain</h3>
@@ -460,6 +466,7 @@
           <tr><td>Asks before risky actions</td><td class="us yes">Yes, a Yes/No prompt plus a full action log</td><td class="na">Not stated</td></tr>
           <tr><td>Can run fully on your PC, offline</td><td class="us yes">Yes, with the Local brain, voices and speech</td><td class="no">No, cloud only (screenshots aren't stored)</td></tr>
           <tr><td>Voice</td><td class="us yes">Natural, on-device, 7 languages</td><td>Cloud voice</td></tr>
+          <tr><td>Type by voice into any app</td><td class="us yes">Yes, offline, English + Chinese, never touches the clipboard</td><td class="na">Not stated</td></tr>
           <tr><td>Choice of brain</td><td class="us yes">Free cloud (no setup), Smart, Local GPU, Local CPU or your own endpoint</td><td>Their cloud models</td></tr>
           <tr><td>Bonus</td><td class="us yes">Focus pet, pomodoro, key sounds</td><td>No</td></tr>
         </tbody>
@@ -502,6 +509,10 @@
       <details>
         <summary>Does it work on my phone?</summary>
         <p>Yes, as <a href="island/">Buddy Island</a>, a small web app on the free brain. Open it and add it to your home screen. Tap the island to type, hold it to talk, or attach a screenshot (on Android, share it straight from the share sheet) and Buddy points at the answer on your picture and reads it aloud. A web app can't see your other apps, so you show it a screenshot. For the real Dynamic Island, install the free <a href="https://github.com/juw12/buddy/tree/main/ios" target="_blank" rel="noopener">Buddy iPhone app</a>. Tip: <code>…/island/?talk=1</code> on an iPhone Shortcut (Action Button or Back Tap) opens Buddy listening.</p>
+      </details>
+      <details>
+        <summary>Can I type by voice, like Wispr Flow?</summary>
+        <p>Yes. Hold <kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>D</kbd> in any app, talk and let go, or tap it once for hands-free and tap again to type. It runs offline on your PC (Whisper base.en for English, SenseVoice for Chinese), so nothing goes to a cloud and it works behind the office proxy. It drops “um”/“uh”, follows corrections you say out loud (“at three, no wait, at four” types “at four”), fixes your own jargon from <em>My words</em>, and never touches your clipboard. Select text first and say “make this shorter” to edit it. The speech model (~210 MB) downloads once in the background; the Windows recognizer answers until it is ready. <a href="https://github.com/juw12/buddy#voice-buddy-vs-wispr-flow-vs-handy" target="_blank" rel="noopener">Benchmark vs Wispr Flow and Handy</a>.</p>
       </details>
       <details>
         <summary>Which languages does it speak?</summary>
