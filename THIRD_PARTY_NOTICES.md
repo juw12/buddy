@@ -7,3 +7,5 @@
   - [SenseVoice-Small](https://github.com/FunAudioLLM/SenseVoice) (FunAudioLLM, FunASR model license), int8 export by the sherpa-onnx project.
   - [Moonshine](https://github.com/usefulsensors/moonshine) (Useful Sensors, MIT License), optional.
   - [Silero VAD](https://github.com/snakers4/silero-vad) (MIT License) for voice activity detection.
+- Chinese script conversion (Simplified and Traditional) uses the character and phrase tables of [OpenCC](https://github.com/BYVoid/OpenCC) (Apache License 2.0), copied unchanged from `ver.1.1.9` into `keyit/opencc/` together with their licence.
+- The English word list that tells a real word from a misheard one comes with [misaki](https://github.com/hexgrad/misaki) (Apache License 2.0), the library Buddy already uses to read text for the natural voices.
