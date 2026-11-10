@@ -12,7 +12,9 @@ Pure Python (no downloads, no network), so it runs the same on every PC and in t
 What it fixes after speech recognition:
   * your words: "s r m", "S.R.M." and "srm" become "SRM"; "e green" becomes "eGreen"; a near miss of a long
     word ("Zyris" for "ZIRIS") is corrected, and so is a made-up word that sounds like one of yours
-    ("Bizaira's" for "the ZIRIS") - but never a word that is in the dictionary ("series", "Sirius"),
+    ("Bizaira's" for "the ZIRIS") - but never a word that is in the dictionary ("series", "Sirius", "not
+    paid") unless the dictionary says it exactly like yours ("speck green" for "Spec Green"); for the rest
+    add a line of your own: peg vision => Pega-Vision,
   * spoken shortcuts expand ("my sign off" -> "Best regards, Juwen"),
   * filler sounds go ("um", "uh", "er"; "ehm"; "äh"; "euh"; 嗯; えーと), and a stutter ("the the") is said once,
   * corrections you make while talking: "at three, no wait, at four" -> "at four";
@@ -46,6 +48,7 @@ FILLERS_ZH = ("嗯", "呃", "额")
 # repeated twice on purpose in normal speech ("I know that that works"), so never collapsed
 REPEAT_OK = {"that", "had", "is", "do", "very", "so", "no", "bye", "ha", "really", "go"}
 SOUND_ALIKE = ({"s", "z", "c"}, {"c", "k", "q"}, {"f", "p"}, {"i", "e", "y"}, {"j", "g"}, {"v", "w", "b"})
+STRESS = str.maketrans("", "", "ˈˌ")       # stress marks in the pronouncing dictionary
 # after ", sorry," these start an apology or a new thought, not a repair: "I can't come, sorry, I'm busy"
 NOT_A_REPAIR = {"i", "i'm", "i'll", "i've", "i'd", "we", "we're", "we'll", "we've", "it's", "that's", "but",
                 "for", "about", "to", "if", "my", "you", "can", "could", "please"}
@@ -275,10 +278,11 @@ def _only_looks_alike(chunk, term, mine):
     """True when `chunk` passes the letters test but was not a slip of `term`:
 
     - the term's own plural or possessive ("ZIRIS's results", "two notepads"): the s was said;
-    - good English that is only spelled like it: "pure gems" for "PureGMS", "vendor napping" for "Vendor
-      Mapping". Real words are taken for the term only when they also sound like it - the same consonants and
-      the same kind of first vowel ("speck green", "bender mapping"). A chunk with a made-up or spelled-out
-      piece ("zirus", "pure GM") is still judged by its letters alone.
+    - good English that is only spelled like it: "pure gems" for "PureGMS", "not paid" for "Notepad", "vendor
+      moving" for "Vendor Mapping". Real words are taken for the term only when the dictionary says them exactly
+      like it ("speck green" for "Spec Green"). One sound off is how plain speech differs too ("please note Pat"),
+      and a made-up term has no entry to compare with, so those stay as written.
+    A chunk with a made-up word or spelled-out letters ("zirus", "pure GM") is still judged by its letters alone.
     Without the dictionary only the first check runs."""
     if _squash(re.sub("['’]?s$", "", chunk, flags=re.IGNORECASE)) == _squash(term):
         return True
@@ -286,12 +290,12 @@ def _only_looks_alike(chunk, term, mine):
     if vocabulary is None:
         return False
     for piece in WORD.findall(chunk):
-        if not re.search("[aeiouy]", _plain(piece).lower()) or not _known(piece, vocabulary, mine):
+        word = _plain(piece).lower()
+        spelled_out = not re.search("[aeiouy]", word) and word not in vocabulary       # "GM", not "PM" or "Mr"
+        if spelled_out or not _known(piece, vocabulary, mine):
             return False
-    heard, wanted = _sound(chunk).replace("a", ""), _sound(term).replace("a", "")
-    if len(heard) != len(wanted) or not all(_sounds_alike(a, b) for a, b in zip(heard, wanted)):
-        return True
-    return _first_vowel(chunk) != _first_vowel(term)
+    heard = _said(chunk)
+    return heard is None or heard != _said(term)
 
 
 def apply_terms(text, terms, language=None):
@@ -379,20 +383,47 @@ def _lexicon_folder():
 
 
 @functools.lru_cache(maxsize=None)
-def _vocabulary():
-    """Every English word Buddy can pronounce (the dictionary that ships with its voice), lower case.
-    None when it is not installed: then nothing is ever replaced by sound alone."""
+def _lexicon():
+    """Every English word Buddy can pronounce -> how it is said, stress left out: 'speck' -> 'spɛk'.
+    It is the dictionary that ships with Buddy's voice; None when that is not installed."""
     folder = _lexicon_folder()
     if folder is None:
         return None
-    words = set()
     try:
-        for name in ("us_gold.json", "us_silver.json"):
+        lists = []
+        for name in ("us_silver.json", "us_gold.json"):                  # gold is the checked list, so it wins
             with open(folder / name, encoding="utf-8") as handle:
-                words.update(word.lower() for word in json.load(handle))
+                lists.append(json.load(handle))
     except (OSError, ValueError):
         return None
-    return frozenset(words)
+    said = {}
+    for as_written in (False, True):                                      # "read" wins over "Read"
+        for entries in lists:
+            for word, sound in entries.items():
+                if as_written and word != word.lower():
+                    continue
+                if isinstance(sound, dict):                               # one entry per part of speech
+                    sound = sound.get("DEFAULT") or next(iter(sound.values()), None)
+                sound = sound.translate(STRESS) if isinstance(sound, str) else None
+                if sound or word.lower() not in said:
+                    said[word.lower()] = sound
+    return said
+
+
+@functools.lru_cache(maxsize=None)
+def _vocabulary():
+    """Every English word Buddy can pronounce, lower case. None when the dictionary is not installed: then
+    nothing is ever replaced by sound alone."""
+    lexicon = _lexicon()
+    return None if lexicon is None else frozenset(lexicon)
+
+
+def _said(text):
+    """How the dictionary says `text`: 'speck green' -> 'spɛkɡɹin'. None when a word is not in it."""
+    lexicon = _lexicon() or {}
+    words = [word.strip("'") for word in re.split(r"[\s-]+", _plain(text).lower().replace("’", "'"))]
+    sounds = [lexicon.get(word) for word in words if word]
+    return "".join(sounds) if sounds and all(sounds) else None
 
 
 def _known(token, vocabulary, mine):

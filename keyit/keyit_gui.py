@@ -657,6 +657,7 @@ class KeyItApp:
             "If a real name sounds like one of your words, add the name too, so Buddy leaves it alone.\n"
             "Spoken shortcuts: say the left side, Buddy types the right side, e.g.\n"
             "    my sign off => Best regards, Juwen\n"
+            "    peg vision => Pega-Vision      (when Buddy keeps hearing other real words for one of yours)\n"
             "Lines starting with # are notes.")).pack(anchor="w", padx=10, pady=(10, 4))
         editor = tk.Text(window, width=60, height=14, wrap="word", undo=True)
         editor.pack(fill="both", expand=True, padx=10)

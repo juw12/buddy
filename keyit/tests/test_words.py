@@ -221,44 +221,82 @@ def test_sound_rule_with_the_dictionary_that_ships_with_the_voice():
 ENDINGS = ("ZIRIS's results are in.", "Notepad's window is open.", "Open two notepads please.",
            "The outlooks are different.")
 LOOK_ALIKES = ("She sells pure gems and plays pure games.", "We use pure gas and pure gum here.",
-               "He bought new zoris in Japan.", "The vendor napping in the lobby was tired.")
+               "He bought new zoris in Japan.", "The vendor napping in the lobby was tired.",
+               # everyday phrases a sound or two away from a term (found by the dictionary sweep of word pairs)
+               "The invoice is not paid yet.", "We could not pad the schedule.", "I sip green tea every morning.",
+               "Sir is waiting in the lobby.", "The vendor moving the boxes is new.",
+               "He has pure gums and healthy teeth.", "She reached peak vision after the surgery.",
+               "Check out logo ideas for the team.", "Please note Pat is away today.",
+               "Please note bad weather is expected.", "The PM revision is due on Friday.")
+# real words one sound away from the term: a slip and plain speech look the same, so they stay as written
+ONE_SOUND_OFF = ("Open bender mapping first.", "Check the peg-vision camera.")
 SLIPS = {
     # a made-up word or spelled-out letters can only be a slip of the term
     "Open noepad now.": "Open Notepad now.",
     "The zirus test passed.": "The ZIRIS test passed.",
-    "Check the peg-vision camera.": "Check the Pega-Vision camera.",
     "Set it to pure GM rejected.": "Set it to PureGMS rejected.",
-    # real words that also sound like the term
+    # real words that are said exactly like the term
     "Choose speck green there.": "Choose Spec Green there.",
-    "Open bender mapping first.": "Open Vendor Mapping first.",
+    "Open vender mapping first.": "Open Vendor Mapping first.",
 }
-REAL_WORDS = ENGLISH | frozenset("""she sells pure gems and plays games we use gas gum here he bought zoris in japan
-    vendor napping lobby tired open window two please are different results choose speck green there bender mapping
-    first now check camera set it to rejected""".split())
+REAL_WORDS = ENGLISH | frozenset("""after and are away bad bender bought boxes camera check choose could different due
+    every expected first for games gas gems green gum gums has he healthy here i ideas in invoice it japan lobby logo
+    mapping morning
+    moving napping not note notepad now open out outlook pad paid pat peak peg pega plays please pm pure
+    reached rejected results revision schedule sells set she sip sir spec speck surgery tea teeth there tired
+    to today two use vender vendor vision waiting we weather window windows yet zoris""".split())
+# how the dictionary that ships with the voice says the words that matter here (stress marks left out)
+SAID = {
+    "bad": "bæd", "bender": "bɛndəɹ", "games": "ɡAmz", "gas": "ɡæs", "gems": "ʤɛmz", "green": "ɡɹin", "gum":
+    "ɡʌm", "gums": "ɡʌmz", "is": "ɪz", "logo": "lOɡO", "mapping": "mæpɪŋ", "moving": "muvɪŋ", "napping":
+    "næpɪŋ", "not": "nɑt", "note": "nOt", "notepad": "nOtpæd", "out": "Wt", "outlook": "Wtlʊk", "pad": "pæd",
+    "paid": "pAd", "pat": "pæt", "peak": "pik", "peg": "pɛɡ", "pega": "pɛɡə", "pm": "piɛm", "pure": "pjʊɹ",
+    "revision": "ɹəvɪʒᵊn", "sip": "sɪp", "sir": "sɜɹ", "spec": "spɛk", "speck": "spɛk", "vender": "vɛndəɹ",
+    "vendor": "vɛndəɹ", "vision": "vɪʒən", "window": "wɪndO", "windows": "wɪndOz", "zoris": "zɔɹiz",
+}
+
+
+def use_dictionary(monkeypatch, vocabulary=REAL_WORDS, said=SAID):
+    monkeypatch.setattr(words, "_vocabulary", lambda: vocabulary)
+    monkeypatch.setattr(words, "_lexicon", lambda: said, raising=False)
 
 
 def test_my_words_own_plural_and_possessive_stay_as_said(monkeypatch):
     # 1.2.0 dropped the ending: "ZIRIS's results" -> "ZIRIS results", "two notepads" -> "two Notepad"
     for vocabulary in (None, REAL_WORDS):
-        monkeypatch.setattr(words, "_vocabulary", lambda vocabulary=vocabulary: vocabulary)
+        use_dictionary(monkeypatch, vocabulary)
         for said in ENDINGS:
             assert words.process(said, BENCH_WORDS) == said, said
         assert words.process("Ziris's results are in.", BENCH_WORDS) == "ZIRIS's results are in."
 
 
 def test_real_words_that_only_look_like_my_word_stay(monkeypatch):
-    monkeypatch.setattr(words, "_vocabulary", lambda: REAL_WORDS)
-    for said in LOOK_ALIKES:
+    use_dictionary(monkeypatch)
+    for said in LOOK_ALIKES + ONE_SOUND_OFF:
         assert words.process(said, BENCH_WORDS) == said, said
     assert words.process("Open the window.", "Windows") == "Open the window."
 
 
+def test_real_words_stay_when_the_dictionary_cannot_say_them(monkeypatch):
+    # nothing to compare with: a made-up term such as "ZIRIS", or a word list that has no sounds
+    use_dictionary(monkeypatch, said=None)
+    for said in LOOK_ALIKES + ONE_SOUND_OFF + ("Choose speck green there.",):
+        assert words.process(said, BENCH_WORDS) == said, said
+
+
+def test_a_line_in_my_words_settles_what_sound_cannot(monkeypatch):
+    use_dictionary(monkeypatch)
+    listed = BENCH_WORDS + "peg vision -> Pega-Vision\n"
+    assert words.process("Check the peg-vision camera.", listed) == "Check the Pega-Vision camera."
+    assert words.process("Check the peg vision camera.", listed) == "Check the Pega-Vision camera."
+
+
 def test_slips_of_my_word_are_still_fixed_by_their_letters(monkeypatch):
-    monkeypatch.setattr(words, "_vocabulary", lambda: REAL_WORDS)
+    use_dictionary(monkeypatch)
     for said, wanted in SLIPS.items():
         assert words.process(said, BENCH_WORDS) == wanted, said
     # without a dictionary nothing can be told apart, so a near miss is fixed as before
-    monkeypatch.setattr(words, "_vocabulary", lambda: None)
+    use_dictionary(monkeypatch, None, None)
     assert words.process("Open noepad now.", BENCH_WORDS) == "Open Notepad now."
 
 
@@ -268,7 +306,7 @@ def test_letters_rule_with_the_dictionary_that_ships_with_the_voice():
     words._vocabulary.cache_clear()
     if words._vocabulary() is None:
         pytest.skip("misaki is installed without its English word list")
-    for said in ENDINGS + LOOK_ALIKES:
+    for said in ENDINGS + LOOK_ALIKES + ONE_SOUND_OFF:
         assert words.process(said, BENCH_WORDS) == said, said
     assert words.process("Open the window.", "Windows") == "Open the window."
     for said, wanted in SLIPS.items():
