@@ -1,0 +1,561 @@
+{
+ "engine": "whisper-base.en + Silero VAD",
+ "summary": {
+  "clean_en_wer": 8.4,
+  "clean_zh_cer": 100.0,
+  "clean_jargon_pct": 83.3,
+  "noisy_en_wer": 7.9,
+  "noisy_zh_cer": 100.0,
+  "noisy_jargon_pct": 76.7,
+  "silence_hallucinations": 0,
+  "latency_mean_s": 1.56,
+  "latency_p90_s": 2.24,
+  "load_s": 2.7
+ },
+ "rows": [
+  {
+   "set": "clean",
+   "key": "q01",
+   "file": "q01_david.wav",
+   "hyp": "Where is the Save as button in Notepad?",
+   "seconds": 1.359,
+   "audio_seconds": 4.04
+  },
+  {
+   "set": "clean",
+   "key": "q01",
+   "file": "q01_zira.wav",
+   "hyp": "Where is the Save Us button in Notepad?",
+   "seconds": 0.874,
+   "audio_seconds": 3.83
+  },
+  {
+   "set": "clean",
+   "key": "q02",
+   "file": "q02_david.wav",
+   "hyp": "How do I add a new part number in SRM?",
+   "seconds": 1.136,
+   "audio_seconds": 4.47
+  },
+  {
+   "set": "clean",
+   "key": "q02",
+   "file": "q02_zira.wav",
+   "hyp": "How do I add a new part number in SRM?",
+   "seconds": 1.592,
+   "audio_seconds": 4.35
+  },
+  {
+   "set": "clean",
+   "key": "q03",
+   "file": "q03_david.wav",
+   "hyp": "Open the eGreen part survey and set pure GMS to reject it.",
+   "seconds": 4.153,
+   "audio_seconds": 5.46
+  },
+  {
+   "set": "clean",
+   "key": "q03",
+   "file": "q03_zira.wav",
+   "hyp": "Open the eGreen part survey and set Pure GMS to rejected.",
+   "seconds": 5.022,
+   "audio_seconds": 5.5
+  },
+  {
+   "set": "clean",
+   "key": "q04",
+   "file": "q04_david.wav",
+   "hyp": "Click \"Insert\", then pick \"Vendor Mapping\".",
+   "seconds": 1.905,
+   "audio_seconds": 4.45
+  },
+  {
+   "set": "clean",
+   "key": "q04",
+   "file": "q04_zira.wav",
+   "hyp": "Click insert, then pick vendor mapping.",
+   "seconds": 0.98,
+   "audio_seconds": 4.41
+  },
+  {
+   "set": "clean",
+   "key": "q05",
+   "file": "q05_david.wav",
+   "hyp": "What does this bomb error mean in palm?",
+   "seconds": 1.088,
+   "audio_seconds": 3.98
+  },
+  {
+   "set": "clean",
+   "key": "q05",
+   "file": "q05_zira.wav",
+   "hyp": "What does this bomb error mean in palm?",
+   "seconds": 1.141,
+   "audio_seconds": 3.94
+  },
+  {
+   "set": "clean",
+   "key": "q06",
+   "file": "q06_david.wav",
+   "hyp": "Close the file explorer and minimize outlook.",
+   "seconds": 0.92,
+   "audio_seconds": 4.54
+  },
+  {
+   "set": "clean",
+   "key": "q06",
+   "file": "q06_zira.wav",
+   "hyp": "Close the file explorer and minimize outlook.",
+   "seconds": 1.163,
+   "audio_seconds": 4.45
+  },
+  {
+   "set": "clean",
+   "key": "q07",
+   "file": "q07_david.wav",
+   "hyp": "How do I export this sheet to PDF?",
+   "seconds": 1.123,
+   "audio_seconds": 6.0
+  },
+  {
+   "set": "clean",
+   "key": "q07",
+   "file": "q07_zira.wav",
+   "hyp": "How do I export this sheet to PDF?",
+   "seconds": 0.971,
+   "audio_seconds": 5.96
+  },
+  {
+   "set": "clean",
+   "key": "q08",
+   "file": "q08_david.wav",
+   "hyp": "Send the report to the team at 3, no wait, at 4 o'clock.",
+   "seconds": 1.4,
+   "audio_seconds": 6.12
+  },
+  {
+   "set": "clean",
+   "key": "q08",
+   "file": "q08_zira.wav",
+   "hyp": "Send the report to the team at 3, no wait, at 4 o'clock.",
+   "seconds": 1.3,
+   "audio_seconds": 6.1
+  },
+  {
+   "set": "clean",
+   "key": "q09",
+   "file": "q09_david.wav",
+   "hyp": "Type Hello team, Bizaira's power test passed.",
+   "seconds": 1.12,
+   "audio_seconds": 5.08
+  },
+  {
+   "set": "clean",
+   "key": "q09",
+   "file": "q09_zira.wav",
+   "hyp": "Type Hello Team, the Zyrus Power test passed.",
+   "seconds": 1.05,
+   "audio_seconds": 5.08
+  },
+  {
+   "set": "clean",
+   "key": "q10",
+   "file": "q10_david.wav",
+   "hyp": "Explain what this PegaVision warning is about.",
+   "seconds": 0.936,
+   "audio_seconds": 4.38
+  },
+  {
+   "set": "clean",
+   "key": "q10",
+   "file": "q10_zira.wav",
+   "hyp": "Explain what this PegaVision warning is about.",
+   "seconds": 1.403,
+   "audio_seconds": 4.37
+  },
+  {
+   "set": "clean",
+   "key": "q11",
+   "file": "q11_david.wav",
+   "hyp": "Can you show me where the spec green field is?",
+   "seconds": 0.952,
+   "audio_seconds": 4.39
+  },
+  {
+   "set": "clean",
+   "key": "q11",
+   "file": "q11_zira.wav",
+   "hyp": "Can you show me where the spec green field is?",
+   "seconds": 0.982,
+   "audio_seconds": 4.32
+  },
+  {
+   "set": "clean",
+   "key": "q12",
+   "file": "q12_david.wav",
+   "hyp": "Please draft a short reply saying the samples ship on Friday.",
+   "seconds": 1.135,
+   "audio_seconds": 5.38
+  },
+  {
+   "set": "clean",
+   "key": "q12",
+   "file": "q12_zira.wav",
+   "hyp": "Please draft a short reply saying the samples ship on Friday.",
+   "seconds": 1.489,
+   "audio_seconds": 5.32
+  },
+  {
+   "set": "clean",
+   "key": "z01",
+   "file": "z01_hanhan.wav",
+   "hyp": "(speaking in foreign language)",
+   "seconds": 0.769,
+   "audio_seconds": 3.5
+  },
+  {
+   "set": "clean",
+   "key": "z01",
+   "file": "z01_huihui.wav",
+   "hyp": "But when I'm not an ally,",
+   "seconds": 0.958,
+   "audio_seconds": 3.58
+  },
+  {
+   "set": "clean",
+   "key": "z02",
+   "file": "z02_hanhan.wav",
+   "hyp": "(speaking in foreign language)",
+   "seconds": 0.952,
+   "audio_seconds": 3.48
+  },
+  {
+   "set": "clean",
+   "key": "z02",
+   "file": "z02_huihui.wav",
+   "hyp": "from what the kite you should build",
+   "seconds": 0.911,
+   "audio_seconds": 3.48
+  },
+  {
+   "set": "clean",
+   "key": "z03",
+   "file": "z03_hanhan.wav",
+   "hyp": "(speaking in foreign language)",
+   "seconds": 0.93,
+   "audio_seconds": 3.81
+  },
+  {
+   "set": "clean",
+   "key": "z03",
+   "file": "z03_huihui.wav",
+   "hyp": "(speaking in foreign language)",
+   "seconds": 0.915,
+   "audio_seconds": 3.71
+  },
+  {
+   "set": "clean",
+   "key": "z04",
+   "file": "z04_hanhan.wav",
+   "hyp": "The mother is a young woman, and she is a young woman.",
+   "seconds": 1.247,
+   "audio_seconds": 4.26
+  },
+  {
+   "set": "clean",
+   "key": "z04",
+   "file": "z04_huihui.wav",
+   "hyp": "(speaking in foreign language)",
+   "seconds": 1.083,
+   "audio_seconds": 4.28
+  },
+  {
+   "set": "noisy",
+   "key": "q01",
+   "file": "q01_david.wav",
+   "hyp": "Where is the Save as button in Notepad?",
+   "seconds": 1.297,
+   "audio_seconds": 4.04
+  },
+  {
+   "set": "noisy",
+   "key": "q01",
+   "file": "q01_zira.wav",
+   "hyp": "Where is the Save Us button in Notepad?",
+   "seconds": 1.306,
+   "audio_seconds": 3.83
+  },
+  {
+   "set": "noisy",
+   "key": "q02",
+   "file": "q02_david.wav",
+   "hyp": "How do I add a new part number in SRM?",
+   "seconds": 1.563,
+   "audio_seconds": 4.47
+  },
+  {
+   "set": "noisy",
+   "key": "q02",
+   "file": "q02_zira.wav",
+   "hyp": "How do I add a new part number in SRM?",
+   "seconds": 1.881,
+   "audio_seconds": 4.35
+  },
+  {
+   "set": "noisy",
+   "key": "q03",
+   "file": "q03_david.wav",
+   "hyp": "Open the eGreen part survey and set your GMS to rejected.",
+   "seconds": 1.632,
+   "audio_seconds": 5.46
+  },
+  {
+   "set": "noisy",
+   "key": "q03",
+   "file": "q03_zira.wav",
+   "hyp": "Open the eGreen part survey and set pure GMS to rejected.",
+   "seconds": 1.616,
+   "audio_seconds": 5.5
+  },
+  {
+   "set": "noisy",
+   "key": "q04",
+   "file": "q04_david.wav",
+   "hyp": "Click insert, then pick vendor mapping.",
+   "seconds": 0.977,
+   "audio_seconds": 4.45
+  },
+  {
+   "set": "noisy",
+   "key": "q04",
+   "file": "q04_zira.wav",
+   "hyp": "Click insert, then pick vendor mapping.",
+   "seconds": 0.965,
+   "audio_seconds": 4.41
+  },
+  {
+   "set": "noisy",
+   "key": "q05",
+   "file": "q05_david.wav",
+   "hyp": "What does this bomb error mean in pump?",
+   "seconds": 0.996,
+   "audio_seconds": 3.98
+  },
+  {
+   "set": "noisy",
+   "key": "q05",
+   "file": "q05_zira.wav",
+   "hyp": "What does this bum error mean in palm?",
+   "seconds": 1.648,
+   "audio_seconds": 3.94
+  },
+  {
+   "set": "noisy",
+   "key": "q06",
+   "file": "q06_david.wav",
+   "hyp": "Close the file explorer and minimize outlook.",
+   "seconds": 2.431,
+   "audio_seconds": 4.54
+  },
+  {
+   "set": "noisy",
+   "key": "q06",
+   "file": "q06_zira.wav",
+   "hyp": "Close the file explorer and minimize Outlook.",
+   "seconds": 1.349,
+   "audio_seconds": 4.45
+  },
+  {
+   "set": "noisy",
+   "key": "q07",
+   "file": "q07_david.wav",
+   "hyp": "How do I export this sheet to PDF?",
+   "seconds": 1.883,
+   "audio_seconds": 6.0
+  },
+  {
+   "set": "noisy",
+   "key": "q07",
+   "file": "q07_zira.wav",
+   "hyp": "How do I export this sheet to PDF?",
+   "seconds": 1.863,
+   "audio_seconds": 5.96
+  },
+  {
+   "set": "noisy",
+   "key": "q08",
+   "file": "q08_david.wav",
+   "hyp": "Send the report to the team at 3, no wait, at 4 o'clock.",
+   "seconds": 3.775,
+   "audio_seconds": 6.12
+  },
+  {
+   "set": "noisy",
+   "key": "q08",
+   "file": "q08_zira.wav",
+   "hyp": "Send the report to the team at 3, no wait, at 4 o'clock.",
+   "seconds": 3.088,
+   "audio_seconds": 6.1
+  },
+  {
+   "set": "noisy",
+   "key": "q09",
+   "file": "q09_david.wav",
+   "hyp": "Type Hello Team, Bizaira's power test pass",
+   "seconds": 2.224,
+   "audio_seconds": 5.08
+  },
+  {
+   "set": "noisy",
+   "key": "q09",
+   "file": "q09_zira.wav",
+   "hyp": "Type Hello Team, the Zirus Power test passed.",
+   "seconds": 2.109,
+   "audio_seconds": 5.08
+  },
+  {
+   "set": "noisy",
+   "key": "q10",
+   "file": "q10_david.wav",
+   "hyp": "Explain what this PegaVision warning is about.",
+   "seconds": 1.624,
+   "audio_seconds": 4.38
+  },
+  {
+   "set": "noisy",
+   "key": "q10",
+   "file": "q10_zira.wav",
+   "hyp": "Explain what this PegaVision warning is about.",
+   "seconds": 1.512,
+   "audio_seconds": 4.37
+  },
+  {
+   "set": "noisy",
+   "key": "q11",
+   "file": "q11_david.wav",
+   "hyp": "Can you show me where the spec green field is?",
+   "seconds": 1.59,
+   "audio_seconds": 4.39
+  },
+  {
+   "set": "noisy",
+   "key": "q11",
+   "file": "q11_zira.wav",
+   "hyp": "Can you show me where the spec green field is?",
+   "seconds": 1.928,
+   "audio_seconds": 4.32
+  },
+  {
+   "set": "noisy",
+   "key": "q12",
+   "file": "q12_david.wav",
+   "hyp": "Please draft a short reply saying the samples ship on Friday.",
+   "seconds": 2.244,
+   "audio_seconds": 5.38
+  },
+  {
+   "set": "noisy",
+   "key": "q12",
+   "file": "q12_zira.wav",
+   "hyp": "Please draft a short reply saying the samples ship on Friday.",
+   "seconds": 2.537,
+   "audio_seconds": 5.32
+  },
+  {
+   "set": "noisy",
+   "key": "z01",
+   "file": "z01_hanhan.wav",
+   "hyp": "about to end your day not new",
+   "seconds": 1.868,
+   "audio_seconds": 3.5
+  },
+  {
+   "set": "noisy",
+   "key": "z01",
+   "file": "z01_huihui.wav",
+   "hyp": "Foulswin' on your finale",
+   "seconds": 1.645,
+   "audio_seconds": 3.58
+  },
+  {
+   "set": "noisy",
+   "key": "z02",
+   "file": "z02_hanhan.wav",
+   "hyp": "(speaking in foreign language)",
+   "seconds": 1.242,
+   "audio_seconds": 3.48
+  },
+  {
+   "set": "noisy",
+   "key": "z02",
+   "file": "z02_huihui.wav",
+   "hyp": "follow up on Kite Shuben",
+   "seconds": 1.438,
+   "audio_seconds": 3.48
+  },
+  {
+   "set": "noisy",
+   "key": "z03",
+   "file": "z03_hanhan.wav",
+   "hyp": "I'm going to make it easy.",
+   "seconds": 1.743,
+   "audio_seconds": 3.81
+  },
+  {
+   "set": "noisy",
+   "key": "z03",
+   "file": "z03_huihui.wav",
+   "hyp": "two of the twelve walls she's never used",
+   "seconds": 1.703,
+   "audio_seconds": 3.71
+  },
+  {
+   "set": "noisy",
+   "key": "z04",
+   "file": "z04_hanhan.wav",
+   "hyp": "The mud is a little bit more than they are half.",
+   "seconds": 1.529,
+   "audio_seconds": 4.26
+  },
+  {
+   "set": "noisy",
+   "key": "z04",
+   "file": "z04_huihui.wav",
+   "hyp": "The most efficient only since the real half.",
+   "seconds": 1.632,
+   "audio_seconds": 4.28
+  },
+  {
+   "set": "silence",
+   "key": "s1",
+   "file": "s1_roomtone.wav",
+   "hyp": "",
+   "seconds": 0.096,
+   "audio_seconds": 2.5
+  },
+  {
+   "set": "silence",
+   "key": "s2",
+   "file": "s2_fanhum.wav",
+   "hyp": "",
+   "seconds": 0.126,
+   "audio_seconds": 2.5
+  },
+  {
+   "set": "silence",
+   "key": "s3",
+   "file": "s3_keyclicks.wav",
+   "hyp": "",
+   "seconds": 0.118,
+   "audio_seconds": 2.5
+  },
+  {
+   "set": "silence",
+   "key": "s4",
+   "file": "s4_breath.wav",
+   "hyp": "",
+   "seconds": 0.145,
+   "audio_seconds": 2.5
+  }
+ ]
+}

@@ -1,0 +1,70 @@
+{
+ "en": [
+  [
+   "q01",
+   "Where is the Save As button in Notepad?"
+  ],
+  [
+   "q02",
+   "How do I add a new part number in SRM?"
+  ],
+  [
+   "q03",
+   "Open the eGreen part survey and set PureGMS to rejected."
+  ],
+  [
+   "q04",
+   "Click Insert, then pick Vendor Mapping."
+  ],
+  [
+   "q05",
+   "What does this BOM error mean in PLM?"
+  ],
+  [
+   "q06",
+   "Close the file explorer and minimize Outlook."
+  ],
+  [
+   "q07",
+   "Um, how do I, uh, export this sheet to PDF?"
+  ],
+  [
+   "q08",
+   "Send the report to the team at three, no wait, at four o'clock."
+  ],
+  [
+   "q09",
+   "Type hello team, the ZIRIS power test passed."
+  ],
+  [
+   "q10",
+   "Explain what this Pega-Vision warning is about."
+  ],
+  [
+   "q11",
+   "Can you show me where the Spec Green field is?"
+  ],
+  [
+   "q12",
+   "Please draft a short reply saying the samples ship on Friday."
+  ]
+ ],
+ "zh": [
+  [
+   "z01",
+   "保存按钮在哪里？"
+  ],
+  [
+   "z02",
+   "帮我打开记事本。"
+  ],
+  [
+   "z03",
+   "这个错误是什么意思？"
+  ],
+  [
+   "z04",
+   "怎么在系统里新增料号？"
+  ]
+ ]
+}

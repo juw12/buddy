@@ -36,6 +36,9 @@ the import stops. Add `--force` to replace that profile; the old one is moved to
 
 ## Use
 - **Ctrl+Alt+Space**, hold it: ask Buddy about your screen by voice. Release to send, and press Esc to cancel.
+- **Ctrl+Alt+D**: type by voice into any app (mail, chat, PLM forms, Word). Hold it while you talk and release, or tap it once to talk hands-free and tap again to type it (Esc cancels, 5 minutes max). Buddy drops "um"/"uh", follows corrections you say out loud ("at three, no wait, at four" types "at four"; "... scratch that" drops the sentence), and never touches your clipboard. *Settings -> Type last dictation again / Copy last dictation* if it went into the wrong window.
+- **Speech model** (Settings -> Voice input): *Auto* picks Whisper base.en for English (the most accurate in [our benchmark](#voice-buddy-vs-wispr-flow-vs-handy)), SenseVoice for Chinese, Cantonese, Japanese and Korean, and Parakeet V3 for 24 other European languages. All run offline on this PC; the model (~210 MB / ~170 MB / ~490 MB) downloads once from GitHub in the background, resumes if the office network cuts it, and the Windows recognizer answers until it is ready. Silero voice detection runs first, so a key click or a fan never turns into made-up text. Pick the microphone and the language in the same box.
+- **My words** (Settings -> Voice input -> My words...): one word per line that Buddy must always spell your way (`SRM`, `eGreen`, `PureGMS`: "s r m" and "e green" are fixed, near misses like "Zyris" -> `ZIRIS` too), and spoken shortcuts like `my sign off => Best regards, Juwen`.
 - **Voice**: Settings -> Voice. "Natural: ..." voices sound human (Kokoro, offline, ~120 MB downloaded once into %APPDATA%\Buddy\voices) in English (US/UK), Chinese (Mandarin), Spanish, French, Italian, Portuguese (Brazil) and Hindi. If Buddy answers in Chinese or Hindi while another language's voice is picked, a voice of the same gender reads that part; the Microsoft voices are the old robotic ones. Press **Test** to hear one. Natural voices run on the CPU, so on a very busy PC they can start a second or two later.
 - **Brain** (Settings): *Free (cloud)* needs no setup: Llama 4 Scout on Cloudflare Workers AI through a small Worker ([cloud/brain](cloud/brain)), ~5 s answers, a shared daily limit, and the screenshot + question go to Cloudflare to be answered (not stored). With *Local GPU* picked and no local brain on the PC, Buddy uses the free brain automatically. *Smart (MAAS)* uses a big vision model on your company's AI gateway (~1-2 s answers, much smarter; your screenshot + question go to that gateway, logging in with the MAAS account from the Pips token card). Set `BUDDY_SMART_URL` (an OpenAI-compatible chat endpoint) and `BUDDY_SMART_MODEL` to point it at your gateway. *Local GPU* / *Local CPU* keep everything on this PC (~5-15 s / ~1 min). If MAAS can't be reached, Buddy answers locally for 5 minutes and then tries MAAS again.
 - **Ctrl+Alt+Space**, tap it: a small ask box opens at your mouse, so you can type when you can't talk. If you had text highlighted, Buddy reads it too (through Windows accessibility, never the clipboard). Just pressing Enter means "explain this".
@@ -69,6 +72,37 @@ Buddy only does what *your words* ask for. "Close notepad" can only close Notepa
 **Pointing:** the arrow snaps onto the exact button, tab or text box through Windows UI Automation.
 This works in Office, browsers, Electron apps and the taskbar. In apps that draw their own UI, the
 arrow goes to the model's estimate.
+
+## Voice: Buddy vs Wispr Flow vs Handy
+Measured with [bench/](bench/README.md) on Juwen's office laptop (Core Ultra 7 258V, behind the company proxy): 12 work questions
+(SRM, eGreen, PureGMS, BOM, PLM, Pega-Vision...) read by two Windows voices, clean and with 10 dB of office noise, 4 Chinese
+questions, and 4 clips with no speech at all (room tone, fan, key clicks, a breath). Lower is better.
+
+| What you get when you talk | English errors (clean / noisy) | Chinese errors | Text made up from silence |
+|---|---|---|---|
+| Buddy before, on an office PC (download blocked -> Windows recognizer) | 37% / 87% | 42% | 1 of 4 |
+| Buddy before, when Whisper could be downloaded | 7.5% / 7.0% | English only | **4 of 4** ("(buzzing)", "[BLANK_AUDIO]") |
+| Parakeet V3 + voice detection (the engine Handy recommends) | 13.6% / 15.4% | English + Europe only | 0 of 4 |
+| **Buddy now** (Whisper base.en + voice detection + My words) | **4.9% / 4.9%** | **0% / 1.5%** (SenseVoice) | **0 of 4** |
+
+Wispr Flow is not in the table: it sends your voice to its cloud, which the office network and data rules don't allow, so it
+couldn't be measured here. "Errors" is word error rate (character error rate for Chinese) against what the speaker meant; the
+voices are synthetic (Windows TTS), so real voices will differ, but the order between the engines is what matters. Without
+*My words* Buddy now scores 8.4% / 7.9% (the voice detection that removes all made-up text costs about one point). Speed: about
+0.9 s from letting go to text on a quiet CPU, about 2 s while other heavy work runs.
+
+| | Wispr Flow | Handy | Buddy |
+|---|---|---|---|
+| Price | Free up to 2,000 words a week, then paid | Free, open source | Free |
+| Where your voice goes | Its cloud | Stays on the PC | Stays on the PC |
+| Works behind the office proxy | No | Model downloads from HuggingFace are blocked | Yes (models come from GitHub, downloads resume) |
+| Dictate into any app (hold, or tap for hands-free) | Yes | Yes | Yes (Ctrl+Alt+D), never touches the clipboard |
+| Removes "um"/"uh", follows "no wait..." | Yes | Optional, through an AI model | Yes, built in and instant |
+| Personal dictionary + spoken shortcuts | Yes | Custom words | Yes (*My words*) |
+| Edit selected text by voice ("make this shorter") | Yes (Command Mode) | No | Yes (select text, Ctrl+Alt+D, say the change) |
+| Chinese | Yes | With Whisper models | Yes, SenseVoice (0% errors above) |
+| Ignores silence / noise | - | Yes (Silero) | Yes (Silero) |
+| Sees your screen, points at buttons, clicks and types for you | No | No | Yes (Ctrl+Alt+Space) |
 
 ## Buddy Island
 Buddy lives in your screen's notch, so it is always one move away, on every device:

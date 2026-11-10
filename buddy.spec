@@ -38,6 +38,8 @@ def third_party_and_stdlib_imports():
 
 
 whisper_datas, whisper_binaries, whisper_hidden = collect_all("faster_whisper")
+# speech in (keyit_speech): sherpa-onnx ships its own onnxruntime DLL next to its extension module
+speech_datas, speech_binaries, speech_hidden = collect_all("sherpa_onnx")
 # natural voices (keyit_voice): Kokoro + espeak-ng phonemizer; espeakng_loader ships the espeak DLL and its data
 voice_datas, voice_binaries, voice_hidden = [], [], []
 # phonemizer -> segments -> csvw -> language_tags reads its own JSON data at import, so collect those too
@@ -52,9 +54,9 @@ for package in ("kokoro_onnx", "phonemizer", "espeakng_loader", "joblib", "dlinf
 analysis = Analysis(
     ["buddy.py"],
     pathex=[str(folder) for folder in SOURCE_DIRS],
-    binaries=whisper_binaries + voice_binaries + collect_dynamic_libs("ctranslate2"),
-    datas=whisper_datas + voice_datas,
-    hiddenimports=third_party_and_stdlib_imports() + whisper_hidden + voice_hidden + [
+    binaries=whisper_binaries + speech_binaries + voice_binaries + collect_dynamic_libs("ctranslate2"),
+    datas=whisper_datas + speech_datas + voice_datas,
+    hiddenimports=third_party_and_stdlib_imports() + whisper_hidden + speech_hidden + voice_hidden + [
         "pystray._win32",
         "pynput.keyboard._win32",
         "pynput.mouse._win32",

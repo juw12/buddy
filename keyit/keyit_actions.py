@@ -414,16 +414,40 @@ class _INPUT(ctypes.Structure):
     _fields_ = [("type", wintypes.DWORD), ("u", _U)]
 
 
-def type_text(text):
-    """Type any text (Unicode) into the focused field."""
+def typing_events(text):
+    """(virtual key, scan code, flags) for every key event that types `text`.
+    Characters go as UTF-16 code units (emoji are two units), a new line is a real Enter press."""
     events = []
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
     for char in text:
-        for flags in (0x0004, 0x0004 | 0x0002):                    # KEYEVENTF_UNICODE (+ KEYUP)
+        if char == "\n":
+            events += [(0x0D, 0, 0), (0x0D, 0, 0x0002)]                 # VK_RETURN down, up
+            continue
+        data = char.encode("utf-16-le")
+        for i in range(0, len(data), 2):
+            unit = int.from_bytes(data[i:i + 2], "little")
+            events += [(0, unit, 0x0004), (0, unit, 0x0004 | 0x0002)]   # KEYEVENTF_UNICODE (+ KEYUP)
+    return events
+
+
+def type_text(text):
+    """Type any text (Unicode, new lines) into the focused field. Returns the number of key events sent."""
+    planned = typing_events(text)
+    if not planned:
+        return 0
+    sent = 0
+    for start in range(0, len(planned), 400):            # long dictations in chunks, so no event is dropped
+        chunk = planned[start:start + 400]
+        events = []
+        for vk, scan, flags in chunk:
             event = _INPUT(type=1)
-            event.ki = _KEYBDINPUT(0, ord(char), flags, 0, 0)
+            event.ki = _KEYBDINPUT(vk, scan, flags, 0, 0)
             events.append(event)
-    array = (_INPUT * len(events))(*events)
-    user32.SendInput(len(events), array, ctypes.sizeof(_INPUT))
+        array = (_INPUT * len(events))(*events)
+        sent += user32.SendInput(len(events), array, ctypes.sizeof(_INPUT))
+        if start + 400 < len(planned):
+            time.sleep(0.01)
+    return sent
 
 
 def click_at(x, y):

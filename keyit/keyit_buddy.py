@@ -37,13 +37,20 @@ import buddy_overlay
 import keyit_actions
 import keyit_core as core
 import keyit_gpu
+import keyit_speech
 import keyit_targets
+import keyit_words
 
 DEFAULTS = {
     "buddy_enabled": False,
     "ollama_url": "http://localhost:11434",
     "buddy_model": "qwen3-vl:4b-instruct",   # the plain 4b tag is the slow "thinking" variant
-    "whisper_model": "auto",
+    "whisper_model": "auto",          # old setting, read once by keyit_speech.migrate
+    "speech_model": "auto",           # Settings -> Speech model: auto, whisper-en, parakeet, sensevoice, moonshine, whisper, windows
+    "dictation": True,                # Ctrl+Alt+D types what you say into the app in front
+    "voice_cleanup": True,            # drop um/uh, apply spoken corrections ("no wait")
+    "my_words": "",                   # Settings -> My words: spellings + spoken shortcuts (keyit_words)
+    "mic_device": "",                 # Settings -> Microphone: "" = the Windows default
     "speech_language": "en-US",
     "buddy_voice": "",
     "buddy_speak": True,
@@ -67,6 +74,8 @@ MODEL_OPTIONS = {"num_ctx": 8192, "num_thread": max(2, (os.cpu_count() or 4) // 
 KEEP_ALIVE = "30m"            # how long Ollama keeps the model in memory after the last question
 LOOK_AHEAD_MAX_AGE = 300      # s; a look-ahead screenshot older than this is not reused
 TAP_SECONDS = 0.35            # Ctrl+Alt+Space shorter than this = type, longer = talk
+DICTATION_MAX_SECONDS = 300   # hands-free dictation stops by itself after 5 minutes
+DICTATION_HISTORY = 20        # last dictations kept in memory (never on disk) for 'type it again'
 CHIME_SKIP_SECONDS = 0.25     # drop the start of the recording so speech recognition doesn't hear the chime
 SELECTION_MAX_CHARS = 4000
 HISTORY_TURNS = 4
@@ -101,6 +110,7 @@ def buddy_settings(settings):
         settings.setdefault(key, value)
     # The plain qwen3-vl tags "think" silently for minutes on a laptop CPU; use the instruct twin.
     settings["buddy_model"] = SLOW_THINKING_MODELS.get(settings["buddy_model"], settings["buddy_model"])
+    keyit_speech.migrate(settings)
     return settings
 
 
@@ -331,6 +341,30 @@ def os_close(handle):
     os.close(handle)
 
 
+def dictation_spacing(text):
+    """A dictation that ends a sentence gets a trailing space, so the next one doesn't stick to it."""
+    if text and text[-1] in ".!?,;:" and not keyit_speech_is_cjk(text[-2:-1]):
+        return text + " "
+    return text
+
+
+def keyit_speech_is_cjk(char):
+    return bool(char) and ("\u3000" <= char <= "\u9fff" or "\uff00" <= char <= "\uffef")
+
+
+def wait_for_keys_up(timeout=2.0):
+    """Wait until Ctrl, Alt, Shift and D are physically released (typing with Ctrl held makes shortcuts)."""
+    try:
+        get_key_state = ctypes.windll.user32.GetAsyncKeyState
+    except AttributeError:
+        return
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        if not any(get_key_state(vk) & 0x8000 for vk in (0x11, 0x12, 0x10, 0x44, 0x5B, 0x5C)):
+            return
+        time.sleep(0.02)
+
+
 def make_speech_engine(choice, language, on_status=lambda text: None):
     """Return (engine, description). 'auto' tries Whisper then falls back to Windows."""
     if choice == "windows":
@@ -346,14 +380,16 @@ def make_speech_engine(choice, language, on_status=lambda text: None):
         return WindowsSpeechToText(language), f"Windows speech recognizer ({language}) – Whisper download blocked"
 
 
+def legacy_engine(kind, language, whisper_model="auto"):
+    """The old engines for keyit_speech.Speech: 'whisper' (faster-whisper) or 'windows' (System.Speech)."""
+    if kind == "whisper":
+        model = "base.en" if whisper_model in ("auto", "windows", "", None) else whisper_model
+        return SpeechToText(model)
+    return WindowsSpeechToText(language)
+
+
 def resample(audio, source_rate, target_rate):
-    audio = np.asarray(audio, dtype=np.float32)
-    if source_rate == target_rate or audio.size == 0:
-        return audio
-    width = max(1, int(round(source_rate / target_rate)))
-    smoothed = np.convolve(audio, np.ones(width) / width, mode="same")   # crude anti-alias
-    positions = np.arange(0, audio.size, source_rate / target_rate)
-    return np.interp(positions, np.arange(audio.size), smoothed).astype(np.float32)
+    return keyit_speech.resample(audio, source_rate, target_rate)
 
 
 TEST_LINES = {
@@ -860,6 +896,8 @@ class Buddy:
         self.stt = None
         self.stt_name = None
         self.mic = None
+        self.dictation = None                  # {"mic", "hands_free", "stop_on_release", ...} while dictating
+        self.dictations = []                   # last few dictated texts (memory only)
         self.last_reply = None
         self.last_timing = None
         self.monitor = None
@@ -973,6 +1011,7 @@ class Buddy:
         return True
 
     def _prepare(self):
+        threading.Thread(target=self._prepare_speech, name="buddy-speech-prepare", daemon=True).start()
         try:
             self.on_status("Loading model into memory…")
             client = self.client()
@@ -1007,16 +1046,42 @@ class Buddy:
             self.on_status(self._explain_error(error).replace("\n", " "))
 
     def _ensure_stt(self):
-        wanted = (self.settings["whisper_model"], self.settings["speech_language"])
+        """The speech engine for the current settings (keyit_speech.Speech). Loads in the background, so the
+        first question never waits for a download: until it is ready the Windows recognizer answers."""
+        wanted = (self.settings["speech_model"], self.settings["speech_language"])
         if self.stt is None or self.stt_name != wanted:
-            self.stt, description = make_speech_engine(*wanted, on_status=self.on_status)
+            whisper_model = self.settings.get("whisper_model", "auto")
+            self.stt = keyit_speech.Speech(
+                choice=wanted[0], language=wanted[1], on_status=self.on_status,
+                legacy_factory=lambda kind, language: legacy_engine(kind, language, whisper_model))
             self.stt_name = wanted
-            self.on_status(f"Speech: {description}")
+            self.stt.prepare()
+        return self.stt
+
+    def _prepare_speech(self):
+        try:
+            self._ensure_stt()
+        except Exception:
+            logging.exception("Speech engine could not start")
+
+    def _mic(self):
+        from keyit_recorder import MicCapture
+
+        device = self.settings.get("mic_device") or None
+        try:
+            return MicCapture(device=device)
+        except Exception:
+            if device is None:
+                raise
+            logging.warning("Microphone %r unavailable, using the Windows default", device, exc_info=True)
+            return MicCapture()
+
+    def _words(self, text, mode):
+        return keyit_words.process(text, self.settings.get("my_words", ""), mode=mode,
+                                   tidy_up=self.settings.get("voice_cleanup", True))
 
     # -- push to talk (called from the keyboard hook thread)
     def press(self):
-        from keyit_recorder import MicCapture
-
         self.cancel()
         self.pressed_at = time.perf_counter()
         self.chimed = self.chime("buddy_wake")
@@ -1024,7 +1089,7 @@ class Buddy:
         cursor = cursor_position()
         self._start_look_ahead()
         try:
-            self.mic = MicCapture()
+            self.mic = self._mic()
             self.mic.start()
         except Exception as error:
             self.mic = None
@@ -1065,6 +1130,148 @@ class Buddy:
         self.post(self.overlay.thinking, "Transcribing\u2026")
         threading.Thread(target=self._from_voice, args=(audio, mic.sample_rate), daemon=True).start()
 
+    # -- dictation: Ctrl+Alt+D types what you say into the app in front (called from the hook thread)
+    def dictate_press(self):
+        if not self.settings.get("dictation", True):
+            return
+        current = self.dictation
+        if current is not None:
+            if current.get("hands_free"):
+                current["stop_on_release"] = True        # this press ends hands-free dictation
+            return
+        self.speaker.stop()
+        monitor, cursor = monitor_under_cursor(), cursor_position()
+        try:
+            mic = self._mic()
+            mic.start()
+        except Exception as error:
+            self.post(self.overlay.thinking, f"Mic error: {error}")
+            self.post(self.overlay.hide_later, 4000)
+            return
+        self.chime("buddy_wake")
+        self.dictation = {"mic": mic, "hands_free": False, "stop_on_release": False,
+                          "pressed_at": time.perf_counter(), "monitor": monitor, "selection": None}
+        current = self.dictation
+
+        def read_selection():                              # for "make this shorter" on highlighted text
+            try:
+                current["selection"] = selected_text_quick() or ""
+            except Exception:
+                current["selection"] = ""
+
+        threading.Thread(target=read_selection, daemon=True).start()
+        self.post(self.overlay.listening, monitor, cursor)
+        self._ensure_stt()                                 # loads in the background if it isn't yet
+
+    def dictate_release(self):
+        current = self.dictation
+        if current is None:
+            return
+        if current.get("stop_on_release"):
+            self._finish_dictation(current)
+            return
+        held = time.perf_counter() - current["pressed_at"]
+        if held < TAP_SECONDS and not current["hands_free"]:
+            # a tap: keep listening hands-free until the next tap (or Esc, or 5 minutes)
+            current["hands_free"] = True
+            self.on_status("Dictating hands-free - tap Ctrl+Alt+D to type it, Esc to cancel.")
+            threading.Thread(target=self._dictation_limit, args=(current,), daemon=True).start()
+            return
+        self._finish_dictation(current)
+
+    def _dictation_limit(self, current):
+        deadline = time.monotonic() + DICTATION_MAX_SECONDS
+        while self.dictation is current and time.monotonic() < deadline:
+            time.sleep(0.25)
+        if self.dictation is current:
+            self._finish_dictation(current)
+
+    def _finish_dictation(self, current):
+        if self.dictation is not current:
+            return
+        self.dictation = None
+        try:
+            audio, _ = current["mic"].stop()
+        except Exception as error:
+            self.post(self.overlay.thinking, f"Mic error: {error}")
+            self.post(self.overlay.hide_later, 4000)
+            return
+        rate = current["mic"].sample_rate
+        self.chime("buddy_got_it")
+        self.post(self.overlay.thinking, "Writing\u2026")
+        threading.Thread(target=self._dictate_text, args=(audio, rate, current.get("selection") or ""),
+                         daemon=True).start()
+
+    def _dictate_text(self, audio, sample_rate, selection=""):
+        started = time.perf_counter()
+        try:
+            heard = self._ensure_stt().transcribe(audio, sample_rate)
+        except Exception as error:
+            logging.exception("Dictation failed")
+            self.post(self.overlay.thinking, f"Speech recognition failed: {error}")
+            self.post(self.overlay.hide_later, 5000)
+            return
+        text = self._words(heard, "dictate")
+        if not text:
+            self.post(self.overlay.thinking, "I didn't hear anything - hold Ctrl+Alt+D while you talk.")
+            self.post(self.overlay.hide_later, 2500)
+            return
+        if selection.strip() and keyit_words.is_edit_command(text):
+            rewritten = self._rewrite(text, selection)      # Command mode: rewrite the highlighted text
+            if rewritten is None:
+                return
+            text = rewritten
+        else:
+            text = dictation_spacing(text)
+        wait_for_keys_up()                                  # never type while Ctrl/Alt are still held
+        sent = keyit_actions.type_text(text)
+        self.dictations = (self.dictations + [text])[-DICTATION_HISTORY:]
+        logging.info("Dictated %d chars in %.2fs (%s), %d key events", len(text), time.perf_counter() - started,
+                     self.stt.describe(), sent)
+        self.post(self.overlay.say, text if len(text) < 140 else text[:137] + "\u2026")
+        self.post(self.overlay.hide_later, 1800)
+
+    REWRITE_PROMPT = ("You edit text for the user. Apply their instruction to the text and reply with ONLY the "
+                      "new text: no quotes, no explanation, no markdown, same language as the text unless they ask "
+                      "for a translation. Keep names, numbers and part numbers exactly.")
+
+    def _rewrite(self, instruction, selection):
+        """Command mode: the brain applies a spoken instruction to the highlighted text. None = failed (shown)."""
+        self.post(self.overlay.thinking, f"\u201c{instruction}\u201d\nRewriting\u2026")
+        messages = [{"role": "system", "content": self.REWRITE_PROMPT},
+                    {"role": "user", "content": f"Instruction: {instruction}\n\nText:\n{selection[:SELECTION_MAX_CHARS]}"}]
+        try:
+            reply = "".join(self._stream(messages)).strip()
+        except Exception as error:
+            logging.exception("Rewrite failed")
+            self.post(self.overlay.thinking, self._explain_error(error))
+            self.post(self.overlay.hide_later, 8000)
+            return None
+        reply = re.sub(r"^```\w*\n?|\n?```$", "", reply).strip().strip('"\u201c\u201d')
+        if not reply:
+            self.post(self.overlay.thinking, "The brain sent back nothing - try again?")
+            self.post(self.overlay.hide_later, 3000)
+            return None
+        return reply
+
+    def type_last_dictation(self):
+        """Tray / settings: type the last dictation again (e.g. it went to the wrong window)."""
+        if not self.dictations:
+            self.on_status("Nothing dictated yet - hold Ctrl+Alt+D and talk.")
+            return False
+        wait_for_keys_up()
+        keyit_actions.type_text(self.dictations[-1])
+        return True
+
+    def copy_last_dictation(self, root=None):
+        """Put the last dictation on the clipboard (only when you ask for it)."""
+        if not self.dictations:
+            return False
+        widget = root or self.root
+        widget.clipboard_clear()
+        widget.clipboard_append(self.dictations[-1])
+        return True
+
     def _open_ask_box(self):
         """Read the highlighted text (if any) before the box takes focus, then open the box at the mouse."""
         selection = selected_text_quick()
@@ -1089,6 +1296,12 @@ class Buddy:
             except Exception:
                 pass
             self.mic = None
+        dictation, self.dictation = self.dictation, None
+        if dictation is not None:
+            try:
+                dictation["mic"].stop()
+            except Exception:
+                pass
         self.post(self.overlay.hide)
         self.post(AskBox.close_current)
 
@@ -1234,8 +1447,10 @@ class Buddy:
     # -- question flow (worker threads)
     def _from_voice(self, audio, sample_rate):
         try:
-            self._ensure_stt()
-            question = self.stt.transcribe(audio, sample_rate)
+            started = time.perf_counter()
+            question = self._ensure_stt().transcribe(audio, sample_rate)
+            question = self._words(question, "ask")
+            logging.info("Heard in %.2fs (%s): %r", time.perf_counter() - started, self.stt.describe(), question)
         except Exception as error:
             self.post(self.overlay.thinking, f"Speech recognition failed: {error}")
             return

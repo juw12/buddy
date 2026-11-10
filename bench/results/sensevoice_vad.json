@@ -1,0 +1,561 @@
+{
+ "engine": "sensevoice + Silero VAD",
+ "summary": {
+  "clean_en_wer": 18.2,
+  "clean_zh_cer": 0.0,
+  "clean_jargon_pct": 60.0,
+  "noisy_en_wer": 21.0,
+  "noisy_zh_cer": 1.5,
+  "noisy_jargon_pct": 50.0,
+  "silence_hallucinations": 0,
+  "latency_mean_s": 0.2,
+  "latency_p90_s": 0.26,
+  "load_s": 2.5
+ },
+ "rows": [
+  {
+   "set": "clean",
+   "key": "q01",
+   "file": "q01_david.wav",
+   "hyp": "WHERE IS THE SAVE AS BUTTON IN NOTEPAD",
+   "seconds": 0.179,
+   "audio_seconds": 4.04
+  },
+  {
+   "set": "clean",
+   "key": "q01",
+   "file": "q01_zira.wav",
+   "hyp": "WWERE IS THE SAVEST BUTTON IN NOTEPAD",
+   "seconds": 0.167,
+   "audio_seconds": 3.83
+  },
+  {
+   "set": "clean",
+   "key": "q02",
+   "file": "q02_david.wav",
+   "hyp": "HOW DO I ADD A NEW PART NUMBER IN S R M",
+   "seconds": 0.216,
+   "audio_seconds": 4.47
+  },
+  {
+   "set": "clean",
+   "key": "q02",
+   "file": "q02_zira.wav",
+   "hyp": "HOW DO I ADD A NEW PART NUMBER IN SRM",
+   "seconds": 0.228,
+   "audio_seconds": 4.35
+  },
+  {
+   "set": "clean",
+   "key": "q03",
+   "file": "q03_david.wav",
+   "hyp": "OPEN THE EGREEN PART SRVEY AND SET PURE GMS TO REJECT IT",
+   "seconds": 0.207,
+   "audio_seconds": 5.46
+  },
+  {
+   "set": "clean",
+   "key": "q03",
+   "file": "q03_zira.wav",
+   "hyp": "OPEN THE EGREEN PART SUVEY AND SET PURE GMMSS TO REJECT IT",
+   "seconds": 0.228,
+   "audio_seconds": 5.5
+  },
+  {
+   "set": "clean",
+   "key": "q04",
+   "file": "q04_david.wav",
+   "hyp": "CLICK ANDS SEERT THEN PICK VENDOR MAPPING",
+   "seconds": 0.215,
+   "audio_seconds": 4.45
+  },
+  {
+   "set": "clean",
+   "key": "q04",
+   "file": "q04_zira.wav",
+   "hyp": "CLICK INSERT THEN PICK VENDOR MAPPING",
+   "seconds": 0.193,
+   "audio_seconds": 4.41
+  },
+  {
+   "set": "clean",
+   "key": "q05",
+   "file": "q05_david.wav",
+   "hyp": "WHAT DOES THIS BOM ERROR MEAN IN PUMP",
+   "seconds": 0.209,
+   "audio_seconds": 3.98
+  },
+  {
+   "set": "clean",
+   "key": "q05",
+   "file": "q05_zira.wav",
+   "hyp": "WHAT DOES THIS BUM ERROR MEAN IN PUM",
+   "seconds": 0.235,
+   "audio_seconds": 3.94
+  },
+  {
+   "set": "clean",
+   "key": "q06",
+   "file": "q06_david.wav",
+   "hyp": "CLOSE THE FILE EXPLORER AND MINIMIZE OUTLOOK",
+   "seconds": 0.22,
+   "audio_seconds": 4.54
+  },
+  {
+   "set": "clean",
+   "key": "q06",
+   "file": "q06_zira.wav",
+   "hyp": "CLOSE THE FILE EXPLORER AND MINIMIZE OUTLOOK",
+   "seconds": 0.159,
+   "audio_seconds": 4.45
+  },
+  {
+   "set": "clean",
+   "key": "q07",
+   "file": "q07_david.wav",
+   "hyp": "OW DO I EXPORT THIS SHEET TO PDF",
+   "seconds": 0.295,
+   "audio_seconds": 6.0
+  },
+  {
+   "set": "clean",
+   "key": "q07",
+   "file": "q07_zira.wav",
+   "hyp": "OW DO I A EXPORT THIS SHEET TO PDF",
+   "seconds": 0.196,
+   "audio_seconds": 5.96
+  },
+  {
+   "set": "clean",
+   "key": "q08",
+   "file": "q08_david.wav",
+   "hyp": "SEND THE REPORT TO THE TEAM AT THREE NO WEIGHT AT FOUR O'CLOCK",
+   "seconds": 0.2,
+   "audio_seconds": 6.12
+  },
+  {
+   "set": "clean",
+   "key": "q08",
+   "file": "q08_zira.wav",
+   "hyp": "SEND THE REPORT TO THE TEAM AT THREE NO WEIGHT AT FOUR O'CLOCK",
+   "seconds": 0.206,
+   "audio_seconds": 6.1
+  },
+  {
+   "set": "clean",
+   "key": "q09",
+   "file": "q09_david.wav",
+   "hyp": "TYPE HELLO TEAM THE ZIRUS POWER TEST PAST",
+   "seconds": 0.191,
+   "audio_seconds": 5.08
+  },
+  {
+   "set": "clean",
+   "key": "q09",
+   "file": "q09_zira.wav",
+   "hyp": "YPE HELLO TEAM THE ZIRUS POWER TEST PASSETD",
+   "seconds": 0.179,
+   "audio_seconds": 5.08
+  },
+  {
+   "set": "clean",
+   "key": "q10",
+   "file": "q10_david.wav",
+   "hyp": "EXPLAIN WHAT THIS PIG OF VISION WARNING IS ABOUT",
+   "seconds": 0.153,
+   "audio_seconds": 4.38
+  },
+  {
+   "set": "clean",
+   "key": "q10",
+   "file": "q10_zira.wav",
+   "hyp": "EXPLAIN WHAT THIS PEG OF VISION WARNING IS ABOUT",
+   "seconds": 0.158,
+   "audio_seconds": 4.37
+  },
+  {
+   "set": "clean",
+   "key": "q11",
+   "file": "q11_david.wav",
+   "hyp": "CAN YOU SHOW ME WHERE THE SPECK GREEN FIELD IS",
+   "seconds": 0.144,
+   "audio_seconds": 4.39
+  },
+  {
+   "set": "clean",
+   "key": "q11",
+   "file": "q11_zira.wav",
+   "hyp": "CAN YOU SHOW ME WHERE THE SPECK GREENFIELD IS",
+   "seconds": 0.146,
+   "audio_seconds": 4.32
+  },
+  {
+   "set": "clean",
+   "key": "q12",
+   "file": "q12_david.wav",
+   "hyp": "PLEASE DRAFT A SHORT REPLY SAYING THE SAMPLES SHIP ON FRIDAY",
+   "seconds": 0.193,
+   "audio_seconds": 5.38
+  },
+  {
+   "set": "clean",
+   "key": "q12",
+   "file": "q12_zira.wav",
+   "hyp": "PLEASE DRAFT A SHORT REPLY SAYING THE SAMPLES SHIP ON FRIDAY",
+   "seconds": 0.239,
+   "audio_seconds": 5.32
+  },
+  {
+   "set": "clean",
+   "key": "z01",
+   "file": "z01_hanhan.wav",
+   "hyp": "保存按钮在哪里",
+   "seconds": 0.14,
+   "audio_seconds": 3.5
+  },
+  {
+   "set": "clean",
+   "key": "z01",
+   "file": "z01_huihui.wav",
+   "hyp": "保存按钮在哪里",
+   "seconds": 0.166,
+   "audio_seconds": 3.58
+  },
+  {
+   "set": "clean",
+   "key": "z02",
+   "file": "z02_hanhan.wav",
+   "hyp": "帮我打开记事本",
+   "seconds": 0.194,
+   "audio_seconds": 3.48
+  },
+  {
+   "set": "clean",
+   "key": "z02",
+   "file": "z02_huihui.wav",
+   "hyp": "帮我打开记事本",
+   "seconds": 0.161,
+   "audio_seconds": 3.48
+  },
+  {
+   "set": "clean",
+   "key": "z03",
+   "file": "z03_hanhan.wav",
+   "hyp": "这个错误是什么意思",
+   "seconds": 0.153,
+   "audio_seconds": 3.81
+  },
+  {
+   "set": "clean",
+   "key": "z03",
+   "file": "z03_huihui.wav",
+   "hyp": "这个错误是什么意思",
+   "seconds": 0.184,
+   "audio_seconds": 3.71
+  },
+  {
+   "set": "clean",
+   "key": "z04",
+   "file": "z04_hanhan.wav",
+   "hyp": "怎么在系统里新增料号",
+   "seconds": 0.193,
+   "audio_seconds": 4.26
+  },
+  {
+   "set": "clean",
+   "key": "z04",
+   "file": "z04_huihui.wav",
+   "hyp": "怎么在系统里新增料号",
+   "seconds": 0.188,
+   "audio_seconds": 4.28
+  },
+  {
+   "set": "noisy",
+   "key": "q01",
+   "file": "q01_david.wav",
+   "hyp": "WHERE IS THE SAVE AS BUTTON IN NOTEPAD",
+   "seconds": 0.168,
+   "audio_seconds": 4.04
+  },
+  {
+   "set": "noisy",
+   "key": "q01",
+   "file": "q01_zira.wav",
+   "hyp": "WHERE IS THE SAVEST BUTTON IN NOEPAD",
+   "seconds": 0.201,
+   "audio_seconds": 3.83
+  },
+  {
+   "set": "noisy",
+   "key": "q02",
+   "file": "q02_david.wav",
+   "hyp": "OW DO I ADD A NEW PART NUMBER IN S RM",
+   "seconds": 0.198,
+   "audio_seconds": 4.47
+  },
+  {
+   "set": "noisy",
+   "key": "q02",
+   "file": "q02_zira.wav",
+   "hyp": "HOW DO I ADD A NEW PART NUMBER IN SM",
+   "seconds": 0.209,
+   "audio_seconds": 4.35
+  },
+  {
+   "set": "noisy",
+   "key": "q03",
+   "file": "q03_david.wav",
+   "hyp": "OPEN THE EGREEN PART SRVEY AND SET YOUR GMS TO REJECT IT",
+   "seconds": 0.226,
+   "audio_seconds": 5.46
+  },
+  {
+   "set": "noisy",
+   "key": "q03",
+   "file": "q03_zira.wav",
+   "hyp": "OPEN THE E GREEN PART SURVEY AND SET PURE GMS TO REJECT IT",
+   "seconds": 0.233,
+   "audio_seconds": 5.5
+  },
+  {
+   "set": "noisy",
+   "key": "q04",
+   "file": "q04_david.wav",
+   "hyp": "CLICK AND SEIRD THEN PICK BENDER MAPPING",
+   "seconds": 0.181,
+   "audio_seconds": 4.45
+  },
+  {
+   "set": "noisy",
+   "key": "q04",
+   "file": "q04_zira.wav",
+   "hyp": "CLICK INSERT THEN PICK VENDOR MAPPING",
+   "seconds": 0.185,
+   "audio_seconds": 4.41
+  },
+  {
+   "set": "noisy",
+   "key": "q05",
+   "file": "q05_david.wav",
+   "hyp": "WHAT DOES THIS BOM ERRROR MEAN IN PUMP",
+   "seconds": 0.162,
+   "audio_seconds": 3.98
+  },
+  {
+   "set": "noisy",
+   "key": "q05",
+   "file": "q05_zira.wav",
+   "hyp": "WHAT DOES THIS BUMB EROR MEAN IN PM",
+   "seconds": 0.178,
+   "audio_seconds": 3.94
+  },
+  {
+   "set": "noisy",
+   "key": "q06",
+   "file": "q06_david.wav",
+   "hyp": "CLOSE THE FILE EXPLORER AND MINIMIZE OUTLOOK",
+   "seconds": 0.3,
+   "audio_seconds": 4.54
+  },
+  {
+   "set": "noisy",
+   "key": "q06",
+   "file": "q06_zira.wav",
+   "hyp": "CLOSE THE FILE EXPLORER AND MINIMIZED OUTLOOK",
+   "seconds": 0.403,
+   "audio_seconds": 4.45
+  },
+  {
+   "set": "noisy",
+   "key": "q07",
+   "file": "q07_david.wav",
+   "hyp": "OW DO I EXPORT THIS SHEET TO PDF",
+   "seconds": 0.282,
+   "audio_seconds": 6.0
+  },
+  {
+   "set": "noisy",
+   "key": "q07",
+   "file": "q07_zira.wav",
+   "hyp": "HOW DO I U EXPORT THIS SHEET TO PDF",
+   "seconds": 0.296,
+   "audio_seconds": 5.96
+  },
+  {
+   "set": "noisy",
+   "key": "q08",
+   "file": "q08_david.wav",
+   "hyp": "SEND THE REPORT TO THE TEAM AT THREE NO WEIGHT AT FOUR O'CLOCK",
+   "seconds": 0.307,
+   "audio_seconds": 6.12
+  },
+  {
+   "set": "noisy",
+   "key": "q08",
+   "file": "q08_zira.wav",
+   "hyp": "SEND THE REPORT TO THE TEAM AT THREE NO WEIGHT AT FOUR O'CLOCK",
+   "seconds": 0.257,
+   "audio_seconds": 6.1
+  },
+  {
+   "set": "noisy",
+   "key": "q09",
+   "file": "q09_david.wav",
+   "hyp": "TYPE HELLO TEAM THE ZIRUS POWER TEST PASS",
+   "seconds": 0.192,
+   "audio_seconds": 5.08
+  },
+  {
+   "set": "noisy",
+   "key": "q09",
+   "file": "q09_zira.wav",
+   "hyp": "YPE HELLO TEAM THE ZIRUS POWER TEST PASSED",
+   "seconds": 0.206,
+   "audio_seconds": 5.08
+  },
+  {
+   "set": "noisy",
+   "key": "q10",
+   "file": "q10_david.wav",
+   "hyp": "EXPLAIN WHAT THIS PEIG O VISION WARNING IS ABOUT",
+   "seconds": 0.179,
+   "audio_seconds": 4.38
+  },
+  {
+   "set": "noisy",
+   "key": "q10",
+   "file": "q10_zira.wav",
+   "hyp": "EXPLAIN WHAT THIS PEG OF VISION WARNING IS ABOUT",
+   "seconds": 0.226,
+   "audio_seconds": 4.37
+  },
+  {
+   "set": "noisy",
+   "key": "q11",
+   "file": "q11_david.wav",
+   "hyp": "CAN YOU SHOW ME WHERE THE SPECTREEN FIELD IS",
+   "seconds": 0.188,
+   "audio_seconds": 4.39
+  },
+  {
+   "set": "noisy",
+   "key": "q11",
+   "file": "q11_zira.wav",
+   "hyp": "CAN YOU SHOW ME WHERE THE SPECK GREENFIELD IS",
+   "seconds": 0.153,
+   "audio_seconds": 4.32
+  },
+  {
+   "set": "noisy",
+   "key": "q12",
+   "file": "q12_david.wav",
+   "hyp": "PLEASE DRAFT A SHORT REPLY SAYING THE SAMPLES SHIP ON FRIDAY",
+   "seconds": 0.253,
+   "audio_seconds": 5.38
+  },
+  {
+   "set": "noisy",
+   "key": "q12",
+   "file": "q12_zira.wav",
+   "hyp": "PLEASE DRAFT A SHORTK REPLY SAYING THE SAMPLES SHIP ON FRIDAY",
+   "seconds": 0.215,
+   "audio_seconds": 5.32
+  },
+  {
+   "set": "noisy",
+   "key": "z01",
+   "file": "z01_hanhan.wav",
+   "hyp": "保存按钮在哪里",
+   "seconds": 0.172,
+   "audio_seconds": 3.5
+  },
+  {
+   "set": "noisy",
+   "key": "z01",
+   "file": "z01_huihui.wav",
+   "hyp": "保存按钮在哪里",
+   "seconds": 0.143,
+   "audio_seconds": 3.58
+  },
+  {
+   "set": "noisy",
+   "key": "z02",
+   "file": "z02_hanhan.wav",
+   "hyp": "帮我打开记事本",
+   "seconds": 0.127,
+   "audio_seconds": 3.48
+  },
+  {
+   "set": "noisy",
+   "key": "z02",
+   "file": "z02_huihui.wav",
+   "hyp": "帮我打开记书本",
+   "seconds": 0.136,
+   "audio_seconds": 3.48
+  },
+  {
+   "set": "noisy",
+   "key": "z03",
+   "file": "z03_hanhan.wav",
+   "hyp": "这个错误是什么意思",
+   "seconds": 0.139,
+   "audio_seconds": 3.81
+  },
+  {
+   "set": "noisy",
+   "key": "z03",
+   "file": "z03_huihui.wav",
+   "hyp": "这个错误是什么意思",
+   "seconds": 0.205,
+   "audio_seconds": 3.71
+  },
+  {
+   "set": "noisy",
+   "key": "z04",
+   "file": "z04_hanhan.wav",
+   "hyp": "怎么在系统里新增料号",
+   "seconds": 0.257,
+   "audio_seconds": 4.26
+  },
+  {
+   "set": "noisy",
+   "key": "z04",
+   "file": "z04_huihui.wav",
+   "hyp": "怎么在系统里新增料号",
+   "seconds": 0.208,
+   "audio_seconds": 4.28
+  },
+  {
+   "set": "silence",
+   "key": "s1",
+   "file": "s1_roomtone.wav",
+   "hyp": "",
+   "seconds": 0.039,
+   "audio_seconds": 2.5
+  },
+  {
+   "set": "silence",
+   "key": "s2",
+   "file": "s2_fanhum.wav",
+   "hyp": "",
+   "seconds": 0.035,
+   "audio_seconds": 2.5
+  },
+  {
+   "set": "silence",
+   "key": "s3",
+   "file": "s3_keyclicks.wav",
+   "hyp": "",
+   "seconds": 0.035,
+   "audio_seconds": 2.5
+  },
+  {
+   "set": "silence",
+   "key": "s4",
+   "file": "s4_breath.wav",
+   "hyp": "",
+   "seconds": 0.035,
+   "audio_seconds": 2.5
+  }
+ ]
+}

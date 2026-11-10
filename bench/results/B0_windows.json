@@ -1,0 +1,492 @@
+{
+ "engine": "B0 Windows System.Speech (current office fallback)",
+ "summary": {
+  "clean_en_wer": 38.3,
+  "clean_zh_cer": 42.4,
+  "clean_jargon_pct": 56.7,
+  "noisy_en_wer": 87.4,
+  "noisy_zh_cer": 90.9,
+  "noisy_jargon_pct": 20.0,
+  "silence_hallucinations": 1,
+  "latency_mean_s": 3.35,
+  "latency_p90_s": 5.77
+ },
+ "rows": [
+  {
+   "set": "clean",
+   "key": "q01",
+   "file": "q01_david.wav",
+   "hyp": "Where is the save as button in notepad",
+   "seconds": 29.74
+  },
+  {
+   "set": "clean",
+   "key": "q01",
+   "file": "q01_zira.wav",
+   "hyp": "Where is the same as baton in notepad",
+   "seconds": 9.54
+  },
+  {
+   "set": "clean",
+   "key": "q02",
+   "file": "q02_david.wav",
+   "hyp": "How do I add a new part number in as Aram",
+   "seconds": 7.69
+  },
+  {
+   "set": "clean",
+   "key": "q02",
+   "file": "q02_zira.wav",
+   "hyp": "How do I add a new part number in Sr. and",
+   "seconds": 7.87
+  },
+  {
+   "set": "clean",
+   "key": "q03",
+   "file": "q03_david.wav",
+   "hyp": "Open the green part serve as a pure GM Esther ejected",
+   "seconds": 3.9
+  },
+  {
+   "set": "clean",
+   "key": "q03",
+   "file": "q03_zira.wav",
+   "hyp": "Of any green card survey insect year GM S to rejected",
+   "seconds": 8.58
+  },
+  {
+   "set": "clean",
+   "key": "q04",
+   "file": "q04_david.wav",
+   "hyp": "Click insert then pick vendor mapping",
+   "seconds": 4.68
+  },
+  {
+   "set": "clean",
+   "key": "q04",
+   "file": "q04_zira.wav",
+   "hyp": "Click insert pancake vendor mapping",
+   "seconds": 7.07
+  },
+  {
+   "set": "clean",
+   "key": "q05",
+   "file": "q05_david.wav",
+   "hyp": "What does this by mirror mean in palm",
+   "seconds": 3.16
+  },
+  {
+   "set": "clean",
+   "key": "q05",
+   "file": "q05_zira.wav",
+   "hyp": "What does this bomb near meaning com",
+   "seconds": 3.25
+  },
+  {
+   "set": "clean",
+   "key": "q06",
+   "file": "q06_david.wav",
+   "hyp": "Close the file explorer and minimize outlook",
+   "seconds": 2.81
+  },
+  {
+   "set": "clean",
+   "key": "q06",
+   "file": "q06_zira.wav",
+   "hyp": "Close the file explorer in minimize outlook",
+   "seconds": 3.12
+  },
+  {
+   "set": "clean",
+   "key": "q07",
+   "file": "q07_david.wav",
+   "hyp": "A how do like a exporters' sheet two PDF",
+   "seconds": 2.95
+  },
+  {
+   "set": "clean",
+   "key": "q07",
+   "file": "q07_zira.wav",
+   "hyp": "I'm had a light at export this sheet two PDF",
+   "seconds": 3.62
+  },
+  {
+   "set": "clean",
+   "key": "q08",
+   "file": "q08_david.wav",
+   "hyp": "Send a reporter that emit three no weight at 4:00",
+   "seconds": 2.92
+  },
+  {
+   "set": "clean",
+   "key": "q08",
+   "file": "q08_zira.wav",
+   "hyp": "Send a reporter that emit three now wait at 4:00",
+   "seconds": 1.81
+  },
+  {
+   "set": "clean",
+   "key": "q09",
+   "file": "q09_david.wav",
+   "hyp": "Type hello team desirous power test passed",
+   "seconds": 1.13
+  },
+  {
+   "set": "clean",
+   "key": "q09",
+   "file": "q09_zira.wav",
+   "hyp": "Tight hello team is iris power test passed",
+   "seconds": 1.24
+  },
+  {
+   "set": "clean",
+   "key": "q10",
+   "file": "q10_david.wav",
+   "hyp": "Explain what this beta vision warning is about",
+   "seconds": 0.96
+  },
+  {
+   "set": "clean",
+   "key": "q10",
+   "file": "q10_zira.wav",
+   "hyp": "Explain what this paint a vision warning is about",
+   "seconds": 1.28
+  },
+  {
+   "set": "clean",
+   "key": "q11",
+   "file": "q11_david.wav",
+   "hyp": "Can you show me where the spec Greenfield is",
+   "seconds": 1.03
+  },
+  {
+   "set": "clean",
+   "key": "q11",
+   "file": "q11_zira.wav",
+   "hyp": "Can you show me where the spec Greenfield S",
+   "seconds": 1.35
+  },
+  {
+   "set": "clean",
+   "key": "q12",
+   "file": "q12_david.wav",
+   "hyp": "Please trap the short reply saying the samples ship on Friday",
+   "seconds": 1.45
+  },
+  {
+   "set": "clean",
+   "key": "q12",
+   "file": "q12_zira.wav",
+   "hyp": "Please drive to short reply saying a sample shape on Friday",
+   "seconds": 1.37
+  },
+  {
+   "set": "clean",
+   "key": "z01",
+   "file": "z01_hanhan.wav",
+   "hyp": "当参按钮在哪里",
+   "seconds": 2.31
+  },
+  {
+   "set": "clean",
+   "key": "z01",
+   "file": "z01_huihui.wav",
+   "hyp": "把参按钮在哪里",
+   "seconds": 1.46
+  },
+  {
+   "set": "clean",
+   "key": "z02",
+   "file": "z02_hanhan.wav",
+   "hyp": "当我打开记事本",
+   "seconds": 1.35
+  },
+  {
+   "set": "clean",
+   "key": "z02",
+   "file": "z02_huihui.wav",
+   "hyp": "当我打开记事本",
+   "seconds": 1.36
+  },
+  {
+   "set": "clean",
+   "key": "z03",
+   "file": "z03_hanhan.wav",
+   "hyp": "这个错误事实曼谷说",
+   "seconds": 1.97
+  },
+  {
+   "set": "clean",
+   "key": "z03",
+   "file": "z03_huihui.wav",
+   "hyp": "这的错误是什么意思",
+   "seconds": 1.87
+  },
+  {
+   "set": "clean",
+   "key": "z04",
+   "file": "z04_hanhan.wav",
+   "hyp": "在麦加系统民心在两行",
+   "seconds": 3.02
+  },
+  {
+   "set": "clean",
+   "key": "z04",
+   "file": "z04_huihui.wav",
+   "hyp": "现在该系统理性商量好",
+   "seconds": 2.84
+  },
+  {
+   "set": "noisy",
+   "key": "q01",
+   "file": "q01_david.wav",
+   "hyp": "If there is a save as pleasant in notepad",
+   "seconds": 4.2
+  },
+  {
+   "set": "noisy",
+   "key": "q01",
+   "file": "q01_zira.wav",
+   "hyp": "If phrases CFMFF",
+   "seconds": 2.83
+  },
+  {
+   "set": "noisy",
+   "key": "q02",
+   "file": "q02_david.wav",
+   "hyp": "If the the light avenue heart number eight SRF",
+   "seconds": 3.35
+  },
+  {
+   "set": "noisy",
+   "key": "q02",
+   "file": "q02_zira.wav",
+   "hyp": "A facile im and partner in SF",
+   "seconds": 3.91
+  },
+  {
+   "set": "noisy",
+   "key": "q03",
+   "file": "q03_david.wav",
+   "hyp": "The filter the green card serve as if your dns for rejected",
+   "seconds": 4.15
+  },
+  {
+   "set": "noisy",
+   "key": "q03",
+   "file": "q03_zira.wav",
+   "hyp": "I felt physically and-FFUPMS to rejected",
+   "seconds": 5.56
+  },
+  {
+   "set": "noisy",
+   "key": "q04",
+   "file": "q04_david.wav",
+   "hyp": "Afflicting served. Defender mapping",
+   "seconds": 2.39
+  },
+  {
+   "set": "noisy",
+   "key": "q04",
+   "file": "q04_zira.wav",
+   "hyp": "Affecting safe and defend your math and",
+   "seconds": 2.37
+  },
+  {
+   "set": "noisy",
+   "key": "q05",
+   "file": "q05_david.wav",
+   "hyp": "A Philip business from the remaining half",
+   "seconds": 1.83
+  },
+  {
+   "set": "noisy",
+   "key": "q05",
+   "file": "q05_zira.wav",
+   "hyp": "A Philips says his fund can and can't pay",
+   "seconds": 2.16
+  },
+  {
+   "set": "noisy",
+   "key": "q06",
+   "file": "q06_david.wav",
+   "hyp": "If close the file explorer and minimize out of",
+   "seconds": 1.66
+  },
+  {
+   "set": "noisy",
+   "key": "q06",
+   "file": "q06_zira.wav",
+   "hyp": "Affirms the file explorer and then I found life",
+   "seconds": 2.06
+  },
+  {
+   "set": "noisy",
+   "key": "q07",
+   "file": "q07_david.wav",
+   "hyp": "A Philip pro the life of export his chief of the DF",
+   "seconds": 2.42
+  },
+  {
+   "set": "noisy",
+   "key": "q07",
+   "file": "q07_zira.wav",
+   "hyp": "Offend paddle out pound packs for his GEDF",
+   "seconds": 2.14
+  },
+  {
+   "set": "noisy",
+   "key": "q08",
+   "file": "q08_david.wav",
+   "hyp": "Thefts in the report to the team if grief the only if it were a lot",
+   "seconds": 2.97
+  },
+  {
+   "set": "noisy",
+   "key": "q08",
+   "file": "q08_zira.wav",
+   "hyp": "Offender the fourth 17 and three milling at 4:00",
+   "seconds": 2.93
+  },
+  {
+   "set": "noisy",
+   "key": "q09",
+   "file": "q09_david.wav",
+   "hyp": "If my fellow saint pierre's iris Howard has passed",
+   "seconds": 2.91
+  },
+  {
+   "set": "noisy",
+   "key": "q09",
+   "file": "q09_zira.wav",
+   "hyp": "A fifth-months and Pazienza Alex FF",
+   "seconds": 2.1
+  },
+  {
+   "set": "noisy",
+   "key": "q10",
+   "file": "q10_david.wav",
+   "hyp": "Six plane was his fatal vision morning is a tough",
+   "seconds": 2.37
+  },
+  {
+   "set": "noisy",
+   "key": "q10",
+   "file": "q10_zira.wav",
+   "hyp": "Six plane was his fantasies and mourning is a tough",
+   "seconds": 3.76
+  },
+  {
+   "set": "noisy",
+   "key": "q11",
+   "file": "q11_david.wav",
+   "hyp": "A family show me where the spec Greenfield is",
+   "seconds": 2.61
+  },
+  {
+   "set": "noisy",
+   "key": "q11",
+   "file": "q11_zira.wav",
+   "hyp": "A family shown us that we have enough",
+   "seconds": 2.83
+  },
+  {
+   "set": "noisy",
+   "key": "q12",
+   "file": "q12_david.wav",
+   "hyp": "A freeze for official ever fly saying the samples shoot on Friday",
+   "seconds": 5.86
+  },
+  {
+   "set": "noisy",
+   "key": "q12",
+   "file": "q12_zira.wav",
+   "hyp": "If this draft issue likely place in the sample chiffon Friday",
+   "seconds": 3.75
+  },
+  {
+   "set": "noisy",
+   "key": "z01",
+   "file": "z01_hanhan.wav",
+   "hyp": "",
+   "seconds": 1.54
+  },
+  {
+   "set": "noisy",
+   "key": "z01",
+   "file": "z01_huihui.wav",
+   "hyp": "",
+   "seconds": 1.82
+  },
+  {
+   "set": "noisy",
+   "key": "z02",
+   "file": "z02_hanhan.wav",
+   "hyp": "",
+   "seconds": 2.46
+  },
+  {
+   "set": "noisy",
+   "key": "z02",
+   "file": "z02_huihui.wav",
+   "hyp": "当我打开",
+   "seconds": 1.45
+  },
+  {
+   "set": "noisy",
+   "key": "z03",
+   "file": "z03_hanhan.wav",
+   "hyp": "说实在",
+   "seconds": 1.27
+  },
+  {
+   "set": "noisy",
+   "key": "z03",
+   "file": "z03_huihui.wav",
+   "hyp": "现在错误／含义是",
+   "seconds": 0.99
+  },
+  {
+   "set": "noisy",
+   "key": "z04",
+   "file": "z04_hanhan.wav",
+   "hyp": "天亮上",
+   "seconds": 1.69
+  },
+  {
+   "set": "noisy",
+   "key": "z04",
+   "file": "z04_huihui.wav",
+   "hyp": "现在看了好",
+   "seconds": 1.46
+  },
+  {
+   "set": "silence",
+   "key": "s1",
+   "file": "s1_roomtone.wav",
+   "hyp": "",
+   "seconds": 0.82
+  },
+  {
+   "set": "silence",
+   "key": "s2",
+   "file": "s2_fanhum.wav",
+   "hyp": "",
+   "seconds": 1.08
+  },
+  {
+   "set": "silence",
+   "key": "s3",
+   "file": "s3_keyclicks.wav",
+   "hyp": "",
+   "seconds": 2.13
+  },
+  {
+   "set": "silence",
+   "key": "s4",
+   "file": "s4_breath.wav",
+   "hyp": "If",
+   "seconds": 1.35
+  }
+ ]
+}

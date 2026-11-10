@@ -1,0 +1,555 @@
+{
+ "engine": "Buddy shipped: keyit_speech auto (Whisper base.en en / SenseVoice zh) + Silero VAD + My words",
+ "summary": {
+  "clean_en_wer": 8.4,
+  "clean_zh_cer": 0.0,
+  "clean_jargon_pct": 83.3,
+  "noisy_en_wer": 7.9,
+  "noisy_zh_cer": 1.5,
+  "noisy_jargon_pct": 76.7,
+  "silence_hallucinations": 0,
+  "latency_mean_s": 2.1,
+  "latency_p90_s": 5.16
+ },
+ "summary_with_my_words": {
+  "clean_en_wer": 4.9,
+  "clean_zh_cer": 0.0,
+  "clean_jargon_pct": 83.3,
+  "noisy_en_wer": 4.9,
+  "noisy_zh_cer": 1.5,
+  "noisy_jargon_pct": 80.0,
+  "silence_hallucinations": 0,
+  "latency_mean_s": 2.1,
+  "latency_p90_s": 5.16
+ },
+ "dictation_examples": {
+  "q03_david.wav": {
+   "said": "Open the eGreen part survey and set PureGMS to rejected.",
+   "heard": "Open the eGreen part survey and set pure GMS to reject it.",
+   "typed": "Open the eGreen part survey and set PureGMS to reject it."
+  },
+  "q03_zira.wav": {
+   "said": "Open the eGreen part survey and set PureGMS to rejected.",
+   "heard": "Open the eGreen part survey and set Pure GMS to rejected.",
+   "typed": "Open the eGreen part survey and set PureGMS to rejected."
+  },
+  "q07_david.wav": {
+   "said": "Um, how do I, uh, export this sheet to PDF?",
+   "heard": "How do I export this sheet to PDF?",
+   "typed": "How do I export this sheet to PDF?"
+  },
+  "q07_zira.wav": {
+   "said": "Um, how do I, uh, export this sheet to PDF?",
+   "heard": "How do I export this sheet to PDF?",
+   "typed": "How do I export this sheet to PDF?"
+  },
+  "q08_david.wav": {
+   "said": "Send the report to the team at three, no wait, at four o'clock.",
+   "heard": "Send the report to the team at 3, no wait, at 4 o'clock.",
+   "typed": "Send the report to the team at 4 o'clock."
+  },
+  "q08_zira.wav": {
+   "said": "Send the report to the team at three, no wait, at four o'clock.",
+   "heard": "Send the report to the team at 3, no wait, at 4 o'clock.",
+   "typed": "Send the report to the team at 4 o'clock."
+  },
+  "q09_david.wav": {
+   "said": "Type hello team, the ZIRIS power test passed.",
+   "heard": "Type Hello team, Bizaira's power test passed.",
+   "typed": "Type Hello team, Bizaira's power test passed."
+  },
+  "q09_zira.wav": {
+   "said": "Type hello team, the ZIRIS power test passed.",
+   "heard": "Type Hello Team, the Zyrus Power test passed.",
+   "typed": "Type Hello Team, the Zyrus Power test passed."
+  },
+  "q10_david.wav": {
+   "said": "Explain what this Pega-Vision warning is about.",
+   "heard": "Explain what this PegaVision warning is about.",
+   "typed": "Explain what this Pega-Vision warning is about."
+  },
+  "q10_zira.wav": {
+   "said": "Explain what this Pega-Vision warning is about.",
+   "heard": "Explain what this PegaVision warning is about.",
+   "typed": "Explain what this Pega-Vision warning is about."
+  }
+ },
+ "rows": [
+  {
+   "set": "clean",
+   "key": "q01",
+   "file": "q01_david.wav",
+   "hyp": "Where is the Save as button in Notepad?",
+   "seconds": 4.341
+  },
+  {
+   "set": "clean",
+   "key": "q01",
+   "file": "q01_zira.wav",
+   "hyp": "Where is the Save Us button in Notepad?",
+   "seconds": 6.351
+  },
+  {
+   "set": "clean",
+   "key": "q02",
+   "file": "q02_david.wav",
+   "hyp": "How do I add a new part number in SRM?",
+   "seconds": 4.714
+  },
+  {
+   "set": "clean",
+   "key": "q02",
+   "file": "q02_zira.wav",
+   "hyp": "How do I add a new part number in SRM?",
+   "seconds": 4.48
+  },
+  {
+   "set": "clean",
+   "key": "q03",
+   "file": "q03_david.wav",
+   "hyp": "Open the eGreen part survey and set PureGMS to reject it.",
+   "seconds": 5.463
+  },
+  {
+   "set": "clean",
+   "key": "q03",
+   "file": "q03_zira.wav",
+   "hyp": "Open the eGreen part survey and set PureGMS to rejected.",
+   "seconds": 8.5
+  },
+  {
+   "set": "clean",
+   "key": "q04",
+   "file": "q04_david.wav",
+   "hyp": "Click \"Insert\", then pick \"Vendor Mapping\".",
+   "seconds": 5.48
+  },
+  {
+   "set": "clean",
+   "key": "q04",
+   "file": "q04_zira.wav",
+   "hyp": "Click insert, then pick Vendor Mapping",
+   "seconds": 2.597
+  },
+  {
+   "set": "clean",
+   "key": "q05",
+   "file": "q05_david.wav",
+   "hyp": "What does this bomb error mean in palm?",
+   "seconds": 4.231
+  },
+  {
+   "set": "clean",
+   "key": "q05",
+   "file": "q05_zira.wav",
+   "hyp": "What does this bomb error mean in palm?",
+   "seconds": 8.083
+  },
+  {
+   "set": "clean",
+   "key": "q06",
+   "file": "q06_david.wav",
+   "hyp": "Close the file explorer and minimize Outlook",
+   "seconds": 3.853
+  },
+  {
+   "set": "clean",
+   "key": "q06",
+   "file": "q06_zira.wav",
+   "hyp": "Close the file explorer and minimize Outlook",
+   "seconds": 3.985
+  },
+  {
+   "set": "clean",
+   "key": "q07",
+   "file": "q07_david.wav",
+   "hyp": "How do I export this sheet to PDF?",
+   "seconds": 3.779
+  },
+  {
+   "set": "clean",
+   "key": "q07",
+   "file": "q07_zira.wav",
+   "hyp": "How do I export this sheet to PDF?",
+   "seconds": 4.372
+  },
+  {
+   "set": "clean",
+   "key": "q08",
+   "file": "q08_david.wav",
+   "hyp": "Send the report to the team at 4 o'clock.",
+   "seconds": 5.445
+  },
+  {
+   "set": "clean",
+   "key": "q08",
+   "file": "q08_zira.wav",
+   "hyp": "Send the report to the team at 4 o'clock.",
+   "seconds": 5.299
+  },
+  {
+   "set": "clean",
+   "key": "q09",
+   "file": "q09_david.wav",
+   "hyp": "Type Hello team, Bizaira's power test passed.",
+   "seconds": 4.82
+  },
+  {
+   "set": "clean",
+   "key": "q09",
+   "file": "q09_zira.wav",
+   "hyp": "Type Hello Team, the Zyrus Power test passed.",
+   "seconds": 2.096
+  },
+  {
+   "set": "clean",
+   "key": "q10",
+   "file": "q10_david.wav",
+   "hyp": "Explain what this Pega-Vision warning is about.",
+   "seconds": 1.762
+  },
+  {
+   "set": "clean",
+   "key": "q10",
+   "file": "q10_zira.wav",
+   "hyp": "Explain what this Pega-Vision warning is about.",
+   "seconds": 1.424
+  },
+  {
+   "set": "clean",
+   "key": "q11",
+   "file": "q11_david.wav",
+   "hyp": "Can you show me where the Spec Green field is?",
+   "seconds": 1.6
+  },
+  {
+   "set": "clean",
+   "key": "q11",
+   "file": "q11_zira.wav",
+   "hyp": "Can you show me where the Spec Green field is?",
+   "seconds": 1.434
+  },
+  {
+   "set": "clean",
+   "key": "q12",
+   "file": "q12_david.wav",
+   "hyp": "Please draft a short reply saying the samples ship on Friday.",
+   "seconds": 1.39
+  },
+  {
+   "set": "clean",
+   "key": "q12",
+   "file": "q12_zira.wav",
+   "hyp": "Please draft a short reply saying the samples ship on Friday.",
+   "seconds": 0.974
+  },
+  {
+   "set": "clean",
+   "key": "z01",
+   "file": "z01_hanhan.wav",
+   "hyp": "保存按钮在哪里",
+   "seconds": 0.286
+  },
+  {
+   "set": "clean",
+   "key": "z01",
+   "file": "z01_huihui.wav",
+   "hyp": "保存按钮在哪里",
+   "seconds": 0.431
+  },
+  {
+   "set": "clean",
+   "key": "z02",
+   "file": "z02_hanhan.wav",
+   "hyp": "帮我打开记事本",
+   "seconds": 0.258
+  },
+  {
+   "set": "clean",
+   "key": "z02",
+   "file": "z02_huihui.wav",
+   "hyp": "帮我打开记事本",
+   "seconds": 0.334
+  },
+  {
+   "set": "clean",
+   "key": "z03",
+   "file": "z03_hanhan.wav",
+   "hyp": "这个错误是什么意思",
+   "seconds": 0.401
+  },
+  {
+   "set": "clean",
+   "key": "z03",
+   "file": "z03_huihui.wav",
+   "hyp": "这个错误是什么意思",
+   "seconds": 0.316
+  },
+  {
+   "set": "clean",
+   "key": "z04",
+   "file": "z04_hanhan.wav",
+   "hyp": "怎么在系统里新增料号",
+   "seconds": 0.488
+  },
+  {
+   "set": "clean",
+   "key": "z04",
+   "file": "z04_huihui.wav",
+   "hyp": "怎么在系统里新增料号",
+   "seconds": 0.605
+  },
+  {
+   "set": "noisy",
+   "key": "q01",
+   "file": "q01_david.wav",
+   "hyp": "Where is the Save as button in Notepad?",
+   "seconds": 1.457
+  },
+  {
+   "set": "noisy",
+   "key": "q01",
+   "file": "q01_zira.wav",
+   "hyp": "Where is the Save Us button in Notepad?",
+   "seconds": 1.68
+  },
+  {
+   "set": "noisy",
+   "key": "q02",
+   "file": "q02_david.wav",
+   "hyp": "How do I add a new part number in SRM?",
+   "seconds": 1.492
+  },
+  {
+   "set": "noisy",
+   "key": "q02",
+   "file": "q02_zira.wav",
+   "hyp": "How do I add a new part number in SRM?",
+   "seconds": 1.377
+  },
+  {
+   "set": "noisy",
+   "key": "q03",
+   "file": "q03_david.wav",
+   "hyp": "Open the eGreen part survey and set your GMS to rejected.",
+   "seconds": 0.947
+  },
+  {
+   "set": "noisy",
+   "key": "q03",
+   "file": "q03_zira.wav",
+   "hyp": "Open the eGreen part survey and set PureGMS to rejected.",
+   "seconds": 1.257
+  },
+  {
+   "set": "noisy",
+   "key": "q04",
+   "file": "q04_david.wav",
+   "hyp": "Click insert, then pick Vendor Mapping",
+   "seconds": 1.07
+  },
+  {
+   "set": "noisy",
+   "key": "q04",
+   "file": "q04_zira.wav",
+   "hyp": "Click insert, then pick Vendor Mapping",
+   "seconds": 1.018
+  },
+  {
+   "set": "noisy",
+   "key": "q05",
+   "file": "q05_david.wav",
+   "hyp": "What does this bomb error mean in pump?",
+   "seconds": 0.867
+  },
+  {
+   "set": "noisy",
+   "key": "q05",
+   "file": "q05_zira.wav",
+   "hyp": "What does this bum error mean in palm?",
+   "seconds": 0.538
+  },
+  {
+   "set": "noisy",
+   "key": "q06",
+   "file": "q06_david.wav",
+   "hyp": "Close the file explorer and minimize Outlook",
+   "seconds": 0.469
+  },
+  {
+   "set": "noisy",
+   "key": "q06",
+   "file": "q06_zira.wav",
+   "hyp": "Close the file explorer and minimize Outlook",
+   "seconds": 0.511
+  },
+  {
+   "set": "noisy",
+   "key": "q07",
+   "file": "q07_david.wav",
+   "hyp": "How do I export this sheet to PDF?",
+   "seconds": 0.535
+  },
+  {
+   "set": "noisy",
+   "key": "q07",
+   "file": "q07_zira.wav",
+   "hyp": "How do I export this sheet to PDF?",
+   "seconds": 0.552
+  },
+  {
+   "set": "noisy",
+   "key": "q08",
+   "file": "q08_david.wav",
+   "hyp": "Send the report to the team at 4 o'clock.",
+   "seconds": 0.722
+  },
+  {
+   "set": "noisy",
+   "key": "q08",
+   "file": "q08_zira.wav",
+   "hyp": "Send the report to the team at 4 o'clock.",
+   "seconds": 1.697
+  },
+  {
+   "set": "noisy",
+   "key": "q09",
+   "file": "q09_david.wav",
+   "hyp": "Type Hello Team, Bizaira's power test pass",
+   "seconds": 1.29
+  },
+  {
+   "set": "noisy",
+   "key": "q09",
+   "file": "q09_zira.wav",
+   "hyp": "Type Hello Team, the ZIRIS Power test passed.",
+   "seconds": 1.366
+  },
+  {
+   "set": "noisy",
+   "key": "q10",
+   "file": "q10_david.wav",
+   "hyp": "Explain what this Pega-Vision warning is about.",
+   "seconds": 1.507
+  },
+  {
+   "set": "noisy",
+   "key": "q10",
+   "file": "q10_zira.wav",
+   "hyp": "Explain what this Pega-Vision warning is about.",
+   "seconds": 2.443
+  },
+  {
+   "set": "noisy",
+   "key": "q11",
+   "file": "q11_david.wav",
+   "hyp": "Can you show me where the Spec Green field is?",
+   "seconds": 2.315
+  },
+  {
+   "set": "noisy",
+   "key": "q11",
+   "file": "q11_zira.wav",
+   "hyp": "Can you show me where the Spec Green field is?",
+   "seconds": 2.578
+  },
+  {
+   "set": "noisy",
+   "key": "q12",
+   "file": "q12_david.wav",
+   "hyp": "Please draft a short reply saying the samples ship on Friday.",
+   "seconds": 3.053
+  },
+  {
+   "set": "noisy",
+   "key": "q12",
+   "file": "q12_zira.wav",
+   "hyp": "Please draft a short reply saying the samples ship on Friday.",
+   "seconds": 1.228
+  },
+  {
+   "set": "noisy",
+   "key": "z01",
+   "file": "z01_hanhan.wav",
+   "hyp": "保存按钮在哪里",
+   "seconds": 0.467
+  },
+  {
+   "set": "noisy",
+   "key": "z01",
+   "file": "z01_huihui.wav",
+   "hyp": "保存按钮在哪里",
+   "seconds": 0.368
+  },
+  {
+   "set": "noisy",
+   "key": "z02",
+   "file": "z02_hanhan.wav",
+   "hyp": "帮我打开记事本",
+   "seconds": 0.288
+  },
+  {
+   "set": "noisy",
+   "key": "z02",
+   "file": "z02_huihui.wav",
+   "hyp": "帮我打开记书本",
+   "seconds": 0.288
+  },
+  {
+   "set": "noisy",
+   "key": "z03",
+   "file": "z03_hanhan.wav",
+   "hyp": "这个错误是什么意思",
+   "seconds": 0.435
+  },
+  {
+   "set": "noisy",
+   "key": "z03",
+   "file": "z03_huihui.wav",
+   "hyp": "这个错误是什么意思",
+   "seconds": 0.223
+  },
+  {
+   "set": "noisy",
+   "key": "z04",
+   "file": "z04_hanhan.wav",
+   "hyp": "怎么在系统里新增料号",
+   "seconds": 0.298
+  },
+  {
+   "set": "noisy",
+   "key": "z04",
+   "file": "z04_huihui.wav",
+   "hyp": "怎么在系统里新增料号",
+   "seconds": 0.254
+  },
+  {
+   "set": "silence",
+   "key": "s1",
+   "file": "s1_roomtone.wav",
+   "hyp": "",
+   "seconds": 0.077
+  },
+  {
+   "set": "silence",
+   "key": "s2",
+   "file": "s2_fanhum.wav",
+   "hyp": "",
+   "seconds": 0.077
+  },
+  {
+   "set": "silence",
+   "key": "s3",
+   "file": "s3_keyclicks.wav",
+   "hyp": "",
+   "seconds": 0.085
+  },
+  {
+   "set": "silence",
+   "key": "s4",
+   "file": "s4_breath.wav",
+   "hyp": "",
+   "seconds": 0.099
+  }
+ ]
+}

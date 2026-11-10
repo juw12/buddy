@@ -59,6 +59,7 @@ CTRL_CODES = {29, 3613}
 ALT_CODES = {56, 3640}
 M_CODE = 50
 SPACE_CODE = 57
+D_CODE = 32                  # Ctrl+Alt+D: Buddy dictation (hold = talk, tap = hands-free)
 ESCAPE_CODE = 1
 VK_MENU_MASK = 0xE8           # unassigned virtual key: tapped so a lone Alt release can't open a menu
 LETTER_CODES = list(range(16, 26)) + list(range(30, 39)) + list(range(44, 51))
@@ -449,6 +450,7 @@ class KeyboardHook:
         self.held = {}
         self.buddy = None             # object with press()/release()/cancel(); set by the GUI
         self.buddy_active = False
+        self.dictate_active = False
         self.listener = keyboard.Listener(win32_event_filter=self._filter)
         self.mouse = MouseClicks(player)
 
@@ -482,6 +484,20 @@ class KeyboardHook:
                 self.buddy_active = False
                 threading.Thread(target=self.buddy.release, daemon=True).start()
                 self.listener.suppress_event()
+        # Buddy dictation: Ctrl+Alt+D types what you say into the app in front. D is swallowed.
+        if code == D_CODE and self.buddy is not None and hasattr(self.buddy, "dictate_press"):
+            dictating = getattr(self, "dictate_active", False)
+            if msg in (WM_KEYDOWN, WM_SYSKEYDOWN) and (dictating or modifiers_down):
+                if not dictating:
+                    self.dictate_active = True
+                    threading.Thread(target=tap_menu_mask_key, daemon=True).start()
+                    threading.Thread(target=self.buddy.dictate_press, daemon=True).start()
+                    threading.Thread(target=self._watch_d_release, daemon=True).start()
+                self.listener.suppress_event()
+            if msg in (WM_KEYUP, WM_SYSKEYUP) and dictating:
+                self.dictate_active = False
+                threading.Thread(target=self.buddy.dictate_release, daemon=True).start()
+                self.listener.suppress_event()
         if code == ESCAPE_CODE and self.buddy is not None and msg in (WM_KEYDOWN, WM_SYSKEYDOWN):
             threading.Thread(target=self.buddy.cancel, daemon=True).start()
 
@@ -512,6 +528,22 @@ class KeyboardHook:
                     self.buddy_active = False
                     if self.buddy is not None:
                         self.buddy.release()
+                    return
+            time.sleep(0.1)
+
+    def _watch_d_release(self):
+        """Safety net for dictation: if the D key-up never reaches the hook, end the hold anyway."""
+        import ctypes
+
+        get_key_state = ctypes.windll.user32.GetAsyncKeyState
+        time.sleep(0.3)
+        while getattr(self, "dictate_active", False):
+            if not get_key_state(0x44) & 0x8000:          # VK 'D' is physically up
+                time.sleep(0.15)
+                if getattr(self, "dictate_active", False) and not get_key_state(0x44) & 0x8000:
+                    self.dictate_active = False
+                    if self.buddy is not None:
+                        self.buddy.dictate_release()
                     return
             time.sleep(0.1)
 
