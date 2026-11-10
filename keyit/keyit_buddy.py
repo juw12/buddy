@@ -37,6 +37,7 @@ import buddy_overlay
 import keyit_actions
 import keyit_core as core
 import keyit_gpu
+import keyit_script
 import keyit_speech
 import keyit_targets
 import keyit_words
@@ -46,11 +47,11 @@ DEFAULTS = {
     "ollama_url": "http://localhost:11434",
     "buddy_model": "qwen3-vl:4b-instruct",   # the plain 4b tag is the slow "thinking" variant
     "whisper_model": "auto",          # old setting, read once by keyit_speech.migrate
-    "speech_model": "auto",           # Settings -> Speech model: auto, whisper-en, parakeet, sensevoice, moonshine, whisper, windows
+    "speech_model": "auto",           # Voice input -> Speech model: one of keyit_speech.CHOICES
     "dictation": True,                # Ctrl+Alt+D types what you say into the app in front
     "voice_cleanup": True,            # drop um/uh, apply spoken corrections ("no wait")
-    "my_words": "",                   # Settings -> My words: spellings + spoken shortcuts (keyit_words)
-    "mic_device": "",                 # Settings -> Microphone: "" = the Windows default
+    "my_words": "",                   # Voice input -> My words: spellings + spoken shortcuts (keyit_words)
+    "mic_device": "",                 # Voice input -> Microphone: "" = the Windows default
     "speech_language": "en-US",
     "buddy_voice": "",
     "buddy_speak": True,
@@ -1047,7 +1048,8 @@ class Buddy:
 
     def _ensure_stt(self):
         """The speech engine for the current settings (keyit_speech.Speech). Loads in the background, so the
-        first question never waits for a download: until it is ready the Windows recognizer answers."""
+        first question never waits for a download: until it is ready the Windows recognizer answers, if Windows
+        has one for the language. If it has none, Speech.waiting() says what the user is waiting for."""
         wanted = (self.settings["speech_model"], self.settings["speech_language"])
         if self.stt is None or self.stt_name != wanted:
             whisper_model = self.settings.get("whisper_model", "auto")
@@ -1056,6 +1058,8 @@ class Buddy:
                 legacy_factory=lambda kind, language: legacy_engine(kind, language, whisper_model))
             self.stt_name = wanted
             self.stt.prepare()
+            if keyit_script.script(wanted[1]):              # Chinese: read the character tables now,
+                threading.Thread(target=keyit_script.warm, daemon=True).start()    # not in the first sentence
         return self.stt
 
     def _prepare_speech(self):
@@ -1077,8 +1081,12 @@ class Buddy:
             return MicCapture()
 
     def _words(self, text, mode):
+        """A transcript as Buddy uses it: in the characters the language setting asks for (Traditional or
+        Simplified Chinese), then My words and the tidy-up, by the rules of the language that was spoken."""
+        language = self.stt.spoken_language() if self.stt else self.settings.get("speech_language")
+        text = keyit_script.convert(text, language)
         return keyit_words.process(text, self.settings.get("my_words", ""), mode=mode,
-                                   tidy_up=self.settings.get("voice_cleanup", True))
+                                   tidy_up=self.settings.get("voice_cleanup", True), language=language)
 
     # -- push to talk (called from the keyboard hook thread)
     def press(self):
@@ -1213,8 +1221,9 @@ class Buddy:
             return
         text = self._words(heard, "dictate")
         if not text:
-            self.post(self.overlay.thinking, "I didn't hear anything - hold Ctrl+Alt+D while you talk.")
-            self.post(self.overlay.hide_later, 2500)
+            waiting = self.stt.waiting()                    # no engine yet for this language: say so
+            self.post(self.overlay.thinking, waiting or "I didn't hear anything - hold Ctrl+Alt+D while you talk.")
+            self.post(self.overlay.hide_later, 4000 if waiting else 2500)
             return
         if selection.strip() and keyit_words.is_edit_command(text):
             rewritten = self._rewrite(text, selection)      # Command mode: rewrite the highlighted text
@@ -1455,8 +1464,9 @@ class Buddy:
             self.post(self.overlay.thinking, f"Speech recognition failed: {error}")
             return
         if not question:
-            self.post(self.overlay.thinking, "I didn't catch that – try again?")
-            self.post(self.overlay.hide_later, 2500)
+            waiting = self.stt.waiting()
+            self.post(self.overlay.thinking, waiting or "I didn't catch that – try again?")
+            self.post(self.overlay.hide_later, 4000 if waiting else 2500)
             return
         self._ask(question)
 

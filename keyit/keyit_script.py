@@ -1,8 +1,9 @@
 """Chinese script conversion for dictation: Simplified <-> Traditional (Taiwan).
 
-Speech models write Mandarin in Simplified characters. Pick "Chinese 繁體 (Taiwan)" in Settings -> Voice and
-Buddy types 這裡的系統 instead of 这里的系统. Pure Python: the tables are the OpenCC dictionaries in keyit/opencc
-(Apache-2.0), read on first use, so nothing is loaded until Chinese is typed.
+Speech models write Mandarin and Cantonese in Simplified characters. Pick "Chinese, Traditional (繁體)" on
+the Voice input tab and Buddy types 這裡的系統 instead of 这里的系统; Cantonese is always typed in Traditional.
+Pure Python: the tables are the OpenCC dictionaries in keyit/opencc (Apache-2.0), read on first use, so nothing
+is loaded until Chinese is typed.
 
     to_traditional("头发和发现")  -> "頭髮和發現"      phrases first (longest match), then single characters
     to_simplified("頭髮和發現")   -> "头发和发现"
@@ -20,7 +21,8 @@ EVERYDAY_TW = {"臺": "台"}
 # (著名, 乾坤, 覆盖, 瞭望, 慰藉): never rewritten one by one, only inside a known phrase (乾淨 -> 干净)
 KEEP_IN_SIMPLIFIED = frozenset("著乾覆瞭藉彷吒甯麴榘薹")
 SIMPLIFIED = ("zh-cn", "zh-sg", "zh-hans")
-TRADITIONAL = ("zh-tw", "zh-hk", "zh-mo", "zh-hant")
+# Cantonese is written in Traditional characters (Hong Kong); the speech model writes it in Simplified
+TRADITIONAL = ("zh-tw", "zh-hk", "zh-mo", "zh-hant", "yue")
 
 
 def _rows(name):
@@ -130,14 +132,29 @@ def fold(text):
     return "".join(chars.get(char, char) for char in text)
 
 
-def convert(text, language):
-    """The script the chosen language is written in: zh-TW -> Traditional, zh-CN -> Simplified.
-
-    Anything else (Cantonese, Japanese, auto-detect, ...) is left exactly as the speech model wrote it.
-    """
+def script(language):
+    """The characters a language setting types: "traditional", "simplified", or "" when it fixes neither."""
     code = (language or "").lower().replace("_", "-")
     if code.startswith(TRADITIONAL):
-        return to_traditional(text)
+        return "traditional"
     if code.startswith(SIMPLIFIED):
+        return "simplified"
+    return ""
+
+
+def convert(text, language):
+    """The script the chosen language is written in: zh-TW and Cantonese -> Traditional, zh-CN -> Simplified.
+
+    Anything else (plain "zh", Japanese, auto-detect, ...) is left exactly as the speech model wrote it.
+    """
+    wanted = script(language)
+    if wanted == "traditional":
+        return to_traditional(text)
+    if wanted == "simplified":
         return to_simplified(text)
     return text
+
+
+def warm():
+    """Read the tables now (about a second), so the first Chinese sentence is not the one that waits."""
+    _tables()

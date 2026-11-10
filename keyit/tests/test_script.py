@@ -73,8 +73,22 @@ def test_fold_keeps_the_length():
 def test_convert_follows_the_language_setting():
     assert script.convert("这里的系统", "zh-TW") == "這裡的系統"
     assert script.convert("這裡的系統", "zh-CN") == "这里的系统"
-    for language in ("yue", "ja-JP", "auto", "en-US", "", None):
+    for language in ("zh", "ja-JP", "auto", "en-US", "", None):
         assert script.convert("这里的系統", language) == "这里的系統"
+
+
+def test_cantonese_is_typed_in_traditional_characters():
+    # measured on FLEURS: the speech model writes Cantonese in Simplified (33.3% of characters differ from the
+    # Hong Kong reference); after conversion only its real mishearings are left (6.0%)
+    assert script.convert("警方说尸体看起来已摆在那里一天左右", "yue") == "警方說屍體看起來已擺在那裡一天左右"
+    assert script.convert("佢哋喺香港电台做嘢", "yue") == "佢哋喺香港電台做嘢"
+
+
+def test_script_names_the_characters_a_setting_types():
+    assert script.script("zh-TW") == script.script("zh_HK") == script.script("yue") == "traditional"
+    assert script.script("zh-CN") == script.script("zh-Hans") == "simplified"
+    for language in ("zh", "ja-JP", "auto", "en-US", "", None):
+        assert script.script(language) == ""
 
 
 def test_missing_tables_change_nothing(tmp_path, monkeypatch):

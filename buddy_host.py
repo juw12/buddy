@@ -1107,7 +1107,7 @@ def main(argv=None):
                         app.root.winfo_class(), app.focus.root.winfo_parent() or "?", tabs)
             logger.info("Today's focus: %s", numbers)
             assert app.focus.root.master is app.root, "Pips must live inside Buddy's root"
-            assert tabs == ["Home", "Focus", "Settings"], tabs
+            assert tabs == ["Home", "Focus", "Settings", "Voice input"], tabs
             assert app.pet_state()[0] != "Pip", "the pet should be Buddy"
             uia, automation = keyit_buddy._uia()               # selection reading for the ask box
             assert automation.GetRootElement(), "UI Automation unavailable"

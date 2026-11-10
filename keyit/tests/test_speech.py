@@ -261,6 +261,78 @@ def test_failed_download_is_tried_again_later(monkeypatch):
     assert attempts == ["omnilingual", "omnilingual"]
 
 
+def test_language_picker_keeps_every_saved_setting():
+    for code in ("en-US", "zh-CN", "yue", "ja-JP", "ko-KR", "eu"):          # what Buddy 1.2.0 could save
+        assert speech.language_code(speech.language_name(code)) == code
+    assert speech.language_name("zh-TW") != speech.language_name("zh-CN")   # Traditional has its own entry
+    assert speech.language_code(speech.language_name("zh-HK")) == "zh-TW"
+    assert speech.language_code(speech.language_name("zh_Hant")) == "zh-TW"
+    assert speech.language_code(speech.language_name("zh")) == "zh-CN"
+    assert speech.language_code(speech.language_name("id")) == "id-ID"
+    for unknown in ("", None, "xx-XX"):
+        assert speech.language_name(unknown) == "English"
+    assert speech.language_code("not in the list") == "en-US"
+
+
+def test_every_language_in_the_picker_has_an_engine_and_a_note():
+    codes = list(speech.LANGUAGES.values())
+    assert len(set(codes)) == len(codes)
+    assert {"id-ID", "zh-TW", "auto"} <= set(codes)
+    for name, code in speech.LANGUAGES.items():
+        engine = speech.auto_engine(code)
+        assert engine in speech.ENGINES, name
+        assert speech.engine_name(engine) in speech.language_note(code), name
+
+
+def test_language_note_says_which_characters_and_what_to_expect():
+    assert "Traditional" in speech.language_note("zh-TW")
+    assert "Traditional" in speech.language_note("yue")
+    assert "Simplified" in speech.language_note("zh-CN")
+    assert "Chinese" not in speech.language_note("en-US")
+    assert "more mistakes" in speech.language_note("id-ID")
+    assert "more mistakes" not in speech.language_note("en-US")
+    assert "only hears English" in speech.language_note("id-ID", "whisper-en")
+    assert "Traditional" not in speech.language_note("zh-TW", "whisper-en")     # a warning promises no characters
+    assert "Traditional" in speech.language_note("zh-TW", "whisper-multi")      # a model that can hear it still does
+    assert "only hears English" not in speech.language_note("en-US", "whisper-en")
+    assert "Windows has no recognizer" in speech.language_note("id-ID", "windows")
+    assert "Windows has no recognizer" not in speech.language_note("de-DE", "windows")
+    assert "Auto would use Omnilingual" in speech.language_note("id-ID", "parakeet")
+
+
+def test_download_note_only_promises_windows_where_windows_can_help():
+    assert "Windows recognizer helps meanwhile" in speech.download_note("whisper-en", "en-US")
+    indonesian = speech.download_note("omnilingual", "id-ID")
+    assert "290 MB" in indonesian and "waits until it is ready" in indonesian and "Windows" not in indonesian
+
+
+def test_waiting_says_what_the_user_is_waiting_for(monkeypatch):
+    gate = threading.Event()
+    monkeypatch.setattr(speech.Speech, "_load", lambda self: gate.wait(5))
+    indonesian = speech.Speech("auto", "id-ID")
+    indonesian.prepare()
+    assert "Omnilingual is still getting ready" in indonesian.waiting()
+    english = speech.Speech("auto", "en-US")
+    english.prepare()
+    assert english.waiting() == ""                  # the Windows recognizer answers meanwhile
+    gate.set()
+    indonesian.loading.join(5)
+    english.loading.join(5)
+
+
+def test_waiting_reports_a_failed_load(monkeypatch):
+    def broken_download(engine, progress):
+        raise OSError("HTTP Error 403: Forbidden")
+
+    monkeypatch.setattr(speech, "download", broken_download)
+    monkeypatch.setattr(speech, "is_ready", lambda engine: False)
+    s = speech.Speech("auto", "id-ID")
+    s.prepare(wait=True)
+    assert "couldn't load" in s.waiting() and "download blocked" in s.waiting()
+    s.engine = FakeEngine("omnilingual")
+    assert s.waiting() == ""
+
+
 def test_progress_text_shows_size_speed_and_time_left():
     mb = speech.MEGABYTE
     assert speech.progress_text("the speech model (once)", 88 * mb, 208 * mb, 3.1 * mb) == (

@@ -281,3 +281,34 @@ class TypingTests(unittest.TestCase):
         self.assertEqual(keyit_buddy.dictation_spacing("Hello there."), "Hello there. ")
         self.assertEqual(keyit_buddy.dictation_spacing("hello"), "hello")
         self.assertEqual(keyit_buddy.dictation_spacing("\u4fdd\u5b58\u3002"), "\u4fdd\u5b58\u3002")
+
+    def test_voice_text_is_typed_in_the_characters_of_the_language_setting(self):
+        import keyit_buddy
+
+        class Heard:
+            def __init__(self, language):
+                self.language = language
+
+            def spoken_language(self):
+                return self.language
+
+        def typed(text, language, my_words="", engine_loaded=True):
+            buddy = types.SimpleNamespace(
+                stt=Heard(language) if engine_loaded else None,
+                settings={"my_words": my_words, "voice_cleanup": True, "speech_language": language},
+            )
+            return keyit_buddy.Buddy._words(buddy, text, "dictate")
+
+        simplified = ("\u8b66\u65b9\u8bf4\u5c38\u4f53\u770b\u8d77\u6765"
+                      "\u5df2\u6446\u5728\u90a3\u91cc\u4e00\u5929\u5de6\u53f3")
+        traditional = ("\u8b66\u65b9\u8aaa\u5c4d\u9ad4\u770b\u8d77\u4f86"
+                       "\u5df2\u64fa\u5728\u90a3\u88e1\u4e00\u5929\u5de6\u53f3")
+        self.assertEqual(typed(simplified, "zh-TW"), traditional)
+        self.assertEqual(typed(simplified, "yue"), traditional)          # SenseVoice writes Cantonese in Simplified
+        self.assertEqual(typed(simplified, "zh-CN"), simplified)
+        self.assertEqual(typed(traditional, "zh-CN"), simplified)        # Whisper writes Mandarin in Traditional
+        self.assertEqual(typed(simplified, "auto"), simplified)          # auto-detect: as the model wrote it
+        self.assertEqual(typed(simplified, "zh-TW", engine_loaded=False), traditional)   # no engine yet: the setting
+        self.assertEqual(typed("\u6211\u4eec\u7528\u8f6f\u4ef6\u6d4b\u8bd5", "zh-TW", my_words="\u8f6f\u4ef6"),
+                         "\u6211\u5011\u7528\u8f6f\u4ef6\u6e2c\u8a66")       # the spelling in My words wins
+        self.assertEqual(typed("Open the S R M page.", "zh-TW", my_words="SRM"), "Open the SRM page.")

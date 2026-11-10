@@ -1,6 +1,6 @@
 """Speech in for Buddy: what you said -> text, offline on this PC.
 
-Engines (Settings -> Speech model):
+Engines (Voice input tab -> Speech model):
   * Whisper base.en (OpenAI, English): the most accurate for English in Buddy's benchmark, ~210 MB once.
   * Parakeet V3 (NVIDIA, 25 European languages): for German, French, Spanish and the rest, ~490 MB once.
   * SenseVoice (Chinese, English, Cantonese, Japanese, Korean): fast, punctuated, ~170 MB once.
@@ -31,6 +31,8 @@ import urllib.request
 from pathlib import Path
 
 import numpy as np
+
+import keyit_script
 
 RATE = 16000
 GITHUB = "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/"
@@ -159,6 +161,88 @@ def whisper_language(language):
 def windows_can_hear(language):
     """The recognizer built into Windows exists for a handful of languages only (not Indonesian, Korean...)."""
     return primary(language) in WINDOWS_LANGUAGES
+
+
+# what the Voice input tab offers as Language, in the order shown: name -> the code saved as speech_language
+LANGUAGES = {
+    "English": "en-US",
+    "Indonesian (Bahasa Indonesia)": "id-ID",
+    "Chinese, Simplified (\u7b80\u4f53)": "zh-CN",
+    "Chinese, Traditional (\u7e41\u9ad4)": "zh-TW",
+    "Cantonese (\u5ee3\u6771\u8a71)": "yue",
+    "Japanese (\u65e5\u672c\u8a9e)": "ja-JP",
+    "Korean (\ud55c\uad6d\uc5b4)": "ko-KR",
+    "Malay (Bahasa Melayu)": "ms-MY",
+    "Thai (\u0e44\u0e17\u0e22)": "th-TH",
+    "Vietnamese (Ti\u1ebfng Vi\u1ec7t)": "vi-VN",
+    "German (Deutsch)": "de-DE",
+    "Spanish (Espa\u00f1ol)": "es-ES",
+    "French (Fran\u00e7ais)": "fr-FR",
+    "Other European": "eu",
+    "Auto-detect": "auto",
+}
+NEWER = {"id", "ms", "ja", "ko", "th", "vi"}        # engines new in 1.3: more mistakes than English or Chinese
+ENGLISH_ONLY = {"whisper-en", "moonshine", "whisper"}
+
+
+def language_name(code):
+    """The picker entry for a saved speech_language: the exact code, else the same language (zh-HK -> the
+    Traditional entry), else English."""
+    wanted = (code or "").replace("_", "-").lower()
+    for name, known in LANGUAGES.items():
+        if known.lower() == wanted:
+            return name
+    same = [name for name, known in LANGUAGES.items() if primary(known) == primary(wanted)]
+    for name in same:
+        if keyit_script.script(LANGUAGES[name]) == keyit_script.script(wanted):
+            return name
+    return same[0] if same else next(iter(LANGUAGES))
+
+
+def language_code(name):
+    return LANGUAGES.get(name, "en-US")
+
+
+def engine_name(choice):
+    """'Whisper base.en', 'Parakeet V3', 'Windows speech recognizer'...: the short name used in messages."""
+    return label(choice).split(" - ")[0].split(" (")[0]
+
+
+def language_note(language, choice="auto"):
+    """One line under the language picker: which engine hears this language and what to expect from it."""
+    best = auto_engine(language)
+    code = primary(language)
+    if choice in ENGLISH_ONLY and code != "en":      # a warning promises no characters: nothing useful gets typed
+        return f"{engine_name(choice)} only hears English. Choose Auto to use {engine_name(best)} for this language."
+    if choice == "windows" and not windows_can_hear(language):
+        return f"Windows has no recognizer for this language. Choose Auto to use {engine_name(best)}."
+    if choice not in ("auto", best):
+        note = f"You picked the speech model yourself. Auto would use {engine_name(best)} for this language."
+    elif code == "auto":
+        note = (f"{engine_name(best)} works out the language of each recording. "
+                "Picking your language is more accurate.")
+    elif code == "eu":
+        note = (f"Heard by {engine_name(best)}, which knows 25 European languages; "
+                "only German, Spanish and French were measured.")
+    elif code in NEWER:
+        note = (f"Heard by {engine_name(best)}, new in this version: expect more mistakes than in English "
+                "or Chinese - check names and numbers.")
+    else:
+        note = f"Heard by {engine_name(best)}."
+    written = keyit_script.script(language)
+    if written:
+        note += f" Typed in {written.capitalize()} Chinese characters."
+    elif code == "auto":
+        note += " Chinese is typed in the characters the model writes."
+    return note
+
+
+def download_note(engine, language):
+    """What to expect while a model that is not on this PC yet downloads."""
+    size = ENGINES[engine]["mb"]
+    if windows_can_hear(language):
+        return f"downloading ~{size} MB once, the Windows recognizer helps meanwhile"
+    return f"downloading ~{size} MB once, voice input waits until it is ready"
 
 
 def migrate(settings):
@@ -542,6 +626,16 @@ class Speech:
             return f"{label(self.wanted).split(' - ')[0]} getting ready ({meanwhile})"
         state = "Windows speech recognizer" if windows else "Voice input waits for its speech model"
         return state + (f" ({self.error})" if self.error else "")
+
+    def waiting(self):
+        """Why nothing can be heard right now, '' when something can: the model for a language Windows has no
+        recognizer for is still on its way, or could not be downloaded."""
+        if self.engine is not None or windows_can_hear(self.language):
+            return ""
+        name = engine_name(self.wanted)
+        if self.error and not (self.loading is not None and self.loading.is_alive()):
+            return f"{name} couldn't load ({self.error}). Buddy tries again when you next use your voice."
+        return f"{name} is still getting ready - try again in a moment."
 
     def prepare(self, wait=False):
         """Start downloading/loading the chosen engine in the background (call at startup)."""
