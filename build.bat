@@ -41,7 +41,8 @@ if errorlevel 8 goto :fail
 robocopy keyit dist\Buddy\app\keyit /e /njh /njs /nfl /ndl /xd __pycache__ tests >nul
 if errorlevel 8 goto :fail
 
-powershell -NoProfile -Command "Compress-Archive -Path dist\Buddy\* -DestinationPath dist\Buddy-win64.zip -Force" || goto :fail
+rem Python writes the zip: Compress-Archive stalled on this folder when 1.2.0 was built
+"%PYTHON%" tools\zip_release.py || goto :fail
 
 if exist "%KEEP%\config.json" move "%KEEP%\config.json" dist\Buddy\app\pips\ >nul
 if exist "%KEEP%\data" move "%KEEP%\data" dist\Buddy\app\pips\data >nul
