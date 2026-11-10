@@ -248,3 +248,24 @@ Whisper base.en on English clips, 4 decode threads on 8 logical processors, 8 bu
 * Buddy sets the voice detector to split speech that has no pauses after 10 s; sherpa-onnx's own setting
   is 20 s. Measured once with the real detector, the 20 s setting gave stretches of 23 to 25 s, and the
   10 s setting gave 13 to 19 s at the longest.
+
+### First use: unpacking the model
+
+| Model | Archive | Kept | Unpacked | Processor busy | As 1.2.0 did, mean (runs) | As shipped, mean (runs) | Same files |
+|---|---|---|---|---|---|---|---|
+| Dolphin | 80.7 MB | everything | 4 files, 104.4 MB | 100% | 91 s (92, 89) | 52 s (56, 48) | yes |
+| Whisper base.en | 208.6 MB | only `*int8.onnx` and `*tokens.txt` | 3 files, 160.6 MB | 100% | 377 s (378, 376) | 235 s (244, 226) | yes |
+
+2 runs each way on 8 logical processors; which way goes first alternates from run to run.
+
+* `unpack_time.py` unpacks one downloaded archive two ways and times each. *As 1.2.0 did* reads the
+  archive twice, once to list what is in it and once to write the files. *As shipped* reads it once,
+  writes into a folder beside the final one, and renames that folder when every file is there. Every
+  unpacked file is hashed, and both ways gave byte-identical files in every run.
+* This time comes after the download, the first time a language is used: the model is ready only when the
+  unpack is complete. Whisper base.en is the model for English, so on this busy PC a new user has about
+  four minutes of unpacking, where 1.2.0 took more than six.
+* One pass saved 43% for Dolphin and 38% for Whisper base.en. It is not twice as fast.
+* The unpack is a single thread and shared the processor with other programs: every run was measured at
+  100% busy. No calm PC was measured, so these are the times of a busy PC.
+* There are two runs each way for a model, so read the size of a difference and not its decimals.

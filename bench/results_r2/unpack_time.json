@@ -1,0 +1,113 @@
+{
+ "rounds": 2,
+ "processors": 8,
+ "engines": {
+  "dolphin": {
+   "label": "Dolphin - Malay, Japanese, Korean, Thai, Vietnamese",
+   "archive": "sherpa-onnx-dolphin-base-ctc-multi-lang-int8-2025-04-02.tar.bz2",
+   "archive_mb": 80.7,
+   "kept": null,
+   "files": 4,
+   "unpacked_mb": 104.4,
+   "same_files": true,
+   "pc_busy": 0.999,
+   "rows": [
+    {
+     "round": 0,
+     "way": "as 1.2.0 did",
+     "seconds": 92.42,
+     "pc_busy": 0.998
+    },
+    {
+     "round": 0,
+     "way": "as shipped",
+     "seconds": 55.53,
+     "pc_busy": 1.0
+    },
+    {
+     "round": 1,
+     "way": "as shipped",
+     "seconds": 47.58,
+     "pc_busy": 1.0
+    },
+    {
+     "round": 1,
+     "way": "as 1.2.0 did",
+     "seconds": 89.04,
+     "pc_busy": 0.999
+    }
+   ],
+   "ways": {
+    "as 1.2.0 did": {
+     "mean_s": 90.73,
+     "runs": [
+      92.42,
+      89.04
+     ]
+    },
+    "as shipped": {
+     "mean_s": 51.55,
+     "runs": [
+      55.53,
+      47.58
+     ]
+    }
+   }
+  },
+  "whisper-en": {
+   "label": "Whisper base.en - English, most accurate in our tests",
+   "archive": "sherpa-onnx-whisper-base.en.tar.bz2",
+   "archive_mb": 208.6,
+   "kept": [
+    "int8.onnx",
+    "tokens.txt"
+   ],
+   "files": 3,
+   "unpacked_mb": 160.6,
+   "same_files": true,
+   "pc_busy": 0.998,
+   "rows": [
+    {
+     "round": 0,
+     "way": "as 1.2.0 did",
+     "seconds": 378.38,
+     "pc_busy": 0.999
+    },
+    {
+     "round": 0,
+     "way": "as shipped",
+     "seconds": 243.65,
+     "pc_busy": 0.998
+    },
+    {
+     "round": 1,
+     "way": "as shipped",
+     "seconds": 225.94,
+     "pc_busy": 0.998
+    },
+    {
+     "round": 1,
+     "way": "as 1.2.0 did",
+     "seconds": 376.0,
+     "pc_busy": 0.996
+    }
+   ],
+   "ways": {
+    "as 1.2.0 did": {
+     "mean_s": 377.19,
+     "runs": [
+      378.38,
+      376.0
+     ]
+    },
+    "as shipped": {
+     "mean_s": 234.8,
+     "runs": [
+      243.65,
+      225.94
+     ]
+    }
+   }
+  }
+ }
+}

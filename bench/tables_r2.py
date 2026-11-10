@@ -15,6 +15,7 @@ BRANCH = ["shipped_r2_a.json", "shipped_r2_b.json", "shipped_r2_c.json"]
 AUTO = "shipped_r2_auto.json"
 LATENCY = "latency_load.json"
 HOLD = "latency_hold.json"
+UNPACK = "unpack_time.json"
 WAYS = ["one piece", "in parts", "while held"]
 CANDIDATES = ["raw_omnilingual.json", "raw_dolphin_base.json", "raw_dolphin_small.json",
               "raw_sensevoice_fixed.json", "raw_whisper_base.json", "raw_whisper_base_detect.json"]
@@ -193,6 +194,27 @@ def hold():
                   "Parts that were text at release"], rows) + "\n\n" + setup
 
 
+def unpack():
+    report = read(UNPACK)
+    if not report:
+        return "(not measured)"
+    rows = []
+    for result in report["engines"].values():
+        cells = []
+        for way in ("as 1.2.0 did", "as shipped"):
+            runs = result["ways"][way]["runs"]
+            cells.append("%.0f s (%s)" % (result["ways"][way]["mean_s"], ", ".join("%.0f" % run for run in runs)))
+        kept = "only %s" % " and ".join("`*%s`" % ending for ending in result["kept"]) if result["kept"] else "everything"
+        rows.append([
+            result["label"].split(" - ")[0], "%.1f MB" % result["archive_mb"], kept,
+            "%d files, %.1f MB" % (result["files"], result["unpacked_mb"]),
+            "%.0f%%" % (100 * result["pc_busy"]), *cells, "yes" if result["same_files"] else "NO"])
+    setup = "%d runs each way on %d logical processors; which way goes first alternates from run to run." % (
+        report["rounds"], report["processors"])
+    return table(["Model", "Archive", "Kept", "Unpacked", "Processor busy", "As 1.2.0 did, mean (runs)",
+                  "As shipped, mean (runs)", "Same files"], rows) + "\n\n" + setup
+
+
 def main():
     for title, text in (
         ("Buddy 1.2.0 against this branch, end to end", end_to_end()),
@@ -204,6 +226,7 @@ def main():
         ("My words safety", safety()),
         ("Release to text on a busy PC", latency()),
         ("Long dictations: release to text", hold()),
+        ("First use: unpacking the model", unpack()),
     ):
         print("### %s\n\n%s\n" % (title, text))
 
