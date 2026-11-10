@@ -86,6 +86,7 @@ You are given a screenshot of the user's current screen and their spoken questio
 
 Rules:
 - Reply in 1 to 3 short, natural, spoken sentences. No markdown, no lists, no emojis, no URLs.
+- Reply in the language of the question, unless the user asks for another one.
 - Be concrete and refer to what is actually visible on the screen.
 - Whenever the question is about where something is or how to do something on screen, you MUST point:
   put one tag per element (button, menu, tab, field, icon, text) at the very END of your reply,
@@ -100,7 +101,27 @@ POINT_PATTERN = re.compile(
     r"\[\s*POINT\s*:\s*(\.?\d+(?:\.\d+)?)\s*,\s*(\.?\d+(?:\.\d+)?)\s*(?::\s*([^\]]*))?\]",
     re.IGNORECASE,
 )
-FINISHED_SENTENCE = re.compile(r"\s*(.+?[.!?]+)(?=\s)", re.DOTALL)
+# A sentence is finished at . ! ? once whitespace follows. Chinese, Japanese and Hindi put no space after their
+# full stops, so there the sentence ends at the stop itself, with any closing quote, once the next character
+# shows that nothing more belongs to it.
+CJK_STOPS = "\u3002\uff01\uff1f\u0964"                               # 。 ！ ？ and the Hindi danda
+CLOSERS = "\u300d\u300f\u201d\u2019\uff09\u300b\u3011\"')"                # closing quotes and brackets
+FINISHED_SENTENCE = re.compile(
+    rf"\s*(.+?(?:[.!?]+(?=\s)|[{CJK_STOPS}]+[{CLOSERS}]*(?=[^{CLOSERS}])))", re.DOTALL)
+
+
+def language_rule(code):
+    """One more line for the system prompt when voice input is in a language other than English: the answer
+    follows the question's language (a rule in SYSTEM_PROMPT), and this names the language to use when a short
+    or mixed question leaves that open. Nothing for English, Auto-detect, "Other European" and unknown codes."""
+    wanted = (code or "").strip()
+    if not wanted or keyit_speech.primary(wanted) in ("en", "auto", "eu"):
+        return ""
+    name = keyit_speech.language_name(wanted)
+    if keyit_speech.primary(keyit_speech.LANGUAGES[name]) != keyit_speech.primary(wanted):
+        return ""                                   # a language the picker does not have
+    return (f"\n- The user's voice input language is {name}. If the question mixes languages or its language "
+            "is unclear, reply in that language.")
 
 
 SLOW_THINKING_MODELS = {"qwen3-vl:4b": "qwen3-vl:4b-instruct", "qwen3-vl:latest": "qwen3-vl:4b-instruct"}
@@ -1513,7 +1534,8 @@ class Buddy:
         return f"Buddy error: {error}"
 
     def _system_prompt(self):
-        prompt = SYSTEM_PROMPT
+        language = self.stt.spoken_language() if self.stt else self.settings.get("speech_language")
+        prompt = SYSTEM_PROMPT + language_rule(language)
         try:
             self.windows = keyit_actions.list_windows()
         except Exception:

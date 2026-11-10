@@ -4,11 +4,13 @@ Run:  python -m unittest discover -s tests -v
 """
 import json
 import os
+import re
 import sys
 import tempfile
 import types
 import unittest
 from pathlib import Path
+from unittest import mock
 
 os.environ["SDL_AUDIODRIVER"] = "dummy"          # no sound card needed (CI)
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -239,6 +241,66 @@ class BuddyParsingTests(unittest.TestCase):
         self.assertEqual(out.size, 16000)
         spectrum = np.abs(np.fft.rfft(out))
         self.assertAlmostEqual(np.argmax(spectrum) * 16000 / out.size, 440, delta=2)
+
+    def sentences(self, text, pattern=None):
+        """Split the way the streaming reply loop does: (sentences spoken at once, what waits for the end)."""
+        pattern = pattern or self.buddy.FINISHED_SENTENCE
+        found, upto = [], 0
+        while True:
+            match = pattern.match(text, upto)
+            if not match:
+                return found, text[upto:]
+            found.append(match.group(1))
+            upto = match.end()
+
+    def test_chinese_sentences_are_spoken_one_by_one(self):
+        # no space follows a Chinese full stop, so 1.2.0 waited for the whole answer before it spoke
+        self.assertEqual(self.sentences("好的。点击保存按钮！然后关闭窗口"),
+                         (["好的。", "点击保存按钮！"], "然后关闭窗口"))
+        # a closing quote belongs to its sentence, and "?!" is one ending
+        self.assertEqual(self.sentences("他说“好的。”然后点击保存"),
+                         (["他说“好的。”"], "然后点击保存"))
+        self.assertEqual(self.sentences("什么？！再试一次"), (["什么？！"], "再试一次"))
+        # the last sentence waits for the end of the answer, like an English one with nothing after it
+        self.assertEqual(self.sentences("完成了。"), ([], "完成了。"))
+        self.assertEqual(self.sentences("नमस्ते। सेव करें। फिर"),
+                         (["नमस्ते।", "सेव करें।"], " फिर"))
+
+    def test_english_sentences_split_exactly_as_before(self):
+        before = re.compile(r"\s*(.+?[.!?]+)(?=\s)", re.DOTALL)          # the pattern of Buddy 1.2.0
+        samples = ["Click Save. Then close", "Version 3.5 is out", "Done.", "Wait... what? Yes! Go on",
+                   "Open File.\nThen pick Export. ", "It costs $3.50 (really). OK", 'She said "stop." Then left']
+        for text in samples:
+            self.assertEqual(self.sentences(text), self.sentences(text, before), text)
+        self.assertEqual(self.sentences("Click Save. Then close"), (["Click Save."], " Then close"))
+        self.assertEqual(self.sentences("Version 3.5 is out"), ([], "Version 3.5 is out"))
+        self.assertEqual(self.sentences("Done."), ([], "Done."))
+
+    def test_language_rule_only_for_other_languages(self):
+        rule = self.buddy.language_rule
+        for code in ("en-US", "en-GB", "auto", "eu", None, "", "pt-BR"):
+            self.assertEqual(rule(code), "", code)
+        self.assertIn("Indonesian", rule("id-ID"))
+        self.assertIn("Traditional", rule("zh-TW"))
+        self.assertIn("Traditional", rule("zh-HK"))
+        self.assertIn("Simplified", rule("zh-CN"))
+        self.assertIn("Cantonese", rule("yue"))
+        self.assertTrue(rule("ja-JP").startswith("\n- "))
+        self.assertIn("Reply in the language of the question", self.buddy.SYSTEM_PROMPT)
+
+    def test_system_prompt_carries_the_language_rule(self):
+        def prompt(setting, stt=None):
+            buddy = types.SimpleNamespace(stt=stt, settings={"speech_language": setting}, windows=[],
+                                          context_provider=None)
+            with mock.patch.object(self.buddy.keyit_actions, "list_windows", return_value=[]):
+                return self.buddy.Buddy._system_prompt(buddy)
+
+        self.assertIn("voice input language is Indonesian", prompt("id-ID"))
+        self.assertTrue(prompt("id-ID").startswith(self.buddy.SYSTEM_PROMPT))
+        self.assertNotIn("voice input language", prompt("en-US"))
+        # what is being spoken wins over the saved setting
+        speaking_japanese = types.SimpleNamespace(spoken_language=lambda: "ja-JP")
+        self.assertIn("voice input language is Japanese", prompt("en-US", speaking_japanese))
 
 
 class SnapTests(unittest.TestCase):
