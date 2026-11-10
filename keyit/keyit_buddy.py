@@ -374,6 +374,11 @@ def keyit_speech_is_cjk(char):
     return bool(char) and ("\u3000" <= char <= "\u9fff" or "\uff00" <= char <= "\uffef")
 
 
+def reading_time(text, least=4000):
+    """Milliseconds a bubble stays up: long enough to read it, at about twenty characters a second."""
+    return max(least, 50 * len(text))
+
+
 def wait_for_keys_up(timeout=2.0):
     """Wait until Ctrl, Alt, Shift and D are physically released (typing with Ctrl held makes shortcuts)."""
     try:
@@ -1254,7 +1259,7 @@ class Buddy:
         if not text:
             waiting = self.stt.waiting()                    # no engine yet for this language: say so
             self.post(self.overlay.thinking, waiting or "I didn't hear anything - hold Ctrl+Alt+D while you talk.")
-            self.post(self.overlay.hide_later, 4000 if waiting else 2500)
+            self.post(self.overlay.hide_later, reading_time(waiting) if waiting else 2500)
             return
         if selection.strip() and keyit_words.is_edit_command(text):
             rewritten = self._rewrite(text, selection)      # Command mode: rewrite the highlighted text
@@ -1499,7 +1504,7 @@ class Buddy:
         if not question:
             waiting = self.stt.waiting()
             self.post(self.overlay.thinking, waiting or "I didn't catch that – try again?")
-            self.post(self.overlay.hide_later, 4000 if waiting else 2500)
+            self.post(self.overlay.hide_later, reading_time(waiting) if waiting else 2500)
             return
         self._ask(question)
 

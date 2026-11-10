@@ -500,3 +500,38 @@ class DictationHoldTests(unittest.TestCase):
         mic.stop.assert_called_once_with()
         self.held.cancel.assert_called_once_with()
         self.assertIsNone(buddy.dictation)
+
+    DOWNLOADING = ("Omnilingual is still getting ready - try again in a moment. "
+                   "Downloading the speech model (once)... 42% (88 of 208 MB, 3.1 MB/s, about 40 s left)")
+
+    def nothing_heard(self, waiting):
+        """A Buddy whose speech engine heard nothing and says why; what it posts to the overlay is kept in full."""
+        stt = mock.Mock()
+        stt.transcribe.return_value = ""
+        stt.waiting.return_value = waiting
+        buddy = self.buddy(stt=stt, _ensure_stt=lambda: stt, _words=lambda heard, mode: heard)
+        buddy.post = lambda call, *arguments: self.posted.append((call, arguments))
+        return buddy
+
+    def test_a_bubble_stays_up_long_enough_to_read(self):
+        short = "Omnilingual is still getting ready - try again in a moment."
+        self.assertEqual(self.module.reading_time(short), 4000)
+        self.assertEqual(self.module.reading_time(self.DOWNLOADING), 50 * len(self.DOWNLOADING))
+        self.assertGreater(self.module.reading_time(self.DOWNLOADING), 6000)
+
+    def test_a_dictation_tried_while_the_model_downloads_says_how_far_it_is(self):
+        buddy = self.nothing_heard(self.DOWNLOADING)
+        self.module.Buddy._dictate_text(buddy, object(), 16000)
+        self.assertEqual(self.posted, [(buddy.overlay.thinking, (self.DOWNLOADING,)),
+                                       (buddy.overlay.hide_later, (50 * len(self.DOWNLOADING),))])
+
+    def test_a_question_tried_while_the_model_downloads_says_how_far_it_is(self):
+        buddy = self.nothing_heard(self.DOWNLOADING)
+        self.module.Buddy._from_voice(buddy, object(), 16000)
+        self.assertEqual(self.posted, [(buddy.overlay.thinking, (self.DOWNLOADING,)),
+                                       (buddy.overlay.hide_later, (50 * len(self.DOWNLOADING),))])
+
+    def test_nothing_heard_with_the_engine_ready_keeps_the_short_bubble(self):
+        buddy = self.nothing_heard("")
+        self.module.Buddy._dictate_text(buddy, object(), 16000)
+        self.assertEqual(self.posted[-1], (buddy.overlay.hide_later, (2500,)))

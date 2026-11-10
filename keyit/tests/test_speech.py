@@ -334,6 +334,30 @@ def test_waiting_reports_a_failed_load(monkeypatch):
     assert s.waiting() == ""
 
 
+def test_waiting_says_how_far_the_download_is(monkeypatch):
+    line = "Downloading the speech model (once)... 42% (88 of 208 MB, 3.1 MB/s, about 40 s left)"
+    gate = threading.Event()
+    reached = threading.Event()
+    shown = []
+
+    def slow_download(engine, progress):
+        progress(line)
+        reached.set()
+        gate.wait(5)
+        raise OSError("stopped by the test")
+
+    monkeypatch.setattr(speech, "download", slow_download)
+    monkeypatch.setattr(speech, "is_ready", lambda engine: False)
+    s = speech.Speech("auto", "id-ID", on_status=shown.append)
+    s.prepare()
+    assert reached.wait(5)
+    assert s.waiting() == "Omnilingual is still getting ready - try again in a moment. " + line
+    assert shown == [line]                              # the status line still gets it
+    gate.set()
+    s.loading.join(5)
+    assert s.progress == "" and line not in s.waiting()    # a download that ended is no longer quoted
+
+
 def test_progress_text_shows_size_speed_and_time_left():
     mb = speech.MEGABYTE
     assert speech.progress_text("the speech model (once)", 88 * mb, 208 * mb, 3.1 * mb) == (

@@ -923,6 +923,7 @@ class Speech:
         self.loading = None
         self.error = None
         self.failed_at = 0.0
+        self.progress = ""                            # the latest line of a download that is under way
         self.lock = threading.Lock()
 
     @property
@@ -948,13 +949,14 @@ class Speech:
 
     def waiting(self):
         """Why nothing can be heard right now, '' when something can: the model for a language Windows has no
-        recognizer for is still on its way, or could not be downloaded."""
+        recognizer for is still on its way (with how far its download is), or could not be downloaded."""
         if self.engine is not None or windows_can_hear(self.language):
             return ""
         name = engine_name(self.wanted)
         if self.error and not (self.loading is not None and self.loading.is_alive()):
             return f"{name} couldn't load ({self.error}). Buddy tries again when you next use your voice."
-        return f"{name} is still getting ready - try again in a moment."
+        progress = f" {self.progress}" if self.progress else ""
+        return f"{name} is still getting ready - try again in a moment.{progress}"
 
     def prepare(self, wait=False):
         """Start downloading/loading the chosen engine in the background (call at startup)."""
@@ -967,13 +969,21 @@ class Speech:
         if wait and self.loading is not None:
             self.loading.join()
 
+    def _downloading(self, text):
+        """A line from the download: the status line shows it, and waiting() repeats the latest one."""
+        self.progress = text
+        self.on_status(text)
+
     def _load(self):
         wanted = self.wanted
         started = time.perf_counter()
         try:
             if wanted in ENGINES:
                 if not is_ready(wanted):
-                    download(wanted, self.on_status)
+                    try:
+                        download(wanted, self._downloading)
+                    finally:
+                        self.progress = ""
                 engine = SherpaSpeech(wanted, self.language)
                 name = label(wanted).split(" - ")[0]
             else:
