@@ -199,6 +199,7 @@ Whisper base.en on English clips, 4 decode threads on 8 logical processors, 8 bu
   it back afterwards, also after an error. A process that is not at normal priority is left alone.
 * "As it was" is the PC as the run found it, with other programs already using the processor. It is not
   a calm PC: the plain decode was slower there than under the synthetic load. No calm PC was measured.
+* A second run, taken while another program held the PC at 100%, repeated the result: 18.40 s to 1.50 s as it was and 25.78 s to 1.71 s with every core busy, shipped faster and same text on 6 of 6 clips in both rows (`results_r2/latency_load_busy_rerun.json`).
 * "Every core busy" adds one busy loop per logical processor at normal priority. The loops end by
   themselves.
 * A dictation shorter than 15 s is still decoded after the key is released. A longer one is decoded in
