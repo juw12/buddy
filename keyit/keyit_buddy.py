@@ -1178,7 +1178,12 @@ class Buddy:
             self.post(self.overlay.hide_later, 4000)
             return
         self.chime("buddy_wake")
-        self.dictation = {"mic": mic, "hands_free": False, "stop_on_release": False,
+        held = None
+        try:                                               # loads in the background if it isn't yet
+            held = self._ensure_stt().hold(mic)            # decodes while the key is held, when it can
+        except Exception:
+            logging.exception("Speech engine could not start")
+        self.dictation = {"mic": mic, "hands_free": False, "stop_on_release": False, "held": held,
                           "pressed_at": time.perf_counter(), "monitor": monitor, "selection": None}
         current = self.dictation
 
@@ -1190,7 +1195,6 @@ class Buddy:
 
         threading.Thread(target=read_selection, daemon=True).start()
         self.post(self.overlay.listening, monitor, cursor)
-        self._ensure_stt()                                 # loads in the background if it isn't yet
 
     def dictate_release(self):
         current = self.dictation
@@ -1219,22 +1223,28 @@ class Buddy:
         if self.dictation is not current:
             return
         self.dictation = None
+        held = current.get("held")
         try:
             audio, _ = current["mic"].stop()
         except Exception as error:
+            if held is not None:
+                held.cancel()
             self.post(self.overlay.thinking, f"Mic error: {error}")
             self.post(self.overlay.hide_later, 4000)
             return
         rate = current["mic"].sample_rate
         self.chime("buddy_got_it")
         self.post(self.overlay.thinking, "Writing\u2026")
-        threading.Thread(target=self._dictate_text, args=(audio, rate, current.get("selection") or ""),
+        threading.Thread(target=self._dictate_text, args=(audio, rate, current.get("selection") or "", held),
                          daemon=True).start()
 
-    def _dictate_text(self, audio, sample_rate, selection=""):
+    def _dictate_text(self, audio, sample_rate, selection="", held=None):
         started = time.perf_counter()
         try:
-            heard = self._ensure_stt().transcribe(audio, sample_rate)
+            if held is not None:
+                heard = held.finish(audio, sample_rate)    # most of a long dictation is text by now
+            else:
+                heard = self._ensure_stt().transcribe(audio, sample_rate)
         except Exception as error:
             logging.exception("Dictation failed")
             self.post(self.overlay.thinking, f"Speech recognition failed: {error}")
@@ -1332,6 +1342,8 @@ class Buddy:
                 dictation["mic"].stop()
             except Exception:
                 pass
+            if dictation.get("held") is not None:
+                dictation["held"].cancel()
         self.post(self.overlay.hide)
         self.post(AskBox.close_current)
 

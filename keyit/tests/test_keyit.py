@@ -374,3 +374,129 @@ class TypingTests(unittest.TestCase):
         self.assertEqual(typed("\u6211\u4eec\u7528\u8f6f\u4ef6\u6d4b\u8bd5", "zh-TW", my_words="\u8f6f\u4ef6"),
                          "\u6211\u5011\u7528\u8f6f\u4ef6\u6e2c\u8a66")       # the spelling in My words wins
         self.assertEqual(typed("Open the S R M page.", "zh-TW", my_words="SRM"), "Open the SRM page.")
+
+
+class DictationHoldTests(unittest.TestCase):
+    """A dictation is decoded while its key is held (keyit_speech.Hold): Buddy starts it, hands it on, ends it."""
+
+    class Inline:
+        """Stands in for threading.Thread: the work is done at once, where the test can see it."""
+
+        def __init__(self, target, args=(), daemon=None):
+            self.target = target
+            self.args = args
+
+        def start(self):
+            self.target(*self.args)
+
+    def setUp(self):
+        import keyit_buddy
+
+        self.module = keyit_buddy
+        self.held = mock.Mock()
+        self.posted = []
+        patches = [
+            mock.patch.object(keyit_buddy.threading, "Thread", self.Inline),
+            mock.patch.object(keyit_buddy, "monitor_under_cursor", return_value=None),
+            mock.patch.object(keyit_buddy, "cursor_position", return_value=(0, 0)),
+            mock.patch.object(keyit_buddy, "selected_text_quick", return_value="picked"),   # never the real clipboard
+        ]
+        for patch in patches:
+            patch.start()
+            self.addCleanup(patch.stop)
+
+    def buddy(self, **extra):
+        return types.SimpleNamespace(
+            dictation=None,
+            overlay=mock.Mock(),
+            post=lambda call, *arguments: self.posted.append(call),
+            chime=lambda name: None,
+            **extra,
+        )
+
+    def press(self, speech_engine):
+        self.mic = mock.Mock()
+        buddy = self.buddy(
+            settings={"dictation": True},
+            speaker=mock.Mock(),
+            _mic=lambda: self.mic,
+            _ensure_stt=speech_engine,
+        )
+        self.module.Buddy.dictate_press(buddy)
+        return buddy
+
+    def test_a_press_starts_decoding_from_the_microphone(self):
+        stt = mock.Mock()
+        stt.hold.return_value = self.held
+        buddy = self.press(lambda: stt)
+        self.mic.start.assert_called_once_with()
+        stt.hold.assert_called_once_with(self.mic)
+        self.assertIs(buddy.dictation["held"], self.held)
+        self.assertIs(buddy.dictation["mic"], self.mic)
+        self.assertEqual(buddy.dictation["selection"], "picked")
+
+    def test_a_press_still_records_when_the_speech_engine_cannot_start(self):
+        def broken():
+            raise RuntimeError("no engine")
+
+        with self.assertLogs(level="ERROR"):
+            buddy = self.press(broken)
+        self.assertIsNone(buddy.dictation["held"])           # the error is shown when the key is let go
+        self.assertIs(buddy.dictation["mic"], self.mic)
+
+    def test_letting_go_hands_the_hold_to_the_text_step(self):
+        seen = []
+        buddy = self.buddy(_dictate_text=lambda *arguments: seen.append(arguments))
+        audio = np.zeros(1600, dtype=np.float32)
+        mic = types.SimpleNamespace(sample_rate=44100, stop=lambda: (audio, 0.0))
+        buddy.dictation = {"mic": mic, "held": self.held, "selection": "picked"}
+        self.module.Buddy._finish_dictation(buddy, buddy.dictation)
+        self.assertIsNone(buddy.dictation)
+        self.assertEqual(len(seen), 1)
+        self.assertIs(seen[0][0], audio)
+        self.assertEqual(seen[0][1:], (44100, "picked", self.held))
+
+    def text_step(self, held):
+        heard = []
+        stt = mock.Mock()
+        stt.transcribe.return_value = "from the whole recording"
+        stt.waiting.return_value = ""
+        buddy = self.buddy(
+            stt=stt,
+            _ensure_stt=lambda: stt,
+            _words=lambda text, mode: heard.append(text) or "",   # nothing to type: the step ends there
+        )
+        audio = np.zeros(1600, dtype=np.float32)
+        self.module.Buddy._dictate_text(buddy, audio, 44100, "", held)
+        return heard, stt, audio
+
+    def test_the_text_comes_from_the_hold(self):
+        self.held.finish.return_value = "decoded while the key was held"
+        heard, stt, audio = self.text_step(self.held)
+        self.assertEqual(heard, ["decoded while the key was held"])
+        self.held.finish.assert_called_once_with(audio, 44100)
+        stt.transcribe.assert_not_called()                   # nothing is decoded twice
+
+    def test_without_a_hold_the_whole_recording_is_decoded(self):
+        heard, stt, audio = self.text_step(None)
+        self.assertEqual(heard, ["from the whole recording"])
+        stt.transcribe.assert_called_once_with(audio, 44100)
+
+    def test_a_microphone_error_ends_the_hold(self):
+        def unplugged():
+            raise OSError("unplugged")
+
+        buddy = self.buddy()
+        buddy.dictation = {"mic": types.SimpleNamespace(sample_rate=44100, stop=unplugged), "held": self.held}
+        self.module.Buddy._finish_dictation(buddy, buddy.dictation)
+        self.held.cancel.assert_called_once_with()
+        self.assertIsNone(buddy.dictation)
+
+    def test_cancelling_a_dictation_ends_the_hold(self):
+        mic = mock.Mock()
+        buddy = self.buddy(generation=0, speaker=mock.Mock(), _stop_look_ahead=lambda: None, mic=None)
+        buddy.dictation = {"mic": mic, "held": self.held}
+        self.module.Buddy.cancel(buddy)
+        mic.stop.assert_called_once_with()
+        self.held.cancel.assert_called_once_with()
+        self.assertIsNone(buddy.dictation)

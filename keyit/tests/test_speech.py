@@ -509,3 +509,315 @@ def test_transcribe_decodes_at_above_normal_priority(monkeypatch):
     assert listener.transcribe(np.zeros(1600, dtype=np.float32), 16000) == "hello"
     assert seen == [speech.ABOVE_NORMAL_PRIORITY]
     assert _priority() == speech.NORMAL_PRIORITY
+
+
+# ---- long dictations: decoded in parts, and while the key is still held
+
+
+def _at(seconds):
+    return round(seconds * speech.RATE)
+
+
+@pytest.mark.parametrize("rate", [44100, 48000, 8000, 16000])
+def test_stream16k_adds_up_to_resample(rate):
+    rng = np.random.default_rng(rate)
+    audio = (rng.standard_normal(rate * 3 + 123) * 0.1).astype(np.float32)
+    stream = speech.Stream16k(rate)
+    pieces = []
+    at = 0
+    while at < len(audio):
+        size = int(rng.integers(1, 5000))
+        pieces.append(stream.feed(audio[at:at + size]))
+        at += size
+    early = sum(len(piece) for piece in pieces)
+    pieces.append(stream.finish())
+    made = np.concatenate(pieces)
+    whole = speech.resample(audio, rate, speech.RATE)
+    assert len(made) == len(whole)
+    assert np.allclose(made, whole, atol=1e-6)
+    assert len(whole) - early <= 0.005 * speech.RATE     # nearly all of it was there before the end
+
+
+def test_cutter_keeps_a_short_dictation_in_one_part():
+    cutter = speech.Cutter()
+    assert cutter.add(_at(1.0), _at(4.0)) == []
+    assert cutter.add(_at(9.0), _at(13.0)) == []          # a long pause, but nothing worth cutting
+    assert cutter.early(_at(20.0)) == []
+    assert cutter.rest(_at(21.0)) == [(_at(0.75), _at(13.25))]
+
+
+def test_cutter_cuts_at_the_first_pause_after_fifteen_seconds():
+    stretches = [(_at(0.5), _at(8.0)), (_at(8.4), _at(16.0)), (_at(18.0), _at(20.0))]
+    expected = [(_at(0.25), _at(16.25)), (_at(16.25), _at(20.25))]   # the pause stays in the second part
+
+    whole = speech.Cutter()                               # a finished recording: add() and rest() only
+    parts = []
+    for start, end in stretches:
+        parts += whole.add(start, end)
+    assert parts + whole.rest(_at(21.0)) == expected
+
+    held = speech.Cutter()                                # the same while it is being recorded
+    assert held.add(*stretches[0]) == []
+    assert held.add(*stretches[1]) == []
+    assert held.early(_at(16.5)) == []                    # half a second of silence is no pause yet
+    assert held.early(_at(17.2), since=_at(16.4)) == []   # nor is speech that began after 0.4 s
+    assert held.early(_at(17.2)) == [expected[0]]         # a pause: closed before more is said
+    assert held.early(_at(17.5)) == []
+    assert held.add(*stretches[2]) == []
+    assert held.rest(_at(21.0)) == [expected[1]]
+
+    late = speech.Cutter()                                # the pause is seen once speech has begun again
+    late.add(*stretches[0])
+    late.add(*stretches[1])
+    assert late.early(_at(18.5), since=_at(18.0)) == [expected[0]]
+    assert late.add(*stretches[2]) == []
+    assert late.rest(_at(21.0)) == [expected[1]]
+
+
+def test_cutter_keeps_two_seconds_of_the_pause_before_a_later_part():
+    cutter = speech.Cutter()                              # a pause of 1.5 s: no audio is left out
+    parts = cutter.add(_at(0.5), _at(16.0)) + cutter.add(_at(17.5), _at(20.0)) + cutter.rest(_at(21.0))
+    assert parts == [(_at(0.25), _at(16.25)), (_at(16.25), _at(20.25))]
+
+    cutter = speech.Cutter()                              # a pause of 10 s: its last two seconds stay
+    parts = cutter.add(_at(0.5), _at(16.0)) + cutter.add(_at(26.0), _at(30.0)) + cutter.rest(_at(31.0))
+    assert parts == [(_at(0.25), _at(16.25)), (_at(24.0), _at(30.25))]
+
+    cutter = speech.Cutter()                              # before the first speech: the usual lead-in only
+    assert cutter.add(_at(5.0), _at(8.0)) + cutter.rest(_at(9.0)) == [(_at(4.75), _at(8.25))]
+
+
+def test_cutter_never_makes_a_part_longer_than_whisper_can_take():
+    stretches = [(_at(start), _at(start + 3.6)) for start in range(0, 60, 4)]   # no pause of 0.7 s
+    expected = [(_at(0), _at(23.8)), (_at(23.8), _at(47.8)), (_at(47.8), _at(59.85))]
+    cutter = speech.Cutter()
+    parts = []
+    for start, end in stretches:
+        parts += cutter.add(start, end)
+    parts += cutter.rest(_at(60.0))
+    assert parts == expected
+    limit = _at(speech.Cutter.KEEP + speech.Cutter.LONGEST + speech.VoiceDetector.PAD)
+    assert limit < _at(30.0)                              # what Whisper takes
+    assert all(last - first <= limit for first, last in parts)
+
+    held = speech.Cutter()
+    for start, end in stretches[:6]:                      # up to 23.6 s
+        assert held.add(start, end) == []
+    assert held.early(_at(24.5), since=_at(24.0)) == []   # the part could still end within 25 s
+    assert held.early(_at(26.0), since=_at(24.0)) == [expected[0]]
+    assert held.add(_at(24.0), _at(27.6)) == []
+
+
+def test_cutter_cuts_speech_that_never_pauses():
+    cutter = speech.Cutter()
+    parts = cutter.add(_at(1.0), _at(61.0)) + cutter.rest(_at(62.0))
+    assert parts == [(_at(0.75), _at(26.0)), (_at(26.0), _at(51.0)), (_at(51.0), _at(61.25))]
+
+
+def test_join_parts_puts_spaces_where_the_language_has_them():
+    assert speech.join_parts(["hello there", "again"]) == "hello there again"
+    assert speech.join_parts(["\u4f60\u597d\u3002", "\u518d\u89c1"]) == "\u4f60\u597d\u3002\u518d\u89c1"
+    assert speech.join_parts(["\u6253\u5f00", "Outlook"]) == "\u6253\u5f00 Outlook"
+    assert speech.join_parts(["", " one ", "", "two"]) == "one two"
+    assert speech.join_parts([]) == ""
+
+
+class FakeListening:
+    """Stands in for the voice detector: loud audio is speech, 0.3 s of quiet ends a stretch."""
+
+    BLOCK = 160
+    QUIET = 4800
+
+    def __init__(self):
+        self.left = np.zeros(0, dtype=np.float32)
+        self.heard = 0
+        self.since = None                                 # where the stretch that is going on began
+        self.last = 0                                     # where its last loud block ended
+
+    def hear(self, audio16k):
+        audio = np.concatenate([self.left, np.asarray(audio16k, dtype=np.float32)])
+        whole = len(audio) - len(audio) % self.BLOCK
+        found = []
+        for i in range(0, whole, self.BLOCK):
+            at = self.heard + i
+            if np.abs(audio[i:i + self.BLOCK]).max() > 0.1:
+                if self.since is None:
+                    self.since = at
+                self.last = at + self.BLOCK
+            elif self.since is not None and at + self.BLOCK - self.last >= self.QUIET:
+                found.append((self.since, self.last))
+                self.since = None
+        self.left = audio[whole:]
+        self.heard += whole
+        return found
+
+    def finish(self):
+        found = [(self.since, self.last)] if self.since is not None else []
+        self.since = None
+        return found
+
+
+class FakeDetector:
+    PAD = 0.25
+
+    def listen(self, seconds=60):
+        return FakeListening()
+
+    def span(self, audio16k):                             # what the 1.2.0 code asked for
+        listening = self.listen()
+        found = listening.hear(audio16k) + listening.finish()
+        if not found:
+            return None
+        pad = int(self.PAD * speech.RATE)
+        return max(0, found[0][0] - pad), min(len(audio16k), found[-1][1] + pad)
+
+
+class FakeRecognizer:
+    """Says how many seconds it was given, so a test can read the parts off the text."""
+
+    def __init__(self, languages=()):
+        self.streams = []
+        self.languages = list(languages)
+
+    def create_stream(self):
+        stream = types.SimpleNamespace(samples=0, result=types.SimpleNamespace(text="", lang=""))
+        stream.accept_waveform = lambda rate, samples: setattr(stream, "samples", len(samples))
+        self.streams.append(stream)
+        return stream
+
+    def decode_stream(self, stream):
+        stream.result.text = f"{stream.samples / speech.RATE:g}s"
+        stream.result.lang = self.languages.pop(0) if self.languages else ""
+
+
+def _sherpa_engine(languages=()):
+    engine = speech.SherpaSpeech.__new__(speech.SherpaSpeech)   # no model: decoding only counts samples
+    engine.recognizer = FakeRecognizer(languages)
+    engine.vad = FakeDetector()
+    engine.detected = ""
+    engine.busy = threading.Lock()
+    return engine
+
+
+def _dictation(*seconds):
+    """Silence and speech in turn, silence first: _dictation(0.5, 16.0, 2.0, 3.0, 0.5)."""
+    pieces = [
+        np.full(round(length * speech.RATE), 0.5 if index % 2 else 0.0, dtype=np.float32)
+        for index, length in enumerate(seconds)
+    ]
+    return np.concatenate(pieces)
+
+
+def _decoded(engine):
+    return [stream.samples for stream in engine.recognizer.streams]
+
+
+def test_a_dictation_is_decoded_in_parts_as_it_comes_in():
+    engine = _sherpa_engine()
+    held = speech.Held(engine, speech.RATE)
+    for piece in np.split(_dictation(0.5, 16.0, 2.0, 3.0, 0.5), 88):      # a quarter of a second at a time
+        held.hear(piece)
+    assert _decoded(engine) == [_at(16.5)]                # the first part is text before the recording ends
+    assert held.finish() == "16.5s 5s"
+    assert _decoded(engine) == [_at(16.5), _at(5.0)]
+
+
+def test_a_finished_recording_is_cut_into_the_same_parts():
+    engine = _sherpa_engine()
+    assert engine.transcribe(_dictation(0.5, 16.0, 2.0, 3.0, 0.5), speech.RATE) == "16.5s 5s"
+    assert _decoded(engine) == [_at(16.5), _at(5.0)]
+
+
+def test_silence_never_reaches_the_recognizer():
+    engine = _sherpa_engine()
+    assert engine.transcribe(_dictation(3.0), speech.RATE) == ""
+    assert _decoded(engine) == []
+
+
+def test_a_short_dictation_is_decoded_in_one_go():
+    engine = _sherpa_engine()
+    assert engine.transcribe(_dictation(0.5, 2.0, 0.5), speech.RATE) == "2.5s"
+    assert _decoded(engine) == [_at(2.5)]
+
+
+def test_nothing_longer_than_thirty_seconds_reaches_the_recognizer_and_nothing_is_left_out():
+    engine = _sherpa_engine(["", "<|yue|>", "<|zh|>"])
+    engine.transcribe(_dictation(0.5, 54.0, 0.5), speech.RATE)           # 54 s without a pause
+    assert _decoded(engine) == [_at(25.25), _at(25.0), _at(4.25)]
+    assert max(_decoded(engine)) <= 30 * speech.RATE      # Whisper drops whatever comes after 30 s
+    assert sum(_decoded(engine)) == _at(54.5)
+    assert engine.detected == "yue"                       # the first part whose language the model names
+
+
+class FakeMic:
+    sample_rate = 16000
+
+    def __init__(self):
+        self.blocks = []
+
+
+def _wait_until(done, seconds=5.0):
+    limit = time.monotonic() + seconds
+    while not done():
+        assert time.monotonic() < limit, "timed out"
+        time.sleep(0.005)
+
+
+def _listener(engine):
+    listener = speech.Speech.__new__(speech.Speech)       # no model, no download
+    listener.engine = engine
+    return listener
+
+
+def test_hold_decodes_while_the_key_is_held(monkeypatch):
+    monkeypatch.setattr(speech.Hold, "TICK", 0.01)
+    engine = _sherpa_engine()
+    mic = FakeMic()
+    audio = _dictation(0.5, 16.0, 2.0, 3.0, 0.5)
+    hold = _listener(engine).hold(mic)
+    mic.blocks.extend(np.split(audio[:_at(18.0)], 36))
+    _wait_until(lambda: len(engine.recognizer.streams) == 1)             # text before the key is let go
+    mic.blocks.extend(np.split(audio[_at(18.0):], 8))
+    assert hold.finish(np.concatenate(mic.blocks), speech.RATE) == "16.5s 5s"
+    assert not hold.thread.is_alive()
+    assert _decoded(engine) == [_at(16.5), _at(5.0)]      # no part was decoded twice
+
+
+def test_hold_decodes_the_whole_recording_again_when_the_early_decode_failed(monkeypatch):
+    monkeypatch.setattr(speech.Hold, "TICK", 0.01)
+    engine = _sherpa_engine()
+    decode = engine.decode
+    sizes = []
+
+    def stumbling(audio16k):
+        sizes.append(len(audio16k))
+        if len(sizes) == 1:
+            raise RuntimeError("the recognizer stumbled")
+        return decode(audio16k)
+
+    engine.decode = stumbling
+    mic = FakeMic()
+    audio = _dictation(0.5, 16.0, 2.0, 3.0, 0.5)
+    hold = _listener(engine).hold(mic)
+    mic.blocks.extend(np.split(audio, 88))
+    _wait_until(lambda: hold.failed)
+    assert hold.finish(audio, speech.RATE) == "16.5s 5s"
+    assert sizes == [_at(16.5), _at(16.5), _at(5.0)]
+
+
+def test_only_the_bundled_engines_decode_while_the_key_is_held():
+    assert _listener(object()).hold(FakeMic()) is None    # the Windows recognizer wants a finished recording
+    assert _listener(None).hold(FakeMic()) is None        # nothing has loaded yet
+
+
+def test_a_cancelled_hold_stops_listening(monkeypatch):
+    monkeypatch.setattr(speech.Hold, "TICK", 0.01)
+    engine = _sherpa_engine()
+    mic = FakeMic()
+    hold = _listener(engine).hold(mic)
+    hold.cancel()
+    hold.thread.join(5)
+    assert not hold.thread.is_alive()
+    mic.blocks.extend(np.split(_dictation(0.5, 16.0, 2.0, 3.0, 0.5), 88))
+    time.sleep(0.05)
+    assert _decoded(engine) == []

@@ -18,6 +18,11 @@ on the Windows recognizer there.
 Every engine gets Silero voice activity detection first (0.6 MB): the recording is trimmed to the part where
 someone speaks, and a recording without speech (a key click, a fan, a breath) gives no text at all, so
 nothing made up ("Thank you.") is ever typed or asked.
+
+A long dictation is decoded in parts (Cutter): it is cut at the first pause after 15 seconds and after 25
+seconds at the latest, because Whisper drops whatever comes after 30 seconds. A part keeps up to two seconds
+of the pause before it, so a pause of ordinary length loses no audio. While the dictation key is held, the
+parts that are complete are decoded already (Hold), so letting go only waits for the last one.
 """
 import collections
 import contextlib
@@ -451,6 +456,9 @@ class VoiceDetector:
     """Silero VAD: where in a recording someone speaks."""
 
     PAD = 0.25            # s kept before and after speech, so first and last sounds are not clipped
+    SPLIT = 10.0          # s without a pause after which a stretch of speech ends at the slightest dip. With
+                          # the 20 s of sherpa-onnx, speech without pauses came in stretches of over 25 s,
+                          # which Cutter could only cut in the middle of a word.
 
     def __init__(self, threshold=0.5):
         import sherpa_onnx
@@ -461,32 +469,73 @@ class VoiceDetector:
         config.silero_vad.threshold = threshold
         config.silero_vad.min_silence_duration = 0.3
         config.silero_vad.min_speech_duration = 0.15
+        config.silero_vad.max_speech_duration = self.SPLIT
         config.sample_rate = RATE
         config.num_threads = 1
         self.config = config
 
     def span(self, audio16k):
         """(start, end) in samples around all speech, or None when nobody spoke."""
-        vad = self.sherpa.VoiceActivityDetector(self.config, buffer_size_in_seconds=max(30, len(audio16k) // RATE + 5))
-        window = self.config.silero_vad.window_size
-        starts, ends = [], []
-
-        def drain():
-            while not vad.empty():
-                segment = vad.front
-                starts.append(segment.start)
-                ends.append(segment.start + len(segment.samples))
-                vad.pop()
-
-        for i in range(0, len(audio16k), window):
-            vad.accept_waveform(audio16k[i:i + window])
-            drain()
-        vad.flush()
-        drain()
-        if not starts:
+        listening = self.listen(max(30, len(audio16k) // RATE + 5))
+        found = listening.hear(audio16k) + listening.finish()
+        if not found:
             return None
         pad = int(self.PAD * RATE)
-        return max(0, min(starts) - pad), min(len(audio16k), max(ends) + pad)
+        first = min(start for start, _ in found)
+        last = max(end for _, end in found)
+        return max(0, first - pad), min(len(audio16k), last + pad)
+
+    def listen(self, seconds=60):
+        """A recording that is heard piece by piece (see Listening); `seconds` is the longest stretch of
+        speech it has to hold."""
+        return Listening(self, seconds)
+
+
+class Listening:
+    """The voice detector on one recording that arrives in pieces. `hear` returns the stretches of speech
+    that have ended since the last call, as (start, end) in samples from the start of the recording;
+    `finish` returns the ones that were still going on when the recording ended."""
+
+    def __init__(self, detector, seconds=60):
+        self.vad = detector.sherpa.VoiceActivityDetector(detector.config, buffer_size_in_seconds=seconds)
+        self.window = detector.config.silero_vad.window_size
+        self.left = np.zeros(0, dtype=np.float32)           # less than one window, waiting for the rest
+        self.heard = 0                                      # samples the detector has had
+
+    @property
+    def since(self):
+        """Where the speech that is going on right now began; None when nobody is speaking."""
+        if not self.vad.is_speech_detected():
+            return None
+        return self.vad.current_segment.start
+
+    def hear(self, audio16k):
+        audio = np.concatenate([self.left, np.asarray(audio16k, dtype=np.float32)])
+        whole = len(audio) - len(audio) % self.window
+        found = []
+        for i in range(0, whole, self.window):
+            self.vad.accept_waveform(audio[i:i + self.window])
+            found += self._ended()
+        self.left = audio[whole:]
+        self.heard += whole
+        return found
+
+    def finish(self):
+        if len(self.left):
+            self.vad.accept_waveform(self.left)
+            self.heard += len(self.left)
+            self.left = self.left[:0]
+        found = self._ended()
+        self.vad.flush()
+        return found + self._ended()
+
+    def _ended(self):
+        found = []
+        while not self.vad.empty():
+            segment = self.vad.front
+            found.append((segment.start, segment.start + len(segment.samples)))
+            self.vad.pop()
+        return found
 
 
 # --------------------------------------------------------------------------- engines
@@ -499,6 +548,7 @@ class SherpaSpeech:
 
         self.engine = engine
         self.detected = ""
+        self.busy = threading.Lock()                        # one decode at a time: Hold decodes in a thread
         folder = models_dir() / ENGINES[engine]["archive"]
         if engine in ("whisper-en", "whisper-multi"):
             self.recognizer = sherpa_onnx.OfflineRecognizer.from_whisper(
@@ -537,22 +587,22 @@ class SherpaSpeech:
 
     def warm_up(self):
         """One tiny decode so the first real question doesn't pay the first-run cost."""
-        stream = self.recognizer.create_stream()
-        stream.accept_waveform(RATE, np.zeros(RATE // 2, dtype=np.float32))
-        self.recognizer.decode_stream(stream)
+        self.decode(np.zeros(RATE // 2, dtype=np.float32))
 
     def transcribe(self, audio, sample_rate):
-        audio = np.asarray(audio, dtype=np.float32)
-        audio16k = resample(audio, sample_rate, RATE)
-        span = self.vad.span(audio16k)
-        if span is None:
-            return ""
-        stream = self.recognizer.create_stream()
-        stream.accept_waveform(RATE, audio16k[span[0]:span[1]])
-        self.recognizer.decode_stream(stream)
-        result = stream.result
-        self.detected = str(getattr(result, "lang", "") or "").strip().strip("<|>").lower()    # '<|yue|>'
-        return result.text.strip()
+        held = Held(self, sample_rate)                      # a finished recording: one that came in one piece
+        held.hear(audio)
+        return held.finish()
+
+    def decode(self, audio16k):
+        """The text of one stretch of speech (16 kHz), and the language the model heard ('': it doesn't say)."""
+        with self.busy:
+            stream = self.recognizer.create_stream()
+            stream.accept_waveform(RATE, audio16k)
+            self.recognizer.decode_stream(stream)
+            result = stream.result
+        language = str(getattr(result, "lang", "") or "").strip().strip("<|>").lower()             # '<|yue|>'
+        return result.text.strip(), language
 
 
 def trim_to_speech(audio, sample_rate):
@@ -569,6 +619,15 @@ def trim_to_speech(audio, sample_rate):
     return audio[int(span[0] * scale):int(span[1] * scale)]
 
 
+def _low_pass(ratio):
+    """The windowed-sinc filter that takes out what the lower sample rate cannot carry."""
+    cutoff = ratio * 0.95
+    reach = 16 * int(np.ceil(1 / ratio))
+    taps = np.arange(-reach, reach + 1)
+    kernel = cutoff * np.sinc(cutoff * taps) * np.hanning(len(taps))
+    return kernel / kernel.sum()
+
+
 def resample(audio, source_rate, target_rate):
     """Windowed-sinc resampling (clean enough for speech recognition), numpy only."""
     audio = np.asarray(audio, dtype=np.float32)
@@ -576,14 +635,234 @@ def resample(audio, source_rate, target_rate):
         return audio
     ratio = target_rate / source_rate
     if ratio < 1:                                           # low-pass at the new Nyquist before decimating
-        cutoff = ratio * 0.95
-        half = 16
-        taps = np.arange(-half * int(np.ceil(1 / ratio)), half * int(np.ceil(1 / ratio)) + 1)
-        kernel = cutoff * np.sinc(cutoff * taps) * np.hanning(len(taps))
-        kernel /= kernel.sum()
-        audio = np.convolve(audio, kernel, mode="same").astype(np.float32)
+        audio = np.convolve(audio, _low_pass(ratio), mode="same").astype(np.float32)
     positions = np.arange(0, audio.size, source_rate / target_rate)
     return np.interp(positions, np.arange(audio.size), audio).astype(np.float32)
+
+
+class Stream16k:
+    """resample() to 16 kHz for a recording that arrives in pieces: what `feed` and `finish` return adds up
+    to what resample() makes of the whole recording."""
+
+    def __init__(self, source_rate):
+        self.rate = int(source_rate)
+        self.step = self.rate / RATE                        # source samples per 16 kHz sample
+        self.kernel = _low_pass(RATE / self.rate) if self.rate > RATE else None
+        self.reach = len(self.kernel) // 2 if self.kernel is not None else 0
+        self.audio = np.zeros(0, dtype=np.float32)          # source audio that the next samples still need
+        self.first = 0                                      # where self.audio starts in the recording
+        self.made = 0                                       # 16 kHz samples returned so far
+
+    def feed(self, audio):
+        audio = np.asarray(audio, dtype=np.float32)
+        if self.rate == RATE:
+            return audio
+        self.audio = np.concatenate([self.audio, audio])
+        last = self.first + len(self.audio) - self.reach - 3    # the filter and the interpolation look ahead
+        return self._make(last * RATE // self.rate + 1 if last >= 0 else 0)
+
+    def finish(self):
+        """The last samples: the ones that had to wait for audio that never came."""
+        if self.rate == RATE:
+            return self.audio
+        return self._make(int(np.ceil((self.first + len(self.audio)) / self.step)))
+
+    def _make(self, upto):
+        if upto <= self.made:
+            return np.zeros(0, dtype=np.float32)
+        clean = self.audio
+        if self.kernel is not None:
+            clean = np.convolve(clean, self.kernel)[self.reach:self.reach + len(clean)].astype(np.float32)
+        positions = np.arange(self.made, upto) * self.step
+        made = np.interp(positions, self.first + np.arange(len(clean)), clean).astype(np.float32)
+        self.made = upto
+        keep = max(self.first, upto * self.rate // RATE - self.reach - 2)
+        self.audio = self.audio[keep - self.first:]
+        self.first = keep
+        return made
+
+
+class Cutter:
+    """Where a long dictation is cut into parts that are decoded one by one.
+
+    A part ends at the first pause after EARLY seconds, so that most of a long dictation is text before the
+    key is let go, and it holds LONGEST seconds at most: Whisper drops whatever comes after 30 seconds, and
+    the other models were trained on less. What is shorter than EARLY is never cut, so an ordinary dictation
+    is decoded in one piece, with everything that was said as context.
+
+    A part after the first keeps up to KEEP seconds of the pause before it. A pause of KEEP + pad seconds or
+    less therefore loses no audio: what the detector took for silence there still reaches the recognizer.
+    Before the first speech only the pad is kept, as for a dictation that is not cut at all.
+
+    Everything is counted in 16 kHz samples from the start of the recording."""
+
+    PAUSE = 0.7                                             # seconds of silence that end a part ...
+    EARLY = 15.0                                            # ... once the part holds this many seconds
+    LONGEST = 25.0                                          # seconds in one part, its pauses included
+    LEAD = 0.3                                              # speech is noticed within this many seconds
+    KEEP = 2.0                                              # seconds of the pause before a later part
+
+    def __init__(self, pad=VoiceDetector.PAD):
+        self.pad = int(pad * RATE)
+        self.start = self.end = None                        # the speech in the part that is still open
+        self.floor = 0                                      # the audio before this is in an earlier part
+
+    def add(self, start, end):
+        """Speech from `start` to `end` has ended. Returns the parts this closes, as (first, last) audio."""
+        closed = []
+        longest = int(self.LONGEST * RATE)
+        if self.start is not None and (self._paused(start) or end - self.start > longest):
+            closed.append(self._close((self.end + start) // 2))
+        while end - start > longest:                        # nobody paused for LONGEST seconds: cut anyway
+            self.start, self.end = start, start + longest
+            start += longest
+            closed.append(self._close(start))
+        if self.start is None:
+            self.start = start
+        self.end = end
+        return closed
+
+    def early(self, now, since=None):
+        """What add() is going to decide about the open part, as soon as that is certain: its decoding can
+        then start while the next speech is still going on. `now` is how far the recording has been heard,
+        `since` where the speech that is going on began (None when nobody is speaking)."""
+        if self.start is None:
+            return []
+        if since is None:                                   # a pause, and nothing in it that could be speech
+            return [self._close(now)] if self._paused(now - int(self.LEAD * RATE)) else []
+        if self._paused(since) or now - self.start > self.LONGEST * RATE:
+            return [self._close((self.end + since) // 2)]
+        return []
+
+    def rest(self, total):
+        """The recording ended after `total` samples: the part that is still open."""
+        return [self._close(total)] if self.start is not None else []
+
+    def _paused(self, start):
+        """Would speech that begins at `start` come after a pause that ends the open part?"""
+        return start - self.end >= self.PAUSE * RATE and self.end - self.start >= self.EARLY * RATE
+
+    def _close(self, limit):
+        lead = int(self.KEEP * RATE) if self.floor else self.pad
+        first = max(self.start - lead, self.floor)
+        last = min(self.end + self.pad, limit)
+        self.floor = last
+        self.start = self.end = None
+        return first, last
+
+
+def _unspaced(char):
+    """Chinese and Japanese (and their punctuation) are written without spaces between the words."""
+    return "\u3000" <= char <= "\u9fff" or "\uff00" <= char <= "\uffef"
+
+
+def join_parts(parts):
+    """The texts of the parts of one dictation as one text."""
+    text = ""
+    for part in parts:
+        part = part.strip()
+        if text and part and not (_unspaced(text[-1]) and _unspaced(part[0])):
+            text += " "
+        text += part
+    return text
+
+
+class Held:
+    """One recording on its way through a SherpaSpeech engine: `hear` takes the audio as it comes in and
+    decodes every part of it that is complete (see Cutter), `finish` decodes the rest and returns the text."""
+
+    def __init__(self, engine, sample_rate):
+        self.engine = engine
+        self.stream = Stream16k(sample_rate)
+        self.listening = engine.vad.listen()
+        self.cutter = Cutter(engine.vad.PAD)
+        self.audio = np.zeros(0, dtype=np.float32)          # 16 kHz audio that is not text yet
+        self.first = 0                                      # where self.audio starts in the recording
+        self.texts = []
+        self.language = ""                                  # of the first part whose language the model names
+
+    def hear(self, audio):
+        fresh = self.stream.feed(audio)
+        self.audio = np.concatenate([self.audio, fresh])
+        self._ended(self.listening.hear(fresh))
+        self._decode(self.cutter.early(self.listening.heard, self.listening.since))
+
+    def finish(self):
+        fresh = self.stream.finish()
+        self.audio = np.concatenate([self.audio, fresh])
+        self._ended(self.listening.hear(fresh) + self.listening.finish())
+        self._decode(self.cutter.rest(self.first + len(self.audio)))
+        self.engine.detected = self.language
+        return join_parts(self.texts)
+
+    def _ended(self, stretches):
+        for start, end in stretches:
+            self._decode(self.cutter.add(start, end))
+
+    def _decode(self, parts):
+        for first, last in parts:
+            with urgent():                                  # somebody is waiting for this text, or soon will be
+                text, language = self.engine.decode(self.audio[first - self.first:last - self.first])
+            self.texts.append(text)
+            self.language = self.language or language
+            self.audio = self.audio[last - self.first:]     # what has become text needs no memory
+            self.first = last
+
+
+class Hold:
+    """A dictation that is decoded while its key is still held.
+
+    Every TICK seconds a thread hands the microphone audio that has come in to a Held, which decodes every
+    part of the dictation that is complete. Letting go of the key (`finish`) then only waits for the last
+    part, however long the dictation was. bench/latency_hold.py measures that wait."""
+
+    TICK = 0.25
+
+    def __init__(self, speech, engine, mic):
+        self.speech = speech
+        self.engine = engine
+        self.mic = mic
+        self.held = None                                    # made by the thread: a key press never waits
+        self.blocks = 0                                     # microphone blocks that self.held has had ...
+        self.samples = 0                                    # ... and the samples in them
+        self.failed = False
+        self.stop = threading.Event()
+        self.thread = threading.Thread(target=self._run, daemon=True)
+        self.thread.start()
+
+    def _run(self):
+        try:
+            self.held = Held(self.engine, self.mic.sample_rate)
+            while not self.stop.wait(self.TICK):
+                self._hear()
+        except Exception:
+            logging.warning("decoding while the key is held failed", exc_info=True)
+            self.failed = True
+
+    def _hear(self):
+        blocks = self.mic.blocks[self.blocks:]
+        if blocks:
+            audio = np.concatenate(blocks)
+            self.blocks += len(blocks)
+            self.samples += len(audio)
+            self.held.hear(audio)
+
+    def finish(self, audio, sample_rate):
+        """The key is let go: the text of the whole recording."""
+        self.cancel()
+        self.thread.join()
+        if not self.failed and self.samples <= len(audio):
+            try:
+                with urgent():
+                    self.held.hear(audio[self.samples:])
+                    return self.held.finish()
+            except Exception:
+                logging.warning("decoding the end of the dictation failed", exc_info=True)
+        return self.speech.transcribe(audio, sample_rate)   # all of it once more, in one go
+
+    def cancel(self):
+        """The recording is thrown away."""
+        self.stop.set()
 
 
 NORMAL_PRIORITY = 0x00000020                               # Windows priority classes
@@ -743,6 +1022,16 @@ class Speech:
                     return ""
                 audio = trimmed
             return engine.transcribe(audio, sample_rate)
+
+    def hold(self, mic):
+        """Start decoding a dictation while it is still being recorded (see Hold). None when the engine
+        cannot do that: the finished recording then goes to transcribe(), as it always did."""
+        try:
+            if isinstance(self.engine, SherpaSpeech):
+                return Hold(self, self.engine, mic)
+        except Exception:
+            logging.warning("no decoding while the key is held", exc_info=True)
+        return None
 
     def _fallback(self):
         if self.fallback is None:
