@@ -196,4 +196,55 @@ Whisper base.en on English clips, 4 decode threads on 8 logical processors, 8 bu
   a calm PC: the plain decode was slower there than under the synthetic load. No calm PC was measured.
 * "Every core busy" adds one busy loop per logical processor at normal priority. The loops end by
   themselves.
-* Buddy still decodes after the key is released. Decoding while the key is held is not built.
+* A dictation shorter than 15 s is still decoded after the key is released. A longer one is decoded in
+  parts while the key is held: see the next section.
+
+### Long dictations: release to text
+
+| Language, engine | The PC | Recordings | Length (mean) | Said | Processor busy | One piece, as 1.2.0 did | In parts, after release | In parts, while held (shipped) | Parts that were text at release |
+|---|---|---|---|---|---|---|---|---|---|
+| English, Whisper base.en | As it was | 2 | 56 s | 227 words | 93% | 13.1 s, 116 wrong | 8.0 s, 21 wrong | 1.4 s, 21 wrong | 4 of 6 |
+| English, Whisper base.en | Every core busy | 1 | 57 s | 137 words | 100% | 31.6 s, 60 wrong | 10.0 s, 10 wrong | 2.7 s, 10 wrong | 2 of 3 |
+| Chinese (Mandarin), SenseVoice | As it was | 2 | 82 s | 489 characters | 99% | 19.9 s, 52 wrong | 3.8 s, 44 wrong | 0.2 s, 44 wrong | 6 of 7 |
+| Chinese (Mandarin), SenseVoice | Every core busy | 1 | 61 s | 215 characters | 100% | 19.3 s, 29 wrong | 2.5 s, 28 wrong | 0.3 s, 28 wrong | 2 of 3 |
+| Indonesian, Omnilingual | As it was | 2 | 81 s | 241 words | 99% | 43.2 s, 223 wrong | 12.9 s, 83 wrong | 2.4 s, 83 wrong | 6 of 8 |
+| Indonesian, Omnilingual | Every core busy | 1 | 76 s | 105 words | 100% | 65.4 s, 42 wrong | 11.2 s, 31 wrong | 1.9 s, 31 wrong | 3 of 4 |
+| Japanese, Dolphin | As it was | 1 | 85 s | 333 characters | 100% | 11.0 s, 48 wrong | 3.7 s, 46 wrong | 0.5 s, 46 wrong | 3 of 4 |
+| Spanish, Parakeet V3 | As it was | 1 | 66 s | 134 words | 100% | 15.5 s, 3 wrong | 5.4 s, 4 wrong | 1.1 s, 4 wrong | 2 of 3 |
+
+6 clips in a recording, 4 decode threads on 8 logical processors, 8 busy loops for the loaded rows.
+
+* `latency_hold.py` joins six FLEURS clips of one language into one recording of 56 to 94 seconds, with a
+  second of silence between the clips, and turns it into text three ways. Each way is timed from the
+  moment the key is let go, and which way goes first rotates from recording to recording.
+  * *One piece* is what 1.2.0 did: the whole recording goes to the engine at once, at normal priority.
+  * *In parts, after release* cuts the recording at its pauses and decodes the parts one after the other.
+  * *In parts, while held* is what Buddy does now. The recording is played to it at the speed it was
+    spoken, and each part is decoded as soon as it ends, while the speaker goes on. Only the last part is
+    left when the key is let go.
+* A cell is the mean time from release to text, then the words or characters that came out wrong, of
+  those in the "Said" column. Both ways of cutting gave the same number of errors in every row. A row is
+  one or two recordings, so read the size of a difference and not its decimals.
+* A part ends at the first pause of 0.7 s once it is 15 s long, and at 25 s if nobody pauses. A
+  dictation shorter than 15 s is not cut: it is decoded in one piece after release, as before. A part
+  after the first takes up to 2 s of the pause before it along, so a pause of up to 2.25 s loses no
+  audio, and the longest part is 27.25 s, under Whisper's 30 s.
+* The parts also bring back text that was lost. Whisper drops what comes after 30 seconds, in 1.2.0 too,
+  and Omnilingual falls apart on long audio: see the English and Indonesian rows. Auto-detect uses
+  Whisper as well. Parakeet V3 takes a minute of speech in one piece, so for Spanish the parts only gain
+  speed; here they cost one word.
+* The clips in a recording come from different speakers, so each is first scaled to the same speech level
+  (the 90th percentile of its 30 ms frames). The voice detector judges speech against what it heard
+  before. In one-off checks that are not among these result files, 2 of 13 recordings joined as recorded
+  lost clips to it, and none of the 13 did once levelled. A clip played again after itself was still
+  found at a fifth of its level in 7 of 8 clips, and was mostly lost at a twentieth in 6 of 8.
+* So speech much quieter than what came before it can be left out. That was already so at the start and
+  the end of a dictation. Now it also holds inside a pause of more than 2.25 s between two parts.
+* "Processor busy" is the whole PC while the recording played, Buddy's own decoding included. "As it was"
+  is the PC as the run found it, with other programs using the processor. It is not a calm PC, and no
+  calm PC was measured. "Every core busy" adds one busy loop per logical processor; the loops end by
+  themselves.
+* Spanish and Japanese have ten clips here, enough for one recording, so they have no loaded row.
+* Buddy sets the voice detector to split speech that has no pauses after 10 s; sherpa-onnx's own setting
+  is 20 s. Measured once with the real detector, the 20 s setting gave stretches of 23 to 25 s, and the
+  10 s setting gave 13 to 19 s at the longest.

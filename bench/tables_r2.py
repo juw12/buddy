@@ -14,6 +14,8 @@ BASELINE = ["v0_real_a_summary.json", "v0_real_b.json"]
 BRANCH = ["shipped_r2_a.json", "shipped_r2_b.json", "shipped_r2_c.json"]
 AUTO = "shipped_r2_auto.json"
 LATENCY = "latency_load.json"
+HOLD = "latency_hold.json"
+WAYS = ["one piece", "in parts", "while held"]
 CANDIDATES = ["raw_omnilingual.json", "raw_dolphin_base.json", "raw_dolphin_small.json",
               "raw_sensevoice_fixed.json", "raw_whisper_base.json", "raw_whisper_base_detect.json"]
 SAFETY = [("Buddy 1.2.0", "my_words_safety_1.2.0.json"),
@@ -166,6 +168,31 @@ def latency():
                   "Shipped faster on", "Same text on"], rows) + "\n\n" + setup
 
 
+def hold():
+    report = read(HOLD)
+    if not report:
+        return "(not measured)"
+    rows = []
+    for folder in ORDER:
+        entry = report["languages"].get(folder)
+        for name, result in (entry or {}).get("conditions", {}).items():
+            recordings = entry["rows"][name]
+            held = [recording["while held"] for recording in recordings]
+            rows.append([
+                "%s, %s" % (entry["language"], entry["engine"]), name.capitalize(), result["recordings"],
+                "%.0f s" % (sum(recording["audio_seconds"] for recording in recordings) / len(recordings)),
+                "%d %ss" % (result["units"], "character" if entry["unit"] == "char" else "word"),
+                "%.0f%%" % (100 * sum(part["pc_busy"] for part in held) / len(held)),
+            ] + ["%.1f s, %d wrong" % (result[way]["mean_s"], result[way]["wrong"]) for way in WAYS] + [
+                "%d of %d" % (sum(part["parts_before_release"] for part in held),
+                              sum(part["parts"] for part in held))])
+    setup = "%d clips in a recording, %d decode threads on %d logical processors, %d busy loops for the loaded rows."
+    setup %= (report["clips_per_recording"], report["threads"], report["processors"], report["burners"])
+    return table(["Language, engine", "The PC", "Recordings", "Length (mean)", "Said", "Processor busy",
+                  "One piece, as 1.2.0 did", "In parts, after release", "In parts, while held (shipped)",
+                  "Parts that were text at release"], rows) + "\n\n" + setup
+
+
 def main():
     for title, text in (
         ("Buddy 1.2.0 against this branch, end to end", end_to_end()),
@@ -176,6 +203,7 @@ def main():
         ("Cantonese script", cantonese()),
         ("My words safety", safety()),
         ("Release to text on a busy PC", latency()),
+        ("Long dictations: release to text", hold()),
     ):
         print("### %s\n\n%s\n" % (title, text))
 

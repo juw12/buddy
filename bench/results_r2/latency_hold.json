@@ -1,0 +1,540 @@
+{
+ "threads": 4,
+ "processors": 8,
+ "burners": 8,
+ "clips_per_recording": 6,
+ "languages": {
+  "en_us": {
+   "language": "English",
+   "engine": "Whisper base.en",
+   "unit": "word",
+   "rows": {
+    "as it was": [
+     {
+      "recording": 0,
+      "audio_seconds": 55.6,
+      "first": "one piece",
+      "units": 98,
+      "one piece": {
+       "seconds": 6.693,
+       "wrong": 49
+      },
+      "in parts": {
+       "seconds": 6.709,
+       "wrong": 8
+      },
+      "while held": {
+       "seconds": 1.8,
+       "parts": 3,
+       "parts_before_release": 2,
+       "pc_busy": 0.874,
+       "wrong": 8
+      },
+      "clips": [
+       "1936362254666654691.wav",
+       "10305808618795196942.wav",
+       "11909868287041540501.wav",
+       "5260885647261312884.wav",
+       "2487832766827175700.wav",
+       "9925774476761884993.wav"
+      ]
+     },
+     {
+      "recording": 1,
+      "audio_seconds": 56.3,
+      "first": "in parts",
+      "units": 129,
+      "in parts": {
+       "seconds": 9.307,
+       "wrong": 13
+      },
+      "while held": {
+       "seconds": 0.939,
+       "parts": 3,
+       "parts_before_release": 2,
+       "pc_busy": 0.991,
+       "wrong": 13
+      },
+      "one piece": {
+       "seconds": 19.517,
+       "wrong": 67
+      },
+      "clips": [
+       "95606678053409405.wav",
+       "9914600671714805470.wav",
+       "13401813993755065210.wav",
+       "17358079166744661933.wav",
+       "7044731061976358264.wav",
+       "9222509738340872650.wav"
+      ]
+     }
+    ],
+    "every core busy": [
+     {
+      "recording": 2,
+      "audio_seconds": 56.6,
+      "first": "while held",
+      "units": 137,
+      "while held": {
+       "seconds": 2.735,
+       "parts": 3,
+       "parts_before_release": 2,
+       "pc_busy": 1.0,
+       "wrong": 10
+      },
+      "one piece": {
+       "seconds": 31.631,
+       "wrong": 60
+      },
+      "in parts": {
+       "seconds": 10.007,
+       "wrong": 10
+      },
+      "clips": [
+       "786465049904960526.wav",
+       "10630374883688952860.wav",
+       "12949536968068093150.wav",
+       "3553772547707478752.wav",
+       "3793555683288256195.wav",
+       "389121761350402334.wav"
+      ]
+     }
+    ]
+   },
+   "conditions": {
+    "as it was": {
+     "recordings": 2,
+     "units": 227,
+     "one piece": {
+      "mean_s": 13.105,
+      "median_s": 13.105,
+      "wrong": 116
+     },
+     "in parts": {
+      "mean_s": 8.008,
+      "median_s": 8.008,
+      "wrong": 21
+     },
+     "while held": {
+      "mean_s": 1.369,
+      "median_s": 1.369,
+      "wrong": 21
+     }
+    },
+    "every core busy": {
+     "recordings": 1,
+     "units": 137,
+     "one piece": {
+      "mean_s": 31.631,
+      "median_s": 31.631,
+      "wrong": 60
+     },
+     "in parts": {
+      "mean_s": 10.007,
+      "median_s": 10.007,
+      "wrong": 10
+     },
+     "while held": {
+      "mean_s": 2.735,
+      "median_s": 2.735,
+      "wrong": 10
+     }
+    }
+   }
+  },
+  "cmn_hans_cn": {
+   "language": "Chinese (Mandarin)",
+   "engine": "SenseVoice",
+   "unit": "char",
+   "rows": {
+    "as it was": [
+     {
+      "recording": 0,
+      "audio_seconds": 81.1,
+      "first": "one piece",
+      "units": 218,
+      "one piece": {
+       "seconds": 18.759,
+       "wrong": 35
+      },
+      "in parts": {
+       "seconds": 4.073,
+       "wrong": 31
+      },
+      "while held": {
+       "seconds": 0.02,
+       "parts": 3,
+       "parts_before_release": 3,
+       "pc_busy": 0.991,
+       "wrong": 31
+      },
+      "clips": [
+       "10312747577451821721.wav",
+       "8150522654140426706.wav",
+       "562538176848805954.wav",
+       "3263500030075038552.wav",
+       "17034133346068374404.wav",
+       "6853906816602258944.wav"
+      ]
+     },
+     {
+      "recording": 1,
+      "audio_seconds": 83.6,
+      "first": "in parts",
+      "units": 271,
+      "in parts": {
+       "seconds": 3.487,
+       "wrong": 13
+      },
+      "while held": {
+       "seconds": 0.342,
+       "parts": 4,
+       "parts_before_release": 3,
+       "pc_busy": 0.986,
+       "wrong": 13
+      },
+      "one piece": {
+       "seconds": 21.098,
+       "wrong": 17
+      },
+      "clips": [
+       "3661824848750986581.wav",
+       "7967524639119264013.wav",
+       "1074188475771767661.wav",
+       "13452153356803873218.wav",
+       "15697269633089311043.wav",
+       "9172948875573393237.wav"
+      ]
+     }
+    ],
+    "every core busy": [
+     {
+      "recording": 2,
+      "audio_seconds": 60.9,
+      "first": "while held",
+      "units": 215,
+      "while held": {
+       "seconds": 0.259,
+       "parts": 3,
+       "parts_before_release": 2,
+       "pc_busy": 1.0,
+       "wrong": 28
+      },
+      "one piece": {
+       "seconds": 19.342,
+       "wrong": 29
+      },
+      "in parts": {
+       "seconds": 2.462,
+       "wrong": 28
+      },
+      "clips": [
+       "13719601250695601702.wav",
+       "13292923011535257079.wav",
+       "15498956202881691437.wav",
+       "8882064931020870249.wav",
+       "8410171656423330739.wav",
+       "17897315153108253350.wav"
+      ]
+     }
+    ]
+   },
+   "conditions": {
+    "as it was": {
+     "recordings": 2,
+     "units": 489,
+     "one piece": {
+      "mean_s": 19.928,
+      "median_s": 19.928,
+      "wrong": 52
+     },
+     "in parts": {
+      "mean_s": 3.78,
+      "median_s": 3.78,
+      "wrong": 44
+     },
+     "while held": {
+      "mean_s": 0.181,
+      "median_s": 0.181,
+      "wrong": 44
+     }
+    },
+    "every core busy": {
+     "recordings": 1,
+     "units": 215,
+     "one piece": {
+      "mean_s": 19.342,
+      "median_s": 19.342,
+      "wrong": 29
+     },
+     "in parts": {
+      "mean_s": 2.462,
+      "median_s": 2.462,
+      "wrong": 28
+     },
+     "while held": {
+      "mean_s": 0.259,
+      "median_s": 0.259,
+      "wrong": 28
+     }
+    }
+   }
+  },
+  "es_419": {
+   "language": "Spanish",
+   "engine": "Parakeet V3",
+   "unit": "word",
+   "rows": {
+    "as it was": [
+     {
+      "recording": 0,
+      "audio_seconds": 65.8,
+      "first": "one piece",
+      "units": 134,
+      "one piece": {
+       "seconds": 15.477,
+       "wrong": 3
+      },
+      "in parts": {
+       "seconds": 5.355,
+       "wrong": 4
+      },
+      "while held": {
+       "seconds": 1.086,
+       "parts": 3,
+       "parts_before_release": 2,
+       "pc_busy": 0.995,
+       "wrong": 4
+      },
+      "clips": [
+       "10284528973491487253.wav",
+       "9072175803483717623.wav",
+       "4206903055369373829.wav",
+       "12763564625474114867.wav",
+       "15323093264284193547.wav",
+       "5040492612262490022.wav"
+      ]
+     }
+    ]
+   },
+   "conditions": {
+    "as it was": {
+     "recordings": 1,
+     "units": 134,
+     "one piece": {
+      "mean_s": 15.477,
+      "median_s": 15.477,
+      "wrong": 3
+     },
+     "in parts": {
+      "mean_s": 5.355,
+      "median_s": 5.355,
+      "wrong": 4
+     },
+     "while held": {
+      "mean_s": 1.086,
+      "median_s": 1.086,
+      "wrong": 4
+     }
+    }
+   }
+  },
+  "id_id": {
+   "language": "Indonesian",
+   "engine": "Omnilingual",
+   "unit": "word",
+   "rows": {
+    "as it was": [
+     {
+      "recording": 0,
+      "audio_seconds": 94.3,
+      "first": "in parts",
+      "units": 136,
+      "in parts": {
+       "seconds": 15.359,
+       "wrong": 52
+      },
+      "while held": {
+       "seconds": 2.109,
+       "parts": 5,
+       "parts_before_release": 4,
+       "pc_busy": 0.995,
+       "wrong": 52
+      },
+      "one piece": {
+       "seconds": 56.218,
+       "wrong": 129
+      },
+      "clips": [
+       "274424245165549060.wav",
+       "4373874978544645121.wav",
+       "7723504040304129741.wav",
+       "1845376674480909079.wav",
+       "8907202116760567555.wav",
+       "18434802371917049530.wav"
+      ]
+     },
+     {
+      "recording": 1,
+      "audio_seconds": 67.7,
+      "first": "while held",
+      "units": 105,
+      "while held": {
+       "seconds": 2.598,
+       "parts": 3,
+       "parts_before_release": 2,
+       "pc_busy": 0.994,
+       "wrong": 31
+      },
+      "one piece": {
+       "seconds": 30.098,
+       "wrong": 94
+      },
+      "in parts": {
+       "seconds": 10.391,
+       "wrong": 31
+      },
+      "clips": [
+       "6776418430917219807.wav",
+       "7597123174559418821.wav",
+       "2789951427092930973.wav",
+       "1004101932027003160.wav",
+       "9001983444362887952.wav",
+       "10025505890476523442.wav"
+      ]
+     }
+    ],
+    "every core busy": [
+     {
+      "recording": 2,
+      "audio_seconds": 75.7,
+      "first": "one piece",
+      "units": 105,
+      "one piece": {
+       "seconds": 65.402,
+       "wrong": 42
+      },
+      "in parts": {
+       "seconds": 11.236,
+       "wrong": 31
+      },
+      "while held": {
+       "seconds": 1.875,
+       "parts": 4,
+       "parts_before_release": 3,
+       "pc_busy": 1.0,
+       "wrong": 31
+      },
+      "clips": [
+       "14870249795246536835.wav",
+       "8607060685306578004.wav",
+       "17499909325533715320.wav",
+       "7065047058784157035.wav",
+       "10818680264855846832.wav",
+       "16111842062170285563.wav"
+      ]
+     }
+    ]
+   },
+   "conditions": {
+    "as it was": {
+     "recordings": 2,
+     "units": 241,
+     "one piece": {
+      "mean_s": 43.158,
+      "median_s": 43.158,
+      "wrong": 223
+     },
+     "in parts": {
+      "mean_s": 12.875,
+      "median_s": 12.875,
+      "wrong": 83
+     },
+     "while held": {
+      "mean_s": 2.353,
+      "median_s": 2.353,
+      "wrong": 83
+     }
+    },
+    "every core busy": {
+     "recordings": 1,
+     "units": 105,
+     "one piece": {
+      "mean_s": 65.402,
+      "median_s": 65.402,
+      "wrong": 42
+     },
+     "in parts": {
+      "mean_s": 11.236,
+      "median_s": 11.236,
+      "wrong": 31
+     },
+     "while held": {
+      "mean_s": 1.875,
+      "median_s": 1.875,
+      "wrong": 31
+     }
+    }
+   }
+  },
+  "ja_jp": {
+   "language": "Japanese",
+   "engine": "Dolphin",
+   "unit": "char",
+   "rows": {
+    "as it was": [
+     {
+      "recording": 0,
+      "audio_seconds": 85.3,
+      "first": "in parts",
+      "units": 333,
+      "in parts": {
+       "seconds": 3.734,
+       "wrong": 46
+      },
+      "while held": {
+       "seconds": 0.516,
+       "parts": 4,
+       "parts_before_release": 3,
+       "pc_busy": 0.999,
+       "wrong": 46
+      },
+      "one piece": {
+       "seconds": 10.969,
+       "wrong": 48
+      },
+      "clips": [
+       "6880719872484767745.wav",
+       "15315349494137115815.wav",
+       "10339149383603832153.wav",
+       "13500619166784260063.wav",
+       "17595107070656151202.wav",
+       "5737391341571244470.wav"
+      ]
+     }
+    ]
+   },
+   "conditions": {
+    "as it was": {
+     "recordings": 1,
+     "units": 333,
+     "one piece": {
+      "mean_s": 10.969,
+      "median_s": 10.969,
+      "wrong": 48
+     },
+     "in parts": {
+      "mean_s": 3.734,
+      "median_s": 3.734,
+      "wrong": 46
+     },
+     "while held": {
+      "mean_s": 0.516,
+      "median_s": 0.516,
+      "wrong": 46
+     }
+    }
+   }
+  }
+ }
+}
