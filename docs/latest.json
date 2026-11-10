@@ -1,22 +1,22 @@
 {
-  "version": "1.2.0",
+  "version": "1.3.0",
   "date": "2026-11-10",
   "notes": [
-    "New: voice dictation (Ctrl+Alt+D)",
-    "Hold Ctrl+Alt+D, talk, let go: the text lands in mail, chat, PLM forms or Word. Tap once for hands-free, tap again to type. Esc cancels. Never touches the clipboard.",
-    "Drops \"um\"/\"uh\", follows spoken corrections (\"at three, no wait, at four\" types \"at four\"; \"... scratch that\" drops the sentence).",
-    "My words: your jargon, names and part numbers get fixed after recognition. Snippets expand short phrases.",
-    "Select text first and say \"make this shorter\" to edit it by voice.",
-    "Settings -> Type last dictation again / Copy last dictation; history of the last 20.",
-    "New speech engines (Settings -> Voice input -> Speech model: Auto)",
-    "English: Whisper base.en + Silero voice detection. Chinese / Cantonese / Japanese / Korean: SenseVoice. 24 other European languages: Parakeet V3."
+    "15 language choices for voice input (was 6). New: Indonesian, Malay, Thai, Vietnamese, Chinese (Traditional) and Auto-detect; German, Spanish and French got their own entries.",
+    "Each language now uses the engine that measured best on human recordings. Same clips, 1.2.0 -> 1.3.0: Indonesian 95.7% -> 29.1% word errors, Japanese 80.7% -> 22.1% and Korean 75.6% -> 13.8% character errors.",
+    "Long dictations are decoded in parts while you hold the key. On a busy PC, a dictation of one to one and a half minutes in English, Mandarin or Spanish was typed 0.2 to 1.4 s after release instead of 13 to 20 s.",
+    "English no longer loses what you say after 30 seconds: 9 wrong words of 98 in a 56-second recording, where 1.2.0 got 51 wrong.",
+    "Short dictations type sooner on a busy PC: about 1.0 s after release instead of 3.0 to 4.8 s, with the same text.",
+    "My words no longer rewrites everyday words or people's names: 0 wrong replacements on 721 test texts (1.2.0 made 56 on 684), 37,809 names from 63 languages are left alone, and a badly misheard term such as \"Bizaira's\" still becomes ZIRIS.",
+    "Fillers are removed in 11 languages, spoken corrections work in 7 (\"Rapatnya jam tiga, eh salah, jam empat\" types \"Rapatnya jam empat\") and edit commands in 9. Buddy's AI is asked to answer in the language of the question.",
+    "The first-use download shows size, speed and time left, unpacks 38 to 43% faster, and Buddy says how far it is if you try voice input meanwhile. Voice input has its own Settings tab."
   ],
-  "page": "https://github.com/juw12/buddy/releases/tag/v1.2.0",
+  "page": "https://github.com/juw12/buddy/releases/tag/v1.3.0",
   "windows": {
-    "version": "1.2.0",
-    "url": "https://github.com/juw12/buddy/releases/download/v1.2.0/Buddy-win64.zip",
-    "size": 178659707,
-    "sha256": "6dc7800e62473dce6ef0ef95017e609961dacd7a0184a1fd4c57eba9bd3f9c22"
+    "version": "1.3.0",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.3.0/Buddy-win64.zip",
+    "size": 179219429,
+    "sha256": "b98a15e4242afcb5d7b5137157e20d075109f3f61af89b96228b2af5a6ed77e5"
   },
   "mac": {
     "version": "1.1.0",
