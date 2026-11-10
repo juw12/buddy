@@ -1,0 +1,1718 @@
+{
+ "keyit": "buddy\\keyit",
+ "takes_language": true,
+ "lexicon_words": 177149,
+ "my_words": [
+  "SRM",
+  "PLM",
+  "BOM",
+  "eGreen",
+  "PureGMS",
+  "ZIRIS",
+  "Pega-Vision",
+  "Spec Green",
+  "Vendor Mapping",
+  "Notepad",
+  "Outlook"
+ ],
+ "texts": 668,
+ "texts_by_source": {
+  "fleurs reference": 150,
+  "heard": 245,
+  "round-1 reference": 16,
+  "round-1 heard": 232,
+  "near miss": 25
+ },
+ "english_words": 2435,
+ "runs": 2684,
+ "runs_changed_by_my_words": 226,
+ "wrong_replacements": 0,
+ "events": [],
+ "endings_changed": [],
+ "positive": {
+  "text": "Type Hello team, Bizaira's power test passed.",
+  "output": "Type Hello team, ZIRIS power test passed.",
+  "ok": true
+ },
+ "known_risk": [
+  {
+   "text": "Zaira's answer was wrong.",
+   "output": "ZIRIS answer was wrong."
+  }
+ ],
+ "jargon_kept_round_one": {
+  "B0_windows.json clean dictate": {
+   "said": 22,
+   "kept": 7,
+   "rate": 0.3182
+  },
+  "B0_windows.json clean ask": {
+   "said": 22,
+   "kept": 7,
+   "rate": 0.3182
+  },
+  "B0_windows.json noisy dictate": {
+   "said": 22,
+   "kept": 1,
+   "rate": 0.0455
+  },
+  "B0_windows.json noisy ask": {
+   "said": 22,
+   "kept": 1,
+   "rate": 0.0455
+  },
+  "B0_windows.json silence dictate": {
+   "said": 0,
+   "kept": 0,
+   "rate": null
+  },
+  "B0_windows.json silence ask": {
+   "said": 0,
+   "kept": 0,
+   "rate": null
+  },
+  "moonshine-base_vad.json clean dictate": {
+   "said": 22,
+   "kept": 16,
+   "rate": 0.7273
+  },
+  "moonshine-base_vad.json clean ask": {
+   "said": 22,
+   "kept": 16,
+   "rate": 0.7273
+  },
+  "moonshine-base_vad.json noisy dictate": {
+   "said": 22,
+   "kept": 15,
+   "rate": 0.6818
+  },
+  "moonshine-base_vad.json noisy ask": {
+   "said": 22,
+   "kept": 15,
+   "rate": 0.6818
+  },
+  "parakeet-v3_vad.json clean dictate": {
+   "said": 22,
+   "kept": 16,
+   "rate": 0.7273
+  },
+  "parakeet-v3_vad.json clean ask": {
+   "said": 22,
+   "kept": 16,
+   "rate": 0.7273
+  },
+  "parakeet-v3_vad.json noisy dictate": {
+   "said": 22,
+   "kept": 15,
+   "rate": 0.6818
+  },
+  "parakeet-v3_vad.json noisy ask": {
+   "said": 22,
+   "kept": 15,
+   "rate": 0.6818
+  },
+  "sensevoice_vad.json clean dictate": {
+   "said": 22,
+   "kept": 16,
+   "rate": 0.7273
+  },
+  "sensevoice_vad.json clean ask": {
+   "said": 22,
+   "kept": 16,
+   "rate": 0.7273
+  },
+  "sensevoice_vad.json noisy dictate": {
+   "said": 22,
+   "kept": 13,
+   "rate": 0.5909
+  },
+  "sensevoice_vad.json noisy ask": {
+   "said": 22,
+   "kept": 13,
+   "rate": 0.5909
+  },
+  "shipped.json clean dictate": {
+   "said": 22,
+   "kept": 18,
+   "rate": 0.8182
+  },
+  "shipped.json clean ask": {
+   "said": 22,
+   "kept": 18,
+   "rate": 0.8182
+  },
+  "shipped.json noisy dictate": {
+   "said": 22,
+   "kept": 17,
+   "rate": 0.7727
+  },
+  "shipped.json noisy ask": {
+   "said": 22,
+   "kept": 17,
+   "rate": 0.7727
+  },
+  "whisper-base.en.json clean dictate": {
+   "said": 22,
+   "kept": 18,
+   "rate": 0.8182
+  },
+  "whisper-base.en.json clean ask": {
+   "said": 22,
+   "kept": 18,
+   "rate": 0.8182
+  },
+  "whisper-base.en.json noisy dictate": {
+   "said": 22,
+   "kept": 17,
+   "rate": 0.7727
+  },
+  "whisper-base.en.json noisy ask": {
+   "said": 22,
+   "kept": 17,
+   "rate": 0.7727
+  },
+  "whisper-base.en.json silence dictate": {
+   "said": 0,
+   "kept": 0,
+   "rate": null
+  },
+  "whisper-base.en.json silence ask": {
+   "said": 0,
+   "kept": 0,
+   "rate": null
+  },
+  "whisper-base.en_vad.json clean dictate": {
+   "said": 22,
+   "kept": 18,
+   "rate": 0.8182
+  },
+  "whisper-base.en_vad.json clean ask": {
+   "said": 22,
+   "kept": 18,
+   "rate": 0.8182
+  },
+  "whisper-base.en_vad.json noisy dictate": {
+   "said": 22,
+   "kept": 17,
+   "rate": 0.7727
+  },
+  "whisper-base.en_vad.json noisy ask": {
+   "said": 22,
+   "kept": 17,
+   "rate": 0.7727
+  }
+ },
+ "dictionary_probe": {
+  "lexicon_words": 173219,
+  "single": {
+   "tested": 9,
+   "rewritten": 0,
+   "by_term": {},
+   "sample": []
+  },
+  "pair": {
+   "tested": 5396,
+   "rewritten": 456,
+   "by_term": {
+    "eGreen": 11,
+    "PureGMS": 41,
+    "ZIRIS": 49,
+    "Pega-Vision": 58,
+    "Spec Green": 46,
+    "Vendor Mapping": 47,
+    "Notepad": 104,
+    "Outlook": 100
+   },
+   "sample": [
+    [
+     "i green",
+     "eGreen"
+    ],
+    [
+     "y green",
+     "eGreen"
+    ],
+    [
+     "egg ren",
+     "eGreen"
+    ],
+    [
+     "ego ren",
+     "eGreen"
+    ],
+    [
+     "eagre n",
+     "eGreen"
+    ],
+    [
+     "egret n",
+     "eGreen"
+    ],
+    [
+     "e creen",
+     "eGreen"
+    ],
+    [
+     "e grein",
+     "eGreen"
+    ],
+    [
+     "ye green",
+     "eGreen"
+    ],
+    [
+     "eagre en",
+     "eGreen"
+    ],
+    [
+     "e greeny",
+     "eGreen"
+    ],
+    [
+     "pur gams",
+     "PureGMS"
+    ],
+    [
+     "pur gums",
+     "PureGMS"
+    ],
+    [
+     "pure gpm",
+     "PureGMS"
+    ],
+    [
+     "pure gsm",
+     "PureGMS"
+    ],
+    [
+     "pure mrs",
+     "PureGMS"
+    ],
+    [
+     "pore gams",
+     "PureGMS"
+    ],
+    [
+     "pore gums",
+     "PureGMS"
+    ],
+    [
+     "pour gams",
+     "PureGMS"
+    ],
+    [
+     "pour gums",
+     "PureGMS"
+    ],
+    [
+     "prue gams",
+     "PureGMS"
+    ],
+    [
+     "prue gums",
+     "PureGMS"
+    ],
+    [
+     "puri gams",
+     "PureGMS"
+    ],
+    [
+     "puri gums",
+     "PureGMS"
+    ],
+    [
+     "puro gams",
+     "PureGMS"
+    ],
+    [
+     "puro gums",
+     "PureGMS"
+    ],
+    [
+     "purr gams",
+     "PureGMS"
+    ],
+    [
+     "purr gums",
+     "PureGMS"
+    ],
+    [
+     "purga ems",
+     "PureGMS"
+    ],
+    [
+     "prepg mrs",
+     "PureGMS"
+    ],
+    [
+     "pured gpm",
+     "PureGMS"
+    ],
+    [
+     "pured gsm",
+     "PureGMS"
+    ],
+    [
+     "pured mrs",
+     "PureGMS"
+    ],
+    [
+     "puree gpm",
+     "PureGMS"
+    ],
+    [
+     "puree gsm",
+     "PureGMS"
+    ],
+    [
+     "puree mrs",
+     "PureGMS"
+    ],
+    [
+     "purga mrs",
+     "PureGMS"
+    ],
+    [
+     "purge gpm",
+     "PureGMS"
+    ],
+    [
+     "purge gsm",
+     "PureGMS"
+    ],
+    [
+     "purge mrs",
+     "PureGMS"
+    ],
+    [
+     "purse gpm",
+     "PureGMS"
+    ],
+    [
+     "purse gsm",
+     "PureGMS"
+    ],
+    [
+     "p regimes",
+     "PureGMS"
+    ],
+    [
+     "p tuaregs",
+     "PureGMS"
+    ],
+    [
+     "pur agmas",
+     "PureGMS"
+    ],
+    [
+     "pur games",
+     "PureGMS"
+    ],
+    [
+     "pure gams",
+     "PureGMS"
+    ],
+    [
+     "pure gums",
+     "PureGMS"
+    ],
+    [
+     "pure cams",
+     "PureGMS"
+    ],
+    [
+     "pure coms",
+     "PureGMS"
+    ],
+    [
+     "pure cwms",
+     "PureGMS"
+    ],
+    [
+     "pregame s",
+     "PureGMS"
+    ],
+    [
+     "zir s",
+     "ZIRIS"
+    ],
+    [
+     "c iris",
+     "ZIRIS"
+    ],
+    [
+     "sir is",
+     "ZIRIS"
+    ],
+    [
+     "zer is",
+     "ZIRIS"
+    ],
+    [
+     "zari s",
+     "ZIRIS"
+    ],
+    [
+     "ziti s",
+     "ZIRIS"
+    ],
+    [
+     "zori s",
+     "ZIRIS"
+    ],
+    [
+     "s iris",
+     "ZIRIS"
+    ],
+    [
+     "z airs",
+     "ZIRIS"
+    ],
+    [
+     "z bris",
+     "ZIRIS"
+    ],
+    [
+     "z eris",
+     "ZIRIS"
+    ],
+    [
+     "z firs",
+     "ZIRIS"
+    ],
+    [
+     "z ibis",
+     "ZIRIS"
+    ],
+    [
+     "z iras",
+     "ZIRIS"
+    ],
+    [
+     "z ires",
+     "ZIRIS"
+    ],
+    [
+     "z irie",
+     "ZIRIS"
+    ],
+    [
+     "z irio",
+     "ZIRIS"
+    ],
+    [
+     "z irks",
+     "ZIRIS"
+    ],
+    [
+     "z isis",
+     "ZIRIS"
+    ],
+    [
+     "z kris",
+     "ZIRIS"
+    ],
+    [
+     "z mirs",
+     "ZIRIS"
+    ],
+    [
+     "z ribs",
+     "ZIRIS"
+    ],
+    [
+     "z rids",
+     "ZIRIS"
+    ],
+    [
+     "z rigs",
+     "ZIRIS"
+    ],
+    [
+     "z rims",
+     "ZIRIS"
+    ],
+    [
+     "z rips",
+     "ZIRIS"
+    ],
+    [
+     "z risc",
+     "ZIRIS"
+    ],
+    [
+     "z rise",
+     "ZIRIS"
+    ],
+    [
+     "z risk",
+     "ZIRIS"
+    ],
+    [
+     "z riss",
+     "ZIRIS"
+    ],
+    [
+     "z rist",
+     "ZIRIS"
+    ],
+    [
+     "z tris",
+     "ZIRIS"
+    ],
+    [
+     "zir as",
+     "ZIRIS"
+    ],
+    [
+     "zir ci",
+     "ZIRIS"
+    ],
+    [
+     "zir es",
+     "ZIRIS"
+    ],
+    [
+     "zir ks",
+     "ZIRIS"
+    ],
+    [
+     "zir os",
+     "ZIRIS"
+    ],
+    [
+     "zir si",
+     "ZIRIS"
+    ],
+    [
+     "zir sj",
+     "ZIRIS"
+    ],
+    [
+     "zir so",
+     "ZIRIS"
+    ],
+    [
+     "zir us",
+     "ZIRIS"
+    ],
+    [
+     "zir vs",
+     "ZIRIS"
+    ],
+    [
+     "ze iris",
+     "ZIRIS"
+    ],
+    [
+     "zj iris",
+     "ZIRIS"
+    ],
+    [
+     "z irish",
+     "ZIRIS"
+    ],
+    [
+     "zir his",
+     "ZIRIS"
+    ],
+    [
+     "zir ios",
+     "ZIRIS"
+    ],
+    [
+     "zir ise",
+     "ZIRIS"
+    ],
+    [
+     "zir iso",
+     "ZIRIS"
+    ],
+    [
+     "p avoision",
+     "Pega-Vision"
+    ],
+    [
+     "p envision",
+     "Pega-Vision"
+    ],
+    [
+     "p revision",
+     "Pega-Vision"
+    ],
+    [
+     "pec vision",
+     "Pega-Vision"
+    ],
+    [
+     "pig vision",
+     "Pega-Vision"
+    ],
+    [
+     "pega bison",
+     "Pega-Vision"
+    ],
+    [
+     "pega visna",
+     "Pega-Vision"
+    ],
+    [
+     "peg vision",
+     "Pega-Vision"
+    ],
+    [
+     "p prevision",
+     "Pega-Vision"
+    ],
+    [
+     "pj avoision",
+     "Pega-Vision"
+    ],
+    [
+     "pj envision",
+     "Pega-Vision"
+    ],
+    [
+     "pj revision",
+     "Pega-Vision"
+    ],
+    [
+     "pm avoision",
+     "Pega-Vision"
+    ],
+    [
+     "pm envision",
+     "Pega-Vision"
+    ],
+    [
+     "pm revision",
+     "Pega-Vision"
+    ],
+    [
+     "peck vision",
+     "Pega-Vision"
+    ],
+    [
+     "peek vision",
+     "Pega-Vision"
+    ],
+    [
+     "peke vision",
+     "Pega-Vision"
+    ],
+    [
+     "pica vision",
+     "Pega-Vision"
+    ],
+    [
+     "pika vision",
+     "Pega-Vision"
+    ],
+    [
+     "pike vision",
+     "Pega-Vision"
+    ],
+    [
+     "peag vision",
+     "Pega-Vision"
+    ],
+    [
+     "peak vision",
+     "Pega-Vision"
+    ],
+    [
+     "pegu vision",
+     "Pega-Vision"
+    ],
+    [
+     "peccavi sin",
+     "Pega-Vision"
+    ],
+    [
+     "peccavi son",
+     "Pega-Vision"
+    ],
+    [
+     "pega poison",
+     "Pega-Vision"
+    ],
+    [
+     "pega fusion",
+     "Pega-Vision"
+    ],
+    [
+     "peg passion",
+     "Pega-Vision"
+    ],
+    [
+     "peg fission",
+     "Pega-Vision"
+    ],
+    [
+     "peg waveson",
+     "Pega-Vision"
+    ],
+    [
+     "f prevision",
+     "Pega-Vision"
+    ],
+    [
+     "prevision g",
+     "Pega-Vision"
+    ],
+    [
+     "prevision n",
+     "Pega-Vision"
+    ],
+    [
+     "prevision p",
+     "Pega-Vision"
+    ],
+    [
+     "prevision s",
+     "Pega-Vision"
+    ],
+    [
+     "prevision v",
+     "Pega-Vision"
+    ],
+    [
+     "prevision b",
+     "Pega-Vision"
+    ],
+    [
+     "prevision c",
+     "Pega-Vision"
+    ],
+    [
+     "prevision d",
+     "Pega-Vision"
+    ],
+    [
+     "prevision f",
+     "Pega-Vision"
+    ],
+    [
+     "prevision h",
+     "Pega-Vision"
+    ],
+    [
+     "prevision j",
+     "Pega-Vision"
+    ],
+    [
+     "prevision k",
+     "Pega-Vision"
+    ],
+    [
+     "prevision l",
+     "Pega-Vision"
+    ],
+    [
+     "prevision m",
+     "Pega-Vision"
+    ],
+    [
+     "prevision q",
+     "Pega-Vision"
+    ],
+    [
+     "prevision r",
+     "Pega-Vision"
+    ],
+    [
+     "prevision t",
+     "Pega-Vision"
+    ],
+    [
+     "prevision w",
+     "Pega-Vision"
+    ],
+    [
+     "prevision x",
+     "Pega-Vision"
+    ],
+    [
+     "prevision z",
+     "Pega-Vision"
+    ],
+    [
+     "peaky vision",
+     "Pega-Vision"
+    ],
+    [
+     "pec avoision",
+     "Pega-Vision"
+    ],
+    [
+     "pig avoision",
+     "Pega-Vision"
+    ],
+    [
+     "pega evasion",
+     "Pega-Vision"
+    ],
+    [
+     "pega fission",
+     "Pega-Vision"
+    ],
+    [
+     "peg avoision",
+     "Pega-Vision"
+    ],
+    [
+     "sef creen",
+     "Spec Green"
+    ],
+    [
+     "sef green",
+     "Spec Green"
+    ],
+    [
+     "sev creen",
+     "Spec Green"
+    ],
+    [
+     "sev green",
+     "Spec Green"
+    ],
+    [
+     "sip creen",
+     "Spec Green"
+    ],
+    [
+     "sip green",
+     "Spec Green"
+    ],
+    [
+     "spy creen",
+     "Spec Green"
+    ],
+    [
+     "spy green",
+     "Spec Green"
+    ],
+    [
+     "speck ren",
+     "Spec Green"
+    ],
+    [
+     "secrete n",
+     "Spec Green"
+    ],
+    [
+     "spectre n",
+     "Spec Green"
+    ],
+    [
+     "s begreen",
+     "Spec Green"
+    ],
+    [
+     "s engreen",
+     "Spec Green"
+    ],
+    [
+     "s regreen",
+     "Spec Green"
+    ],
+    [
+     "spec garn",
+     "Spec Green"
+    ],
+    [
+     "spec gran",
+     "Spec Green"
+    ],
+    [
+     "spec grin",
+     "Spec Green"
+    ],
+    [
+     "spec grun",
+     "Spec Green"
+    ],
+    [
+     "spec gurn",
+     "Spec Green"
+    ],
+    [
+     "spec rein",
+     "Spec Green"
+    ],
+    [
+     "spec reno",
+     "Spec Green"
+    ],
+    [
+     "spec ruen",
+     "Spec Green"
+    ],
+    [
+     "spec ryen",
+     "Spec Green"
+    ],
+    [
+     "spec wren",
+     "Spec Green"
+    ],
+    [
+     "sipe creen",
+     "Spec Green"
+    ],
+    [
+     "sipe green",
+     "Spec Green"
+    ],
+    [
+     "spey creen",
+     "Spec Green"
+    ],
+    [
+     "spey green",
+     "Spec Green"
+    ],
+    [
+     "spic green",
+     "Spec Green"
+    ],
+    [
+     "spec creen",
+     "Spec Green"
+    ],
+    [
+     "spec grein",
+     "Spec Green"
+    ],
+    [
+     "sepic green",
+     "Spec Green"
+    ],
+    [
+     "speak creen",
+     "Spec Green"
+    ],
+    [
+     "speak green",
+     "Spec Green"
+    ],
+    [
+     "spick green",
+     "Spec Green"
+    ],
+    [
+     "sip begreen",
+     "Spec Green"
+    ],
+    [
+     "sipe careen",
+     "Spec Green"
+    ],
+    [
+     "sipe greeny",
+     "Spec Green"
+    ],
+    [
+     "spey careen",
+     "Spec Green"
+    ],
+    [
+     "spey greeny",
+     "Spec Green"
+    ],
+    [
+     "spic greeny",
+     "Spec Green"
+    ],
+    [
+     "speck creen",
+     "Spec Green"
+    ],
+    [
+     "speck green",
+     "Spec Green"
+    ],
+    [
+     "speck grein",
+     "Spec Green"
+    ],
+    [
+     "spec careen",
+     "Spec Green"
+    ],
+    [
+     "spec greeny",
+     "Spec Green"
+    ],
+    [
+     "vj entrapping",
+     "Vendor Mapping"
+    ],
+    [
+     "vj enwrapping",
+     "Vendor Mapping"
+    ],
+    [
+     "vs entrapping",
+     "Vendor Mapping"
+    ],
+    [
+     "vs enwrapping",
+     "Vendor Mapping"
+    ],
+    [
+     "vender imping",
+     "Vendor Mapping"
+    ],
+    [
+     "vender moping",
+     "Vendor Mapping"
+    ],
+    [
+     "vender umping",
+     "Vendor Mapping"
+    ],
+    [
+     "vend rumbaing",
+     "Vendor Mapping"
+    ],
+    [
+     "vend tramping",
+     "Vendor Mapping"
+    ],
+    [
+     "vend tromping",
+     "Vendor Mapping"
+    ],
+    [
+     "vend trumping",
+     "Vendor Mapping"
+    ],
+    [
+     "vendor imping",
+     "Vendor Mapping"
+    ],
+    [
+     "vendor moping",
+     "Vendor Mapping"
+    ],
+    [
+     "vendor umping",
+     "Vendor Mapping"
+    ],
+    [
+     "vendor moving",
+     "Vendor Mapping"
+    ],
+    [
+     "bender mapping",
+     "Vendor Mapping"
+    ],
+    [
+     "venter mapping",
+     "Vendor Mapping"
+    ],
+    [
+     "bend remapping",
+     "Vendor Mapping"
+    ],
+    [
+     "vent remapping",
+     "Vendor Mapping"
+    ],
+    [
+     "vender mapping",
+     "Vendor Mapping"
+    ],
+    [
+     "vender mopping",
+     "Vendor Mapping"
+    ],
+    [
+     "vend remapping",
+     "Vendor Mapping"
+    ],
+    [
+     "vendor mopping",
+     "Vendor Mapping"
+    ],
+    [
+     "vendor ramping",
+     "Vendor Mapping"
+    ],
+    [
+     "vendor romping",
+     "Vendor Mapping"
+    ],
+    [
+     "vendor humping",
+     "Vendor Mapping"
+    ],
+    [
+     "bendier mapping",
+     "Vendor Mapping"
+    ],
+    [
+     "venture mapping",
+     "Vendor Mapping"
+    ],
+    [
+     "viander mapping",
+     "Vendor Mapping"
+    ],
+    [
+     "viandry mapping",
+     "Vendor Mapping"
+    ],
+    [
+     "bendy remapping",
+     "Vendor Mapping"
+    ],
+    [
+     "bento remapping",
+     "Vendor Mapping"
+    ],
+    [
+     "viand remapping",
+     "Vendor Mapping"
+    ],
+    [
+     "vined remapping",
+     "Vendor Mapping"
+    ],
+    [
+     "vinod remapping",
+     "Vendor Mapping"
+    ],
+    [
+     "benda remapping",
+     "Vendor Mapping"
+    ],
+    [
+     "venta remapping",
+     "Vendor Mapping"
+    ],
+    [
+     "venti remapping",
+     "Vendor Mapping"
+    ],
+    [
+     "ventura mapping",
+     "Vendor Mapping"
+    ],
+    [
+     "venturi mapping",
+     "Vendor Mapping"
+    ],
+    [
+     "venda remapping",
+     "Vendor Mapping"
+    ],
+    [
+     "vendor embaying",
+     "Vendor Mapping"
+    ],
+    [
+     "vendor rumbaing",
+     "Vendor Mapping"
+    ],
+    [
+     "vendor whomping",
+     "Vendor Mapping"
+    ],
+    [
+     "vendor woomping",
+     "Vendor Mapping"
+    ],
+    [
+     "vendor humphing",
+     "Vendor Mapping"
+    ],
+    [
+     "vendor whumping",
+     "Vendor Mapping"
+    ],
+    [
+     "not pad",
+     "Notepad"
+    ],
+    [
+     "no tepid",
+     "Notepad"
+    ],
+    [
+     "node pad",
+     "Notepad"
+    ],
+    [
+     "nowt pad",
+     "Notepad"
+    ],
+    [
+     "not bead",
+     "Notepad"
+    ],
+    [
+     "not paid",
+     "Notepad"
+    ],
+    [
+     "not patd",
+     "Notepad"
+    ],
+    [
+     "nota pad",
+     "Notepad"
+    ],
+    [
+     "note bad",
+     "Notepad"
+    ],
+    [
+     "note fad",
+     "Notepad"
+    ],
+    [
+     "note pat",
+     "Notepad"
+    ],
+    [
+     "note pod",
+     "Notepad"
+    ],
+    [
+     "note pud",
+     "Notepad"
+    ],
+    [
+     "n notepad",
+     "Notepad"
+    ],
+    [
+     "n footpad",
+     "Notepad"
+    ],
+    [
+     "n forepad",
+     "Notepad"
+    ],
+    [
+     "n hothead",
+     "Notepad"
+    ],
+    [
+     "n outlead",
+     "Notepad"
+    ],
+    [
+     "n outread",
+     "Notepad"
+    ],
+    [
+     "n pothead",
+     "Notepad"
+    ],
+    [
+     "n stepdad",
+     "Notepad"
+    ],
+    [
+     "nth nepad",
+     "Notepad"
+    ],
+    [
+     "now tepid",
+     "Notepad"
+    ],
+    [
+     "nth repad",
+     "Notepad"
+    ],
+    [
+     "node paid",
+     "Notepad"
+    ],
+    [
+     "node patd",
+     "Notepad"
+    ],
+    [
+     "nowt bead",
+     "Notepad"
+    ],
+    [
+     "nowt paid",
+     "Notepad"
+    ],
+    [
+     "nowt patd",
+     "Notepad"
+    ],
+    [
+     "nowed pad",
+     "Notepad"
+    ],
+    [
+     "noteman d",
+     "Notepad"
+    ],
+    [
+     "noa tepid",
+     "Notepad"
+    ],
+    [
+     "nod tepid",
+     "Notepad"
+    ],
+    [
+     "not tepid",
+     "Notepad"
+    ],
+    [
+     "not apaid",
+     "Notepad"
+    ],
+    [
+     "not beady",
+     "Notepad"
+    ],
+    [
+     "not ephod",
+     "Notepad"
+    ],
+    [
+     "not epode",
+     "Notepad"
+    ],
+    [
+     "not evade",
+     "Notepad"
+    ],
+    [
+     "not padda",
+     "Notepad"
+    ],
+    [
+     "not paddy",
+     "Notepad"
+    ],
+    [
+     "not padou",
+     "Notepad"
+    ],
+    [
+     "not padua",
+     "Notepad"
+    ],
+    [
+     "not pawed",
+     "Notepad"
+    ],
+    [
+     "not payed",
+     "Notepad"
+    ],
+    [
+     "nota bead",
+     "Notepad"
+    ],
+    [
+     "nota paid",
+     "Notepad"
+    ],
+    [
+     "nota patd",
+     "Notepad"
+    ],
+    [
+     "note bead",
+     "Notepad"
+    ],
+    [
+     "note paid",
+     "Notepad"
+    ],
+    [
+     "note patd",
+     "Notepad"
+    ],
+    [
+     "note abed",
+     "Notepad"
+    ],
+    [
+     "note aped",
+     "Notepad"
+    ],
+    [
+     "note apod",
+     "Notepad"
+    ],
+    [
+     "note appd",
+     "Notepad"
+    ],
+    [
+     "note avid",
+     "Notepad"
+    ],
+    [
+     "note bade",
+     "Notepad"
+    ],
+    [
+     "note baud",
+     "Notepad"
+    ],
+    [
+     "note bawd",
+     "Notepad"
+    ],
+    [
+     "note fada",
+     "Notepad"
+    ],
+    [
+     "oat look",
+     "Outlook"
+    ],
+    [
+     "oud look",
+     "Outlook"
+    ],
+    [
+     "out lock",
+     "Outlook"
+    ],
+    [
+     "out loco",
+     "Outlook"
+    ],
+    [
+     "out logo",
+     "Outlook"
+    ],
+    [
+     "out loka",
+     "Outlook"
+    ],
+    [
+     "out loke",
+     "Outlook"
+    ],
+    [
+     "out loki",
+     "Outlook"
+    ],
+    [
+     "oath look",
+     "Outlook"
+    ],
+    [
+     "oaty look",
+     "Outlook"
+    ],
+    [
+     "oat looky",
+     "Outlook"
+    ],
+    [
+     "oud looky",
+     "Outlook"
+    ],
+    [
+     "otto look",
+     "Outlook"
+    ],
+    [
+     "outlaw ok",
+     "Outlook"
+    ],
+    [
+     "outlay ok",
+     "Outlook"
+    ],
+    [
+     "o outlook",
+     "Outlook"
+    ],
+    [
+     "out looky",
+     "Outlook"
+    ],
+    [
+     "out locky",
+     "Outlook"
+    ],
+    [
+     "out wloka",
+     "Outlook"
+    ],
+    [
+     "outblot k",
+     "Outlook"
+    ],
+    [
+     "outblow k",
+     "Outlook"
+    ],
+    [
+     "outdoor k",
+     "Outlook"
+    ],
+    [
+     "outflow k",
+     "Outlook"
+    ],
+    [
+     "outfool k",
+     "Outlook"
+    ],
+    [
+     "outfoot k",
+     "Outlook"
+    ],
+    [
+     "outglow k",
+     "Outlook"
+    ],
+    [
+     "outlope k",
+     "Outlook"
+    ],
+    [
+     "outlord k",
+     "Outlook"
+    ],
+    [
+     "outlove k",
+     "Outlook"
+    ],
+    [
+     "outplod k",
+     "Outlook"
+    ],
+    [
+     "outplot k",
+     "Outlook"
+    ],
+    [
+     "outroop k",
+     "Outlook"
+    ],
+    [
+     "outroot k",
+     "Outlook"
+    ],
+    [
+     "outwood k",
+     "Outlook"
+    ],
+    [
+     "outcook k",
+     "Outlook"
+    ],
+    [
+     "outcook l",
+     "Outlook"
+    ],
+    [
+     "outcook t",
+     "Outlook"
+    ],
+    [
+     "outnook k",
+     "Outlook"
+    ],
+    [
+     "outnook l",
+     "Outlook"
+    ],
+    [
+     "outnook t",
+     "Outlook"
+    ],
+    [
+     "outcook b",
+     "Outlook"
+    ],
+    [
+     "outcook c",
+     "Outlook"
+    ],
+    [
+     "outcook d",
+     "Outlook"
+    ],
+    [
+     "outcook f",
+     "Outlook"
+    ],
+    [
+     "outcook g",
+     "Outlook"
+    ],
+    [
+     "outcook h",
+     "Outlook"
+    ],
+    [
+     "outcook j",
+     "Outlook"
+    ],
+    [
+     "outcook m",
+     "Outlook"
+    ],
+    [
+     "outcook n",
+     "Outlook"
+    ],
+    [
+     "outcook p",
+     "Outlook"
+    ],
+    [
+     "outcook q",
+     "Outlook"
+    ],
+    [
+     "outcook r",
+     "Outlook"
+    ],
+    [
+     "outcook s",
+     "Outlook"
+    ],
+    [
+     "outcook v",
+     "Outlook"
+    ],
+    [
+     "outcook w",
+     "Outlook"
+    ],
+    [
+     "outcook x",
+     "Outlook"
+    ],
+    [
+     "outcook z",
+     "Outlook"
+    ],
+    [
+     "outnook b",
+     "Outlook"
+    ],
+    [
+     "outnook c",
+     "Outlook"
+    ],
+    [
+     "outnook d",
+     "Outlook"
+    ]
+   ]
+  }
+ }
+}

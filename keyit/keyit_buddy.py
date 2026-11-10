@@ -37,6 +37,7 @@ import buddy_overlay
 import keyit_actions
 import keyit_core as core
 import keyit_gpu
+import keyit_script
 import keyit_speech
 import keyit_targets
 import keyit_words
@@ -46,11 +47,11 @@ DEFAULTS = {
     "ollama_url": "http://localhost:11434",
     "buddy_model": "qwen3-vl:4b-instruct",   # the plain 4b tag is the slow "thinking" variant
     "whisper_model": "auto",          # old setting, read once by keyit_speech.migrate
-    "speech_model": "auto",           # Settings -> Speech model: auto, whisper-en, parakeet, sensevoice, moonshine, whisper, windows
+    "speech_model": "auto",           # Voice input -> Speech model: one of keyit_speech.CHOICES
     "dictation": True,                # Ctrl+Alt+D types what you say into the app in front
     "voice_cleanup": True,            # drop um/uh, apply spoken corrections ("no wait")
-    "my_words": "",                   # Settings -> My words: spellings + spoken shortcuts (keyit_words)
-    "mic_device": "",                 # Settings -> Microphone: "" = the Windows default
+    "my_words": "",                   # Voice input -> My words: spellings + spoken shortcuts (keyit_words)
+    "mic_device": "",                 # Voice input -> Microphone: "" = the Windows default
     "speech_language": "en-US",
     "buddy_voice": "",
     "buddy_speak": True,
@@ -85,6 +86,7 @@ You are given a screenshot of the user's current screen and their spoken questio
 
 Rules:
 - Reply in 1 to 3 short, natural, spoken sentences. No markdown, no lists, no emojis, no URLs.
+- Reply in the language of the question, unless the user asks for another one.
 - Be concrete and refer to what is actually visible on the screen.
 - Whenever the question is about where something is or how to do something on screen, you MUST point:
   put one tag per element (button, menu, tab, field, icon, text) at the very END of your reply,
@@ -99,7 +101,27 @@ POINT_PATTERN = re.compile(
     r"\[\s*POINT\s*:\s*(\.?\d+(?:\.\d+)?)\s*,\s*(\.?\d+(?:\.\d+)?)\s*(?::\s*([^\]]*))?\]",
     re.IGNORECASE,
 )
-FINISHED_SENTENCE = re.compile(r"\s*(.+?[.!?]+)(?=\s)", re.DOTALL)
+# A sentence is finished at . ! ? once whitespace follows. Chinese, Japanese and Hindi put no space after their
+# full stops, so there the sentence ends at the stop itself, with any closing quote, once the next character
+# shows that nothing more belongs to it.
+CJK_STOPS = "\u3002\uff01\uff1f\u0964"                               # 。 ！ ？ and the Hindi danda
+CLOSERS = "\u300d\u300f\u201d\u2019\uff09\u300b\u3011\"')"                # closing quotes and brackets
+FINISHED_SENTENCE = re.compile(
+    rf"\s*(.+?(?:[.!?]+(?=\s)|[{CJK_STOPS}]+[{CLOSERS}]*(?=[^{CLOSERS}])))", re.DOTALL)
+
+
+def language_rule(code):
+    """One more line for the system prompt when voice input is in a language other than English: the answer
+    follows the question's language (a rule in SYSTEM_PROMPT), and this names the language to use when a short
+    or mixed question leaves that open. Nothing for English, Auto-detect, "Other European" and unknown codes."""
+    wanted = (code or "").strip()
+    if not wanted or keyit_speech.primary(wanted) in ("en", "auto", "eu"):
+        return ""
+    name = keyit_speech.language_name(wanted)
+    if keyit_speech.primary(keyit_speech.LANGUAGES[name]) != keyit_speech.primary(wanted):
+        return ""                                   # a language the picker does not have
+    return (f"\n- The user's voice input language is {name}. If the question mixes languages or its language "
+            "is unclear, reply in that language.")
 
 
 SLOW_THINKING_MODELS = {"qwen3-vl:4b": "qwen3-vl:4b-instruct", "qwen3-vl:latest": "qwen3-vl:4b-instruct"}
@@ -350,6 +372,11 @@ def dictation_spacing(text):
 
 def keyit_speech_is_cjk(char):
     return bool(char) and ("\u3000" <= char <= "\u9fff" or "\uff00" <= char <= "\uffef")
+
+
+def reading_time(text, least=4000):
+    """Milliseconds a bubble stays up: long enough to read it, at about twenty characters a second."""
+    return max(least, 50 * len(text))
 
 
 def wait_for_keys_up(timeout=2.0):
@@ -1047,7 +1074,8 @@ class Buddy:
 
     def _ensure_stt(self):
         """The speech engine for the current settings (keyit_speech.Speech). Loads in the background, so the
-        first question never waits for a download: until it is ready the Windows recognizer answers."""
+        first question never waits for a download: until it is ready the Windows recognizer answers, if Windows
+        has one for the language. If it has none, Speech.waiting() says what the user is waiting for."""
         wanted = (self.settings["speech_model"], self.settings["speech_language"])
         if self.stt is None or self.stt_name != wanted:
             whisper_model = self.settings.get("whisper_model", "auto")
@@ -1056,6 +1084,8 @@ class Buddy:
                 legacy_factory=lambda kind, language: legacy_engine(kind, language, whisper_model))
             self.stt_name = wanted
             self.stt.prepare()
+            if keyit_script.script(wanted[1]):              # Chinese: read the character tables now,
+                threading.Thread(target=keyit_script.warm, daemon=True).start()    # not in the first sentence
         return self.stt
 
     def _prepare_speech(self):
@@ -1077,8 +1107,12 @@ class Buddy:
             return MicCapture()
 
     def _words(self, text, mode):
+        """A transcript as Buddy uses it: in the characters the language setting asks for (Traditional or
+        Simplified Chinese), then My words and the tidy-up, by the rules of the language that was spoken."""
+        language = self.stt.spoken_language() if self.stt else self.settings.get("speech_language")
+        text = keyit_script.convert(text, language)
         return keyit_words.process(text, self.settings.get("my_words", ""), mode=mode,
-                                   tidy_up=self.settings.get("voice_cleanup", True))
+                                   tidy_up=self.settings.get("voice_cleanup", True), language=language)
 
     # -- push to talk (called from the keyboard hook thread)
     def press(self):
@@ -1149,7 +1183,12 @@ class Buddy:
             self.post(self.overlay.hide_later, 4000)
             return
         self.chime("buddy_wake")
-        self.dictation = {"mic": mic, "hands_free": False, "stop_on_release": False,
+        held = None
+        try:                                               # loads in the background if it isn't yet
+            held = self._ensure_stt().hold(mic)            # decodes while the key is held, when it can
+        except Exception:
+            logging.exception("Speech engine could not start")
+        self.dictation = {"mic": mic, "hands_free": False, "stop_on_release": False, "held": held,
                           "pressed_at": time.perf_counter(), "monitor": monitor, "selection": None}
         current = self.dictation
 
@@ -1161,7 +1200,6 @@ class Buddy:
 
         threading.Thread(target=read_selection, daemon=True).start()
         self.post(self.overlay.listening, monitor, cursor)
-        self._ensure_stt()                                 # loads in the background if it isn't yet
 
     def dictate_release(self):
         current = self.dictation
@@ -1190,22 +1228,28 @@ class Buddy:
         if self.dictation is not current:
             return
         self.dictation = None
+        held = current.get("held")
         try:
             audio, _ = current["mic"].stop()
         except Exception as error:
+            if held is not None:
+                held.cancel()
             self.post(self.overlay.thinking, f"Mic error: {error}")
             self.post(self.overlay.hide_later, 4000)
             return
         rate = current["mic"].sample_rate
         self.chime("buddy_got_it")
         self.post(self.overlay.thinking, "Writing\u2026")
-        threading.Thread(target=self._dictate_text, args=(audio, rate, current.get("selection") or ""),
+        threading.Thread(target=self._dictate_text, args=(audio, rate, current.get("selection") or "", held),
                          daemon=True).start()
 
-    def _dictate_text(self, audio, sample_rate, selection=""):
+    def _dictate_text(self, audio, sample_rate, selection="", held=None):
         started = time.perf_counter()
         try:
-            heard = self._ensure_stt().transcribe(audio, sample_rate)
+            if held is not None:
+                heard = held.finish(audio, sample_rate)    # most of a long dictation is text by now
+            else:
+                heard = self._ensure_stt().transcribe(audio, sample_rate)
         except Exception as error:
             logging.exception("Dictation failed")
             self.post(self.overlay.thinking, f"Speech recognition failed: {error}")
@@ -1213,8 +1257,9 @@ class Buddy:
             return
         text = self._words(heard, "dictate")
         if not text:
-            self.post(self.overlay.thinking, "I didn't hear anything - hold Ctrl+Alt+D while you talk.")
-            self.post(self.overlay.hide_later, 2500)
+            waiting = self.stt.waiting()                    # no engine yet for this language: say so
+            self.post(self.overlay.thinking, waiting or "I didn't hear anything - hold Ctrl+Alt+D while you talk.")
+            self.post(self.overlay.hide_later, reading_time(waiting) if waiting else 2500)
             return
         if selection.strip() and keyit_words.is_edit_command(text):
             rewritten = self._rewrite(text, selection)      # Command mode: rewrite the highlighted text
@@ -1302,6 +1347,8 @@ class Buddy:
                 dictation["mic"].stop()
             except Exception:
                 pass
+            if dictation.get("held") is not None:
+                dictation["held"].cancel()
         self.post(self.overlay.hide)
         self.post(AskBox.close_current)
 
@@ -1455,8 +1502,9 @@ class Buddy:
             self.post(self.overlay.thinking, f"Speech recognition failed: {error}")
             return
         if not question:
-            self.post(self.overlay.thinking, "I didn't catch that – try again?")
-            self.post(self.overlay.hide_later, 2500)
+            waiting = self.stt.waiting()
+            self.post(self.overlay.thinking, waiting or "I didn't catch that – try again?")
+            self.post(self.overlay.hide_later, reading_time(waiting) if waiting else 2500)
             return
         self._ask(question)
 
@@ -1503,7 +1551,8 @@ class Buddy:
         return f"Buddy error: {error}"
 
     def _system_prompt(self):
-        prompt = SYSTEM_PROMPT
+        language = self.stt.spoken_language() if self.stt else self.settings.get("speech_language")
+        prompt = SYSTEM_PROMPT + language_rule(language)
         try:
             self.windows = keyit_actions.list_windows()
         except Exception:

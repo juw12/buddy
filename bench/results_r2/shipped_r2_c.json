@@ -1,0 +1,379 @@
+{
+ "code": "buddy",
+ "path": "shipped, Speech model = auto",
+ "noise": "none (as recorded)",
+ "threads": 4,
+ "languages": {
+  "de_de": {
+   "name": "German",
+   "setting": "de-DE",
+   "engine": "Parakeet V3",
+   "unit": "word",
+   "clips": 10,
+   "error_pct": 18.5,
+   "decode_mean_s": 10.33,
+   "decode_p90_s": 18.61,
+   "audio_mean_s": 18.4
+  },
+  "es_419": {
+   "name": "Spanish",
+   "setting": "es-ES",
+   "engine": "Parakeet V3",
+   "unit": "word",
+   "clips": 10,
+   "error_pct": 1.4,
+   "decode_mean_s": 5.67,
+   "decode_p90_s": 8.52,
+   "audio_mean_s": 10.0
+  },
+  "fr_fr": {
+   "name": "French",
+   "setting": "fr-FR",
+   "engine": "Parakeet V3",
+   "unit": "word",
+   "clips": 10,
+   "error_pct": 8.2,
+   "decode_mean_s": 5.29,
+   "decode_p90_s": 8.57,
+   "audio_mean_s": 10.1
+  }
+ },
+ "rows": [
+  {
+   "language": "de_de",
+   "file": "9245789639828018927.wav",
+   "said": "Die Vereinten Nationen hoffen zudem, einen Fonds einrichten zu können, der den von der globalen Erwärmung betroffenen Ländern helfen soll, mit den Auswirkungen fertig zu werden.",
+   "heard": "The Vereinten Nationen hoffen zudem einen Fonds einrichten zu können, der den von der globalen Erwärmung betroffenen Ländern helfen soll, mit den Auswirkungen fertig zu werden.",
+   "errors": 1,
+   "units": 26,
+   "seconds": 7.634,
+   "audio_seconds": 13.92,
+   "detected": ""
+  },
+  {
+   "language": "de_de",
+   "file": "3167645519035304241.wav",
+   "said": "Forschung im Bereich KI umfasst die Herstellung von Maschinen zur Automatisierung von Aufgaben, die intelligentes Verhalten erfordern.",
+   "heard": "Forschung im Bereich KI umfasst die Herstellung von Maschinen zur Automatisierung von Aufgaben, die intelligentes Verhalten erfordern.",
+   "errors": 0,
+   "units": 17,
+   "seconds": 8.362,
+   "audio_seconds": 20.4,
+   "detected": ""
+  },
+  {
+   "language": "de_de",
+   "file": "16694017475628086050.wav",
+   "said": "Geld kann in der einzigen Bank auf der Insel umgetauscht werden, welche sich in Stanley gegenüber vom FIC West Store befindet.",
+   "heard": "Geld kann in der einzigen Bank auf der Insel umgetauscht werden, welche sich in Stanley gegenüber vom FIC West Store befindet.",
+   "errors": 0,
+   "units": 21,
+   "seconds": 11.229,
+   "audio_seconds": 21.24,
+   "detected": ""
+  },
+  {
+   "language": "de_de",
+   "file": "12220011204906227970.wav",
+   "said": "Die Struktur der Federn lässt vermuten, dass sie nicht zum Fliegen,, sondern eher zur Temperaturregulierung oder zum Herzeigen verwendet wurden. Die Forscher vermuteten, dass die Probe, obwohl es sich um den Schwanz eines jungen Dinosauriers handelt, das Gefieder eines Ausgewachsenen zeigt und nicht die Daunen eines Kükens.",
+   "heard": "The structural Federn lässt vermuten, dass sie nicht fliegen, sondern zur Temperaturregulierung oder some Herzeigen verwendet wurden. The Forscher vermuten that the Probe, obwohl es sich um the Schwanz eines young Dinosauriers handelt, das Gefieder eines ausgewachsenen und nicht die Down Kins.",
+   "errors": 16,
+   "units": 47,
+   "seconds": 17.953,
+   "audio_seconds": 22.44,
+   "detected": ""
+  },
+  {
+   "language": "de_de",
+   "file": "4067781737409781953.wav",
+   "said": "Skifahren ist eine beliebte Reisetätigkeit mit vielen Enthusiasten, gelegentlich auch als „Skipenner“ bekannt, die ihren gesamten Urlaub rund um das Skifahren an einem bestimmten Ort planen.",
+   "heard": "Skifahren ist eine beliebte Reisetätigkeit mit vielen Enthusiasten, gelegentlich auch als Skipenner bekannt, die ihren gesamten Urlaub rund um das Skifahren einen bestimmten Ort planen.",
+   "errors": 2,
+   "units": 26,
+   "seconds": 5.386,
+   "audio_seconds": 9.84,
+   "detected": ""
+  },
+  {
+   "language": "de_de",
+   "file": "15544747260311981306.wav",
+   "said": "In diesem dynamischen Pendelverkehr sind alle in gewisser Weise mit einem Transportsystem verbunden, das auf dem privaten Pkw basiert, und unterstützen es.",
+   "heard": "In diesem dynamischen Pendelverkehr sind alle in gewisser Weise mit einem Transportsystem verbunden, das auf dem privaten Pkw basiert und unterstützt es.",
+   "errors": 1,
+   "units": 22,
+   "seconds": 5.0,
+   "audio_seconds": 12.42,
+   "detected": ""
+  },
+  {
+   "language": "de_de",
+   "file": "10620521323866707798.wav",
+   "said": "Seine Allmacht beherrschte jeden, vom König bis zum einfachen Bürger.",
+   "heard": "Seine Allmacht beherrschte jeden, vom König bis zum einfachen Bürger.",
+   "errors": 0,
+   "units": 10,
+   "seconds": 3.035,
+   "audio_seconds": 7.56,
+   "detected": ""
+  },
+  {
+   "language": "de_de",
+   "file": "13083614965194579323.wav",
+   "said": "Beispiele für Aktivitäten vor Ort sind Jagen, Angeln, Fotografie, Vogelbeobachtung, der Besuch von Parks und das Lernen von Informationen über das Ökosystem.",
+   "heard": "Beispiele für Aktivitäten vor Ort sind Jagen, Angeln, Fotografie, Vogelbeobachtung, der Besuch von Parks und das Lernen von Informationen über das Ökosystem.",
+   "errors": 0,
+   "units": 22,
+   "seconds": 10.945,
+   "audio_seconds": 19.8,
+   "detected": ""
+  },
+  {
+   "language": "de_de",
+   "file": "5633089370904207769.wav",
+   "said": "Der in Panik versetzte König Ludwig der XIV., Königin Marie-Antoinette, ihre beiden kleinen Kinder (die 11 Jahre alte Marie-Therese und der 4 Jahre alte Louis-Charles) sowie die Schwester des Königs, Madame Elisabeth wurden am 6. Oktober 1789 in Versailles von einem Mob aus Marktfrauen zur Rückkehr nach Paris gezwungen.",
+   "heard": "The in Panic verset König Ludwig the 17, King Marie Antoinette, your beiden clean kinet, the elf year alte Marie Therese and the 4 year old Louis Charlie Schwester des Kig Madame Elisabeth, won am 6 October 1790 in Versailles, from a mob of Markfrauen to Paris getwon.",
+   "errors": 31,
+   "units": 52,
+   "seconds": 24.5,
+   "audio_seconds": 38.82,
+   "detected": ""
+  },
+  {
+   "language": "de_de",
+   "file": "9388649958451466717.wav",
+   "said": "Dieses neue Umfeld hat andere Ressourcen und andere Konkurrenten, so dass die neue Bevölkerung andere Merkmale oder Anpassungen benötigt, um ein starker Konkurrent zu sein, als das, was sie vorher gebraucht hat.",
+   "heard": "Dieses neue Umfeld hat andere Ressourcen und andere Konkurrenten, so dass die neue Bevölkerung andere Merkmale oder Anpassungen benötigt, um ein starker Konkurrent zu sein, als das, was sie vorher gebraucht hat.",
+   "errors": 0,
+   "units": 32,
+   "seconds": 9.294,
+   "audio_seconds": 17.64,
+   "detected": ""
+  },
+  {
+   "language": "es_419",
+   "file": "10284528973491487253.wav",
+   "said": "No se han producido cambios en la población original, que aún precisan de las mismas adaptaciones que en el pasado.",
+   "heard": "no se han producido cambios en la población original que aún precisan de las mismas adaptaciones que en el pasado",
+   "errors": 0,
+   "units": 20,
+   "seconds": 6.291,
+   "audio_seconds": 9.18,
+   "detected": ""
+  },
+  {
+   "language": "es_419",
+   "file": "9072175803483717623.wav",
+   "said": "Los primeros casos de la enfermedad durante esta temporada se registraron hacia fines de julio.",
+   "heard": "Los primeros casos de la enfermedad durante esta temporada se registraron hacia fines de julio.",
+   "errors": 0,
+   "units": 15,
+   "seconds": 3.262,
+   "audio_seconds": 6.48,
+   "detected": ""
+  },
+  {
+   "language": "es_419",
+   "file": "4206903055369373829.wav",
+   "said": "En cuanto logre escapar de la corriente, nadar de regreso no serán más complejo de lo habitual.",
+   "heard": "En cuanto logre escapar de la corriente, nadar de regreso no serán más complejos de lo habitual.",
+   "errors": 1,
+   "units": 17,
+   "seconds": 3.882,
+   "audio_seconds": 7.62,
+   "detected": ""
+  },
+  {
+   "language": "es_419",
+   "file": "12763564625474114867.wav",
+   "said": "Los puntos de vista que se presentan suelen ser superficiales, genéricos y demasiado simplificados en comparación con la información más detallada disponible en otros sitios.",
+   "heard": "Los puntos de vista que se presentan suelen ser superficiales, genéricos y demasiado simplificados en comparación con la información más detallada disponible en otros sitios.",
+   "errors": 0,
+   "units": 25,
+   "seconds": 6.034,
+   "audio_seconds": 10.38,
+   "detected": ""
+  },
+  {
+   "language": "es_419",
+   "file": "15323093264284193547.wav",
+   "said": "Fue el emperador de Japón quien organizó las primeras celebraciones de los cerezos, solo para él y otros integrantes de la aristocracia de la Corte Imperial.",
+   "heard": "Fue el emperador de Japón quien organizó las primeras celebraciones de los cerezos, solo para él y otros integrantes de la aristocracia de la corte imperial.",
+   "errors": 0,
+   "units": 26,
+   "seconds": 9.167,
+   "audio_seconds": 11.64,
+   "detected": ""
+  },
+  {
+   "language": "es_419",
+   "file": "5040492612262490022.wav",
+   "said": "Es frecuente que los integrantes de una subcultura exhiban rasgos de su pertenencia a esta recurriendo al uso distintivo y simbólico del estilo, como las modas, los gestos y le jerga.",
+   "heard": "Es frecuente que los integrantes de una subcultura exhiban rasgos de su pertenencia a esta, recurriendo al uso distintivo y simbólico del estilo, como las modas, los gestos y la jerga.",
+   "errors": 1,
+   "units": 31,
+   "seconds": 8.444,
+   "audio_seconds": 14.46,
+   "detected": ""
+  },
+  {
+   "language": "es_419",
+   "file": "16562239074110427696.wav",
+   "said": "Los españoles dieron inicio a la etapa de colonización, que se extendió por tres siglos.",
+   "heard": "Los españoles dieron inicio a la etapa de colonización que se extendió por tres siglos.",
+   "errors": 0,
+   "units": 15,
+   "seconds": 3.059,
+   "audio_seconds": 8.7,
+   "detected": ""
+  },
+  {
+   "language": "es_419",
+   "file": "5397264770332413957.wav",
+   "said": "Para que una organización sea innovadora, el liderazgo debe primero generar una cultura de innovación, al igual que un conocimiento compartido y un aprendizaje organizacional.",
+   "heard": "Para que una organización sea innovadora, el liderazgo debe primero generar una cultura de innovación, al igual que un conocimiento compartido y un aprendizaje organizacional.",
+   "errors": 0,
+   "units": 25,
+   "seconds": 4.829,
+   "audio_seconds": 11.04,
+   "detected": ""
+  },
+  {
+   "language": "es_419",
+   "file": "3506872194452014974.wav",
+   "said": "Existe un único banco en las islas. Allí puede cambiar su dinero. Está frente a la tienda FIC West, en Stanley.",
+   "heard": "Existe un único banco en las islas. Allí puede cambiar su dinero. Está frente a la tienda FIC West en Stanley.",
+   "errors": 0,
+   "units": 21,
+   "seconds": 6.551,
+   "audio_seconds": 12.24,
+   "detected": ""
+  },
+  {
+   "language": "es_419",
+   "file": "17962544298201139672.wav",
+   "said": "Casi todos los distritos cuentan con el servicio autobuses Coaster japoneses, los cuales son cómodos y resistentes.",
+   "heard": "Casi todos los distritos cuentan con el servicio autobuses cóstras japoneses los cuales son cómodos y resistentes.",
+   "errors": 1,
+   "units": 17,
+   "seconds": 5.228,
+   "audio_seconds": 8.4,
+   "detected": ""
+  },
+  {
+   "language": "fr_fr",
+   "file": "10530024126655971990.wav",
+   "said": "La police a déclaré qu’il semblerait que le corps se trouvait là depuis un jour environ.",
+   "heard": "La police a déclaré qu'il semblerait que le corps se trouvait là depuis un jour environ.",
+   "errors": 0,
+   "units": 16,
+   "seconds": 3.135,
+   "audio_seconds": 7.44,
+   "detected": ""
+  },
+  {
+   "language": "fr_fr",
+   "file": "5238075320404703631.wav",
+   "said": "La structure des plumes suggère qu’elles n’étaient pas utilisées en vol mais plutôt pour la régulation ou l’affichage de la température. Les chercheurs ont suggéré que, même s’il s’agit de la queue d’un jeune dinosaure, l’échantillon montre un plumage d’adulte et non le duvet d’un poussin.",
+   "heard": "La structure des plumes suggère qu'elles n'étaient pas utilisées en vol, mais plutôt pour la régulation ou l'affichage de la température. Les chercheurs ont suggéré que, même s'il s'agit de la queue d'un jeune dinosaure, les gentils montrent un plumage d'adulte et non le duvet d'un poussin.",
+   "errors": 3,
+   "units": 46,
+   "seconds": 9.531,
+   "audio_seconds": 18.84,
+   "detected": ""
+  },
+  {
+   "language": "fr_fr",
+   "file": "2959978076134592004.wav",
+   "said": "L'hiver peut être trompeusement froid : les températures descendent rarement en dessous de zéro, mais le vent et l'humidité se combinent pour donner l'impression qu'il fait plus froid que ce que dit le thermomètre.",
+   "heard": "L'hiver peut être trompeusement froid, les températures descendent rarement en dessous de zéro, mais le vent et l'humidité se combinent pour donner l'impression qu'il fait plus froid que ce que dit le thermomètre.",
+   "errors": 0,
+   "units": 33,
+   "seconds": 8.461,
+   "audio_seconds": 12.84,
+   "detected": ""
+  },
+  {
+   "language": "fr_fr",
+   "file": "11357826383234870444.wav",
+   "said": "Dès que vous sortez du courant, le retour à la nage n'est pas plus difficile que d'habitude.",
+   "heard": "Dès que vous sortez du courant, le retour à la nage n'est pas plus difficile que d'habitude.",
+   "errors": 0,
+   "units": 17,
+   "seconds": 2.786,
+   "audio_seconds": 9.36,
+   "detected": ""
+  },
+  {
+   "language": "fr_fr",
+   "file": "14577168266742294147.wav",
+   "said": "Auparavant, le PDG de Ring, Jamie Siminoff, a fait remarquer qu'il a lancé l'entreprise lorsque la sonnette de sa porte d'entrée n'était pas audible depuis son magasin dans son garage.",
+   "heard": "Auparavant, le PDG de Ring, Jamie Siminov, a fait remarquer qu'il a lancé l'entreprise lorsque la sonnette de sa part d'entrée n'était pas audibles depuis son magasin dans son garage.",
+   "errors": 3,
+   "units": 30,
+   "seconds": 7.311,
+   "audio_seconds": 9.78,
+   "detected": ""
+  },
+  {
+   "language": "fr_fr",
+   "file": "2086639904747050008.wav",
+   "said": "Il dit avoir conçu une sonnette de porte Wi-Fi.",
+   "heard": "Dy avoir conçu une sonnette de Port Wi-Fi.",
+   "errors": 3,
+   "units": 10,
+   "seconds": 2.159,
+   "audio_seconds": 3.96,
+   "detected": ""
+  },
+  {
+   "language": "fr_fr",
+   "file": "12952609488891094440.wav",
+   "said": "De nombreux formats courants (famille de formats APS, par exemple) sont égaux à ce rapport d’aspect ou s’en approchent de près.",
+   "heard": "De nombreux formats courants, familles de formats APS par exemple, sont égaux à ce rapport d'aspect ou son approche de près.",
+   "errors": 3,
+   "units": 21,
+   "seconds": 4.87,
+   "audio_seconds": 11.76,
+   "detected": ""
+  },
+  {
+   "language": "fr_fr",
+   "file": "11088482903476099771.wav",
+   "said": "Je ne sais pas si vous vous en rendez compte, mais la plupart des marchandises en provenance d'Amérique centrale sont entrées dans notre pays exonérées de taxes.",
+   "heard": "Je ne sais pas si vous en rendez compte, mais la plupart des marchandises en provenance d'Amérique centrale sont entrées dans nos pays exonérés de taxes.",
+   "errors": 3,
+   "units": 27,
+   "seconds": 4.657,
+   "audio_seconds": 9.54,
+   "detected": ""
+  },
+  {
+   "language": "fr_fr",
+   "file": "4990141621491479079.wav",
+   "said": "Veuillez traiter le site avec toute la dignité, la solennité et le respect qu'il mérite. Ne faites pas de blagues sur l'Holocauste ou les nazis.",
+   "heard": "Veuillez traiter le site avec toute la dignité, la solanité et le respect qu'il mérite. Ne faites pas de blague sur le locost ou les nazis.",
+   "errors": 4,
+   "units": 25,
+   "seconds": 6.524,
+   "audio_seconds": 10.2,
+   "detected": ""
+  },
+  {
+   "language": "fr_fr",
+   "file": "5785117027957887536.wav",
+   "said": "Toute modification ou demande doit cependant être adressée à l’agence de voyages d’abord et non directement à l’hôtel.",
+   "heard": "Toute modification ou demande doit cependant être adressée à l'agence de voyage d'abord et non directement à l'hôtel.",
+   "errors": 1,
+   "units": 18,
+   "seconds": 3.437,
+   "audio_seconds": 7.62,
+   "detected": ""
+  }
+ ],
+ "silence": {
+  "clips": 4,
+  "engines": 1,
+  "typed": []
+ },
+ "complete": true
+}

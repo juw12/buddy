@@ -4,11 +4,13 @@ Run:  python -m unittest discover -s tests -v
 """
 import json
 import os
+import re
 import sys
 import tempfile
 import types
 import unittest
 from pathlib import Path
+from unittest import mock
 
 os.environ["SDL_AUDIODRIVER"] = "dummy"          # no sound card needed (CI)
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -240,6 +242,66 @@ class BuddyParsingTests(unittest.TestCase):
         spectrum = np.abs(np.fft.rfft(out))
         self.assertAlmostEqual(np.argmax(spectrum) * 16000 / out.size, 440, delta=2)
 
+    def sentences(self, text, pattern=None):
+        """Split the way the streaming reply loop does: (sentences spoken at once, what waits for the end)."""
+        pattern = pattern or self.buddy.FINISHED_SENTENCE
+        found, upto = [], 0
+        while True:
+            match = pattern.match(text, upto)
+            if not match:
+                return found, text[upto:]
+            found.append(match.group(1))
+            upto = match.end()
+
+    def test_chinese_sentences_are_spoken_one_by_one(self):
+        # no space follows a Chinese full stop, so 1.2.0 waited for the whole answer before it spoke
+        self.assertEqual(self.sentences("好的。点击保存按钮！然后关闭窗口"),
+                         (["好的。", "点击保存按钮！"], "然后关闭窗口"))
+        # a closing quote belongs to its sentence, and "?!" is one ending
+        self.assertEqual(self.sentences("他说“好的。”然后点击保存"),
+                         (["他说“好的。”"], "然后点击保存"))
+        self.assertEqual(self.sentences("什么？！再试一次"), (["什么？！"], "再试一次"))
+        # the last sentence waits for the end of the answer, like an English one with nothing after it
+        self.assertEqual(self.sentences("完成了。"), ([], "完成了。"))
+        self.assertEqual(self.sentences("नमस्ते। सेव करें। फिर"),
+                         (["नमस्ते।", "सेव करें।"], " फिर"))
+
+    def test_english_sentences_split_exactly_as_before(self):
+        before = re.compile(r"\s*(.+?[.!?]+)(?=\s)", re.DOTALL)          # the pattern of Buddy 1.2.0
+        samples = ["Click Save. Then close", "Version 3.5 is out", "Done.", "Wait... what? Yes! Go on",
+                   "Open File.\nThen pick Export. ", "It costs $3.50 (really). OK", 'She said "stop." Then left']
+        for text in samples:
+            self.assertEqual(self.sentences(text), self.sentences(text, before), text)
+        self.assertEqual(self.sentences("Click Save. Then close"), (["Click Save."], " Then close"))
+        self.assertEqual(self.sentences("Version 3.5 is out"), ([], "Version 3.5 is out"))
+        self.assertEqual(self.sentences("Done."), ([], "Done."))
+
+    def test_language_rule_only_for_other_languages(self):
+        rule = self.buddy.language_rule
+        for code in ("en-US", "en-GB", "auto", "eu", None, "", "pt-BR"):
+            self.assertEqual(rule(code), "", code)
+        self.assertIn("Indonesian", rule("id-ID"))
+        self.assertIn("Traditional", rule("zh-TW"))
+        self.assertIn("Traditional", rule("zh-HK"))
+        self.assertIn("Simplified", rule("zh-CN"))
+        self.assertIn("Cantonese", rule("yue"))
+        self.assertTrue(rule("ja-JP").startswith("\n- "))
+        self.assertIn("Reply in the language of the question", self.buddy.SYSTEM_PROMPT)
+
+    def test_system_prompt_carries_the_language_rule(self):
+        def prompt(setting, stt=None):
+            buddy = types.SimpleNamespace(stt=stt, settings={"speech_language": setting}, windows=[],
+                                          context_provider=None)
+            with mock.patch.object(self.buddy.keyit_actions, "list_windows", return_value=[]):
+                return self.buddy.Buddy._system_prompt(buddy)
+
+        self.assertIn("voice input language is Indonesian", prompt("id-ID"))
+        self.assertTrue(prompt("id-ID").startswith(self.buddy.SYSTEM_PROMPT))
+        self.assertNotIn("voice input language", prompt("en-US"))
+        # what is being spoken wins over the saved setting
+        speaking_japanese = types.SimpleNamespace(spoken_language=lambda: "ja-JP")
+        self.assertIn("voice input language is Japanese", prompt("en-US", speaking_japanese))
+
 
 class SnapTests(unittest.TestCase):
     def test_exact_name_snaps_from_further(self):
@@ -281,3 +343,195 @@ class TypingTests(unittest.TestCase):
         self.assertEqual(keyit_buddy.dictation_spacing("Hello there."), "Hello there. ")
         self.assertEqual(keyit_buddy.dictation_spacing("hello"), "hello")
         self.assertEqual(keyit_buddy.dictation_spacing("\u4fdd\u5b58\u3002"), "\u4fdd\u5b58\u3002")
+
+    def test_voice_text_is_typed_in_the_characters_of_the_language_setting(self):
+        import keyit_buddy
+
+        class Heard:
+            def __init__(self, language):
+                self.language = language
+
+            def spoken_language(self):
+                return self.language
+
+        def typed(text, language, my_words="", engine_loaded=True):
+            buddy = types.SimpleNamespace(
+                stt=Heard(language) if engine_loaded else None,
+                settings={"my_words": my_words, "voice_cleanup": True, "speech_language": language},
+            )
+            return keyit_buddy.Buddy._words(buddy, text, "dictate")
+
+        simplified = ("\u8b66\u65b9\u8bf4\u5c38\u4f53\u770b\u8d77\u6765"
+                      "\u5df2\u6446\u5728\u90a3\u91cc\u4e00\u5929\u5de6\u53f3")
+        traditional = ("\u8b66\u65b9\u8aaa\u5c4d\u9ad4\u770b\u8d77\u4f86"
+                       "\u5df2\u64fa\u5728\u90a3\u88e1\u4e00\u5929\u5de6\u53f3")
+        self.assertEqual(typed(simplified, "zh-TW"), traditional)
+        self.assertEqual(typed(simplified, "yue"), traditional)          # SenseVoice writes Cantonese in Simplified
+        self.assertEqual(typed(simplified, "zh-CN"), simplified)
+        self.assertEqual(typed(traditional, "zh-CN"), simplified)        # Whisper writes Mandarin in Traditional
+        self.assertEqual(typed(simplified, "auto"), simplified)          # auto-detect: as the model wrote it
+        self.assertEqual(typed(simplified, "zh-TW", engine_loaded=False), traditional)   # no engine yet: the setting
+        self.assertEqual(typed("\u6211\u4eec\u7528\u8f6f\u4ef6\u6d4b\u8bd5", "zh-TW", my_words="\u8f6f\u4ef6"),
+                         "\u6211\u5011\u7528\u8f6f\u4ef6\u6e2c\u8a66")       # the spelling in My words wins
+        self.assertEqual(typed("Open the S R M page.", "zh-TW", my_words="SRM"), "Open the SRM page.")
+
+
+class DictationHoldTests(unittest.TestCase):
+    """A dictation is decoded while its key is held (keyit_speech.Hold): Buddy starts it, hands it on, ends it."""
+
+    class Inline:
+        """Stands in for threading.Thread: the work is done at once, where the test can see it."""
+
+        def __init__(self, target, args=(), daemon=None):
+            self.target = target
+            self.args = args
+
+        def start(self):
+            self.target(*self.args)
+
+    def setUp(self):
+        import keyit_buddy
+
+        self.module = keyit_buddy
+        self.held = mock.Mock()
+        self.posted = []
+        patches = [
+            mock.patch.object(keyit_buddy.threading, "Thread", self.Inline),
+            mock.patch.object(keyit_buddy, "monitor_under_cursor", return_value=None),
+            mock.patch.object(keyit_buddy, "cursor_position", return_value=(0, 0)),
+            mock.patch.object(keyit_buddy, "selected_text_quick", return_value="picked"),   # never the real clipboard
+        ]
+        for patch in patches:
+            patch.start()
+            self.addCleanup(patch.stop)
+
+    def buddy(self, **extra):
+        return types.SimpleNamespace(
+            dictation=None,
+            overlay=mock.Mock(),
+            post=lambda call, *arguments: self.posted.append(call),
+            chime=lambda name: None,
+            **extra,
+        )
+
+    def press(self, speech_engine):
+        self.mic = mock.Mock()
+        buddy = self.buddy(
+            settings={"dictation": True},
+            speaker=mock.Mock(),
+            _mic=lambda: self.mic,
+            _ensure_stt=speech_engine,
+        )
+        self.module.Buddy.dictate_press(buddy)
+        return buddy
+
+    def test_a_press_starts_decoding_from_the_microphone(self):
+        stt = mock.Mock()
+        stt.hold.return_value = self.held
+        buddy = self.press(lambda: stt)
+        self.mic.start.assert_called_once_with()
+        stt.hold.assert_called_once_with(self.mic)
+        self.assertIs(buddy.dictation["held"], self.held)
+        self.assertIs(buddy.dictation["mic"], self.mic)
+        self.assertEqual(buddy.dictation["selection"], "picked")
+
+    def test_a_press_still_records_when_the_speech_engine_cannot_start(self):
+        def broken():
+            raise RuntimeError("no engine")
+
+        with self.assertLogs(level="ERROR"):
+            buddy = self.press(broken)
+        self.assertIsNone(buddy.dictation["held"])           # the error is shown when the key is let go
+        self.assertIs(buddy.dictation["mic"], self.mic)
+
+    def test_letting_go_hands_the_hold_to_the_text_step(self):
+        seen = []
+        buddy = self.buddy(_dictate_text=lambda *arguments: seen.append(arguments))
+        audio = np.zeros(1600, dtype=np.float32)
+        mic = types.SimpleNamespace(sample_rate=44100, stop=lambda: (audio, 0.0))
+        buddy.dictation = {"mic": mic, "held": self.held, "selection": "picked"}
+        self.module.Buddy._finish_dictation(buddy, buddy.dictation)
+        self.assertIsNone(buddy.dictation)
+        self.assertEqual(len(seen), 1)
+        self.assertIs(seen[0][0], audio)
+        self.assertEqual(seen[0][1:], (44100, "picked", self.held))
+
+    def text_step(self, held):
+        heard = []
+        stt = mock.Mock()
+        stt.transcribe.return_value = "from the whole recording"
+        stt.waiting.return_value = ""
+        buddy = self.buddy(
+            stt=stt,
+            _ensure_stt=lambda: stt,
+            _words=lambda text, mode: heard.append(text) or "",   # nothing to type: the step ends there
+        )
+        audio = np.zeros(1600, dtype=np.float32)
+        self.module.Buddy._dictate_text(buddy, audio, 44100, "", held)
+        return heard, stt, audio
+
+    def test_the_text_comes_from_the_hold(self):
+        self.held.finish.return_value = "decoded while the key was held"
+        heard, stt, audio = self.text_step(self.held)
+        self.assertEqual(heard, ["decoded while the key was held"])
+        self.held.finish.assert_called_once_with(audio, 44100)
+        stt.transcribe.assert_not_called()                   # nothing is decoded twice
+
+    def test_without_a_hold_the_whole_recording_is_decoded(self):
+        heard, stt, audio = self.text_step(None)
+        self.assertEqual(heard, ["from the whole recording"])
+        stt.transcribe.assert_called_once_with(audio, 44100)
+
+    def test_a_microphone_error_ends_the_hold(self):
+        def unplugged():
+            raise OSError("unplugged")
+
+        buddy = self.buddy()
+        buddy.dictation = {"mic": types.SimpleNamespace(sample_rate=44100, stop=unplugged), "held": self.held}
+        self.module.Buddy._finish_dictation(buddy, buddy.dictation)
+        self.held.cancel.assert_called_once_with()
+        self.assertIsNone(buddy.dictation)
+
+    def test_cancelling_a_dictation_ends_the_hold(self):
+        mic = mock.Mock()
+        buddy = self.buddy(generation=0, speaker=mock.Mock(), _stop_look_ahead=lambda: None, mic=None)
+        buddy.dictation = {"mic": mic, "held": self.held}
+        self.module.Buddy.cancel(buddy)
+        mic.stop.assert_called_once_with()
+        self.held.cancel.assert_called_once_with()
+        self.assertIsNone(buddy.dictation)
+
+    DOWNLOADING = ("Omnilingual is still getting ready - try again in a moment. "
+                   "Downloading the speech model (once)... 42% (88 of 208 MB, 3.1 MB/s, about 40 s left)")
+
+    def nothing_heard(self, waiting):
+        """A Buddy whose speech engine heard nothing and says why; what it posts to the overlay is kept in full."""
+        stt = mock.Mock()
+        stt.transcribe.return_value = ""
+        stt.waiting.return_value = waiting
+        buddy = self.buddy(stt=stt, _ensure_stt=lambda: stt, _words=lambda heard, mode: heard)
+        buddy.post = lambda call, *arguments: self.posted.append((call, arguments))
+        return buddy
+
+    def test_a_bubble_stays_up_long_enough_to_read(self):
+        short = "Omnilingual is still getting ready - try again in a moment."
+        self.assertEqual(self.module.reading_time(short), 4000)
+        self.assertEqual(self.module.reading_time(self.DOWNLOADING), 50 * len(self.DOWNLOADING))
+        self.assertGreater(self.module.reading_time(self.DOWNLOADING), 6000)
+
+    def test_a_dictation_tried_while_the_model_downloads_says_how_far_it_is(self):
+        buddy = self.nothing_heard(self.DOWNLOADING)
+        self.module.Buddy._dictate_text(buddy, object(), 16000)
+        self.assertEqual(self.posted, [(buddy.overlay.thinking, (self.DOWNLOADING,)),
+                                       (buddy.overlay.hide_later, (50 * len(self.DOWNLOADING),))])
+
+    def test_a_question_tried_while_the_model_downloads_says_how_far_it_is(self):
+        buddy = self.nothing_heard(self.DOWNLOADING)
+        self.module.Buddy._from_voice(buddy, object(), 16000)
+        self.assertEqual(self.posted, [(buddy.overlay.thinking, (self.DOWNLOADING,)),
+                                       (buddy.overlay.hide_later, (50 * len(self.DOWNLOADING),))])
+
+    def test_nothing_heard_with_the_engine_ready_keeps_the_short_bubble(self):
+        buddy = self.nothing_heard("")
+        self.module.Buddy._dictate_text(buddy, object(), 16000)
+        self.assertEqual(self.posted[-1], (buddy.overlay.hide_later, (2500,)))

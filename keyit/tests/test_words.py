@@ -66,7 +66,7 @@ def test_fillers_and_stutters_removed():
 def test_spoken_corrections():
     assert words.clean("Send the report at three, no wait, at four o'clock.") == "Send the report at four o'clock."
     assert words.clean("Send it to John, sorry, Mary.") == "Send it to Mary."
-    assert words.clean("Meet on Monday, I mean Tuesday.") == "Meet on Monday, I mean Tuesday." or True
+    assert words.clean("Meet on Monday, I mean Tuesday.") == "Meet on Tuesday."
     assert words.clean("Meet on Monday, I mean, Tuesday.") == "Meet on Tuesday."
     assert words.clean("The samples ship today. Scratch that. They ship on Friday.") == "They ship on Friday."
     # soft markers without a pause are normal speech
@@ -98,3 +98,258 @@ def test_edit_commands_for_highlighted_text():
                  "", "make " + "word " * 40):
         assert not words.is_edit_command(said), said
 
+
+# --------------------------------------------------------------------------- 1.3: other languages, safer rules
+BENCH_WORDS = "SRM\nPLM\nBOM\neGreen\nPureGMS\nZIRIS\nPega-Vision\nSpec Green\nVendor Mapping\nNotepad\nOutlook\n"
+ENGLISH = frozenset("""type hello team power test passed the a is brightest star called about series starts on
+    friday scored twice funded project new store opened report late ready answer was wrong sirius cyrus""".split())
+
+
+def test_text_that_only_looks_like_a_filler_or_marker_stays():
+    # 1.2.0 ate these: 额 is not always "uh", "mm" is a unit, "ER" a name
+    assert words.clean("金额是五百元。") == "金额是五百元。"
+    assert words.clean("The gap is 5 mm wide.") == "The gap is 5 mm wide."
+    assert words.clean("Run the ER 1.2 build.") == "Run the ER 1.2 build."
+    assert words.clean("use a fastener, e.g. the M3 screw.") == "Use a fastener, e.g. the M3 screw."
+    # words that are also correction markers, used as ordinary words
+    assert words.clean("I need to scratch that itch.") == "I need to scratch that itch."
+    assert words.clean("Please delete that file.") == "Please delete that file."
+    assert words.clean("I can't come, sorry, I'm busy.") == "I can't come, sorry, I'm busy."
+
+
+def test_correction_at_the_start_of_a_sentence():
+    assert words.clean("It works. No wait, it doesn't.") == "It doesn't."
+    assert words.clean("Send the report at three. No wait, at four.") == "Send the report at four."
+
+
+def test_my_words_keep_their_own_capitals_at_the_start():
+    assert words.process("e green survey is open.", MY_WORDS) == "eGreen survey is open."
+
+
+def test_indonesian_cleanup():
+    clean = lambda said: words.clean(said, language="id-ID")
+    assert clean("Kirim jam tiga, eh salah, jam empat.") == "Kirim jam empat."
+    assert clean("Ehm, tolong buka filenya.") == "Tolong buka filenya."
+    assert clean("Eh, tolong buka filenya.") == "Tolong buka filenya."
+    # a doubled word is a plural in Indonesian, not a stutter
+    assert clean("anak anak bermain") == "Anak anak bermain"
+    # "serius" is a word here, so it is never taken for a misheard ZIRIS
+    assert words.process("dia serius sekali", MY_WORDS, language="id-ID") == "Dia serius sekali"
+    assert words.clean("Ehm, tolong buka filenya.", language="ms-MY") == "Tolong buka filenya."
+
+
+def test_german_words_that_look_like_english_fillers_stay():
+    assert words.clean("Er hat um drei angerufen.", language="de-DE") == "Er hat um drei angerufen."
+
+
+def test_chinese_corrections_simplified_and_traditional():
+    clean = lambda said, language="zh-CN": words.clean(said, language=language)
+    assert clean("明天下午三点开会，不对，明天下午四点开会。") == "明天下午四点开会。"
+    assert clean("发给张三，不对，李四。") == "发给李四。"
+    assert clean("我明天去上海，不对，后天去。") == "我后天去上海。"
+    assert clean("今天发货。删掉这句。周五发货。") == "周五发货。"
+    assert clean("發給張三，不對，李四。", "zh-TW") == "發給李四。"
+    assert clean("發給張三，說錯了，李四。", "zh-TW") == "發給李四。"
+
+
+def test_terms_and_snippets_in_any_script():
+    assert words.apply_terms("台积电的订单", ["台積電"]) == "台積電的订单"
+    assert words.apply_terms("call Mr Muller today", ["Müller"]) == "call Mr Müller today"
+    assert words.apply_snippets("请发到我的邮箱", [("我的邮箱", "juwen@example.com")]) == "请发到juwen@example.com"
+
+
+def test_language_is_read_from_the_text_when_unknown():
+    for said, language in (
+            ("Please send the report to the team before Friday.", "en"),
+            ("Tolong kirim laporan itu ke tim sebelum hari Jumat.", "id"),
+            ("Saya mau meeting dengan vendor besok, tolong siapkan laporan.", "id"),
+            ("明天下午三点开会。", "zh"),
+            ("明日の会議は三時からです。", "ja"),
+            ("내일 회의는 세 시에 시작합니다.", "ko"),
+            ("พรุ่งนี้มีประชุมตอนบ่ายสามโมง", "th"),
+            ("Tôi sẽ gửi báo cáo vào ngày mai.", "vi"),
+            ("Bitte schicken Sie den Bericht vor Freitag an das Team.", "de"),
+            ("Por favor envía el informe al equipo antes del viernes.", "es"),
+            ("Merci d'envoyer le rapport à l'équipe avant vendredi.", "fr"),
+            ("OK.", "xx"), ("SRM PLM BOM", "xx")):
+        assert words._guess(said) == language, said
+    # "auto" uses it: Indonesian rules for Indonesian text, English rules for English text
+    assert words.clean("Kirim jam tiga, eh salah, jam empat, tolong kirim hari ini.", language="auto") == (
+        "Kirim jam empat, tolong kirim hari ini.")
+    assert words.clean("Um, send it to the team, no wait, to the vendor.", language="auto") == (
+        "Send it to the vendor.")
+
+
+def test_made_up_word_that_sounds_like_my_word(monkeypatch):
+    # the real miss from the 1.2.0 benchmark: "the ZIRIS" was written as "Bizaira's"
+    monkeypatch.setattr(words, "_vocabulary", lambda: ENGLISH)
+    said = "Type Hello team, Bizaira's power test passed."
+    assert words.process(said, BENCH_WORDS) == "Type Hello team, ZIRIS power test passed."
+
+
+def test_real_words_and_names_are_never_replaced_by_sound(monkeypatch):
+    monkeypatch.setattr(words, "_vocabulary", lambda: ENGLISH)
+    for said in ("Sirius is the brightest star.", "Cyrus called about the series.", "The series starts on Friday.",
+                 "Suarez scored twice.", "Soros funded the project.", "Zara's new store opened.",
+                 "Zahira's report is late.", "Nasir's team is ready."):
+        assert words.process(said, BENCH_WORDS) == said, said
+
+
+def test_peoples_names_are_never_replaced(monkeypatch):
+    # round 2 found it: "Zaira's" sounds exactly like ZIRIS and is in no word list, so it became ZIRIS
+    monkeypatch.setattr(words, "_vocabulary", lambda: ENGLISH)
+    for said in ("Zaira's answer was wrong.", "Ask Zaira's team first.", "Siti and Budi sent the report.",
+                 "Mr Nguyen and Ms Tanaka are here."):
+        assert words.process(said, BENCH_WORDS) == said, said
+    # a made-up word is still fixed
+    assert words.process("Type Hello team, Bizaira's power test passed.", BENCH_WORDS) == (
+        "Type Hello team, ZIRIS power test passed.")
+
+
+def test_names_list_ships_with_names_of_many_languages():
+    names = words._names()
+    assert len(names) > 30000
+    for name in ("zaira", "siti", "budi", "nguyen", "tanaka", "maria", "jose", "mueller"):
+        assert name in names, name
+    for term in ("ziris", "bizaira", "notepad", "puregms", "egreen", "pega"):
+        assert term not in names, term
+
+
+def test_without_the_names_list_nothing_breaks(monkeypatch):
+    monkeypatch.setattr(words, "_vocabulary", lambda: ENGLISH)
+    monkeypatch.setattr(words, "_names", lambda: frozenset())
+    assert words.process("Type Hello team, Bizaira's power test passed.", BENCH_WORDS) == (
+        "Type Hello team, ZIRIS power test passed.")
+    assert words.process("Sirius is the brightest star.", BENCH_WORDS) == "Sirius is the brightest star."
+
+
+def test_sound_rule_is_off_without_a_dictionary_or_in_languages_it_cannot_check(monkeypatch):
+    said = "Type Hello team, Bizaira's power test passed."
+    monkeypatch.setattr(words, "_vocabulary", lambda: None)
+    assert words.process(said, BENCH_WORDS) == said
+    monkeypatch.setattr(words, "_vocabulary", lambda: ENGLISH)
+    assert words.process(said, BENCH_WORDS, language="id-ID") == said
+
+
+def test_sound_rule_with_the_dictionary_that_ships_with_the_voice():
+    import pytest
+    pytest.importorskip("misaki")
+    words._vocabulary.cache_clear()
+    if words._vocabulary() is None:
+        pytest.skip("misaki is installed without its English word list")
+    assert words.process("Type Hello team, Bizaira's power test passed.", BENCH_WORDS) == (
+        "Type Hello team, ZIRIS power test passed.")
+    for said in ("Sirius is the brightest star.", "Cyrus called about the series.", "Suarez scored twice.",
+                 "Soros funded the project.", "Zara's new store opened.", "Zahira's report is late.",
+                 "Nasir's team is ready.", "We saw Osiris and Iris at the museum.", "The bizarre bazaar was busy.",
+                 "Zaira's answer was wrong."):
+        assert words.process(said, BENCH_WORDS) == said, said
+
+# --------------------------------------------------------------------------- 1.3: words that only look like a term
+# every sentence here was changed by 1.2.0 (found with bench/my_words_safety.py)
+ENDINGS = ("ZIRIS's results are in.", "Notepad's window is open.", "Open two notepads please.",
+           "The outlooks are different.")
+LOOK_ALIKES = ("She sells pure gems and plays pure games.", "We use pure gas and pure gum here.",
+               "He bought new zoris in Japan.", "The vendor napping in the lobby was tired.",
+               # everyday phrases a sound or two away from a term (found by the dictionary sweep of word pairs)
+               "The invoice is not paid yet.", "We could not pad the schedule.", "I sip green tea every morning.",
+               "Sir is waiting in the lobby.", "The vendor moving the boxes is new.",
+               "He has pure gums and healthy teeth.", "She reached peak vision after the surgery.",
+               "Check out logo ideas for the team.", "Please note Pat is away today.",
+               "Please note bad weather is expected.", "The PM revision is due on Friday.")
+# real words one sound away from the term: a slip and plain speech look the same, so they stay as written
+ONE_SOUND_OFF = ("Open bender mapping first.", "Check the peg-vision camera.")
+SLIPS = {
+    # a made-up word or spelled-out letters can only be a slip of the term
+    "Open noepad now.": "Open Notepad now.",
+    "The zirus test passed.": "The ZIRIS test passed.",
+    "Set it to pure GM rejected.": "Set it to PureGMS rejected.",
+    # real words that are said exactly like the term
+    "Choose speck green there.": "Choose Spec Green there.",
+    "Open vender mapping first.": "Open Vendor Mapping first.",
+}
+REAL_WORDS = ENGLISH | frozenset("""after and are away bad bender bought boxes camera check choose could different due
+    every expected first for games gas gems green gum gums has he healthy here i ideas in invoice it japan lobby logo
+    mapping morning
+    moving napping not note notepad now open out outlook pad paid pat peak peg pega plays please pm pure
+    reached rejected results revision schedule sells set she sip sir spec speck surgery tea teeth there tired
+    to today two use vender vendor vision waiting we weather window windows yet zoris""".split())
+# how the dictionary that ships with the voice says the words that matter here (stress marks left out)
+SAID = {
+    "bad": "bæd", "bender": "bɛndəɹ", "games": "ɡAmz", "gas": "ɡæs", "gems": "ʤɛmz", "green": "ɡɹin", "gum":
+    "ɡʌm", "gums": "ɡʌmz", "is": "ɪz", "logo": "lOɡO", "mapping": "mæpɪŋ", "moving": "muvɪŋ", "napping":
+    "næpɪŋ", "not": "nɑt", "note": "nOt", "notepad": "nOtpæd", "out": "Wt", "outlook": "Wtlʊk", "pad": "pæd",
+    "paid": "pAd", "pat": "pæt", "peak": "pik", "peg": "pɛɡ", "pega": "pɛɡə", "pm": "piɛm", "pure": "pjʊɹ",
+    "revision": "ɹəvɪʒᵊn", "sip": "sɪp", "sir": "sɜɹ", "spec": "spɛk", "speck": "spɛk", "vender": "vɛndəɹ",
+    "vendor": "vɛndəɹ", "vision": "vɪʒən", "window": "wɪndO", "windows": "wɪndOz", "zoris": "zɔɹiz",
+}
+
+
+def use_dictionary(monkeypatch, vocabulary=REAL_WORDS, said=SAID):
+    monkeypatch.setattr(words, "_vocabulary", lambda: vocabulary)
+    monkeypatch.setattr(words, "_lexicon", lambda: said, raising=False)
+
+
+def test_my_words_own_plural_and_possessive_stay_as_said(monkeypatch):
+    # 1.2.0 dropped the ending: "ZIRIS's results" -> "ZIRIS results", "two notepads" -> "two Notepad"
+    for vocabulary in (None, REAL_WORDS):
+        use_dictionary(monkeypatch, vocabulary)
+        for said in ENDINGS:
+            assert words.process(said, BENCH_WORDS) == said, said
+        assert words.process("Ziris's results are in.", BENCH_WORDS) == "ZIRIS's results are in."
+
+
+def test_real_words_that_only_look_like_my_word_stay(monkeypatch):
+    use_dictionary(monkeypatch)
+    for said in LOOK_ALIKES + ONE_SOUND_OFF:
+        assert words.process(said, BENCH_WORDS) == said, said
+    assert words.process("Open the window.", "Windows") == "Open the window."
+
+
+def test_real_words_stay_when_the_dictionary_cannot_say_them(monkeypatch):
+    # nothing to compare with: a made-up term such as "ZIRIS", or a word list that has no sounds
+    use_dictionary(monkeypatch, said=None)
+    for said in LOOK_ALIKES + ONE_SOUND_OFF + ("Choose speck green there.",):
+        assert words.process(said, BENCH_WORDS) == said, said
+
+
+def test_a_line_in_my_words_settles_what_sound_cannot(monkeypatch):
+    use_dictionary(monkeypatch)
+    listed = BENCH_WORDS + "peg vision -> Pega-Vision\n"
+    assert words.process("Check the peg-vision camera.", listed) == "Check the Pega-Vision camera."
+    assert words.process("Check the peg vision camera.", listed) == "Check the Pega-Vision camera."
+
+
+def test_slips_of_my_word_are_still_fixed_by_their_letters(monkeypatch):
+    use_dictionary(monkeypatch)
+    for said, wanted in SLIPS.items():
+        assert words.process(said, BENCH_WORDS) == wanted, said
+    # without a dictionary nothing can be told apart, so a near miss is fixed as before
+    use_dictionary(monkeypatch, None, None)
+    assert words.process("Open noepad now.", BENCH_WORDS) == "Open Notepad now."
+
+
+def test_letters_rule_with_the_dictionary_that_ships_with_the_voice():
+    import pytest
+    pytest.importorskip("misaki")
+    words._vocabulary.cache_clear()
+    if words._vocabulary() is None:
+        pytest.skip("misaki is installed without its English word list")
+    for said in ENDINGS + LOOK_ALIKES + ONE_SOUND_OFF:
+        assert words.process(said, BENCH_WORDS) == said, said
+    assert words.process("Open the window.", "Windows") == "Open the window."
+    for said, wanted in SLIPS.items():
+        assert words.process(said, BENCH_WORDS) == wanted, said
+
+
+
+def test_edit_commands_in_other_languages():
+    for said in ("terjemahkan ke bahasa Inggris", "Tolong ringkaskan ini.", "buat lebih formal",
+                 "bikin jadi poin-poin", "翻譯成英文", "把这段翻译成英文", "把語氣改得正式一點", "请帮我润色一下",
+                 "これを英語に翻訳してください", "もっと短くして", "영어로 번역해 주세요", "더 짧게 해줘",
+                 "Mach das kürzer.", "Übersetze ins Englische.", "Resume esto en dos frases.", "Traduis en anglais."):
+        assert words.is_edit_command(said), said
+    for said in ("Resume the test at five.", "Mach 2 is twice the speed of sound.", "Buat saya, ini penting.",
+                 "Singkat cerita, kami pulang.", "把文件发给我", "改天再说吧", "明天下午三点开会",
+                 "Saya akan datang besok.", "会議は三時からです", "내일 회의가 있습니다"):
+        assert not words.is_edit_command(said), said

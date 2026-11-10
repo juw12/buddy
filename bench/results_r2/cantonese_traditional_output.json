@@ -1,0 +1,18 @@
+{
+ "what": "Cantonese (FLEURS yue_hant_hk, 10 clips), SenseVoice output scored against the native Traditional reference",
+ "source_rows": "bench/results_r2/raw_sensevoice_fixed.json",
+ "characters_in_reference": 351,
+ "as_model_wrote_it_simplified": {
+  "cer_pct": 33.3,
+  "wrong": 117
+ },
+ "after_to_traditional": {
+  "cer_pct": 6.0,
+  "wrong": 21
+ },
+ "script_folded_both_sides": {
+  "cer_pct": 6.0,
+  "wrong": 21
+ },
+ "note": "exact characters, NFKC + lowercase, punctuation dropped; the conversion adds 0 errors on these clips"
+}

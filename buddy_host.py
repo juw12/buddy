@@ -41,7 +41,7 @@ import buddy_home  # noqa: E402
 import buddy_updater  # noqa: E402
 
 BUDDY_NAME = "Buddy"
-BUDDY_VERSION = "1.2.0"
+BUDDY_VERSION = "1.3.0"
 CONTEXT_REFRESH_MS = 60_000
 UPDATE_FIRST_CHECK_MS = 60_000              # first update check a minute after start...
 UPDATE_EVERY_MS = 3 * 3600 * 1000           # ...then every 3 hours
@@ -1107,7 +1107,7 @@ def main(argv=None):
                         app.root.winfo_class(), app.focus.root.winfo_parent() or "?", tabs)
             logger.info("Today's focus: %s", numbers)
             assert app.focus.root.master is app.root, "Pips must live inside Buddy's root"
-            assert tabs == ["Home", "Focus", "Settings"], tabs
+            assert tabs == ["Home", "Focus", "Settings", "Voice input"], tabs
             assert app.pet_state()[0] != "Pip", "the pet should be Buddy"
             uia, automation = keyit_buddy._uia()               # selection reading for the ask box
             assert automation.GetRootElement(), "UI Automation unavailable"
