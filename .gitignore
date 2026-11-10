@@ -18,3 +18,8 @@ ios/build/
 ios/build-device/
 ios/ipa/
 ios/dist/
+
+# voice benchmark: audio + models live outside git (release asset / sherpa-onnx releases)
+bench/models/
+bench/set_*/
+bench/wav/

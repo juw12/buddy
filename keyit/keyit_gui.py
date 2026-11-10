@@ -20,6 +20,21 @@ MIN_KEYS_TO_BUILD = 10
 
 # Settings -> Brain. "Smart" sends the screenshot + question to your company's MAAS gateway (fast, much smarter);
 # the local ones never leave this PC.
+
+def microphones():
+    """Names of the input devices (one entry per device, from the default Windows audio API)."""
+    try:
+        import sounddevice
+
+        default_api = sounddevice.default.hostapi
+        names = []
+        for device in sounddevice.query_devices():
+            if device["max_input_channels"] > 0 and device["hostapi"] == default_api and device["name"] not in names:
+                names.append(device["name"])
+        return names
+    except Exception:
+        return []
+
 BRAINS = {"Free (cloud)": "free", "Smart (MAAS)": "maas", "Local GPU": "auto", "Local CPU": "cpu"}
 BRAIN_NOTES = {
     "free": "Free cloud brain: no setup, answers in ~5 s. Your screenshot and question go to Cloudflare "
@@ -385,15 +400,11 @@ class KeyItApp:
         self.model_status = ttk.Label(tab, foreground="#777")
         self.model_status.grid(row=2, column=1, columnspan=2, sticky="w", padx=8)
 
-        ttk.Label(tab, text="Speech model").grid(row=3, column=0, sticky="w", pady=(8, 0))
-        self.whisper_box = ttk.Combobox(tab, state="readonly", width=12, values=buddy_module.WHISPER_MODELS)
-        self.whisper_box.set(self.settings["whisper_model"])
-        self.whisper_box.grid(row=3, column=1, sticky="w", padx=8, pady=(8, 0))
-        self.whisper_box.bind("<<ComboboxSelected>>", self._on_buddy_option)
+        ttk.Label(tab, text="Brain").grid(row=3, column=0, sticky="w", pady=(8, 0))
         self.brain_box = ttk.Combobox(tab, state="readonly", width=16, values=list(BRAINS))
         engine = self.settings.get("buddy_engine", "auto")
         self.brain_box.set(next((label for label, value in BRAINS.items() if value == engine), "Local GPU"))
-        self.brain_box.grid(row=3, column=2, sticky="w", pady=(8, 0))
+        self.brain_box.grid(row=3, column=1, sticky="w", padx=8, pady=(8, 0))
         self.brain_box.bind("<<ComboboxSelected>>", self._on_brain_changed)
 
         ttk.Label(tab, text="Voice").grid(row=4, column=0, sticky="w", pady=(8, 0))
@@ -420,19 +431,20 @@ class KeyItApp:
                         variable=self.island_var, command=self._on_island_toggled).grid(
             row=6, column=0, columnspan=3, sticky="w", pady=(8, 0))
 
-        self._build_look_row(tab, row=7)
+        self._build_voice_input(tab, row=7)
+        self._build_look_row(tab, row=8)
 
         self.question_var = tk.StringVar()
         if self.host is None:                            # inside Buddy the ask box is on the Home tab
-            ttk.Label(tab, text="Or type").grid(row=8, column=0, sticky="w", pady=(12, 0))
+            ttk.Label(tab, text="Or type").grid(row=9, column=0, sticky="w", pady=(12, 0))
             entry = ttk.Entry(tab, textvariable=self.question_var)
-            entry.grid(row=8, column=1, sticky="ew", padx=8, pady=(12, 0))
+            entry.grid(row=9, column=1, sticky="ew", padx=8, pady=(12, 0))
             entry.bind("<Return>", lambda _e: self.ask_typed())
-            ttk.Button(tab, text="Ask", command=self.ask_typed).grid(row=8, column=2, pady=(12, 0))
+            ttk.Button(tab, text="Ask", command=self.ask_typed).grid(row=9, column=2, pady=(12, 0))
 
         self.buddy_status = ttk.Label(tab, foreground="#777", wraplength=430, justify="left",
                                       text="Runs 100% on this PC with Ollama. A screenshot is taken only when you ask.")
-        self.buddy_status.grid(row=9, column=0, columnspan=3, sticky="w", pady=(12, 0))
+        self.buddy_status.grid(row=10, column=0, columnspan=3, sticky="w", pady=(12, 0))
         self.refresh_models()
         self._load_voices()
         if self.settings["buddy_enabled"]:
@@ -514,7 +526,6 @@ class KeyItApp:
     def _on_buddy_option(self, _event=None):
         changed_model = self.model_box.get().strip() != self.settings["buddy_model"]
         self.settings["buddy_model"] = self.model_box.get().strip() or self.settings["buddy_model"]
-        self.settings["whisper_model"] = self.whisper_box.get()
         self.settings["buddy_speak"] = self.speak_var.get()
         if self.voice_box.get() and self.voice_box.get() != self.settings["buddy_voice"]:
             self.settings["buddy_voice"] = self.voice_box.get()
@@ -535,6 +546,111 @@ class KeyItApp:
             self.buddy.maas_failed_until = 0.0
             self.buddy.local_missing = False          # check the local brain again
             threading.Thread(target=self.buddy._prepare, daemon=True).start()
+
+    # -- Voice input: speech engine, language, microphone, dictation, my words
+    SPEECH_LANGUAGES = {"English": "en-US", "Chinese (\u4e2d\u6587)": "zh-CN", "Cantonese": "yue",
+                        "Japanese": "ja-JP", "Korean": "ko-KR", "Other European": "eu"}
+
+    def _build_voice_input(self, tab, row):
+        import keyit_speech
+
+        box = ttk.LabelFrame(tab, text="Voice input  (hold Ctrl+Alt+Space to ask, Ctrl+Alt+D to type by voice)")
+        box.grid(row=row, column=0, columnspan=3, sticky="ew", pady=(10, 0))
+        box.columnconfigure(1, weight=1)
+
+        ttk.Label(box, text="Speech model").grid(row=0, column=0, sticky="w", padx=6, pady=(4, 0))
+        self.speech_box = ttk.Combobox(box, state="readonly", width=34,
+                                       values=[keyit_speech.SHORT_LABELS[c] for c in keyit_speech.CHOICES])
+        self.speech_box.set(keyit_speech.SHORT_LABELS.get(self.settings["speech_model"], "Auto"))
+        self.speech_box.grid(row=0, column=1, sticky="w", padx=6, pady=(4, 0))
+        self.speech_box.bind("<<ComboboxSelected>>", self._on_voice_input_changed)
+        self.language_box = ttk.Combobox(box, state="readonly", width=16, values=list(self.SPEECH_LANGUAGES))
+        language = self.settings.get("speech_language", "en-US")
+        self.language_box.set(next((name for name, code in self.SPEECH_LANGUAGES.items()
+                                    if language.lower().startswith(code.lower()[:2])), "English"))
+        self.language_box.grid(row=0, column=2, sticky="w", padx=6, pady=(4, 0))
+        self.language_box.bind("<<ComboboxSelected>>", self._on_voice_input_changed)
+
+        ttk.Label(box, text="Microphone").grid(row=1, column=0, sticky="w", padx=6, pady=(4, 0))
+        self.mic_box = ttk.Combobox(box, state="readonly", width=34, values=["Windows default"] + microphones())
+        self.mic_box.set(self.settings.get("mic_device") or "Windows default")
+        self.mic_box.grid(row=1, column=1, sticky="w", padx=6, pady=(4, 0))
+        self.mic_box.bind("<<ComboboxSelected>>", self._on_voice_input_changed)
+
+        self.dictation_var = tk.BooleanVar(value=self.settings.get("dictation", True))
+        ttk.Checkbutton(box, text="Ctrl+Alt+D types what I say into any app (hold to talk, tap for hands-free)",
+                        variable=self.dictation_var, command=self._on_voice_input_changed).grid(
+            row=2, column=0, columnspan=3, sticky="w", padx=6, pady=(4, 0))
+        self.cleanup_var = tk.BooleanVar(value=self.settings.get("voice_cleanup", True))
+        ttk.Checkbutton(box, text='Tidy up: drop "um"/"uh" and follow corrections like "no wait" or "scratch that"',
+                        variable=self.cleanup_var, command=self._on_voice_input_changed).grid(
+            row=3, column=0, columnspan=3, sticky="w", padx=6, pady=(2, 0))
+
+        buttons = ttk.Frame(box)
+        buttons.grid(row=4, column=0, columnspan=3, sticky="w", padx=6, pady=(4, 6))
+        ttk.Button(buttons, text="My words\u2026", command=self._edit_my_words).pack(side="left")
+        ttk.Button(buttons, text="Type last dictation again", command=self._type_last_dictation).pack(
+            side="left", padx=(6, 0))
+        ttk.Button(buttons, text="Copy last dictation", command=self._copy_last_dictation).pack(
+            side="left", padx=(6, 0))
+
+    def _on_voice_input_changed(self, _event=None):
+        import keyit_speech
+
+        choice = keyit_speech.choice_for_short_label(self.speech_box.get())
+        language = self.SPEECH_LANGUAGES.get(self.language_box.get(), "en-US")
+        mic = "" if self.mic_box.get() == "Windows default" else self.mic_box.get()
+        changed_engine = (choice, language) != (self.settings.get("speech_model"), self.settings.get("speech_language"))
+        self.settings.update(speech_model=choice, speech_language=language, mic_device=mic,
+                             dictation=self.dictation_var.get(), voice_cleanup=self.cleanup_var.get())
+        core.save_settings(self.settings)
+        if changed_engine:
+            wanted = keyit_speech.auto_engine(language) if choice == "auto" else choice
+            note = keyit_speech.label(wanted)
+            if wanted in keyit_speech.ENGINES and not keyit_speech.is_ready(wanted):
+                note += f" - downloading ~{keyit_speech.ENGINES[wanted]['mb']} MB once, the Windows recognizer helps meanwhile"
+            self._set_buddy_status("Speech: " + note)
+            if self.buddy:
+                threading.Thread(target=self.buddy._prepare_speech, daemon=True).start()
+
+    def _edit_my_words(self):
+        window = tk.Toplevel(self.root)
+        window.title("My words")
+        window.transient(self.root)
+        ttk.Label(window, justify="left", wraplength=460, text=(
+            "One per line. Buddy spells these words exactly like this, however you say them "
+            "(\"s r m\" -> SRM, \"e green\" -> eGreen).\n"
+            "Spoken shortcuts: say the left side, Buddy types the right side, e.g.\n"
+            "    my sign off => Best regards, Juwen\n"
+            "Lines starting with # are notes.")).pack(anchor="w", padx=10, pady=(10, 4))
+        editor = tk.Text(window, width=60, height=14, wrap="word", undo=True)
+        editor.pack(fill="both", expand=True, padx=10)
+        editor.insert("1.0", self.settings.get("my_words", ""))
+
+        def save():
+            self.settings["my_words"] = editor.get("1.0", "end").strip() + "\n"
+            core.save_settings(self.settings)
+            self._set_buddy_status("My words saved.")
+            window.destroy()
+
+        row = ttk.Frame(window)
+        row.pack(fill="x", padx=10, pady=10)
+        ttk.Button(row, text="Save", command=save).pack(side="right")
+        ttk.Button(row, text="Cancel", command=window.destroy).pack(side="right", padx=(0, 6))
+        editor.focus_set()
+
+    def _type_last_dictation(self):
+        if not self.buddy:
+            self._set_buddy_status("Turn Buddy on first.")
+            return
+        self._set_buddy_status("Click where the text should go - typing in 3 s\u2026")
+        self.root.after(3000, lambda: threading.Thread(target=self.buddy.type_last_dictation, daemon=True).start())
+
+    def _copy_last_dictation(self):
+        if self.buddy and self.buddy.copy_last_dictation(self.root):
+            self._set_buddy_status("Last dictation copied.")
+        else:
+            self._set_buddy_status("Nothing dictated yet - hold Ctrl+Alt+D and talk.")
 
     # -- Look: colour and icon of the pointer next to the mouse
     CUSTOM_COLOR = "Custom\u2026"

@@ -8,6 +8,8 @@ mss
 comtypes
 pywin32
 faster-whisper
+# speech in (keyit_speech): Whisper / Parakeet / SenseVoice / Moonshine + Silero VAD, models from GitHub releases
+sherpa-onnx
 # natural voices (Settings -> Voice): Kokoro + espeak-ng phonemizer, plus Chinese text support.
 # buddy.spec bundles these into Buddy.exe; without them the built app's self-test fails.
 kokoro-onnx

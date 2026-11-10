@@ -173,6 +173,42 @@ class KeyboardFilterTests(unittest.TestCase):
         self.assertEqual(self.sent, [(57, True), (57, False)])
 
 
+    def test_buddy_dictation_hotkey(self):
+        import time
+
+        calls = []
+        self.hook.buddy = types.SimpleNamespace(
+            press=lambda: calls.append("press"), release=lambda: calls.append("release"),
+            cancel=lambda: calls.append("cancel"),
+            dictate_press=lambda: calls.append("dictate_press"),
+            dictate_release=lambda: calls.append("dictate_release"),
+        )
+        self.key(0x100, 0x1D)                # Ctrl
+        self.key(0x100, 0x38)                # Alt
+        for _ in range(3):                   # D + auto-repeats while talking
+            self.key(0x100, 32)
+        self.key(0x101, 32)
+        time.sleep(0.05)
+        self.assertEqual(calls, ["dictate_press", "dictate_release"])
+        self.assertEqual(len(self.suppressed), 4)            # no "d" typed into the app
+        self.assertNotIn((32, True), self.sent)
+        self.key(0x101, 0x1D)
+        self.key(0x101, 0x38)
+
+    def test_plain_d_untouched_and_old_buddy_objects_still_work(self):
+        self.hook.buddy = types.SimpleNamespace(press=lambda: None, release=lambda: None, cancel=lambda: None)
+        self.key(0x100, 0x1D)
+        self.key(0x100, 0x38)
+        self.key(0x100, 32)                  # Ctrl+Alt+D without a dictation-capable Buddy: passes through
+        self.key(0x101, 32)
+        self.assertEqual(self.suppressed, [])
+        self.key(0x101, 0x1D)
+        self.key(0x101, 0x38)
+        self.key(0x100, 32)                  # plain D
+        self.key(0x101, 32)
+        self.assertIn((32, True), self.sent)
+
+
 class BuddyParsingTests(unittest.TestCase):
     def setUp(self):
         import keyit_buddy
@@ -224,3 +260,24 @@ class SnapTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TypingTests(unittest.TestCase):
+    def test_typing_events_emoji_newline_and_chinese(self):
+        import keyit_actions
+
+        events = keyit_actions.typing_events("a\n\U0001F600\u4fdd")
+        self.assertEqual(events[0], (0, ord("a"), 0x0004))
+        self.assertEqual(events[2], (0x0D, 0, 0))                    # new line = Enter
+        self.assertEqual(events[3], (0x0D, 0, 0x0002))
+        self.assertEqual([e[1] for e in events[4:8:2]], [0xD83D, 0xDE00])   # emoji = surrogate pair
+        self.assertEqual(events[8], (0, 0x4FDD, 0x0004))
+        self.assertTrue(all(e[1] <= 0xFFFF for e in events))
+        self.assertEqual(len(keyit_actions.typing_events("x\r\ny")), 2 + 2 + 2)
+
+    def test_dictation_spacing(self):
+        import keyit_buddy
+
+        self.assertEqual(keyit_buddy.dictation_spacing("Hello there."), "Hello there. ")
+        self.assertEqual(keyit_buddy.dictation_spacing("hello"), "hello")
+        self.assertEqual(keyit_buddy.dictation_spacing("\u4fdd\u5b58\u3002"), "\u4fdd\u5b58\u3002")
