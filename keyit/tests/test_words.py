@@ -216,6 +216,65 @@ def test_sound_rule_with_the_dictionary_that_ships_with_the_voice():
                  "Nasir's team is ready.", "We saw Osiris and Iris at the museum.", "The bizarre bazaar was busy."):
         assert words.process(said, BENCH_WORDS) == said, said
 
+# --------------------------------------------------------------------------- 1.3: words that only look like a term
+# every sentence here was changed by 1.2.0 (found with bench/my_words_safety.py)
+ENDINGS = ("ZIRIS's results are in.", "Notepad's window is open.", "Open two notepads please.",
+           "The outlooks are different.")
+LOOK_ALIKES = ("She sells pure gems and plays pure games.", "We use pure gas and pure gum here.",
+               "He bought new zoris in Japan.", "The vendor napping in the lobby was tired.")
+SLIPS = {
+    # a made-up word or spelled-out letters can only be a slip of the term
+    "Open noepad now.": "Open Notepad now.",
+    "The zirus test passed.": "The ZIRIS test passed.",
+    "Check the peg-vision camera.": "Check the Pega-Vision camera.",
+    "Set it to pure GM rejected.": "Set it to PureGMS rejected.",
+    # real words that also sound like the term
+    "Choose speck green there.": "Choose Spec Green there.",
+    "Open bender mapping first.": "Open Vendor Mapping first.",
+}
+REAL_WORDS = ENGLISH | frozenset("""she sells pure gems and plays games we use gas gum here he bought zoris in japan
+    vendor napping lobby tired open window two please are different results choose speck green there bender mapping
+    first now check camera set it to rejected""".split())
+
+
+def test_my_words_own_plural_and_possessive_stay_as_said(monkeypatch):
+    # 1.2.0 dropped the ending: "ZIRIS's results" -> "ZIRIS results", "two notepads" -> "two Notepad"
+    for vocabulary in (None, REAL_WORDS):
+        monkeypatch.setattr(words, "_vocabulary", lambda vocabulary=vocabulary: vocabulary)
+        for said in ENDINGS:
+            assert words.process(said, BENCH_WORDS) == said, said
+        assert words.process("Ziris's results are in.", BENCH_WORDS) == "ZIRIS's results are in."
+
+
+def test_real_words_that_only_look_like_my_word_stay(monkeypatch):
+    monkeypatch.setattr(words, "_vocabulary", lambda: REAL_WORDS)
+    for said in LOOK_ALIKES:
+        assert words.process(said, BENCH_WORDS) == said, said
+    assert words.process("Open the window.", "Windows") == "Open the window."
+
+
+def test_slips_of_my_word_are_still_fixed_by_their_letters(monkeypatch):
+    monkeypatch.setattr(words, "_vocabulary", lambda: REAL_WORDS)
+    for said, wanted in SLIPS.items():
+        assert words.process(said, BENCH_WORDS) == wanted, said
+    # without a dictionary nothing can be told apart, so a near miss is fixed as before
+    monkeypatch.setattr(words, "_vocabulary", lambda: None)
+    assert words.process("Open noepad now.", BENCH_WORDS) == "Open Notepad now."
+
+
+def test_letters_rule_with_the_dictionary_that_ships_with_the_voice():
+    import pytest
+    pytest.importorskip("misaki")
+    words._vocabulary.cache_clear()
+    if words._vocabulary() is None:
+        pytest.skip("misaki is installed without its English word list")
+    for said in ENDINGS + LOOK_ALIKES:
+        assert words.process(said, BENCH_WORDS) == said, said
+    assert words.process("Open the window.", "Windows") == "Open the window."
+    for said, wanted in SLIPS.items():
+        assert words.process(said, BENCH_WORDS) == wanted, said
+
+
 
 def test_edit_commands_in_other_languages():
     for said in ("terjemahkan ke bahasa Inggris", "Tolong ringkaskan ini.", "buat lebih formal",

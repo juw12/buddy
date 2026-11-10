@@ -271,9 +271,33 @@ def _near_miss(candidate, term):
     return difflib.SequenceMatcher(None, a, b).ratio() >= (0.8 if len(b) >= 7 else 0.79)
 
 
+def _only_looks_alike(chunk, term, mine):
+    """True when `chunk` passes the letters test but was not a slip of `term`:
+
+    - the term's own plural or possessive ("ZIRIS's results", "two notepads"): the s was said;
+    - good English that is only spelled like it: "pure gems" for "PureGMS", "vendor napping" for "Vendor
+      Mapping". Real words are taken for the term only when they also sound like it - the same consonants and
+      the same kind of first vowel ("speck green", "bender mapping"). A chunk with a made-up or spelled-out
+      piece ("zirus", "pure GM") is still judged by its letters alone.
+    Without the dictionary only the first check runs."""
+    if _squash(re.sub("['’]?s$", "", chunk, flags=re.IGNORECASE)) == _squash(term):
+        return True
+    vocabulary = _vocabulary()
+    if vocabulary is None:
+        return False
+    for piece in WORD.findall(chunk):
+        if not re.search("[aeiouy]", _plain(piece).lower()) or not _known(piece, vocabulary, mine):
+            return False
+    heard, wanted = _sound(chunk).replace("a", ""), _sound(term).replace("a", "")
+    if len(heard) != len(wanted) or not all(_sounds_alike(a, b) for a, b in zip(heard, wanted)):
+        return True
+    return _first_vowel(chunk) != _first_vowel(term)
+
+
 def apply_terms(text, terms, language=None):
     """Spell every term in `terms` the way it is written in 'My words'."""
     by_sound = _language(language, text) in SOUND_MATCH
+    mine = {_squash(other) for other in terms}
     for term in sorted(terms, key=len, reverse=True):      # longest first: "Spec Green" before "Green"
         if _other_script(term):
             text = _written(text, term)
@@ -297,7 +321,7 @@ def apply_terms(text, terms, language=None):
                     continue
                 if any(start < r_end and end > r_start for r_start, r_end in replaced):
                     continue
-                if _near_miss(chunk, term):
+                if _near_miss(chunk, term) and not _only_looks_alike(chunk, term, mine):
                     replaced.append((start, end))
         if by_sound:
             replaced += _heard_as(text, tokens, term, terms, replaced)
