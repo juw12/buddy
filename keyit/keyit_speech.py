@@ -20,9 +20,12 @@ someone speaks, and a recording without speech (a key click, a fan, a breath) gi
 nothing made up ("Thank you.") is ever typed or asked.
 """
 import collections
+import contextlib
+import ctypes
 import logging
 import os
 import shutil
+import sys
 import tarfile
 import threading
 import time
@@ -583,6 +586,43 @@ def resample(audio, source_rate, target_rate):
     return np.interp(positions, np.arange(audio.size), audio).astype(np.float32)
 
 
+NORMAL_PRIORITY = 0x00000020                               # Windows priority classes
+ABOVE_NORMAL_PRIORITY = 0x00008000
+
+
+def _swap_priority(expected, wanted):
+    """Move this process from one Windows priority class to another. False when it was not in the first
+    one (somebody chose a priority for Buddy: leave it alone), and when this is not Windows."""
+    if sys.platform != "win32":
+        return False
+    try:
+        kernel = ctypes.WinDLL("kernel32")                 # our own handle: the prototypes stay private
+        kernel.GetCurrentProcess.restype = ctypes.c_void_p
+        kernel.GetPriorityClass.argtypes = [ctypes.c_void_p]
+        kernel.GetPriorityClass.restype = ctypes.c_ulong
+        kernel.SetPriorityClass.argtypes = [ctypes.c_void_p, ctypes.c_ulong]
+        process = kernel.GetCurrentProcess()
+        if kernel.GetPriorityClass(process) != expected:
+            return False
+        return bool(kernel.SetPriorityClass(process, wanted))
+    except Exception:
+        return False
+
+
+@contextlib.contextmanager
+def urgent():
+    """Run the block at above-normal priority, then put the process back.
+
+    Between letting go of the key and seeing the text the user is waiting, so the decode should not queue
+    up behind whatever else keeps the processor busy. bench/latency_load.py measures what this is worth."""
+    raised = _swap_priority(NORMAL_PRIORITY, ABOVE_NORMAL_PRIORITY)
+    try:
+        yield
+    finally:
+        if raised:
+            _swap_priority(ABOVE_NORMAL_PRIORITY, NORMAL_PRIORITY)
+
+
 class Speech:
     """What Buddy uses: picks the engine, downloads it in the background, falls back while it isn't there.
 
@@ -696,12 +736,13 @@ class Speech:
             if not windows_can_hear(self.language):
                 return ""                                  # Windows has no recognizer for this language
             engine = self._fallback()
-        if not isinstance(engine, SherpaSpeech):
-            trimmed = trim_to_speech(audio, sample_rate)
-            if trimmed is None:
-                return ""
-            audio = trimmed
-        return engine.transcribe(audio, sample_rate)
+        with urgent():                                     # the user is waiting for this text
+            if not isinstance(engine, SherpaSpeech):
+                trimmed = trim_to_speech(audio, sample_rate)
+                if trimmed is None:
+                    return ""
+                audio = trimmed
+            return engine.transcribe(audio, sample_rate)
 
     def _fallback(self):
         if self.fallback is None:

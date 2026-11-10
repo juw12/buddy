@@ -35,6 +35,8 @@ Japanese, Korean, Thai, Vietnamese, German, Spanish, French and Cantonese have 1
   one sherpa-onnx engine directly, and `--detect` lets it name the language. The silence clips of round 1 run too
   (`--no-silence` skips them). The script exits with an error when a language fails or nothing was measured.
 * `my_words_safety.py`: runs My words over every transcript and counts each term it writes that nobody said.
+* `latency_load.py`: decodes the same clips at normal and at raised priority, with the PC as it is and
+  with every core busy, and exits non-zero when the raise changes nothing.
 * `tables_r2.py`: prints every table below from `results_r2/*.json`. No number in them is typed by hand.
 * `results_r2/*.json`: every transcript and the summary of each run. Folder paths of the test PC were replaced.
 
@@ -176,3 +178,22 @@ had already written it.
   replaced too ("Zaira's answer"). 1.2.0 left it alone. Adding the name to My words keeps it.
 * Across all round-1 result files this branch keeps 2 fewer jargon terms than the tightened letters rule,
   because real words are now replaced only when they sound exactly like the term.
+
+### Release to text on a busy PC
+
+| The PC | Clips | Decoded as 1.2.0 did, mean (median) | Decoded as shipped, mean (median) | Shipped faster on | Same text on |
+|---|---|---|---|---|---|
+| As it was | 6 | 4.80 s (4.44 s) | 1.02 s (1.00 s) | 6 of 6 | 6 of 6 |
+| Every core busy | 6 | 3.00 s (3.19 s) | 1.04 s (1.02 s) | 6 of 6 | 6 of 6 |
+
+Whisper base.en on English clips, 4 decode threads on 8 logical processors, 8 busy loops for the loaded row.
+
+* `latency_load.py` decodes every clip twice in each row through `keyit_speech.Speech`: once at normal
+  priority, which is how 1.2.0 decoded, and once as shipped. The order alternates from clip to clip.
+* As shipped, Buddy raises its own process to above-normal priority for the length of the decode and puts
+  it back afterwards, also after an error. A process that is not at normal priority is left alone.
+* "As it was" is the PC as the run found it, with other programs already using the processor. It is not
+  a calm PC: the plain decode was slower there than under the synthetic load. No calm PC was measured.
+* "Every core busy" adds one busy loop per logical processor at normal priority. The loops end by
+  themselves.
+* Buddy still decodes after the key is released. Decoding while the key is held is not built.

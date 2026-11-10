@@ -13,6 +13,7 @@ ORDER = ["en_us", "cmn_hans_cn", "yue_hant_hk", "id_id", "ms_my", "ja_jp", "ko_k
 BASELINE = ["v0_real_a_summary.json", "v0_real_b.json"]
 BRANCH = ["shipped_r2_a.json", "shipped_r2_b.json", "shipped_r2_c.json"]
 AUTO = "shipped_r2_auto.json"
+LATENCY = "latency_load.json"
 CANDIDATES = ["raw_omnilingual.json", "raw_dolphin_base.json", "raw_dolphin_small.json",
               "raw_sensevoice_fixed.json", "raw_whisper_base.json", "raw_whisper_base_detect.json"]
 SAFETY = [("Buddy 1.2.0", "my_words_safety_1.2.0.json"),
@@ -147,6 +148,24 @@ def safety():
     return table([""] + [label for label, _ in SAFETY], rows)
 
 
+def latency():
+    report = read(LATENCY)
+    if not report:
+        return "(not measured)"
+    rows = []
+    for name, result in report["conditions"].items():
+        rows.append([
+            name.capitalize(), result["clips"],
+            "%.2f s (%.2f s)" % (result["plain_mean_s"], result["plain_median_s"]),
+            "%.2f s (%.2f s)" % (result["raised_mean_s"], result["raised_median_s"]),
+            "%d of %d" % (result["raised_faster_on"], result["clips"]),
+            "%d of %d" % (result["same_text_on"], result["clips"])])
+    setup = "%s on %s clips, %d decode threads on %d logical processors, %d busy loops for the loaded row." % (
+        report["engine"], report["language"], report["threads"], report["processors"], report["burners"])
+    return table(["The PC", "Clips", "Decoded as 1.2.0 did, mean (median)", "Decoded as shipped, mean (median)",
+                  "Shipped faster on", "Same text on"], rows) + "\n\n" + setup
+
+
 def main():
     for title, text in (
         ("Buddy 1.2.0 against this branch, end to end", end_to_end()),
@@ -156,6 +175,7 @@ def main():
         ("Language detection", detection()),
         ("Cantonese script", cantonese()),
         ("My words safety", safety()),
+        ("Release to text on a busy PC", latency()),
     ):
         print("### %s\n\n%s\n" % (title, text))
 

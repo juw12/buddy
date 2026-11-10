@@ -1,4 +1,5 @@
 """Speech in: engine choice, settings migration, fallbacks, voice detection, resampling, dictation helpers."""
+import ctypes
 import io
 import os
 import sys
@@ -445,3 +446,66 @@ def test_voice_detector_ignores_noise_and_finds_speech():
     rng = np.random.default_rng(1)
     silence = (rng.standard_normal(speech.RATE * 2) * 0.002).astype(np.float32)
     assert detector.span(silence) is None
+
+
+def _priority():
+    """The Windows priority class of this process."""
+    kernel = ctypes.WinDLL("kernel32")
+    kernel.GetCurrentProcess.restype = ctypes.c_void_p
+    kernel.GetPriorityClass.argtypes = [ctypes.c_void_p]
+    kernel.GetPriorityClass.restype = ctypes.c_ulong
+    return kernel.GetPriorityClass(kernel.GetCurrentProcess())
+
+
+def _needs_normal_priority():
+    if sys.platform != "win32":
+        pytest.skip("Windows priority classes")
+    if _priority() != speech.NORMAL_PRIORITY:
+        pytest.skip("the tests were not started at normal priority")
+
+
+def test_urgent_raises_the_priority_and_puts_it_back():
+    _needs_normal_priority()
+    with speech.urgent():
+        assert _priority() == speech.ABOVE_NORMAL_PRIORITY
+        with speech.urgent():                               # a second recording decoded during the first
+            assert _priority() == speech.ABOVE_NORMAL_PRIORITY
+        assert _priority() == speech.ABOVE_NORMAL_PRIORITY  # the inner one does not end the outer one early
+    assert _priority() == speech.NORMAL_PRIORITY
+
+
+def test_urgent_puts_the_priority_back_after_an_error():
+    _needs_normal_priority()
+    with pytest.raises(RuntimeError):
+        with speech.urgent():
+            raise RuntimeError("the decode failed")
+    assert _priority() == speech.NORMAL_PRIORITY
+
+
+def test_urgent_leaves_a_priority_somebody_chose():
+    _needs_normal_priority()
+    below_normal = 0x00004000
+    assert speech._swap_priority(speech.NORMAL_PRIORITY, below_normal)
+    try:
+        with speech.urgent():
+            assert _priority() == below_normal
+        assert _priority() == below_normal
+    finally:
+        assert speech._swap_priority(below_normal, speech.NORMAL_PRIORITY)
+
+
+def test_transcribe_decodes_at_above_normal_priority(monkeypatch):
+    _needs_normal_priority()
+    seen = []
+
+    class Engine:
+        def transcribe(self, audio, sample_rate):
+            seen.append(_priority())
+            return "hello"
+
+    monkeypatch.setattr(speech, "trim_to_speech", lambda audio, sample_rate: audio)
+    listener = speech.Speech.__new__(speech.Speech)          # no model, no download: only the decode step
+    listener.engine = Engine()
+    assert listener.transcribe(np.zeros(1600, dtype=np.float32), 16000) == "hello"
+    assert seen == [speech.ABOVE_NORMAL_PRIORITY]
+    assert _priority() == speech.NORMAL_PRIORITY

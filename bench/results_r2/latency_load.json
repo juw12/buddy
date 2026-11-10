@@ -1,0 +1,129 @@
+{
+ "language": "English",
+ "engine": "Whisper base.en",
+ "threads": 4,
+ "processors": 8,
+ "burners": 8,
+ "conditions": {
+  "as it was": {
+   "clips": 6,
+   "plain_mean_s": 4.805,
+   "raised_mean_s": 1.025,
+   "plain_median_s": 4.44,
+   "raised_median_s": 1.0,
+   "raised_faster_on": 6,
+   "same_text_on": 6
+  },
+  "every core busy": {
+   "clips": 6,
+   "plain_mean_s": 3.002,
+   "raised_mean_s": 1.036,
+   "plain_median_s": 3.187,
+   "raised_median_s": 1.016,
+   "raised_faster_on": 6,
+   "same_text_on": 6
+  }
+ },
+ "rows": {
+  "as it was": [
+   {
+    "file": "1936362254666654691.wav",
+    "audio_seconds": 3.3,
+    "first": "plain",
+    "plain": 2.989,
+    "raised": 0.569,
+    "same_text": true
+   },
+   {
+    "file": "10305808618795196942.wav",
+    "audio_seconds": 9.32,
+    "first": "raised",
+    "plain": 4.573,
+    "raised": 1.24,
+    "same_text": true
+   },
+   {
+    "file": "11909868287041540501.wav",
+    "audio_seconds": 7.42,
+    "first": "plain",
+    "plain": 3.798,
+    "raised": 0.811,
+    "same_text": true
+   },
+   {
+    "file": "5260885647261312884.wav",
+    "audio_seconds": 7.4,
+    "first": "raised",
+    "plain": 4.306,
+    "raised": 0.76,
+    "same_text": true
+   },
+   {
+    "file": "2487832766827175700.wav",
+    "audio_seconds": 10.32,
+    "first": "plain",
+    "plain": 5.679,
+    "raised": 1.189,
+    "same_text": true
+   },
+   {
+    "file": "9925774476761884993.wav",
+    "audio_seconds": 11.8,
+    "first": "raised",
+    "plain": 7.483,
+    "raised": 1.581,
+    "same_text": true
+   }
+  ],
+  "every core busy": [
+   {
+    "file": "1936362254666654691.wav",
+    "audio_seconds": 3.3,
+    "first": "plain",
+    "plain": 2.101,
+    "raised": 0.554,
+    "same_text": true
+   },
+   {
+    "file": "10305808618795196942.wav",
+    "audio_seconds": 9.32,
+    "first": "raised",
+    "plain": 3.837,
+    "raised": 1.144,
+    "same_text": true
+   },
+   {
+    "file": "11909868287041540501.wav",
+    "audio_seconds": 7.42,
+    "first": "plain",
+    "plain": 3.229,
+    "raised": 0.888,
+    "same_text": true
+   },
+   {
+    "file": "5260885647261312884.wav",
+    "audio_seconds": 7.4,
+    "first": "raised",
+    "plain": 2.082,
+    "raised": 0.789,
+    "same_text": true
+   },
+   {
+    "file": "2487832766827175700.wav",
+    "audio_seconds": 10.32,
+    "first": "plain",
+    "plain": 3.145,
+    "raised": 1.156,
+    "same_text": true
+   },
+   {
+    "file": "9925774476761884993.wav",
+    "audio_seconds": 11.8,
+    "first": "raised",
+    "plain": 3.618,
+    "raised": 1.686,
+    "same_text": true
+   }
+  ]
+ }
+}
