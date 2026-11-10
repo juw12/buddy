@@ -434,17 +434,22 @@ class KeyItApp:
         self._build_voice_input(tab, row=7)
         self._build_look_row(tab, row=8)
 
+        self.file_ring_var = tk.BooleanVar(value=self.settings.get("buddy_file_ring", True))
+        ttk.Checkbutton(tab, text="File ring: hold Ctrl while dragging files (PDF, image, text, zip, ask)",
+                        variable=self.file_ring_var, command=self._on_file_ring_toggled).grid(
+            row=9, column=0, columnspan=3, sticky="w", pady=(8, 0))
+
         self.question_var = tk.StringVar()
         if self.host is None:                            # inside Buddy the ask box is on the Home tab
-            ttk.Label(tab, text="Or type").grid(row=9, column=0, sticky="w", pady=(12, 0))
+            ttk.Label(tab, text="Or type").grid(row=10, column=0, sticky="w", pady=(12, 0))
             entry = ttk.Entry(tab, textvariable=self.question_var)
-            entry.grid(row=9, column=1, sticky="ew", padx=8, pady=(12, 0))
+            entry.grid(row=10, column=1, sticky="ew", padx=8, pady=(12, 0))
             entry.bind("<Return>", lambda _e: self.ask_typed())
-            ttk.Button(tab, text="Ask", command=self.ask_typed).grid(row=9, column=2, pady=(12, 0))
+            ttk.Button(tab, text="Ask", command=self.ask_typed).grid(row=10, column=2, pady=(12, 0))
 
         self.buddy_status = ttk.Label(tab, foreground="#777", wraplength=430, justify="left",
                                       text="Runs 100% on this PC with Ollama. A screenshot is taken only when you ask.")
-        self.buddy_status.grid(row=10, column=0, columnspan=3, sticky="w", pady=(12, 0))
+        self.buddy_status.grid(row=11, column=0, columnspan=3, sticky="w", pady=(12, 0))
         self.refresh_models()
         self._load_voices()
         if self.settings["buddy_enabled"]:
@@ -720,6 +725,12 @@ class KeyItApp:
             self.buddy.overlay.set_style(self.settings["buddy_color"], self.settings["buddy_icon"])
         self._show_look()
 
+    def _on_file_ring_toggled(self):
+        self.settings["buddy_file_ring"] = self.file_ring_var.get()
+        core.save_settings(self.settings)
+        if self.buddy and self.buddy.file_ring:
+            self.buddy.file_ring.set_enabled(self.settings["buddy_file_ring"])
+
     def _on_cursor_always_toggled(self):
         self.settings["buddy_cursor_always"] = self.cursor_always_var.get()
         core.save_settings(self.settings)
@@ -769,12 +780,16 @@ class KeyItApp:
         self.hook.buddy = self.buddy
         self.buddy.overlay.set_always_on(self.settings["buddy_cursor_always"])
         self.buddy.set_island(self.settings.get("buddy_island", True), on_menu=self._open_settings_from_island)
+        if self.buddy.file_ring:
+            self.buddy.file_ring.set_enabled(self.settings.get("buddy_file_ring", True))
 
     def _stop_buddy(self):
         self.hook.buddy = None
         if self.buddy:
             self.buddy.overlay.set_always_on(False)     # brain off = no buddy by the mouse
             self.buddy.set_island(False)                # ... and no island
+            if self.buddy.file_ring:
+                self.buddy.file_ring.set_enabled(False)
             self.buddy.cancel()
         self._set_buddy_status("Buddy is off.")
 

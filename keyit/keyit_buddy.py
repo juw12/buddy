@@ -32,6 +32,7 @@ from ctypes import wintypes
 
 import numpy as np
 
+import buddy_files
 import buddy_island
 import buddy_overlay
 import keyit_actions
@@ -59,6 +60,7 @@ DEFAULTS = {
     "buddy_color": buddy_overlay.DEFAULT_COLOR,   # Settings -> Look: colour of the pointer and bubbles
     "buddy_icon": buddy_overlay.DEFAULT_ICON,     # Settings -> Look: arrow, pointer, plane, dot, star, heart, face
     "buddy_island": True,             # Buddy Island: a notch at the top of the screen (click = type, hold = talk)
+    "buddy_file_ring": True,          # hold Ctrl while dragging files from Explorer -> Buddy's file ring
     "buddy_engine": "auto",           # "free": Buddy's free cloud brain; "maas": company MAAS (smart, off-PC);
                                       # "auto": GPU when possible, else Ollama, else the free cloud brain;
                                       # "cpu": always Ollama
@@ -79,6 +81,9 @@ DICTATION_HISTORY = 20        # last dictations kept in memory (never on disk) f
 CHIME_SKIP_SECONDS = 0.25     # drop the start of the recording so speech recognition doesn't hear the chime
 SELECTION_MAX_CHARS = 4000
 HISTORY_TURNS = 4
+FILE_PROMPT = """
+
+The user dropped file(s) on you; their contents are in their message (an image file, if any, is the attached picture instead of a screenshot). Answer about the file(s) only: be concrete and short, quote numbers and names from the file. Do NOT use [POINT] or [DO] tags: there is no screen to point at."""
 
 SYSTEM_PROMPT = """You are KeyIt Buddy, a friendly expert tutor that lives next to the user's mouse cursor on Windows.
 You are given a screenshot of the user's current screen and their spoken question. Your reply is read aloud.
@@ -731,13 +736,14 @@ class AskBox:
     FIELD = "#2b2e40"
     MUTED = "#a9acbd"
 
-    def __init__(self, root, monitor, cursor, selection, on_submit):
+    def __init__(self, root, monitor, cursor, selection, on_submit, attachment=""):
         import tkinter as tk
 
         AskBox.close_current()
         AskBox.current = self
         self.root = root
         self.selection = selection
+        self.attachment = attachment
         self.on_submit = on_submit
         self.top = top = tk.Toplevel(root)
         top.overrideredirect(True)
@@ -748,6 +754,9 @@ class AskBox:
         inner.pack(padx=2, pady=2)
         tk.Label(inner, text="Ask Buddy", fg=accent, bg=self.INK,
                  font=("Segoe UI Semibold", 10)).pack(anchor="w")
+        if attachment:
+            tk.Label(inner, text=f"\U0001F4CE About the file: {attachment}", fg=self.MUTED, bg=self.INK,
+                     font=("Segoe UI", 9), wraplength=400, justify="left").pack(anchor="w", pady=(2, 0))
         if selection:
             preview = " ".join(selection.split())
             if len(preview) > 70:
@@ -761,6 +770,8 @@ class AskBox:
         hint = "Enter to ask  \u00b7  Esc to close"
         if selection:
             hint += "  \u00b7  just Enter = explain it"
+        elif attachment:
+            hint += "  \u00b7  just Enter = sum it up"
         tk.Label(inner, text=hint, fg=self.MUTED, bg=self.INK, font=("Segoe UI", 8)).pack(anchor="w", pady=(4, 0))
         self.entry.bind("<Return>", self.submit)
         self.entry.bind("<Escape>", lambda _event: self.close())
@@ -816,6 +827,8 @@ class AskBox:
         question = self.var.get().strip()
         if not question and self.selection:
             question = "Explain this."
+        if not question and self.attachment:
+            question = "Sum this up: what is it and what matters in it?"
         if not question:
             return
         self.close()
@@ -911,6 +924,13 @@ class Buddy:
         self.maas_failed_until = 0.0          # after an off-PC brain failure: local brain until this time
         self.local_missing = False            # "auto" and no local brain works here: use the free cloud brain
         self.windows = []                     # open windows when the question started (for actions)
+        self.file_ring = None
+        try:
+            self.file_ring = buddy_files.FileRing(root, post, self._on_files_dropped,
+                                                  accent=lambda: ACCENT["color"],
+                                                  enabled=self.settings["buddy_file_ring"])
+        except Exception:
+            logging.exception("File ring unavailable")
         threading.Thread(target=self._prepare, daemon=True).start()
 
     # -- setup
@@ -1441,7 +1461,10 @@ class Buddy:
         start with empty text, so Ollama can reuse the image work for the real question."""
         messages = [{"role": "system", "content": system}]
         messages += history
-        messages.append({"role": "user", "content": content, "images": [base64.b64encode(png).decode()]})
+        message = {"role": "user", "content": content}
+        if png:
+            message["images"] = [base64.b64encode(png).decode()]
+        messages.append(message)
         return messages
 
     # -- question flow (worker threads)
@@ -1471,12 +1494,12 @@ class Buddy:
 
         self.post(start)
 
-    def _ask(self, question, selection=""):
+    def _ask(self, question, selection="", attachment=None):
         if not self.busy.acquire(blocking=False):
             return
         generation = self.generation
         try:
-            self._ask_locked(question, generation, selection)
+            self._ask_locked(question, generation, selection, attachment)
         except Exception as error:
             logging.exception("Buddy error")
             self.post(self.overlay.thinking, self._explain_error(error))
@@ -1523,10 +1546,16 @@ class Buddy:
                            "Use it only when the question is about their day, focus or habits:\n" + context)
         return prompt
 
-    def _ask_locked(self, question, generation, selection=""):
+    def _ask_locked(self, question, generation, selection="", attachment=None):
         started = time.perf_counter()
-        look = self._take_look_ahead()
-        if look is not None:
+        look = None if attachment is not None else self._take_look_ahead()
+        if attachment is not None:
+            # A file dropped on the file ring: read the file, not the screen
+            png, targets = attachment.get("png"), None
+            system = self._system_prompt() + FILE_PROMPT
+            history = self.history[-2 * HISTORY_TURNS:]
+            wait_text = "Reading the file\u2026"
+        elif look is not None:
             # Screenshot from the moment the hotkey went down; Ollama may already have read it
             png, system, history = look["png"], look["system"], look["history"]
             targets = look["targets"]
@@ -1549,6 +1578,9 @@ class Buddy:
         content = question
         if selection:
             content += f"\n\nThe text I highlighted on screen:\n\"\"\"\n{selection[:SELECTION_MAX_CHARS]}\n\"\"\""
+        if attachment is not None:
+            content += (f"\n\nThe file(s) I dropped on you ({attachment['label']}):\n\"\"\"\n"
+                        f"{attachment['text']}\n\"\"\"")
         messages = self._messages(system, history, content, png)
 
         reply, spoken_upto = "", 0
@@ -1574,6 +1606,8 @@ class Buddy:
         remainder = parse_reply(reply.split("[")[0][spoken_upto:])[0]
         if remainder and self.settings["buddy_speak"]:
             self.speaker.say(remainder)
+        if attachment is not None:
+            points = []                                           # nothing on screen to point at
         points = self._snap_points(points, targets)
         screen_points = [to_screen(p, self.monitor) for p in points]
         self.history += [
@@ -1585,7 +1619,7 @@ class Buddy:
         self.last_timing = {"first_token_s": first, "total_s": total, "points": len(points)}
         self.on_status(f"Answered in {total:.1f}s (first words after {first:.1f}s)")
         logging.info("Answered in %.1fs: %r", total, " ".join(reply.split())[:200])
-        actions = keyit_actions.parse_actions(reply)
+        actions = keyit_actions.parse_actions(reply) if attachment is None else []
         if actions and not keyit_actions.is_request(question):
             logging.info("Not acting: '%s' is a how-to question", question)
             if not screen_points and targets is not None:
@@ -1614,6 +1648,79 @@ class Buddy:
         else:
             self.post(self.overlay.say, spoken)
             self.post(self.overlay.hide_later, 9000)
+
+    # -- files dropped on the file ring (UI thread)
+    def _on_files_dropped(self, action, paths):
+        monitor = monitor_under_cursor()
+        cursor = cursor_position()
+        names = [Path(path).name for path in paths]
+        label = names[0] if len(names) == 1 else f"{names[0]} + {len(names) - 1} more"
+        logging.info("File ring: %s on %s", action, names)
+        if action == "ask":
+            self.chime("buddy_wake")
+            AskBox(self.root, monitor, cursor, "", attachment=label,
+                   on_submit=lambda question: self.ask_about_files(question, paths, monitor))
+            return
+        if action == "text" and all(buddy_files.kind(path) == "image" for path in paths):
+            self.ask_about_files("Copy out all the text in this picture, exactly as written. Text only.",
+                                 paths[:1], monitor)
+            return
+        titles = {"pdf": "Making a PDF", "image": "Making pictures", "smaller": "Making it smaller",
+                  "zip": "Unzipping" if len(paths) == 1 and buddy_files.kind(paths[0]) == "zip" else "Zipping",
+                  "text": "Pulling out the text"}
+        self.overlay.attach(monitor)
+        self.overlay.position = self.overlay.local(*cursor)
+        self.overlay.thinking(f"{titles.get(action, action)}\u2026\n{label}")
+        threading.Thread(target=self._convert_files, args=(action, paths), daemon=True).start()
+
+    def _convert_files(self, action, paths):
+        try:
+            outputs, skipped = buddy_files.convert(action, paths)
+            message = buddy_files.summary(action, outputs, skipped)
+            logging.info("File ring %s: made %s, skipped %s", action, [str(path) for path in outputs], skipped)
+            if outputs:
+                self.chime("buddy_got_it")
+        except buddy_files.Skip as reason:
+            message = f"Can't do that: {reason}"
+        except Exception as error:
+            logging.exception("File ring %s failed", action)
+            message = f"That didn't work: {error}"
+        self.on_status(message.split("\n")[0])
+        self.post(self.overlay.say, message)
+        self.post(self.overlay.hide_later, 7000)
+
+    def ask_about_files(self, question, paths, monitor=None):
+        self.monitor = monitor or monitor_under_cursor()
+        cursor = cursor_position()
+
+        def start():
+            self.overlay.attach(self.monitor)
+            self.overlay.position = self.overlay.local(*cursor)
+            self.overlay.thinking(f"\u201c{question}\u201d\nReading the file\u2026")
+            threading.Thread(target=self._ask_about_files, args=(question, paths), daemon=True).start()
+
+        self.post(start)
+
+    def _ask_about_files(self, question, paths):
+        try:
+            simple = {".docx", ".docm", ".pptx", ".pptm", ".xlsx", ".xlsm"}
+            needs_office = any(buddy_files.kind(path) in ("pdf", "word", "excel")
+                               and Path(path).suffix.lower() not in simple for path in paths)
+            if needs_office:
+                with buddy_files.Office() as office:
+                    attachment = buddy_files.read_for_ask(paths, office)
+            else:
+                attachment = buddy_files.read_for_ask(paths)
+        except Exception as error:
+            logging.exception("Could not read the dropped files")
+            self.post(self.overlay.thinking, f"I couldn't read that file: {error}")
+            self.post(self.overlay.hide_later, 6000)
+            return
+        if not attachment["text"].strip() and attachment["png"] is None:
+            self.post(self.overlay.thinking, "That file looks empty to me.")
+            self.post(self.overlay.hide_later, 5000)
+            return
+        self._ask(question, attachment=attachment)
 
     # -- doing things
     def _do_actions(self, actions, targets, spoken, generation, question=""):
