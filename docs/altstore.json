@@ -22,8 +22,8 @@
       "versions": [
         {
           "version": "1.1.0",
-          "date": "2026-11-08",
-          "localizedDescription": "\u2022 Tidies half-finished update downloads every time Buddy starts\n\u2022 Removes the old-version safety copy once the new Buddy has run fine for 10 minutes\n\u2022 Includes 1.1.2: the hidden update helper now starts reliably on every PC, and the island shows download progress",
+          "date": "2026-11-10",
+          "localizedDescription": "\u2022 New: voice dictation (Ctrl+Alt+D)\n\u2022 Hold Ctrl+Alt+D, talk, let go: the text lands in mail, chat, PLM forms or Word. Tap once for hands-free, tap again to type. Esc cancels. Never touches the clipboard.\n\u2022 Drops \"um\"/\"uh\", follows spoken corrections (\"at three, no wait, at four\" types \"at four\"; \"... scratch that\" drops the sentence).\n\u2022 My words: your jargon, names and part numbers get fixed after recognition. Snippets expand short phrases.\n\u2022 Select text first and say \"make this shorter\" to edit it by voice.\n\u2022 Settings -> Type last dictation again / Copy last dictation; history of the last 20.\n\u2022 New speech engines (Settings -> Voice input -> Speech model: Auto)\n\u2022 English: Whisper base.en + Silero voice detection. Chinese / Cantonese / Japanese / Korean: SenseVoice. 24 other European languages: Parakeet V3.",
           "downloadURL": "https://github.com/juw12/buddy/releases/download/v1.1.0/Buddy-iOS.ipa",
           "size": 283340,
           "minOSVersion": "17.0"
