@@ -1,0 +1,450 @@
+{
+ "keyit": "buddy\\keyit",
+ "takes_language": true,
+ "lexicon_words": 177149,
+ "my_words": [
+  "SRM",
+  "PLM",
+  "BOM",
+  "eGreen",
+  "PureGMS",
+  "ZIRIS",
+  "Pega-Vision",
+  "Spec Green",
+  "Vendor Mapping",
+  "Notepad",
+  "Outlook"
+ ],
+ "texts": 684,
+ "texts_by_source": {
+  "fleurs reference": 150,
+  "heard": 245,
+  "round-1 reference": 16,
+  "round-1 heard": 232,
+  "near miss": 41
+ },
+ "english_words": 2532,
+ "runs": 2748,
+ "runs_changed_by_my_words": 218,
+ "wrong_replacements": 0,
+ "events": [],
+ "endings_changed": [],
+ "positive": {
+  "text": "Type Hello team, Bizaira's power test passed.",
+  "output": "Type Hello team, ZIRIS power test passed.",
+  "ok": true
+ },
+ "known_risk": [
+  {
+   "text": "Zaira's answer was wrong.",
+   "output": "ZIRIS answer was wrong."
+  }
+ ],
+ "jargon_kept_round_one": {
+  "B0_windows.json clean dictate": {
+   "said": 22,
+   "kept": 7,
+   "rate": 0.3182
+  },
+  "B0_windows.json clean ask": {
+   "said": 22,
+   "kept": 7,
+   "rate": 0.3182
+  },
+  "B0_windows.json noisy dictate": {
+   "said": 22,
+   "kept": 1,
+   "rate": 0.0455
+  },
+  "B0_windows.json noisy ask": {
+   "said": 22,
+   "kept": 1,
+   "rate": 0.0455
+  },
+  "B0_windows.json silence dictate": {
+   "said": 0,
+   "kept": 0,
+   "rate": null
+  },
+  "B0_windows.json silence ask": {
+   "said": 0,
+   "kept": 0,
+   "rate": null
+  },
+  "moonshine-base_vad.json clean dictate": {
+   "said": 22,
+   "kept": 15,
+   "rate": 0.6818
+  },
+  "moonshine-base_vad.json clean ask": {
+   "said": 22,
+   "kept": 15,
+   "rate": 0.6818
+  },
+  "moonshine-base_vad.json noisy dictate": {
+   "said": 22,
+   "kept": 15,
+   "rate": 0.6818
+  },
+  "moonshine-base_vad.json noisy ask": {
+   "said": 22,
+   "kept": 15,
+   "rate": 0.6818
+  },
+  "parakeet-v3_vad.json clean dictate": {
+   "said": 22,
+   "kept": 16,
+   "rate": 0.7273
+  },
+  "parakeet-v3_vad.json clean ask": {
+   "said": 22,
+   "kept": 16,
+   "rate": 0.7273
+  },
+  "parakeet-v3_vad.json noisy dictate": {
+   "said": 22,
+   "kept": 15,
+   "rate": 0.6818
+  },
+  "parakeet-v3_vad.json noisy ask": {
+   "said": 22,
+   "kept": 15,
+   "rate": 0.6818
+  },
+  "sensevoice_vad.json clean dictate": {
+   "said": 22,
+   "kept": 16,
+   "rate": 0.7273
+  },
+  "sensevoice_vad.json clean ask": {
+   "said": 22,
+   "kept": 16,
+   "rate": 0.7273
+  },
+  "sensevoice_vad.json noisy dictate": {
+   "said": 22,
+   "kept": 12,
+   "rate": 0.5455
+  },
+  "sensevoice_vad.json noisy ask": {
+   "said": 22,
+   "kept": 12,
+   "rate": 0.5455
+  },
+  "shipped.json clean dictate": {
+   "said": 22,
+   "kept": 18,
+   "rate": 0.8182
+  },
+  "shipped.json clean ask": {
+   "said": 22,
+   "kept": 18,
+   "rate": 0.8182
+  },
+  "shipped.json noisy dictate": {
+   "said": 22,
+   "kept": 17,
+   "rate": 0.7727
+  },
+  "shipped.json noisy ask": {
+   "said": 22,
+   "kept": 17,
+   "rate": 0.7727
+  },
+  "whisper-base.en.json clean dictate": {
+   "said": 22,
+   "kept": 18,
+   "rate": 0.8182
+  },
+  "whisper-base.en.json clean ask": {
+   "said": 22,
+   "kept": 18,
+   "rate": 0.8182
+  },
+  "whisper-base.en.json noisy dictate": {
+   "said": 22,
+   "kept": 17,
+   "rate": 0.7727
+  },
+  "whisper-base.en.json noisy ask": {
+   "said": 22,
+   "kept": 17,
+   "rate": 0.7727
+  },
+  "whisper-base.en.json silence dictate": {
+   "said": 0,
+   "kept": 0,
+   "rate": null
+  },
+  "whisper-base.en.json silence ask": {
+   "said": 0,
+   "kept": 0,
+   "rate": null
+  },
+  "whisper-base.en_vad.json clean dictate": {
+   "said": 22,
+   "kept": 18,
+   "rate": 0.8182
+  },
+  "whisper-base.en_vad.json clean ask": {
+   "said": 22,
+   "kept": 18,
+   "rate": 0.8182
+  },
+  "whisper-base.en_vad.json noisy dictate": {
+   "said": 22,
+   "kept": 17,
+   "rate": 0.7727
+  },
+  "whisper-base.en_vad.json noisy ask": {
+   "said": 22,
+   "kept": 17,
+   "rate": 0.7727
+  }
+ },
+ "dictionary_probe": {
+  "lexicon_words": 173219,
+  "single": {
+   "tested": 9,
+   "rewritten": 0,
+   "by_term": {},
+   "sample": []
+  },
+  "pair": {
+   "tested": 5396,
+   "rewritten": 56,
+   "by_term": {
+    "Spec Green": 1,
+    "Vendor Mapping": 1,
+    "Notepad": 27,
+    "Outlook": 27
+   },
+   "sample": [
+    [
+     "speck green",
+     "Spec Green"
+    ],
+    [
+     "vender mapping",
+     "Vendor Mapping"
+    ],
+    [
+     "n notepad",
+     "Notepad"
+    ],
+    [
+     "notepad a",
+     "Notepad"
+    ],
+    [
+     "notepad d",
+     "Notepad"
+    ],
+    [
+     "notepad e",
+     "Notepad"
+    ],
+    [
+     "notepad n",
+     "Notepad"
+    ],
+    [
+     "notepad o",
+     "Notepad"
+    ],
+    [
+     "notepad p",
+     "Notepad"
+    ],
+    [
+     "notepad t",
+     "Notepad"
+    ],
+    [
+     "notepad b",
+     "Notepad"
+    ],
+    [
+     "notepad c",
+     "Notepad"
+    ],
+    [
+     "notepad f",
+     "Notepad"
+    ],
+    [
+     "notepad g",
+     "Notepad"
+    ],
+    [
+     "notepad h",
+     "Notepad"
+    ],
+    [
+     "notepad i",
+     "Notepad"
+    ],
+    [
+     "notepad j",
+     "Notepad"
+    ],
+    [
+     "notepad k",
+     "Notepad"
+    ],
+    [
+     "notepad l",
+     "Notepad"
+    ],
+    [
+     "notepad m",
+     "Notepad"
+    ],
+    [
+     "notepad q",
+     "Notepad"
+    ],
+    [
+     "notepad r",
+     "Notepad"
+    ],
+    [
+     "notepad s",
+     "Notepad"
+    ],
+    [
+     "notepad u",
+     "Notepad"
+    ],
+    [
+     "notepad v",
+     "Notepad"
+    ],
+    [
+     "notepad w",
+     "Notepad"
+    ],
+    [
+     "notepad x",
+     "Notepad"
+    ],
+    [
+     "notepad y",
+     "Notepad"
+    ],
+    [
+     "notepad z",
+     "Notepad"
+    ],
+    [
+     "o outlook",
+     "Outlook"
+    ],
+    [
+     "outlook k",
+     "Outlook"
+    ],
+    [
+     "outlook l",
+     "Outlook"
+    ],
+    [
+     "outlook o",
+     "Outlook"
+    ],
+    [
+     "outlook t",
+     "Outlook"
+    ],
+    [
+     "outlook u",
+     "Outlook"
+    ],
+    [
+     "outlook a",
+     "Outlook"
+    ],
+    [
+     "outlook b",
+     "Outlook"
+    ],
+    [
+     "outlook c",
+     "Outlook"
+    ],
+    [
+     "outlook d",
+     "Outlook"
+    ],
+    [
+     "outlook e",
+     "Outlook"
+    ],
+    [
+     "outlook f",
+     "Outlook"
+    ],
+    [
+     "outlook g",
+     "Outlook"
+    ],
+    [
+     "outlook h",
+     "Outlook"
+    ],
+    [
+     "outlook i",
+     "Outlook"
+    ],
+    [
+     "outlook j",
+     "Outlook"
+    ],
+    [
+     "outlook m",
+     "Outlook"
+    ],
+    [
+     "outlook n",
+     "Outlook"
+    ],
+    [
+     "outlook p",
+     "Outlook"
+    ],
+    [
+     "outlook q",
+     "Outlook"
+    ],
+    [
+     "outlook r",
+     "Outlook"
+    ],
+    [
+     "outlook s",
+     "Outlook"
+    ],
+    [
+     "outlook v",
+     "Outlook"
+    ],
+    [
+     "outlook w",
+     "Outlook"
+    ],
+    [
+     "outlook x",
+     "Outlook"
+    ],
+    [
+     "outlook y",
+     "Outlook"
+    ],
+    [
+     "outlook z",
+     "Outlook"
+    ]
+   ]
+  }
+ }
+}

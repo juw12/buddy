@@ -1,0 +1,676 @@
+{
+ "code": "buddy",
+ "path": "raw dolphin-base",
+ "noise": "none (as recorded)",
+ "threads": 4,
+ "languages": {
+  "id_id": {
+   "name": "Indonesian",
+   "setting": "id-ID",
+   "engine": "dolphin-base",
+   "unit": "word",
+   "clips": 10,
+   "error_pct": 43.8,
+   "decode_mean_s": 11.5,
+   "decode_p90_s": 18.43,
+   "audio_mean_s": 13.2
+  },
+  "ms_my": {
+   "name": "Malay",
+   "setting": "ms-MY",
+   "engine": "dolphin-base",
+   "unit": "word",
+   "clips": 10,
+   "error_pct": 28.1,
+   "decode_mean_s": 8.76,
+   "decode_p90_s": 12.94,
+   "audio_mean_s": 10.3
+  },
+  "th_th": {
+   "name": "Thai",
+   "setting": "th-TH",
+   "engine": "dolphin-base",
+   "unit": "char",
+   "clips": 10,
+   "error_pct": 19.2,
+   "decode_mean_s": 10.44,
+   "decode_p90_s": 14.96,
+   "audio_mean_s": 13.4
+  },
+  "vi_vn": {
+   "name": "Vietnamese",
+   "setting": "vi-VN",
+   "engine": "dolphin-base",
+   "unit": "word",
+   "clips": 10,
+   "error_pct": 26.2,
+   "decode_mean_s": 11.8,
+   "decode_p90_s": 20.98,
+   "audio_mean_s": 14.7
+  },
+  "ja_jp": {
+   "name": "Japanese",
+   "setting": "ja-JP",
+   "engine": "dolphin-base",
+   "unit": "char",
+   "clips": 10,
+   "error_pct": 22.1,
+   "decode_mean_s": 5.77,
+   "decode_p90_s": 8.96,
+   "audio_mean_s": 12.5
+  },
+  "ko_kr": {
+   "name": "Korean",
+   "setting": "ko-KR",
+   "engine": "dolphin-base",
+   "unit": "char",
+   "clips": 10,
+   "error_pct": 13.8,
+   "decode_mean_s": 6.41,
+   "decode_p90_s": 9.93,
+   "audio_mean_s": 11.0
+  }
+ },
+ "rows": [
+  {
+   "language": "id_id",
+   "file": "274424245165549060.wav",
+   "said": "Telepon satelit biasanya bukan merupakan pengganti telepon seluler karena Anda harus berada di luar ruangan dengan jarak pandang yang jelas ke satelit untuk menelepon.",
+   "heard": "telepon  sali biasanya bukan merupakan pengganti telepon seluler karena Anda harus berada di luar ruangan dengan jarak pandang yang jelas keatit untuk menelepon",
+   "errors": 3,
+   "units": 24,
+   "seconds": 10.968,
+   "audio_seconds": 11.64
+  },
+  {
+   "language": "id_id",
+   "file": "4373874978544645121.wav",
+   "said": "\"Perangko ke-1000-nya adalah \"Karya Besar Raja Swedia\" oleh David KlÃ¶cker Ehrenstrahl di tahun 2000, yang terdaftar di Buku Rekor Dunia Guinness.\"",
+   "heard": "perangangkasenya adalah karya besar Rarajaswedi. oleh Davidaker tal di tahun dua ribu yang terdaftar dipupu rekordon dunia Gines",
+   "errors": 16,
+   "units": 24,
+   "seconds": 17.991,
+   "audio_seconds": 18.06
+  },
+  {
+   "language": "id_id",
+   "file": "7723504040304129741.wav",
+   "said": "108 piring Chhappan Bhog (dalam Hinduisme berupa 56 benda berbeda yang dapat dimakan, seperti permen, buah-buahan, kacang-kacangan, santapan dan lain sebagainya yang dipersembahkan kepada dewa) disajikan kepada Baba Shyam.",
+   "heard": "ratus dalam merupakan lima benda berbeda yang dapatdimakan, seperti permenpu kacang-,pan dan lain sebagainya yang diperbahkan kepadadewa disajikan kepadaBasiam.",
+   "errors": 20,
+   "units": 31,
+   "seconds": 22.42,
+   "audio_seconds": 22.02
+  },
+  {
+   "language": "id_id",
+   "file": "1845376674480909079.wav",
+   "said": "Dalam kemitraan NPWS dan Sporting Shooters Association of Australia (NSW) Inc, relawan yang telah memenuhi syarat direkrut lewat program berburu Sporting Shooters Association.",
+   "heard": "dalam kementraan NB VS dan sporting switter asosiation of Australia NS ing relawan yang telah memenuhi syarat direkrut lewat program pergurus sporting steras asosiation",
+   "errors": 10,
+   "units": 23,
+   "seconds": 14.399,
+   "audio_seconds": 14.16
+  },
+  {
+   "language": "id_id",
+   "file": "8907202116760567555.wav",
+   "said": "Ini menjadi praktik yang umum, tetapi besi menyebabkan roda kayu pada kereta lebih cepat rusak.",
+   "heard": "ini menjadi praktik yang umum tetapi besi menyebabkan roda kayu pada kereta lebih cepat rusak",
+   "errors": 0,
+   "units": 15,
+   "seconds": 5.592,
+   "audio_seconds": 7.32
+  },
+  {
+   "language": "id_id",
+   "file": "18434802371917049530.wav",
+   "said": "Anggota subkultur biasanya menandai keanggotaan mereka melalui penggunaan gaya yang khas dan simbolis, di antaranya mode, perangai, dan argot.",
+   "heard": "anggota subkulturbiasanya menandai keanggotaan mereka melalui penggunaan gaya de khas dan simbollis diantaranya mode, perangai dan arkot.",
+   "errors": 7,
+   "units": 19,
+   "seconds": 11.938,
+   "audio_seconds": 15.06
+  },
+  {
+   "language": "id_id",
+   "file": "6776418430917219807.wav",
+   "said": "\"Berkaitan dengan tempatnya yang relatif sulit untuk diakses, \"Timbuktu\" telah digunakan sebagai metafora untuk negeri yang eksotis dan jauh.\"",
+   "heard": "perkaitan dengan tempat nya relatif sulit untukaksesk telah digunakan sebagai na untuk negeri yang ekso  jauh",
+   "errors": 9,
+   "units": 19,
+   "seconds": 9.151,
+   "audio_seconds": 13.44
+  },
+  {
+   "language": "id_id",
+   "file": "7597123174559418821.wav",
+   "said": "Buaya air asin tidak aktif hidup di laut, habitat utamanya adalah di muara sungai sebelah utara dari Rockhampton.",
+   "heard": "Buayaaya air asing tidak aktif hidup di laut, habittan utamanya adalah di muara sungai sebelah utara dari rock handton.",
+   "errors": 5,
+   "units": 18,
+   "seconds": 9.207,
+   "audio_seconds": 12.3
+  },
+  {
+   "language": "id_id",
+   "file": "2789951427092930973.wav",
+   "said": "Buddhisme Tibet memakai landasan ajaran Buddha, tetapi kemudian memperluasnya dengan tumpuan kasih mahayana dan dengan banyak teknik dari Yoga India.",
+   "heard": "Budi memakailandajaran  kemudianluas  kasihMa nik dari yo",
+   "errors": 19,
+   "units": 20,
+   "seconds": 7.874,
+   "audio_seconds": 11.52
+  },
+  {
+   "language": "id_id",
+   "file": "1004101932027003160.wav",
+   "said": "Walau ada tiga orang di dalam rumah yang ditabrak mobil, tak satu pun yang cedera.",
+   "heard": "Wu ada tiga orang di dalam rumah yang ditbrak mobil tak satu pun yang cedera.",
+   "errors": 2,
+   "units": 15,
+   "seconds": 5.427,
+   "audio_seconds": 6.48
+  },
+  {
+   "language": "ms_my",
+   "file": "759553005140813613.wav",
+   "said": "Para saintis berpendapat bahawa harimau oselot mengekori dan mencari haiwan untuk dimakan (Mangsa) melalui deria bau iaitu menghidu tanah yang pernah dilaluinya.",
+   "heard": "Para sanantis berpendapat bahawa harimau Osload mengekori dan mencari haiwan untuk dimakan mangsa melaluidu dunia bau iaitu menghidu tanah yang pernah dilaluinya.",
+   "errors": 4,
+   "units": 22,
+   "seconds": 10.314,
+   "audio_seconds": 10.98
+  },
+  {
+   "language": "ms_my",
+   "file": "8739523917931586954.wav",
+   "said": "Pilihan yang semakin popular bagi mereka yang merancang untuk jurang tahun adalah melalui mengembara dan belajar.",
+   "heard": "Kelihan yang semakin popuer bagi mereka yang merancang untuk jurang tahun adalah melalui mengembara dan belajar.",
+   "errors": 2,
+   "units": 16,
+   "seconds": 6.527,
+   "audio_seconds": 8.16
+  },
+  {
+   "language": "ms_my",
+   "file": "7633714963654601498.wav",
+   "said": "Ia telah dijadualkan untuk dipotong pada hari Selasa, tapi diselamatkan setelah keputusan mahkamah darurat.",
+   "heard": "Ia telah dijaduwalalkan untuk dipotong pada hari Seasa, tapi diselamatkan setelah keputusan mahkamah darurat.",
+   "errors": 2,
+   "units": 14,
+   "seconds": 6.327,
+   "audio_seconds": 9.66
+  },
+  {
+   "language": "ms_my",
+   "file": "13557221862447366233.wav",
+   "said": "Penyelidikan dalam Al melibatkan pembuatan mesin untuk mengautomasi tugasan yang memerlukan tingkah laku pintar.",
+   "heard": "Pyelidikan dalam AI melibatkan pembuatan mesin untuk mengatomasiTuyaaz memerlukan tinggal laku pintar.",
+   "errors": 6,
+   "units": 14,
+   "seconds": 5.154,
+   "audio_seconds": 7.56
+  },
+  {
+   "language": "ms_my",
+   "file": "10709804504162732484.wav",
+   "said": "Matlamat utama sains adalah untuk mengetahui cara dunia berfungsi melalui kaedah saintifik. Kaedah ini sebenarnya membimbing kebanyakan penyelidikan saintifik.",
+   "heard": "matlama ins adalah mengetahui ber melalui kadahtifdah mengbibing kebanyakan penyelidikan santif.",
+   "errors": 14,
+   "units": 19,
+   "seconds": 10.362,
+   "audio_seconds": 12.6
+  },
+  {
+   "language": "ms_my",
+   "file": "3541312550087120529.wav",
+   "said": "Sebahagian besar kehidupan keluarga Ibrani berlaku dalam persekitaran terbuka.",
+   "heard": "Sebahagian besar kele kehidupan keluarga ibraani berlaku dalam persekitaran terbuka.",
+   "errors": 2,
+   "units": 9,
+   "seconds": 4.917,
+   "audio_seconds": 5.34
+  },
+  {
+   "language": "ms_my",
+   "file": "16296076837169749770.wav",
+   "said": "Syarikat penghantar dibayar dengan lumayan untuk menghantar barang dengan cepat. Seringkali, masa sangat penting dengan dokumen perniagaan, dagangan atau alat ganti untuk pembaikan kecemasan.",
+   "heard": "Syarrikat peng menghantar dibayar dengan lumayan untuk menghantar barang dengan cepat seringkali masa sangat penting dengan dokemen perniagaan dagangan atau alat ganti untuk perbaikan kecemasan.",
+   "errors": 5,
+   "units": 24,
+   "seconds": 12.189,
+   "audio_seconds": 12.84
+  },
+  {
+   "language": "ms_my",
+   "file": "11044632816167582883.wav",
+   "said": "Tiga lagi bom meletup berhampiran bangunan kerajaan dalam tempoh dua jam.",
+   "heard": "Tiga lagi bom meletup berhampiran bangunan kerajaan dalam tempoh dua jam.",
+   "errors": 0,
+   "units": 11,
+   "seconds": 5.75,
+   "audio_seconds": 6.36
+  },
+  {
+   "language": "ms_my",
+   "file": "5451540922205905111.wav",
+   "said": "Di seluruh Amerika Syarikat, terdapat sekitar 400,000 kes Sklerosis Berbilang (MS) yang diketahui, yang membuatkannya menjadi penyakit neurologikal paling banyak pada dewasa muda dan pertengahan umur.",
+   "heard": "Di seluruh Amerika Syarrikat terdapat sekitar empat ratus ribu kes ssklerosis berbilang yang ni MS yang diketahuiYang membuatkannya menjadi penyakit Neorrologologikal paling banyak pada dewasa, muda dan pertengahan umur.",
+   "errors": 10,
+   "units": 27,
+   "seconds": 19.654,
+   "audio_seconds": 20.58
+  },
+  {
+   "language": "ms_my",
+   "file": "4850574328365529103.wav",
+   "said": "Beribu-ribu tahun dahulu, seorang lelaki bernama Aristarchus berkata bahawa Sistem Suria bergerak mengelilingi Matahari.",
+   "heard": "Bearibu ribu tahun dahulu seorang lelaki bernama Aristarcheress berkata bahawa sistem Suurriah bergerak mengelilingi matahari.",
+   "errors": 3,
+   "units": 15,
+   "seconds": 6.456,
+   "audio_seconds": 8.76
+  },
+  {
+   "language": "th_th",
+   "file": "5709995114385044292.wav",
+   "said": "อาหารพื้นเมืองของชาวมายอร์กาซึ่งคล้ายคลึงกับอาหารในแถบเมดิเตอร์เรเนียน ในการใช้ขนมปัง ผักและเนื้อสัตว์ (โดยเฉพาะเนื้อหมู) เป็นหลัก และมักใช้น้ำมันมะกอกสำหรับทุกอย่าง",
+   "heard": "อาหาร ພ້ນเมืองອງ ของ ชาวมากา. ซึ่ง คล้าย ຄຶ່ງ ກັບ อาหาร ໃນ แທ ມດເຕຣเนียນ ໃນ ການ ใช้ ขนม ปง ผັກ และ ສັດ. ເດโดยเฉพาะเนื้อ หมู ເປັນ หลัก  ແລະ ມັກ ใช้ น้ํามัน ມາ ກອກ สําหรับັບ ກทุกอย่าง.",
+   "errors": 69,
+   "units": 160,
+   "seconds": 17.598,
+   "audio_seconds": 17.88
+  },
+  {
+   "language": "th_th",
+   "file": "9190691213982595839.wav",
+   "said": "เป้าหมายสำคัญของวิทยาศาสตร์คือการค้นหาวิธีการทำงานของโลกผ่านระเบียบวิธีทางวิทยาศาสตร์ ที่จริงแล้ววิธีการนี้ถือเป็นแนวทางการทำงานสำหรับการวิจัยทางวิทยาศาสตร์แทบทั้งหมด",
+   "heard": "หมายสําคัญของ วิทยาศาสตร์ คือ การค้นหาวิธีการทํางาน ของ โลก ผ่านระเบียบทางวิทยาศาสตร์ แแท้ที่จริงแล้ว นี้ ถือ เป็น แนวทาง การทํางาน สําหรับการวิจัย ทางวิทยาศาสตร์แทบ ทั้งหมด",
+   "errors": 19,
+   "units": 169,
+   "seconds": 12.689,
+   "audio_seconds": 16.38
+  },
+  {
+   "language": "th_th",
+   "file": "8776916306567991928.wav",
+   "said": "ตำรวจกล่าวว่า ดูเหมือนศพจะอยู่ตรงนั้นมาประมาณหนึ่งวันแล้ว",
+   "heard": "ตํารวจ กล่าว ว่า ดูเหมือนศพ จะอยู่ ตรง มา ประมาณ หนึ่ง วัน แล้ว",
+   "errors": 4,
+   "units": 57,
+   "seconds": 4.973,
+   "audio_seconds": 6.12
+  },
+  {
+   "language": "th_th",
+   "file": "16752839512371888944.wav",
+   "said": "ทัวร์นาเมนต์ที่ใหญ่ที่สุดของปีจัดขึ้นในเดือนธันวาคมที่สนามโปโลในลาสคาญิตัส",
+   "heard": "่วนาเเม้น ที่ ใหญ่ ที่สุด ของ ปี จัดขึ้น ใน เดือน ธันวาคม ที่ สนาม โป์โล ในลาซ คายีตัส",
+   "errors": 12,
+   "units": 74,
+   "seconds": 4.856,
+   "audio_seconds": 8.22
+  },
+  {
+   "language": "th_th",
+   "file": "12727282274423874903.wav",
+   "said": "คุณสมบัติต่าง ๆ ที่กำหนดว่าวัฒนธรรมย่อยหนึ่ง ๆ นั้นมีความแตกต่างชัดเจนอาจเป็นภาษาศาสตร์ สุนทรียศาสตร์ ศาสนา การเมือง เรื่องเกี่ยวกับเพศ ภูมิศาสตร์ หรือปัจจัยหลายอย่างรวมกัน",
+   "heard": "คุณสมบัติต่าง ที่ กําหนด ว่า วัฒนธรรม ย่อย ๑๑ หนึ่ง นั้น มี ความ แตกต่าง ชัดเจน อาจเป็น ภาษาภาษาศาสตร์สุทรริยศาสตร์ ศาสนา การเมือง เรื่อง เกี่ยวกับ เพศ ภูมิศาสตร์ หรือ ปัจจัย หลาย อย่าง รวม กัน",
+   "errors": 11,
+   "units": 163,
+   "seconds": 11.983,
+   "audio_seconds": 16.44
+  },
+  {
+   "language": "th_th",
+   "file": "152000928591649369.wav",
+   "said": "ฤดูหนาวอาจหนาวเย็นผิดคาด กล่าวคือแม้อุณหภูมิเองนั้นแทบไม่ลดลงต่ำกว่าจุดเยือกแข็ง แต่จะทำให้รู้สึกหนาวกว่าที่เทอร์โมมิเตอร์บอกเนื่องจากลมและความชื้น",
+   "heard": "ฤดูหนาวอ่านหนาวเย็นผิดท่า กล่าว คือแม้อุณหภูมิเองนั้น แทบ ไม่ลดลงต่ํา กว่าจุดแขนแต่จะทําให้หนาวที่โทรวิบอกเนื่องจากลง และ ความชีวิต้น",
+   "errors": 38,
+   "units": 147,
+   "seconds": 12.062,
+   "audio_seconds": 14.1
+  },
+  {
+   "language": "th_th",
+   "file": "7851977195513068729.wav",
+   "said": "เธอได้ข้อสรุปนี้จากความคิดเห็นเชิงบวกและกำลังใจที่มีคนส่งให้เธออย่างล้นหลามทั้งหญิงและชาย พร้อมกับเร่งเร้าให้จัดว่ายาคุมกำเนิดถือเป็นความจำเป็นทางการแพทย์",
+   "heard": "เธอ ได้ ข้อสรุป นี้ จาก ความคิดเห็นเชิง บัว และ กําลังใจ ที่ มี คน ส่ง ให้ เธอ อย่าง ล้นหลาม ทั้ง ชาย และ หญิงพร้อมกับ เร่งเล่า ให้ จัดให้ จัด ว่า ยาคุม กําเนิด ถือ เป็น ความ จําเป็น ทาง การแพทย์",
+   "errors": 18,
+   "units": 156,
+   "seconds": 7.01,
+   "audio_seconds": 17.04
+  },
+  {
+   "language": "th_th",
+   "file": "2385452212954449275.wav",
+   "said": "ชาวโปรตุเกสทำลายที่นี่แล้วสร้างขึ้นใหม่โดยตั้งชื่อว่า Casa Branca เพียงเพื่อจะละทิ้งมันหลังเกิดแผ่นดินไหวในปี 1755",
+   "heard": "ชาวโปรตุກ ทําร้าย ที่นี่ แล้วสร้าง ขึ้น ใหม่ โดยตั้งชื่อ ว่า คาซารังກ เพียง  จะละทิ้ง หลังเกิดแผ่นดิน ไหว ใน ปีີ หนึ่ง๗ຫ๕。",
+   "errors": 32,
+   "units": 111,
+   "seconds": 9.631,
+   "audio_seconds": 12.36
+  },
+  {
+   "language": "th_th",
+   "file": "6902590038220118204.wav",
+   "said": "คุณสามารถมองเห็นพีระมิดได้ในความมืด และสามารถมองเห็นได้ในช่วงเงียบสงบก่อนที่การแสดงจะเริ่มขึ้น",
+   "heard": "คุณสามารถ มองเห็น พลรมมิตร ได้ ใน ความ มืด และ สามารถมองเห็นได้ ใน ในช่วง เงียบสงบ ก่อน ที่ การ แสดง จะ เริ่มขึ้น",
+   "errors": 6,
+   "units": 93,
+   "seconds": 8.896,
+   "audio_seconds": 9.48
+  },
+  {
+   "language": "th_th",
+   "file": "6814456366632532329.wav",
+   "said": "บริษัทจัดส่งได้รับค่าตอบแทนที่ดีสำหรับการจัดส่งสิ่งต่าง ๆ อย่างรวดเร็ว บ่อยครั้งที่เวลามีความสำคัญมากกับเอกสารทางธุรกิจ สินค้า หรืออะไหล่สำหรับการซ่อมแซมเร่งด่วน",
+   "heard": "บริษัท จัดส่ง ได้รับ ค่าตอบแทนที่ดี สําหรับการ จัดส่ง สิ่งต่าง อย่างรวดเร็วบ่อยที่ กับเอกสารทางธุรกิจสินค้า อะไร่ การซ่อมแซมเร่งด่วน",
+   "errors": 38,
+   "units": 159,
+   "seconds": 14.666,
+   "audio_seconds": 16.02
+  },
+  {
+   "language": "vi_vn",
+   "file": "14135486895615497173.wav",
+   "said": "Arly Velasquez của Mexico về thứ mười lăm trong giải trượt ngồi Super-G dành cho nam. Adam Hall đến từ New Zealand đã xếp thứ chín trong bảng xếp hạng Super G trượt đứng dành cho nam.",
+   "heard": "Alivest củaxi con về thứười lă trong giảiợng  dành cho nam rammn đến từ newzeland đãxếp thứ trong xếp spb duyợ đứng dành cho nam",
+   "errors": 24,
+   "units": 38,
+   "seconds": 20.652,
+   "audio_seconds": 21.0
+  },
+  {
+   "language": "vi_vn",
+   "file": "9443759897372819477.wav",
+   "said": "Các nhà khoa học cho biết vụ va chạm đã gây ra vụ nổ rất lớn.",
+   "heard": "các nhà pha học cho biết vụ va chạm đã gây o vụng ng nổ rất lớn",
+   "errors": 4,
+   "units": 16,
+   "seconds": 4.578,
+   "audio_seconds": 7.74
+  },
+  {
+   "language": "vi_vn",
+   "file": "4193038624446861874.wav",
+   "said": "NHK cũng thông tin rằng nhà máy hạt nhân Kashiwazaki Kariwa tại quận Niigata đã hoạt động bình thường.",
+   "heard": "N  H ca cũng thông tin rằng nhà  máy hạt nhân ca SiwazakiKariwa tại quận  đigata đang hoạt động  bình thường",
+   "errors": 7,
+   "units": 19,
+   "seconds": 5.333,
+   "audio_seconds": 12.6
+  },
+  {
+   "language": "vi_vn",
+   "file": "15409807402987269035.wav",
+   "said": "Nhiều định dạng phổ biến (ví dụ, tập định dạng APS) tương đương hoặc gần xấp xỉ tỷ lệ khung hình này.",
+   "heard": "nhiều định dạngn phổ biến ví dụ tập định dạng ab tương đương hoặc gần sắp xỉ tỷ lệ cung hình này",
+   "errors": 4,
+   "units": 22,
+   "seconds": 5.849,
+   "audio_seconds": 11.64
+  },
+  {
+   "language": "vi_vn",
+   "file": "9295877030604668222.wav",
+   "said": "Môi trường mới này có những nguồn lực khác và những đối thủ cạnh tranh khác, vì thế dân số mới sẽ cần những đặc điểm hoặc khả năng thích nghi khác để trở thành một đối thủ cạnh tranh hùng mạnh hơn những gì họ vốn có trước kia.",
+   "heard": "môi trường mới có những nguồn lực khác và những đối thủ cạnh tranh khác vì thế dân số mới sẽ cần những đặc điểm hoặc khả năng thích nghi khác để trở thành một đội thủ cạnh tranh hùng mạnh hơn những người họ vốn có trước kia",
+   "errors": 3,
+   "units": 50,
+   "seconds": 8.945,
+   "audio_seconds": 17.88
+  },
+  {
+   "language": "vi_vn",
+   "file": "1139741953038979336.wav",
+   "said": "Cấu trúc của lông vũ gợi ý rằng bộ lông này không dùng để bay mà để kiểm soát nhiệt độ cơ thể hoặc để khoe mẽ. Các nhà nghiên cứu cho rằng, mặc dù đây là đuôi của một con khủng long non, mẫu vật thể hiện một bộ lông trưởng thành chứ không phải là lông tơ.",
+   "heard": "cấu trúc củaâm vũ gãy gần bộ lô này không dùng để bay mà để kiểm soát nhiệt độ cơ thể hoặc để khoem mẹ các nhà nghiên cứu cho gần mặc dù đây là đôi của một con khúng long non mẫu giặcth thể hiện một bộ lô trưởng thành chứ không phải là Lâmơ",
+   "errors": 15,
+   "units": 59,
+   "seconds": 20.666,
+   "audio_seconds": 29.94
+  },
+  {
+   "language": "vi_vn",
+   "file": "4767212356465567922.wav",
+   "said": "Các ca sĩ nổi tiếng trên khắp cả nước trình bày bhajan hoặc các bài hát mộ đạo tại chân của Shri Shyam.",
+   "heard": "các ca sĩ nổi chiến trên khắp cả nước trình bày ha gian hoặc các bài hát mộ đạo tại  chân cổ syri hyam",
+   "errors": 6,
+   "units": 23,
+   "seconds": 23.771,
+   "audio_seconds": 16.98
+  },
+  {
+   "language": "vi_vn",
+   "file": "754647434841407406.wav",
+   "said": "Tuy nhiên, tiếng Catalan được dùng để biểu thị hầu hết các ký hiệu vì đây chính là ngôn ngữ chính thức đầu tiên theo luật pháp.",
+   "heard": "tuy nhiên tiếng cata lan được dùng để biểu thị hầu hết các kế hiệu vì đây chính là ngônng ngữ chính thức đầu tiên theo luật pháp",
+   "errors": 4,
+   "units": 27,
+   "seconds": 15.132,
+   "audio_seconds": 14.88
+  },
+  {
+   "language": "vi_vn",
+   "file": "17682974477772279405.wav",
+   "said": "Những lý thuyết này gợi ý rằng con người có một số nhu cầu và/hoặc ham muốn nhất định được tiếp thu từ bên ngoài khi họ trưởng thành.",
+   "heard": "những lý này gửi rằng con người có một số nhu cầu và hoặc ham muốn nhất định được tiêu thu từ bên ngoài khi họ trưởng thành",
+   "errors": 4,
+   "units": 30,
+   "seconds": 9.909,
+   "audio_seconds": 9.3
+  },
+  {
+   "language": "vi_vn",
+   "file": "13437406558219017678.wav",
+   "said": "Cà ri có thể “khô” hoặc “ướt” tùy vào lượng nước sốt trong đó.",
+   "heard": "có thể khô và ước tù vào lĩnh sốt trong đó",
+   "errors": 7,
+   "units": 14,
+   "seconds": 3.174,
+   "audio_seconds": 5.16
+  },
+  {
+   "language": "ja_jp",
+   "file": "6880719872484767745.wav",
+   "said": "このダイナミックな往復輸送においては、誰もが自家用車をベースにした輸送系と何らかの形でつながり、それを支えています。",
+   "heard": "このダイナミックな往復輸送においては誰もが自家用車をベースにした輸送系と何らかの形でつながりそれを支えています。",
+   "errors": 0,
+   "units": 55,
+   "seconds": 7.556,
+   "audio_seconds": 15.96
+  },
+  {
+   "language": "ja_jp",
+   "file": "15315349494137115815.wav",
+   "said": "ニュート・ジングリッチ元下院議長、リック・ペリーテキサス州知事、ミケーレ・バックマン下院議員がそれぞれ4位、5位、6位に入りました。",
+   "heard": "ニュートジングリッッチ元下院議長リッック・ペリーテクサス州知事未ケレバックッグマン下院議員がそれぞれ45位五位六位に入りました。",
+   "errors": 10,
+   "units": 58,
+   "seconds": 5.096,
+   "audio_seconds": 13.98
+  },
+  {
+   "language": "ja_jp",
+   "file": "10339149383603832153.wav",
+   "said": "興味をそそられる村を30分ほど散策するのは価値があります。",
+   "heard": "興味をそそられる村を三十分ほど散策するのは歌事があります",
+   "errors": 4,
+   "units": 28,
+   "seconds": 1.805,
+   "audio_seconds": 7.98
+  },
+  {
+   "language": "ja_jp",
+   "file": "13500619166784260063.wav",
+   "said": "手工芸品は、大量生産された類似品よりも歴史は浅いのですが、骨董品と定義されることもあります。",
+   "heard": "歯減品は大量生産された一品よりも歴史は浅いのですが骨董品と定義されることもあります。",
+   "errors": 5,
+   "units": 43,
+   "seconds": 3.265,
+   "audio_seconds": 9.96
+  },
+  {
+   "language": "ja_jp",
+   "file": "17595107070656151202.wav",
+   "said": "従来の地上レーダー型技術とは対照的な衛星型技術を採用しており、管制官がより正確に航空機を特定し、より正確な情報を操縦士に提供できるようになっている。",
+   "heard": "従来の地上レーダー型技術は対照的な衛星型技術を採利用用しており管官がより正確に航空機を特定しより正確な情報操縦所に提供できるようになっている。",
+   "errors": 6,
+   "units": 71,
+   "seconds": 6.214,
+   "audio_seconds": 15.06
+  },
+  {
+   "language": "ja_jp",
+   "file": "5737391341571244470.wav",
+   "said": "最初のレースはスラロームでしたが、彼女は最初の滑走でリタイア（Did Not Finish）となりました。このレースでは116人の選手のうち36人が同じ結果となりました。",
+   "heard": "最初のレースはスラロームでしたが彼女は最初の滑想でタイディズフィンとなりましたこのレースでは百十六人の選手のうち三十六人が同じ結果となりました",
+   "errors": 21,
+   "units": 78,
+   "seconds": 8.839,
+   "audio_seconds": 16.32
+  },
+  {
+   "language": "ja_jp",
+   "file": "767827018177797841.wav",
+   "said": "原則として、チベット仏教は非常にシンプルです。クンダリーニヨガ、瞑想、そしてすべてを慈しむ愛の道で構成されています。",
+   "heard": "原則としてチベットは非常にシンプですそして全てをで構成されています",
+   "errors": 21,
+   "units": 53,
+   "seconds": 7.037,
+   "audio_seconds": 11.16
+  },
+  {
+   "language": "ja_jp",
+   "file": "11650147973775460964.wav",
+   "said": "ヘブライ人家族はほとんど戸外で暮らしていました。",
+   "heard": "ヘブラ来人家族はほとんど都外で暮らしていました",
+   "errors": 2,
+   "units": 23,
+   "seconds": 3.827,
+   "audio_seconds": 7.5
+  },
+  {
+   "language": "ja_jp",
+   "file": "1286876112474128683.wav",
+   "said": "ロビン・ウタッパは、11本のフォーと2本のシックスを打って、わずか41球でイニング最高得点となる70ランを記録した。",
+   "heard": "ロビンタパーは十一一本のコート日本のの縮そうでで僅か四十級でニング最高得点ッペットだと70ダウン大きく読した。",
+   "errors": 36,
+   "units": 54,
+   "seconds": 10.019,
+   "audio_seconds": 18.6
+  },
+  {
+   "language": "ja_jp",
+   "file": "11239210393592280523.wav",
+   "said": "アルゼンチンは、世界最高のポロチームとポロ競技選手を擁することで有名です。",
+   "heard": "アルゼンチンは世界最高のプロチームとプロロ競技威選手士を擁することで有名です",
+   "errors": 5,
+   "units": 35,
+   "seconds": 4.049,
+   "audio_seconds": 8.46
+  },
+  {
+   "language": "ko_kr",
+   "file": "7704118082516576722.wav",
+   "said": "택배회사는 물건을 빨리 배달해 주는 대가로 많은 보수를 받습니다. 종종 업무 서류, 긴급 수리를 위한 상품이나 예비 부품의 경우에는 시간이 매우 중요합니다.",
+   "heard": "물건빨리 배달 로습니다정업무류급리를 위한 상품 예비 경우에는매우중합니다",
+   "errors": 31,
+   "units": 63,
+   "seconds": 8.485,
+   "audio_seconds": 13.44
+  },
+  {
+   "language": "ko_kr",
+   "file": "9318920281907662965.wav",
+   "said": "과학자들은 충돌로 인한 폭발이 거대했다고 말한다.",
+   "heard": "과학자들은 충돌로 인한 폭발이 거대했다고 말한다",
+   "errors": 0,
+   "units": 21,
+   "seconds": 2.632,
+   "audio_seconds": 6.96
+  },
+  {
+   "language": "ko_kr",
+   "file": "3213569289038173870.wav",
+   "said": "대부분 학생들이 가장 비판적인 청중이므로, 블로그 작가는 비판을 피하기 위해 글쓰기를 향상시키려고 노력하기 시작합니다.",
+   "heard": "대부분 학생들이 가장 비판적인인 천중이므로 블로그작가는 비판을 피하기 위해글쓰기를 향상시키려고 노력하기 시작합니다。",
+   "errors": 2,
+   "units": 51,
+   "seconds": 7.526,
+   "audio_seconds": 12.12
+  },
+  {
+   "language": "ko_kr",
+   "file": "15903938314692675430.wav",
+   "said": "아실지 모르겠지만, 중앙아메리카에서 온 대부분의 물품은 이 나라에 면세로 들어왔습니다.",
+   "heard": "아실지모르겠지만만중앙아메리카에서온대부분의물품은나라의면세로봤습니다",
+   "errors": 6,
+   "units": 37,
+   "seconds": 4.731,
+   "audio_seconds": 11.64
+  },
+  {
+   "language": "ko_kr",
+   "file": "4145754426906158939.wav",
+   "said": "또한 의회는 주(州) 간의 세법과 관세를 무효화할 권한이 없었습니다.",
+   "heard": "또한 의회는 주간의 세법과 관세를 무효할 권한이 없었습니다",
+   "errors": 2,
+   "units": 27,
+   "seconds": 3.953,
+   "audio_seconds": 9.48
+  },
+  {
+   "language": "ko_kr",
+   "file": "12942009904499145884.wav",
+   "said": "부상자들이 병원으로 이송되고 싸움이 중단되자, 약 40명의 수감자들은 교도소 마당에서 버티며 각자 유치장으로 돌아가길 거부했습니다.",
+   "heard": "부상자들이 병원으로 이송되고 싸움이 중단되자약사십 명의 수감자들은교도소마당에서 버티며 각자유치장으로 돌아가길 거보있습니다.",
+   "errors": 4,
+   "units": 57,
+   "seconds": 9.723,
+   "audio_seconds": 12.78
+  },
+  {
+   "language": "ko_kr",
+   "file": "3630490257053092803.wav",
+   "said": "크리스마스는 기독교에서 가장 중요한 큰 명절 중 하나로 예수님의 생일을 기념하는 명절이다.",
+   "heard": "크리스마스는 기독교에서 가장 중요한 큰 명절 중 하나 로 예수님의 생일을 기념하는 명절이다.",
+   "errors": 0,
+   "units": 38,
+   "seconds": 5.825,
+   "audio_seconds": 9.3
+  },
+  {
+   "language": "ko_kr",
+   "file": "2380005195949219434.wav",
+   "said": "고대 로마 식사는 몇 세기가 지난 후 미국이나 아시아에서 유럽으로 온 음식을 포함할 수 없었습니다.",
+   "heard": "로마식사는몇미국이나아시아에서유럽으로운식을포함할수습니다",
+   "errors": 12,
+   "units": 40,
+   "seconds": 4.125,
+   "audio_seconds": 9.0
+  },
+  {
+   "language": "ko_kr",
+   "file": "8263960249908188145.wav",
+   "said": "이것은 종전에 지상 레이더 기반 기술을 사용했던 것과 달리 위성 기반 기술을 이용하여 항공관제사들이 매우 높은 정확도로 항공기를 특정할 수 있게 하며, 조종사들에게 더 정확한 정보를 제공한다.",
+   "heard": "이것은 종전에의 지상레이더기반기술을 사용했던 것과 달리위성기반기술을 이용하여 항공관제사들이 매우 높은 정확도로 항공기를 특정할 수 있게 하며조종사들에게 더 정확한 정보를 제공한다。",
+   "errors": 1,
+   "units": 79,
+   "seconds": 11.841,
+   "audio_seconds": 16.98
+  },
+  {
+   "language": "ko_kr",
+   "file": "5094404887142160010.wav",
+   "said": "우주에 있는 위성은 신호를 받고 나서 거의 즉각적으로 반사해 내려보낸다.",
+   "heard": "우주에 있는 위성은 신우를 받고 나서 거의 즉각적으로 반사에 내려보는낸다.",
+   "errors": 3,
+   "units": 30,
+   "seconds": 5.271,
+   "audio_seconds": 8.34
+  }
+ ]
+}

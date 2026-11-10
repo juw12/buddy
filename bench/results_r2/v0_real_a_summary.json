@@ -1,0 +1,107 @@
+{
+ "what": "Buddy 1.2.0 (its own routing, Speech model = auto) on the FLEURS clips, nine languages",
+ "note": "Summary lines only: the run was stopped before it wrote its transcripts file. German, Spanish and French are in v0_real_b.json with every transcript.",
+ "noise": "none (as recorded)",
+ "threads": 4,
+ "languages": {
+  "en_us": {
+   "name": "English",
+   "setting": "en-US",
+   "engine": "Whisper base.en",
+   "unit": "word",
+   "clips": 20,
+   "error_pct": 12.7,
+   "decode_mean_s": 8.72,
+   "decode_p90_s": 13.18,
+   "audio_mean_s": 8.4
+  },
+  "id_id": {
+   "name": "Indonesian",
+   "setting": "id-ID",
+   "engine": "Parakeet V3",
+   "unit": "word",
+   "clips": 20,
+   "error_pct": 95.7,
+   "decode_mean_s": 8.39,
+   "decode_p90_s": 13.13,
+   "audio_mean_s": 12.4
+  },
+  "cmn_hans_cn": {
+   "name": "Chinese (Mandarin)",
+   "setting": "zh-CN",
+   "engine": "SenseVoice",
+   "unit": "char",
+   "clips": 20,
+   "error_pct": 10.3,
+   "decode_mean_s": 5.91,
+   "decode_p90_s": 12.53,
+   "audio_mean_s": 11.5
+  },
+  "yue_hant_hk": {
+   "name": "Cantonese",
+   "setting": "yue",
+   "engine": "SenseVoice",
+   "unit": "char",
+   "clips": 10,
+   "error_pct": 6.3,
+   "decode_mean_s": 4.85,
+   "decode_p90_s": 7.79,
+   "audio_mean_s": 11.9
+  },
+  "ms_my": {
+   "name": "Malay",
+   "setting": "ms-MY",
+   "engine": "Parakeet V3",
+   "unit": "word",
+   "clips": 10,
+   "error_pct": 94.2,
+   "decode_mean_s": 3.97,
+   "decode_p90_s": 6.05,
+   "audio_mean_s": 10.3
+  },
+  "ja_jp": {
+   "name": "Japanese",
+   "setting": "ja-JP",
+   "engine": "SenseVoice",
+   "unit": "char",
+   "clips": 10,
+   "error_pct": 80.7,
+   "decode_mean_s": 10.54,
+   "decode_p90_s": 15.51,
+   "audio_mean_s": 12.5
+  },
+  "ko_kr": {
+   "name": "Korean",
+   "setting": "ko-KR",
+   "engine": "SenseVoice",
+   "unit": "char",
+   "clips": 10,
+   "error_pct": 75.6,
+   "decode_mean_s": 9.02,
+   "decode_p90_s": 11.06,
+   "audio_mean_s": 11.0
+  },
+  "th_th": {
+   "name": "Thai",
+   "setting": "th-TH",
+   "engine": "Parakeet V3",
+   "unit": "char",
+   "clips": 10,
+   "error_pct": 99.8,
+   "decode_mean_s": 25.56,
+   "decode_p90_s": 34.12,
+   "audio_mean_s": 13.4
+  },
+  "vi_vn": {
+   "name": "Vietnamese",
+   "setting": "vi-VN",
+   "engine": "Parakeet V3",
+   "unit": "word",
+   "clips": 10,
+   "error_pct": 99.7,
+   "decode_mean_s": 27.87,
+   "decode_p90_s": 49.81,
+   "audio_mean_s": 14.7
+  }
+ }
+}
