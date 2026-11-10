@@ -11,3 +11,4 @@
   - [Silero VAD](https://github.com/snakers4/silero-vad) (MIT License) for voice activity detection.
 - Chinese script conversion (Simplified and Traditional) uses the character and phrase tables of [OpenCC](https://github.com/BYVoid/OpenCC) (Apache License 2.0), copied unchanged from `ver.1.1.9` into `keyit/opencc/` together with their licence.
 - The English word list that tells a real word from a misheard one comes with [misaki](https://github.com/hexgrad/misaki) (Apache License 2.0), the library Buddy already uses to read text for the natural voices.
+- The list of people's names that "My words" never rewrites comes from the person providers of [Faker](https://github.com/joke2k/faker) 40.52.0 (MIT License), in `keyit/names/` together with its licence; `tools/make_names.py` rebuilds it.

@@ -158,6 +158,8 @@ def collect(data, results):
         rows = read_json(path)
         rows = rows.get("rows", []) if isinstance(rows, dict) else []
         for row in rows:
+            if not isinstance(row, dict):                   # timing files keep other rows; only transcripts count
+                continue
             setting = SETTINGS.get(row.get("language"))
             if setting and row.get("heard"):
                 texts.append(("heard: " + os.path.basename(path), setting, row["heard"], row.get("said", "")))

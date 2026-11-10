@@ -155,12 +155,12 @@ had already written it.
 
 |  | Buddy 1.2.0 | Letters rule, tightened | This branch |
 |---|---|---|---|
-| Texts / runs | 684 / 1374 | 668 / 2684 | 684 / 2748 |
+| Texts / runs | 684 / 1374 | 668 / 2684 | 721 / 2896 |
 | Runs My words changed | 162 | 226 | 218 |
 | Wrong replacements | 56 | 0 | 0 |
 | of those: a sentence that already had the term was changed | 6 | 0 | 0 |
 | "Bizaira's power test" becomes ZIRIS | no | yes | yes |
-| "Zaira's answer was wrong." comes out as | Zaira's answer was wrong. | ZIRIS answer was wrong. | ZIRIS answer was wrong. |
+| "Zaira's answer was wrong." comes out as | Zaira's answer was wrong. | ZIRIS answer was wrong. | Zaira's answer was wrong. |
 | Jargon kept, Buddy's round-1 transcripts, clean | 16 of 22 | 18 of 22 | 18 of 22 |
 | Jargon kept, Buddy's round-1 transcripts, noisy | 16 of 22 | 17 of 22 | 17 of 22 |
 | Jargon kept, all round-1 result files | 186 of 308 | 204 of 308 | 202 of 308 |
@@ -174,8 +174,13 @@ had already written it.
 * Of the 56 pairs this branch still rewrites, 54 are Notepad or Outlook next to one letter
   ("notepad a" becomes "Notepad a": only the capital changes) and 2 are true homophones
   ("speck green", "vender mapping").
-* The cost of the sound rule that fixes "Bizaira's": the possessive of a name that sounds like a term is
-  replaced too ("Zaira's answer"). 1.2.0 left it alone. Adding the name to My words keeps it.
+* People's names are never rewritten: 37,809 first and last names of 63 Faker locales (`keyit/names/`,
+  MIT) count as real words. Before that list the sound rule turned "Zaira's answer" into "ZIRIS answer".
+  On the same 721 texts the version without the list (`my_words_safety_before_names.json`) gives the same
+  numbers in every row except that one; jargon kept and the sweep do not change. A name missing from the
+  list is still replaced if it sounds exactly like a term; adding it to My words keeps it.
+* This branch was run on 721 texts: the timing result files added since the first run hold a few more
+  transcripts.
 * Across all round-1 result files this branch keeps 2 fewer jargon terms than the tightened letters rule,
   because real words are now replaced only when they sound exactly like the term.
 

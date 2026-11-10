@@ -195,6 +195,34 @@ def test_real_words_and_names_are_never_replaced_by_sound(monkeypatch):
         assert words.process(said, BENCH_WORDS) == said, said
 
 
+def test_peoples_names_are_never_replaced(monkeypatch):
+    # round 2 found it: "Zaira's" sounds exactly like ZIRIS and is in no word list, so it became ZIRIS
+    monkeypatch.setattr(words, "_vocabulary", lambda: ENGLISH)
+    for said in ("Zaira's answer was wrong.", "Ask Zaira's team first.", "Siti and Budi sent the report.",
+                 "Mr Nguyen and Ms Tanaka are here."):
+        assert words.process(said, BENCH_WORDS) == said, said
+    # a made-up word is still fixed
+    assert words.process("Type Hello team, Bizaira's power test passed.", BENCH_WORDS) == (
+        "Type Hello team, ZIRIS power test passed.")
+
+
+def test_names_list_ships_with_names_of_many_languages():
+    names = words._names()
+    assert len(names) > 30000
+    for name in ("zaira", "siti", "budi", "nguyen", "tanaka", "maria", "jose", "mueller"):
+        assert name in names, name
+    for term in ("ziris", "bizaira", "notepad", "puregms", "egreen", "pega"):
+        assert term not in names, term
+
+
+def test_without_the_names_list_nothing_breaks(monkeypatch):
+    monkeypatch.setattr(words, "_vocabulary", lambda: ENGLISH)
+    monkeypatch.setattr(words, "_names", lambda: frozenset())
+    assert words.process("Type Hello team, Bizaira's power test passed.", BENCH_WORDS) == (
+        "Type Hello team, ZIRIS power test passed.")
+    assert words.process("Sirius is the brightest star.", BENCH_WORDS) == "Sirius is the brightest star."
+
+
 def test_sound_rule_is_off_without_a_dictionary_or_in_languages_it_cannot_check(monkeypatch):
     said = "Type Hello team, Bizaira's power test passed."
     monkeypatch.setattr(words, "_vocabulary", lambda: None)
@@ -213,7 +241,8 @@ def test_sound_rule_with_the_dictionary_that_ships_with_the_voice():
         "Type Hello team, ZIRIS power test passed.")
     for said in ("Sirius is the brightest star.", "Cyrus called about the series.", "Suarez scored twice.",
                  "Soros funded the project.", "Zara's new store opened.", "Zahira's report is late.",
-                 "Nasir's team is ready.", "We saw Osiris and Iris at the museum.", "The bizarre bazaar was busy."):
+                 "Nasir's team is ready.", "We saw Osiris and Iris at the museum.", "The bizarre bazaar was busy.",
+                 "Zaira's answer was wrong."):
         assert words.process(said, BENCH_WORDS) == said, said
 
 # --------------------------------------------------------------------------- 1.3: words that only look like a term

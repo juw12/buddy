@@ -13,8 +13,9 @@ What it fixes after speech recognition:
   * your words: "s r m", "S.R.M." and "srm" become "SRM"; "e green" becomes "eGreen"; a near miss of a long
     word ("Zyris" for "ZIRIS") is corrected, and so is a made-up word that sounds like one of yours
     ("Bizaira's" for "the ZIRIS") - but never a word that is in the dictionary ("series", "Sirius", "not
-    paid") unless the dictionary says it exactly like yours ("speck green" for "Spec Green"); for the rest
-    add a line of your own: peg vision => Pega-Vision,
+    paid") unless the dictionary says it exactly like yours ("speck green" for "Spec Green"), and never a
+    person's name ("Zaira's answer", "Siti", "Nguyen"; keyit/names); for the rest add a line of your own:
+    peg vision => Pega-Vision,
   * spoken shortcuts expand ("my sign off" -> "Best regards, Juwen"),
   * filler sounds go ("um", "uh", "er"; "ehm"; "äh"; "euh"; 嗯; えーと), and a stutter ("the the") is said once,
   * corrections you make while talking: "at three, no wait, at four" -> "at four";
@@ -37,6 +38,7 @@ from pathlib import Path
 import keyit_script
 
 SNIPPET_ARROWS = re.compile(r"\s*(?:=>|->|→)\s*")
+NAMES = Path(__file__).parent / "names" / "names.txt"     # first and last names, many languages (Faker, MIT)
 # Latin letters with their accents (é, ü, ñ, ơ, ...) and digits. Chinese, Thai, Korean are not in here, so
 # "打开SRM系统" still has a word boundary on both sides of SRM.
 LATIN = "0-9A-Za-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u024F\u0300-\u036F\u1E00-\u1EFF"
@@ -418,6 +420,16 @@ def _vocabulary():
     return None if lexicon is None else frozenset(lexicon)
 
 
+@functools.lru_cache(maxsize=None)
+def _names():
+    """People's names, lower case without accents: 'zaira', 'siti', 'nguyen'. A name is a real word too, so
+    'My words' never turns a colleague into a product. Empty when the list is missing."""
+    try:
+        return frozenset(NAMES.read_text(encoding="utf-8").split())
+    except OSError:
+        return frozenset()
+
+
 def _said(text):
     """How the dictionary says `text`: 'speck green' -> 'spɛkɡɹin'. None when a word is not in it."""
     lexicon = _lexicon() or {}
@@ -427,7 +439,8 @@ def _said(text):
 
 
 def _known(token, vocabulary, mine):
-    """True for a real word: in the dictionary (also as plural, past tense, ...), a number, or in 'My words'."""
+    """True for a real word: in the dictionary (also as plural, past tense, ...), a name, a number, or in
+    'My words'."""
     word = _plain(token).lower().replace("’", "'")
     if word.endswith("'s"):
         word = word[:-2]
@@ -436,7 +449,7 @@ def _known(token, vocabulary, mine):
         return True
     if "-" in word:
         return all(_known(part, vocabulary, mine) for part in word.split("-") if part)
-    if word in vocabulary:
+    if word in vocabulary or word in _names():
         return True
     for suffix, endings in (("ies", ("y",)), ("es", ("", "e")), ("s", ("",)), ("ed", ("", "e")), ("d", ("",)),
                             ("ing", ("", "e")), ("ly", ("",)), ("er", ("", "e")), ("est", ("", "e"))):
