@@ -2,6 +2,7 @@ name: Mac one-line installer
 on:
   workflow_dispatch:
   push:
+    branches: [main]
     paths:
       - "docs/mac-install.sh"
       - ".github/workflows/mac-install-check.yml"
@@ -10,7 +11,7 @@ jobs:
   install:
     strategy:
       matrix:
-        os: [macos-14, macos-15-intel]
+        os: [macos-15, macos-15-intel]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
