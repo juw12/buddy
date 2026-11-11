@@ -1,22 +1,19 @@
 {
-  "version": "1.3.0",
-  "date": "2026-11-10",
+  "version": "1.3.1",
+  "date": "2026-11-11",
   "notes": [
-    "15 language choices for voice input (was 6). New: Indonesian, Malay, Thai, Vietnamese, Chinese (Traditional) and Auto-detect; German, Spanish and French got their own entries.",
-    "Each language now uses the engine that measured best on human recordings. Same clips, 1.2.0 -> 1.3.0: Indonesian 95.7% -> 29.1% word errors, Japanese 80.7% -> 22.1% and Korean 75.6% -> 13.8% character errors.",
-    "Long dictations are decoded in parts while you hold the key. On a busy PC, a dictation of one to one and a half minutes in English, Mandarin or Spanish was typed 0.2 to 1.4 s after release instead of 13 to 20 s.",
-    "English no longer loses what you say after 30 seconds: 9 wrong words of 98 in a 56-second recording, where 1.2.0 got 51 wrong.",
-    "Short dictations type sooner on a busy PC: about 1.0 s after release instead of 3.0 to 4.8 s, with the same text.",
-    "My words no longer rewrites everyday words or people's names: 0 wrong replacements on 721 test texts (1.2.0 made 56 on 684), 37,809 names from 63 languages are left alone, and a badly misheard term such as \"Bizaira's\" still becomes ZIRIS.",
-    "Fillers are removed in 11 languages, spoken corrections work in 7 (\"Rapatnya jam tiga, eh salah, jam empat\" types \"Rapatnya jam empat\") and edit commands in 9. Buddy's AI is asked to answer in the language of the question.",
-    "The first-use download shows size, speed and time left, unpacks 38 to 43% faster, and Buddy says how far it is if you try voice input meanwhile. Voice input has its own Settings tab."
+    "Buddy points right when it answers in your language.",
+    "1.3.0 began answering in the language of the question. A live test showed the cost: after a non-English answer the arrow often went to the top-left corner of the screen instead of the menu item (in 14 of 26 answers, the tour ended somewhere other than the item asked about).",
+    "1.3.1 ignores those corner points and takes a second look: it finds the named control among the controls Windows lists, otherwise it asks the AI once more, in English, only where the control is. In the same test, every one of 13 answers then ended on the right item (4 needed the second look).",
+    "Every answer in that test came in the language of the question (26 of 26 with the 1.3.0 prompt; 1.2.0 answered Malay, Spanish and French in English).",
+    "With Ollama on the processor only, Buddy skips the second look (about a minute) and shows no pointer rather than a wrong one."
   ],
-  "page": "https://github.com/juw12/buddy/releases/tag/v1.3.0",
+  "page": "https://github.com/juw12/buddy/releases/tag/v1.3.1",
   "windows": {
-    "version": "1.3.0",
-    "url": "https://github.com/juw12/buddy/releases/download/v1.3.0/Buddy-win64.zip",
-    "size": 179219429,
-    "sha256": "b98a15e4242afcb5d7b5137157e20d075109f3f61af89b96228b2af5a6ed77e5"
+    "version": "1.3.1",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.3.1/Buddy-win64.zip",
+    "size": 179225191,
+    "sha256": "bdca3be6d9514482824ca0458b31d62f9e2039e111feea8c09c149bd9b27a0cc"
   },
   "mac": {
     "version": "1.1.0",
