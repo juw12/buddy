@@ -1,0 +1,122 @@
+[
+ {
+  "case": "id",
+  "round": 1,
+  "ask": "Point at: File; Save As",
+  "reply": "[POINT:45,278:Save As]",
+  "last_on_save_as": true,
+  "seconds": 4.8
+ },
+ {
+  "case": "ms",
+  "round": 1,
+  "ask": "Point at: File; Save As...",
+  "reply": "[POINT:60,275:Save As]",
+  "last_on_save_as": true,
+  "seconds": 6.0
+ },
+ {
+  "case": "zh",
+  "round": 1,
+  "ask": "Point at: 文件; 另存为",
+  "reply": "[POINT:110,267:Save As]",
+  "last_on_save_as": true,
+  "seconds": 3.9
+ },
+ {
+  "case": "ko",
+  "round": 1,
+  "ask": "Point at: File; File",
+  "reply": "[POINT:50,0:File]",
+  "last_on_save_as": false,
+  "seconds": 3.5
+ },
+ {
+  "case": "th",
+  "round": 1,
+  "ask": "Point at: ไฟล์; บันทึกเป็น",
+  "reply": "[POINT:70,275:Save As]",
+  "last_on_save_as": true,
+  "seconds": 4.1
+ },
+ {
+  "case": "vi",
+  "round": 1,
+  "ask": "Point at: Tệp; Lưu dưới dạng...",
+  "reply": "[POINT:70,270:Save As]\n[POINT:70,270:Save As] \n[POINT:30,25:File]",
+  "last_on_save_as": false,
+  "seconds": 5.7
+ },
+ {
+  "case": "fr",
+  "round": 1,
+  "ask": "Point at: File; Enregistrer sous...",
+  "reply": "[POINT:60,268:Save As]",
+  "last_on_save_as": true,
+  "seconds": 4.0
+ },
+ {
+  "case": "id",
+  "round": 2,
+  "ask": "Point at: File; Save As",
+  "reply": "[POINT:60,270:Save As]",
+  "last_on_save_as": true,
+  "seconds": 3.6
+ },
+ {
+  "case": "ms",
+  "round": 2,
+  "ask": "Point at: File; Save As...",
+  "reply": "[POINT:70,275:Save As]",
+  "last_on_save_as": true,
+  "seconds": 3.5
+ },
+ {
+  "case": "zh",
+  "round": 2,
+  "ask": "Point at: 文件; 另存为",
+  "reply": "[POINT:120,260:Save As]",
+  "last_on_save_as": true,
+  "seconds": 3.9
+ },
+ {
+  "case": "yue",
+  "round": 2,
+  "ask": "Point at: File; Save As...",
+  "reply": "[POINT:70,275:Save As]",
+  "last_on_save_as": true,
+  "seconds": 4.2
+ },
+ {
+  "case": "th",
+  "round": 2,
+  "ask": "Point at: ไฟล์; บันทึกเป็น",
+  "reply": "[POINT:70,275:Save As]",
+  "last_on_save_as": true,
+  "seconds": 4.4
+ },
+ {
+  "case": "vi",
+  "round": 2,
+  "ask": "Point at: Tệp; Lưu dưới dạng...",
+  "reply": "[POINT:110,275:Save As…]",
+  "last_on_save_as": true,
+  "seconds": 3.9
+ },
+ {
+  "case": "fr",
+  "round": 2,
+  "ask": "Point at: File; Enregistrer sous...",
+  "reply": "[POINT:60,273:Save As]",
+  "last_on_save_as": true,
+  "seconds": 3.8
+ },
+ {
+  "case": "id_asks_en",
+  "round": 2,
+  "ask": "Point at: File; Save As...",
+  "reply": "[POINT:60,275:Save As]",
+  "last_on_save_as": true,
+  "seconds": 3.9
+ }
+]

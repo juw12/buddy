@@ -275,3 +275,37 @@ Whisper base.en on English clips, 4 decode threads on 8 logical processors, 8 bu
 * The unpack is a single thread and shared the processor with other programs: every run was measured at
   100% busy. No calm PC was measured, so these are the times of a busy PC.
 * There are two runs each way for a model, so read the size of a difference and not its decimals.
+
+### Reply language on a live brain
+
+`reply_language.py` asks Buddy's free cloud brain (Llama 4 Scout) one question, "where do I save this
+under a new name?", in 12 languages plus an Indonesian question that asks for an English answer. The screen
+is a drawn English Notepad with the File menu open, and the system prompt is Buddy's own: `SYSTEM_PROMPT`
++ `language_rule(voice input language)` + the action rules. A reply counts as pointing right when its
+pointer lands on the "Save As..." row.
+
+| Run | Replies | Same language as the question | Non-English answered in that language | Tour ends on Save As | Ends somewhere else | No pointer |
+|---|---|---|---|---|---|---|
+| 1.2.0 prompt, 2 rounds | 26 | 20 | 16 of 22 | 20 | 6 | 0 |
+| 1.3.0 prompt, 2 rounds | 26 | 26 | 22 of 22 | 12 | 14 | 0 |
+| 1.3.1 (second look), 1 round | 13 | 13 | 11 of 11 | 13 | 0 | 0 |
+
+* 1.2.0 answered Malay, Spanish and French questions in English. The 1.3.0 language rule fixed that: every
+  reply came back in the language of the question.
+* Answering in another language cost pointing. The model then often writes the menu path as two tags on the
+  top edge of the screen, `[POINT:70,0:File] [POINT:93,0:Save As]`, so the arrow went to the top-left
+  corner. A reworded language line (`--edit`, `results_r2/reply_language_variant_b.json`) did not help:
+  8 of 22 non-English replies on Save As.
+* 1.3.1 treats a coordinate of exactly 0 as no place (it is the screen's edge, never a control) and then
+  takes a second look: first the names among the controls Windows lists, otherwise one more brain call
+  in English that asks only where those labels are (`REPOINT_PROMPT`). Given the 15 edge replies of the
+  1.3.0 run, that call put the last point on Save As 13 times (`results_r2/repoint_trial.json`).
+* The 1.3.1 row runs the shipped code (`--repoint` calls `Buddy._repoint`). Four replies needed the second
+  look (Indonesian, Malay, Thai, French) and all four then ended on Save As. On the same 13 replies, the
+  1.3.0 parsing ends 9 on Save As and 4 at the top edge.
+* Small sample: one screen, one question, 13 replies for the 1.3.1 row. The drawn screen has no Windows
+  controls, so the name lookup was not exercised here; it is covered by a unit test. With Ollama on the
+  processor only, Buddy does not make the second call (it would take about a minute) and shows no pointer
+  instead of a wrong one.
+* Pointing is scored on where the tour ends, because "File, then Save As" is a correct tour. The script
+  also stores the first tag's verdict (`points_at_save_as`).
