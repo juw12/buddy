@@ -309,3 +309,88 @@ def test_island_never_wider_than_the_display():
 
 def test_island_is_on_by_default():
     assert core.DEFAULTS["island"] is True
+
+
+# --------------------------------------------------------------------------- languages (1.2.0)
+def test_prompt_answers_in_the_questions_language():
+    assert "Reply in the language of the question" in core.SYSTEM_PROMPT
+
+
+def test_language_rule_names_non_english_voice_languages_only():
+    assert core.language_rule("") == ""
+    assert core.language_rule("en-US") == ""
+    assert core.language_rule("xx-XX") == ""
+    assert "Indonesian" in core.language_rule("id-ID")
+    assert "Chinese, Traditional (Taiwan)" in core.language_rule("zh_TW")
+
+
+def test_every_voice_language_is_named_once():
+    codes = [code for code, _ in core.VOICE_LANGUAGES]
+    assert codes[0] == ""
+    assert len(codes) == len(set(codes))
+    assert {"en-US", "id-ID", "zh-TW", "zh-CN"} <= set(codes)
+
+
+def test_brain_gets_the_language_rule(monkeypatch):
+    seen = []
+
+    def fake_ask(self, question, jpeg, on_text=None):
+        seen.append(self._messages(question, None)[0]["content"])
+        return "Klik File."
+
+    monkeypatch.setattr(core.Brain, "ask", fake_ask)
+    settings = dict(core.DEFAULTS, voice_language="id-ID", fallback=False)
+    reply, _ = core.ask_with_fallback("Di mana Simpan?", None, settings, [])
+    assert reply == "Klik File."
+    assert seen[0].startswith(core.SYSTEM_PROMPT)
+    assert "Indonesian" in seen[0]
+    settings["voice_language"] = ""
+    core.ask_with_fallback("Where is Save?", None, settings, [])
+    assert seen[1] == core.SYSTEM_PROMPT
+
+
+def test_edge_points_snap_by_label_anywhere():
+    """A non-English reply put the menu path on the top edge: [POINT:70,0:File] [POINT:70,0:Save As]."""
+    boxes = [("File", 40, 10, 70, 30), ("Save As...", 60, 300, 160, 330)]
+    snapped = core.snap_points([(70, 0, "File"), (70, 0, "Save As")], boxes)
+    assert snapped[0] == (55.0, 20.0, "File")
+    assert snapped[1] == (110.0, 315.0, "Save As")
+
+
+def test_points_off_the_edge_still_snap_only_nearby():
+    boxes = [("Save As...", 60, 900, 160, 930)]
+    assert core.snap_points([(70, 40, "Save As")], boxes) == [(70, 40, "Save As")]
+
+
+def test_edge_point_without_matching_text_stays():
+    assert core.snap_points([(500, 0, "Wi-Fi")], [("File", 40, 10, 70, 30)]) == [(500, 0, "Wi-Fi")]
+
+
+VOICES = [
+    ("com.apple.voice.compact.en-US.Samantha", "en-US", 1),
+    ("com.apple.voice.compact.id-ID.Damayanti", "id-ID", 1),
+    ("com.apple.voice.enhanced.id-ID.Damayanti", "id-ID", 2),
+    ("com.apple.voice.compact.zh-CN.Tingting", "zh-CN", 1),
+    ("com.apple.voice.compact.zh-TW.Meijia", "zh-TW", 1),
+    ("com.apple.voice.compact.zh-HK.Sinji", "zh-HK", 1),
+]
+
+
+def test_pick_voice_by_language_and_quality():
+    assert core.pick_voice("id", VOICES) == "com.apple.voice.enhanced.id-ID.Damayanti"
+    assert core.pick_voice("en", VOICES) == "com.apple.voice.compact.en-US.Samantha"
+    assert core.pick_voice("fr", VOICES) is None
+    assert core.pick_voice("und", VOICES) is None
+    assert core.pick_voice("", VOICES) is None
+
+
+def test_pick_voice_chinese_script_and_preferred_region():
+    assert core.pick_voice("zh-Hant", VOICES) == "com.apple.voice.compact.zh-TW.Meijia"
+    assert core.pick_voice("zh-Hans", VOICES) == "com.apple.voice.compact.zh-CN.Tingting"
+    assert core.pick_voice("zh-Hant", VOICES, preferred="zh-HK") == "com.apple.voice.compact.zh-HK.Sinji"
+    assert core.pick_voice("zh-Hans", VOICES, preferred="en-US") == "com.apple.voice.compact.zh-CN.Tingting"
+
+
+def test_settings_default_voice_language(tmp_path):
+    settings = core.load_settings(tmp_path / "missing.json")
+    assert settings["voice_language"] == ""

@@ -9,6 +9,11 @@ A buddy next to your mouse, on macOS 12 or newer. One universal download runs na
 - The arrow snaps onto the exact words it means ("Save As…") using Apple's on-device text recognition:
   on our test desktop that lifts the free brain from 10 to 13 of 16 on target. Nothing extra leaves the Mac.
 - Menu bar buddy: Brain…, Send feedback…, Read answers aloud, Keep Buddy next to my mouse, Colour, Allow screen access…
+- **Not only English.** Menu bar, *Voice language*: hold-to-talk listens in Indonesian, Chinese (Taiwan or
+  Mainland), Cantonese, Japanese, Korean, Malay, Thai, Vietnamese, Hindi, German, French, Spanish, Portuguese
+  or English (only the ones your Mac's speech recognition has are listed). Buddy answers in the language you
+  asked in and reads the answer with a Mac voice for that language. Languages your Mac can't recognise
+  offline go through Apple's servers, like dictation does.
 - Works out of the box on a free cloud brain. No account, no key, no model download.
 
 **Lite** means pointing and answers only. Clicking and typing for you, the Pips pet and keyboard sounds are
