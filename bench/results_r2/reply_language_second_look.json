@@ -1,0 +1,302 @@
+{
+ "summary": {
+  "brain": "free cloud brain (https://buddy-brain.juwenmondial.workers.dev/v1/chat/completions)",
+  "questions": 13,
+  "answered": 13,
+  "same_language": 13,
+  "pointed_at_save_as": 7,
+  "had_point_tag": 13,
+  "second_looks": 4,
+  "buddy_ends_on_save_as": 13,
+  "buddy_points_elsewhere": 0,
+  "buddy_no_pointer": 0
+ },
+ "rows": [
+  {
+   "round": 1,
+   "case": "en",
+   "voice_input": "en-US",
+   "question": "Where do I save this file under a new name?",
+   "expected": "en",
+   "reply_language": "en",
+   "same_language": true,
+   "points_at_save_as": true,
+   "buddy_points": [
+    [
+     94.0,
+     270.0,
+     "Save As..."
+    ]
+   ],
+   "second_look": false,
+   "buddy_ends_on_save_as": true,
+   "seconds": 4.6,
+   "reply": "You can save the file under a new name by clicking on \"Save As...\" in the File menu. \n[POINT:94,270:Save As...]",
+   "error": ""
+  },
+  {
+   "round": 1,
+   "case": "id",
+   "voice_input": "id-ID",
+   "question": "Di mana saya menyimpan file ini dengan nama baru?",
+   "expected": "id_ms",
+   "reply_language": "id_ms",
+   "same_language": true,
+   "points_at_save_as": false,
+   "buddy_points": [
+    [
+     60.0,
+     275.0,
+     "Save As"
+    ]
+   ],
+   "second_look": true,
+   "buddy_ends_on_save_as": true,
+   "seconds": 4.2,
+   "reply": "Klik \"File\" terlebih dahulu, lalu klik \"Save As\". \n[POINT:70,0:File]\n[POINT:93,0:Save As]",
+   "error": ""
+  },
+  {
+   "round": 1,
+   "case": "ms",
+   "voice_input": "ms-MY",
+   "question": "Di manakah saya boleh simpan fail ini dengan nama baharu?",
+   "expected": "id_ms",
+   "reply_language": "id_ms",
+   "same_language": true,
+   "points_at_save_as": false,
+   "buddy_points": [
+    [
+     70.0,
+     275.0,
+     "Save As"
+    ]
+   ],
+   "second_look": true,
+   "buddy_ends_on_save_as": true,
+   "seconds": 4.3,
+   "reply": "Klik \"File\", kemudian klik \"Save As...\". [POINT:74,0:File][POINT:93,0:Save As...]",
+   "error": ""
+  },
+  {
+   "round": 1,
+   "case": "zh",
+   "voice_input": "zh-CN",
+   "question": "我在哪里把这个文件另存为一个新名字？",
+   "expected": "zh",
+   "reply_language": "zh",
+   "same_language": true,
+   "points_at_save_as": false,
+   "buddy_points": [
+    [
+     87.0,
+     269.0,
+     "另存为..."
+    ]
+   ],
+   "second_look": false,
+   "buddy_ends_on_save_as": true,
+   "seconds": 3.9,
+   "reply": "点击文件菜单，然后点击另存为。 [POINT:94,0:文件] [POINT:87,269:另存为...]",
+   "error": ""
+  },
+  {
+   "round": 1,
+   "case": "yue",
+   "voice_input": "yue",
+   "question": "我喺邊度可以將呢個檔案另存做新名？",
+   "expected": "zh",
+   "reply_language": "zh",
+   "same_language": true,
+   "points_at_save_as": true,
+   "buddy_points": [
+    [
+     94.0,
+     266.0,
+     "Save As..."
+    ]
+   ],
+   "second_look": false,
+   "buddy_ends_on_save_as": true,
+   "seconds": 4.7,
+   "reply": "你可以點擊檔案，然後選擇另存為。 [POINT:94,266:Save As...]",
+   "error": ""
+  },
+  {
+   "round": 1,
+   "case": "ja",
+   "voice_input": "ja-JP",
+   "question": "このファイルを別の名前で保存するにはどこを押せばいいですか？",
+   "expected": "ja",
+   "reply_language": "ja",
+   "same_language": true,
+   "points_at_save_as": true,
+   "buddy_points": [
+    [
+     94.0,
+     275.0,
+     "Save As"
+    ]
+   ],
+   "second_look": false,
+   "buddy_ends_on_save_as": true,
+   "seconds": 4.0,
+   "reply": "「名前を付けて保存」をクリックしてください。 [POINT:94,275:Save As]",
+   "error": ""
+  },
+  {
+   "round": 1,
+   "case": "ko",
+   "voice_input": "ko-KR",
+   "question": "이 파일을 새 이름으로 저장하려면 어디를 눌러야 하나요?",
+   "expected": "ko",
+   "reply_language": "ko",
+   "same_language": true,
+   "points_at_save_as": true,
+   "buddy_points": [
+    [
+     61.0,
+     276.0,
+     "Save As..."
+    ]
+   ],
+   "second_look": false,
+   "buddy_ends_on_save_as": true,
+   "seconds": 3.9,
+   "reply": "파일 메뉴를 클릭한 다음 다른 이름으로 저장을 선택하세요. [POINT:61,276:Save As...]",
+   "error": ""
+  },
+  {
+   "round": 1,
+   "case": "th",
+   "voice_input": "th-TH",
+   "question": "ฉันจะบันทึกไฟล์นี้เป็นชื่อใหม่ได้ที่ไหน",
+   "expected": "th",
+   "reply_language": "th",
+   "same_language": true,
+   "points_at_save_as": false,
+   "buddy_points": [
+    [
+     70.0,
+     275.0,
+     "Save As"
+    ]
+   ],
+   "second_look": true,
+   "buddy_ends_on_save_as": true,
+   "seconds": 4.7,
+   "reply": "คุณสามารถบันทึกไฟล์นี้เป็นชื่อใหม่ได้โดยการคลิกที่เมนู \"ไฟล์\" จากนั้นเลือก \"บันทึกเป็น\" [POINT:94,0:ไฟล์] [POINT:77,0:บันทึกเป็น]",
+   "error": ""
+  },
+  {
+   "round": 1,
+   "case": "vi",
+   "voice_input": "vi-VN",
+   "question": "Tôi lưu tệp này với tên mới ở đâu?",
+   "expected": "vi",
+   "reply_language": "vi",
+   "same_language": true,
+   "points_at_save_as": true,
+   "buddy_points": [
+    [
+     61.0,
+     263.0,
+     "Save As..."
+    ]
+   ],
+   "second_look": false,
+   "buddy_ends_on_save_as": true,
+   "seconds": 5.4,
+   "reply": "Để lưu tệp này với tên mới, bạn nhấp vào \"File\" rồi nhấp vào \"Save As...\". \n[POINT:61,263:Save As...]",
+   "error": ""
+  },
+  {
+   "round": 1,
+   "case": "de",
+   "voice_input": "de-DE",
+   "question": "Wo speichere ich diese Datei unter einem neuen Namen?",
+   "expected": "de",
+   "reply_language": "de",
+   "same_language": true,
+   "points_at_save_as": true,
+   "buddy_points": [
+    [
+     94.0,
+     266.0,
+     "Speichern unter"
+    ]
+   ],
+   "second_look": false,
+   "buddy_ends_on_save_as": true,
+   "seconds": 5.0,
+   "reply": "Du kannst die Datei unter einem neuen Namen speichern, indem du im Menü \"Datei\" auf \"Speichern unter\" klickst. \n[POINT:94,266:Speichern unter]",
+   "error": ""
+  },
+  {
+   "round": 1,
+   "case": "es",
+   "voice_input": "es-ES",
+   "question": "¿Dónde guardo este archivo con otro nombre?",
+   "expected": "es",
+   "reply_language": "es",
+   "same_language": true,
+   "points_at_save_as": true,
+   "buddy_points": [
+    [
+     94.0,
+     268.0,
+     "Guardar como"
+    ]
+   ],
+   "second_look": false,
+   "buddy_ends_on_save_as": true,
+   "seconds": 5.5,
+   "reply": "Puedes guardar el archivo con otro nombre haciendo clic en \"Guardar como\" en el menú \"Archivo\". \n[POINT:94,268:Guardar como]",
+   "error": ""
+  },
+  {
+   "round": 1,
+   "case": "fr",
+   "voice_input": "fr-FR",
+   "question": "Où est-ce que j'enregistre ce fichier sous un autre nom ?",
+   "expected": "fr",
+   "reply_language": "fr",
+   "same_language": true,
+   "points_at_save_as": false,
+   "buddy_points": [
+    [
+     110.0,
+     275.0,
+     "Save As"
+    ]
+   ],
+   "second_look": true,
+   "buddy_ends_on_save_as": true,
+   "seconds": 4.5,
+   "reply": "Vous pouvez enregistrer le fichier sous un autre nom en cliquant sur \"Enregistrer sous...\" dans le menu Fichier. \n[POINT:94,0:File]\n[POINT:78,0:Enregistrer sous...]",
+   "error": ""
+  },
+  {
+   "round": 1,
+   "case": "id_asks_en",
+   "voice_input": "id-ID",
+   "question": "Di mana saya menyimpan file ini dengan nama baru? Tolong jawab dalam bahasa Inggris.",
+   "expected": "en",
+   "reply_language": "en",
+   "same_language": true,
+   "points_at_save_as": false,
+   "buddy_points": [
+    [
+     118.0,
+     276.0,
+     "Save As..."
+    ]
+   ],
+   "second_look": false,
+   "buddy_ends_on_save_as": true,
+   "seconds": 5.0,
+   "reply": "To save the file with a new name, you need to use the Save As option. Click File, then click Save As. \n[POINT:94,0:File]\n[POINT:118,276:Save As...]",
+   "error": ""
+  }
+ ]
+}

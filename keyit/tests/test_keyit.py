@@ -229,6 +229,55 @@ class BuddyParsingTests(unittest.TestCase):
         self.assertEqual(spoken, "It's up top.")
         self.assertEqual(points, [])
 
+    def test_points_on_the_screen_edge_are_dropped_but_remembered(self):
+        # live free brain, Indonesian answer (bench/reply_language.py): a menu path with y=0
+        reply = "Klik File, lalu Save As. [POINT:70,0:File] [POINT:70,0:Save As] [POINT:0,0]"
+        spoken, points = self.buddy.parse_reply(reply)
+        self.assertEqual(spoken, "Klik File, lalu Save As.")
+        self.assertEqual(points, [])
+        self.assertEqual(self.buddy.edge_labels(reply), ["File", "Save As"])
+        # a real point stays; its label is not asked for again
+        reply = "[POINT:55,265:Save As] [POINT:55,0:File]"
+        self.assertEqual(self.buddy.parse_reply(reply)[1], [(55.0, 265.0, "Save As")])
+        self.assertEqual(self.buddy.edge_labels(reply), ["File"])
+
+    def repointing_buddy(self, reply_chunks, client):
+        buddy = self.buddy.Buddy.__new__(self.buddy.Buddy)
+        buddy.generation = 1
+        buddy.client = lambda: client
+        buddy._stream = lambda messages: (buddy.asked.append(messages) or iter(reply_chunks))
+        buddy.asked = []
+        return buddy
+
+    def test_repoint_finds_controls_by_name_first(self):
+        import threading
+
+        done = threading.Event()
+        done.set()
+        items = [{"name": "Save As...", "kind": "menu item", "foreground": True, "rect": (8, 196, 268, 228)}]
+        targets = {"done": done, "items": items, "rect": (0, 0, 1280, 800)}
+        buddy = self.repointing_buddy([], types.SimpleNamespace(smart=True, gpu=False))
+        points = buddy._repoint(["Save As"], b"png", targets, 1)
+        self.assertEqual(len(points), 1)
+        self.assertAlmostEqual(points[0][0], 107.8, places=1)
+        self.assertAlmostEqual(points[0][1], 265.0, places=1)
+        self.assertEqual(buddy.asked, [])                      # no second brain call needed
+
+    def test_repoint_asks_the_brain_once_in_english(self):
+        buddy = self.repointing_buddy(["[POINT:55,", "265:Save As]"], types.SimpleNamespace(smart=True, gpu=False))
+        points = buddy._repoint(["File", "Save As"], b"png", None, 1)
+        self.assertEqual(points, [(55.0, 265.0, "Save As")])
+        system, question = buddy.asked[0][0], buddy.asked[0][-1]
+        self.assertEqual(system["content"], self.buddy.REPOINT_PROMPT)
+        self.assertEqual(question["content"], "Point at: File; Save As")
+        self.assertEqual(len(question["images"]), 1)
+        # a cancelled question (Esc) gets nothing; a CPU-only Ollama is not asked twice
+        buddy.generation = 2
+        self.assertEqual(buddy._repoint(["Save As"], b"png", None, 1), [])
+        cpu = self.repointing_buddy(["[POINT:55,265:x]"], types.SimpleNamespace(smart=False, gpu=False))
+        self.assertEqual(cpu._repoint(["Save As"], b"png", None, 1), [])
+        self.assertEqual(cpu.asked, [])
+
     def test_to_screen_on_second_monitor(self):
         monitor = {"left": 1920, "top": -200, "width": 2560, "height": 1440}
         self.assertEqual(self.buddy.to_screen((500, 500, "c"), monitor), (3200, 520, "c"))

@@ -145,18 +145,49 @@ def _thousandths(value):
     return number
 
 
+def _on_screen(x, y):
+    """A usable point. Exactly 0 is the screen's edge, never a control: models answering in another
+    language often write a menu path as [POINT:70,0:File] [POINT:70,0:Save As] (bench/reply_language.py)."""
+    return 0 < x <= 1000 and 0 < y <= 1000
+
+
 def parse_reply(text):
     """Split a model reply into (spoken_text, [(x_norm, y_norm, label), ...])."""
     points = []
     for match in POINT_PATTERN.finditer(text):
         x, y = _thousandths(match.group(1)), _thousandths(match.group(2))
-        if 0 <= x <= 1000 and 0 <= y <= 1000:
+        if _on_screen(x, y):
             points.append((x, y, (match.group(3) or "").strip()))
     spoken = POINT_PATTERN.sub("", text)
     spoken = spoken.split("[")[0]                         # drop any malformed trailing tag
     spoken = re.sub(r"[*_#`>]+", "", spoken)
     spoken = re.sub(r"\s+", " ", spoken).strip()
     return spoken, points[:MAX_POINTS]
+
+
+def edge_labels(text):
+    """Labels of the tags parse_reply dropped for sitting on the screen's edge: what the model meant
+    to point at, without a usable place. Buddy asks for those places once more (see _repoint)."""
+    labels = []
+    for match in POINT_PATTERN.finditer(text):
+        x, y = _thousandths(match.group(1)), _thousandths(match.group(2))
+        label = (match.group(3) or "").strip()
+        if label and not _on_screen(x, y) and label not in labels:
+            labels.append(label)
+    return labels[:MAX_POINTS]
+
+
+# The second, point-only question. English on purpose: the same model that writes y=0 under a
+# non-English answer places 13 of 15 of those labels right when asked this way (bench/README.md).
+REPOINT_PROMPT = """You point at things on a screenshot. Reply with tags only, no other words:
+[POINT:x,y:short label]
+x and y are the CENTER of the element in normalized coordinates from 0 to 1000,
+where 0,0 is the top-left and 1000,1000 is the bottom-right of the screenshot.
+One tag per element, in the order given, at most 3."""
+
+
+def repoint_request(labels):
+    return "Point at: " + "; ".join(labels)
 
 
 def to_screen(point, monitor):
@@ -1431,6 +1462,32 @@ class Buddy:
         threading.Thread(target=work, daemon=True).start()
         return holder
 
+    def _repoint(self, labels, png, targets, generation):
+        """The reply named controls but put them on the screen's edge. Find them by name among the
+        controls Windows lists; else ask the brain once more, in English, only where they are.
+        Runs after the answer was spoken, so it never delays speech."""
+        logging.info("Points on the screen edge for %s; looking again", labels)
+        if targets is not None:
+            targets["done"].wait(3.0)
+            found = [keyit_targets.find_by_label(label, targets["items"]) for label in labels]
+            found = [keyit_targets.to_normalized(t, targets["rect"]) for t in found if t is not None]
+            if found:
+                return found[:MAX_POINTS]
+        client = self.client()
+        if not (getattr(client, "smart", False) or getattr(client, "gpu", False)):
+            return []                      # Ollama on the CPU: a second look costs about a minute
+        reply = ""
+        try:
+            for chunk in self._stream(self._messages(REPOINT_PROMPT, [], repoint_request(labels), png)):
+                if generation != self.generation:
+                    return []
+                reply += chunk
+        except Exception:
+            logging.warning("Second look for points failed", exc_info=True)
+            return []
+        logging.info("Second look: %r", " ".join(reply.split())[:200])
+        return parse_reply(reply)[1]
+
     def _snap_points(self, points, targets):
         """Move the model's points onto the exact UI elements they mean (when Windows knows them)."""
         if not points or targets is None:
@@ -1623,6 +1680,10 @@ class Buddy:
         remainder = parse_reply(reply.split("[")[0][spoken_upto:])[0]
         if remainder and self.settings["buddy_speak"]:
             self.speaker.say(remainder)
+        if not points:
+            labels = edge_labels(reply)
+            if labels:
+                points = self._repoint(labels, png, targets, generation)
         points = self._snap_points(points, targets)
         screen_points = [to_screen(p, self.monitor) for p in points]
         self.history += [
