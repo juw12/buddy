@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 APP_NAME = "Buddy"
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 
 SUPPORT_DIR = Path.home() / "Library" / "Application Support" / APP_NAME
 SETTINGS_PATH = SUPPORT_DIR / "settings.json"
@@ -62,7 +62,30 @@ DEFAULTS = {
     # Buddy Island: Buddy lives in the MacBook notch (or a notch-shaped strip on Macs without one).
     # Click it to type, press and hold it to talk; it grows while Buddy listens, thinks and answers.
     "island": True,
+    # The language Buddy listens for when you hold the hotkey. "" = the Mac's own language.
+    "voice_language": "",
 }
+
+# Languages for hold-to-talk (Apple's speech recognition). The menu only lists the ones this Mac supports.
+VOICE_LANGUAGES = [
+    ("", "Same as this Mac"),
+    ("en-US", "English (US)"),
+    ("en-GB", "English (UK)"),
+    ("id-ID", "Indonesian"),
+    ("ms-MY", "Malay"),
+    ("zh-TW", "Chinese, Traditional (Taiwan)"),
+    ("zh-CN", "Chinese, Simplified"),
+    ("yue-CN", "Cantonese"),
+    ("ja-JP", "Japanese"),
+    ("ko-KR", "Korean"),
+    ("th-TH", "Thai"),
+    ("vi-VN", "Vietnamese"),
+    ("hi-IN", "Hindi"),
+    ("de-DE", "German"),
+    ("fr-FR", "French"),
+    ("es-ES", "Spanish"),
+    ("pt-BR", "Portuguese (Brazil)"),
+]
 
 MAX_POINTS = 3
 SCREENSHOT_MAX_SIDE = 1280
@@ -73,6 +96,7 @@ You are given a screenshot of the user's current screen and their question. Your
 
 Rules:
 - Reply in 1 to 3 short, natural, spoken sentences. No markdown, no lists, no emojis, no URLs.
+- Reply in the language of the question, unless the user asks for another one.
 - Be concrete and refer to what is actually visible on the screen. Use Mac names (Command, Option, Finder, menu bar).
 - Whenever the question is about where something is or how to do something on screen, you MUST point:
   put one tag per element (button, menu, tab, field, icon, text) at the very END of your reply,
@@ -87,6 +111,57 @@ POINT_PATTERN = re.compile(
     r"\[\s*POINT\s*:\s*(\.?\d+(?:\.\d+)?)\s*,\s*(\.?\d+(?:\.\d+)?)\s*(?::\s*([^\]]*))?\]",
     re.IGNORECASE,
 )
+
+
+def primary(code: str) -> str:
+    """"zh-TW" -> "zh", "id_ID" -> "id"."""
+    return (code or "").replace("_", "-").split("-")[0].lower()
+
+
+def voice_language_name(code: str) -> str:
+    for known, name in VOICE_LANGUAGES:
+        if known and known.lower() == (code or "").replace("_", "-").lower():
+            return name
+    return ""
+
+
+def language_rule(code: str) -> str:
+    """One more system-prompt line when hold-to-talk listens for a language other than English: the answer
+    follows the question's language, and this names the language to use when a short or mixed question
+    leaves that open. Nothing for English, the Mac's own language ("") and codes the menu doesn't have."""
+    name = voice_language_name(code)
+    if not name or primary(code) == "en":
+        return ""
+    return (f"\n- The user's voice input language is {name}. If the question mixes languages or its language "
+            "is unclear, reply in that language.")
+
+
+def pick_voice(language: str, voices, preferred: str = "") -> str | None:
+    """The identifier of the system voice to read an answer in `language` with, or None for no match.
+
+    language: what the text is written in, as macOS reports it ("id", "en", "zh-Hant", "zh-Hans").
+    voices: [(identifier, language_code, quality), ...] such as ("com.apple.voice.compact.id-ID.Damayanti",
+    "id-ID", 1). preferred: the hold-to-talk language ("zh-TW"), used to choose a region when it shares
+    the text's language. Better quality wins within the same region preference.
+    """
+    wanted = primary(language)
+    if not wanted or wanted == "und":
+        return None
+    script_regions = {"hant": ("zh-TW", "zh-HK"), "hans": ("zh-CN",)}
+    regions = []
+    if preferred and primary(preferred) == wanted:
+        regions.append(preferred.replace("_", "-").lower())
+    for part in (language or "").replace("_", "-").lower().split("-")[1:]:
+        regions += [region.lower() for region in script_regions.get(part, (f"{wanted}-{part}",))]
+    best = None
+    for identifier, code, quality in voices:
+        code = (code or "").replace("_", "-").lower()
+        if primary(code) != wanted:
+            continue
+        rank = (regions.index(code) if code in regions else len(regions), -int(quality or 0))
+        if best is None or rank < best[0]:
+            best = (rank, identifier)
+    return best[1] if best else None
 
 
 # --------------------------------------------------------------------------- settings
@@ -181,9 +256,14 @@ def snap_points(points, text_boxes):
     """Move each (x, y, label) onto the screen text that matches its label, if there is one close by.
 
     text_boxes: [(text, x0, y0, x1, y1), ...] in 0..1000 screenshot coordinates.
+
+    A point with a coordinate of exactly 0 is on the very edge of the screen. Models replying in a language
+    other than English often write a menu path that way ([POINT:70,0:File] [POINT:70,0:Save As]), so for
+    those the position is a guess and the label is what counts: they snap to matching text anywhere.
     """
     snapped = []
     for x, y, label in points:
+        on_edge = x == 0 or y == 0
         best = None
         for text, x0, y0, x1, y1 in text_boxes:
             score, centre = _match_score(label, text)
@@ -192,7 +272,7 @@ def snap_points(points, text_boxes):
             target_x = x0 + (x1 - x0) * centre
             target_y = (y0 + y1) / 2
             distance = ((target_x - x) ** 2 + (target_y - y) ** 2) ** 0.5
-            if distance > SNAP_MAX_DISTANCE:
+            if distance > SNAP_MAX_DISTANCE and not on_edge:
                 continue
             rank = (round(score, 2), -distance)
             if best is None or rank > best[0]:
@@ -354,13 +434,14 @@ class Brain:
     key: str = ""
     timeout: float = 90
     history: list = field(default_factory=list)
+    system: str = SYSTEM_PROMPT
 
     def _messages(self, question: str, jpeg: bytes | None) -> list:
         content = [{"type": "text", "text": question}]
         if jpeg:
             encoded = base64.b64encode(jpeg).decode("ascii")
             content.append({"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{encoded}"}})
-        return [{"role": "system", "content": SYSTEM_PROMPT}, *self.history, {"role": "user", "content": content}]
+        return [{"role": "system", "content": self.system}, *self.history, {"role": "user", "content": content}]
 
     def ask(self, question: str, jpeg: bytes | None, on_text=None) -> str:
         """Send one question (+ screenshot) and return the full reply, calling on_text(partial) while it streams."""
@@ -454,8 +535,9 @@ def ask_with_fallback(question: str, jpeg: bytes | None, settings: dict, history
     Returns (reply, brain_that_answered). Raises the chosen brain's BrainError if none could answer.
     """
     first_error = None
+    system = SYSTEM_PROMPT + language_rule(settings.get("voice_language", ""))
     for url, model, key in brain_candidates(settings):
-        brain = Brain(url, model, key, history=list(history))
+        brain = Brain(url, model, key, history=list(history), system=system)
         try:
             return brain.ask(question, jpeg, on_text), brain
         except BrainError as error:

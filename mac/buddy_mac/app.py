@@ -117,6 +117,9 @@ class _Delegate(NSObject):
     def colorClicked_(self, sender):
         self.controller.set_color(sender.representedObject())
 
+    def voiceLanguageClicked_(self, sender):
+        self.controller.set_voice_language(sender.representedObject())
+
     def screenAccessClicked_(self, sender):
         self.controller.open_screen_access()
 
@@ -157,7 +160,8 @@ class Controller:
         self.overlay = IslandMirror(pointer, lambda: self.island)
         self._set_island(self.settings.get("island", True))
         self.speaker = Speaker()
-        self.listener = Listener(self._heard_partial, self._heard, self._voice_error)
+        self.listener = Listener(self._heard_partial, self._heard, self._voice_error,
+                                 language=self.settings.get("voice_language", ""))
         self.hotkey = HotKey(self._key_down, self._key_up)
         self._build_menu()
         if self.persist:
@@ -289,6 +293,24 @@ class Controller:
         color_parent.setSubmenu_(colors)
         menu.addItem_(color_parent)
 
+        # Voice language: what hold-to-talk listens for. Only languages this Mac's speech recognition has.
+        languages = NSMenu.alloc().init()
+        self.voice_language_items = {}
+        supported = {code.lower() for code in Listener.supported_languages()}
+        current = self.settings.get("voice_language", "")
+        for code, name in core.VOICE_LANGUAGES:
+            if code and code.lower() not in supported:
+                continue
+            item = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(name, "voiceLanguageClicked:", "")
+            item.setTarget_(delegate)
+            item.setRepresentedObject_(code)
+            item.setState_(1 if code == current else 0)
+            languages.addItem_(item)
+            self.voice_language_items[code] = item
+        language_parent = NSMenuItem.alloc().initWithTitle_action_keyEquivalent_("Voice language", None, "")
+        language_parent.setSubmenu_(languages)
+        menu.addItem_(language_parent)
+
         menu.addItem_(NSMenuItem.separatorItem())
         add("Allow screen access…", "screenAccessClicked:")
         add("Open log", "logClicked:")
@@ -318,6 +340,17 @@ class Controller:
         for other, item in self.color_items.items():
             item.setState_(1 if other == name else 0)
         self.overlay.set_color(core.COLORS[name])
+        self._save()
+
+    def set_voice_language(self, code):
+        code = str(code or "")
+        if not self.listener.set_language(code):
+            self._say_briefly("This Mac can't listen in that language, so I'll use the Mac's own language.")
+            code = ""
+        self.settings["voice_language"] = code
+        for other, item in self.voice_language_items.items():
+            item.setState_(1 if other == code else 0)
+        self.events.append(("voice_language", code))
         self._save()
 
     def _set_island(self, enabled):
@@ -523,7 +556,7 @@ class Controller:
         self.events.append(("answer", spoken))
         self.events.append(("points", points))
         if self.settings["speak"]:
-            self.speaker.speak(spoken)
+            self.speaker.speak(spoken, self.settings.get("voice_language", ""))
         targets = [core.point_to_cocoa(point, screen) for point in points]
         if not targets:
             self.overlay.say(spoken or "Hmm, I'm not sure.")

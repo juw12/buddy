@@ -85,6 +85,7 @@ class SelfTestController(Controller):
         self.report["checks"]["menu_bar_item"] = self.status_item is not None
         self._check_island()
         self._check_text_recognition()
+        self._check_voice_languages()
         plan = [
             (0.8, self._shot, "01_idle"),
             (1.0, self._state, ("listening", "“where's save as”")),
@@ -96,6 +97,36 @@ class SelfTestController(Controller):
         ]
         for delay, action, argument in plan:
             AppHelper.callLater(delay, action, argument)
+
+    def _check_voice_languages(self):
+        """Hold-to-talk in other languages: the menu's languages exist in Apple's speech recognition, the
+        listener switches to Indonesian and back, and answers are recognised by language for the voice."""
+        from .voice import text_language
+
+        checks = self.report["checks"]
+        supported = {code.lower() for code in self.listener.supported_languages()}
+        wanted = ["en-US", "id-ID", "zh-TW", "zh-CN", "ja-JP", "ko-KR"]
+        self.report["voice_languages"] = {code: code.lower() in supported for code in wanted}
+        self.report["voice_menu"] = sorted(self.voice_language_items)
+        checks["voice_languages"] = all(self.report["voice_languages"].values())
+        switched = self.listener.set_language("id-ID")
+        locale = str(self.listener.recognizer.locale().localeIdentifier()) if self.listener.recognizer else ""
+        back = self.listener.set_language("")
+        self.report["voice_switch"] = {"to_id": switched, "locale": locale, "back": back}
+        checks["voice_language_switch"] = switched and locale.replace("_", "-").startswith("id") and back
+        samples = {
+            "id": "Klik menu File di kiri atas, lalu pilih Simpan Sebagai untuk menyimpan dokumen ini.",
+            "zh-Hant": "請按左上角的檔案選單，然後選擇另存新檔。",
+            "en": "Open the File menu at the top left, then choose Save As.",
+        }
+        detected = {expected: text_language(text) for expected, text in samples.items()}
+        self.report["language_detect"] = detected
+        checks["language_detect"] = all(found == expected for expected, found in detected.items())
+        voices = {}
+        for expected, text in samples.items():
+            voice = self.speaker.voice_for(text, "")
+            voices[expected] = str(voice.language()) if voice is not None else "default"
+        self.report["answer_voices"] = voices        # which voice reads each answer (not required)
 
     def _check_text_recognition(self):
         """The arrow snaps onto text read by Apple's Vision framework: prove it is bundled and works."""
@@ -229,12 +260,17 @@ class SelfTestController(Controller):
         checks["island_mirrors"] = "listening" in modes and "thinking" in modes and "talking" in modes
         required = ["answer_parsed", "two_points", "pointer_landed", "renders_ok", "error_bubble",
                     "brain_called", "hotkey_registered", "menu_bar_item", "text_recognition",
-                    "island_at_top", "island_clickable", "island_renders", "island_mirrors"]
+                    "island_at_top", "island_clickable", "island_renders", "island_mirrors",
+                    "voice_languages", "voice_language_switch", "language_detect"]
         self.report["passed"] = reason == "done" and all(checks.get(name) for name in required)
         (self.out_dir / "report.json").write_text(json.dumps(self.report, indent=1), encoding="utf-8")
         print(json.dumps({"passed": self.report["passed"], "checks": checks,
                           "text_recognition": self.report.get("text_recognition"),
                           "text_snap": self.report.get("text_snap"),
+                          "voice_languages": self.report.get("voice_languages"),
+                          "voice_switch": self.report.get("voice_switch"),
+                          "language_detect": self.report.get("language_detect"),
+                          "answer_voices": self.report.get("answer_voices"),
                           "text_recognition_error": self.report.get("text_recognition_error")}, indent=1), flush=True)
         self.server.shutdown()
         AppHelper.stopEventLoop()
