@@ -167,7 +167,7 @@ jobs:
           TAG=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)
           # The manifest gives the Mac entry the release's version; an app with another version would offer itself
           # as an update forever. Refuse to upload unless the app inside the zip has the release's version.
-          APP_VERSION=$(unzip -p Buddy-mac.zip Buddy.app/Contents/Info.plist | python3 -c "import plistlib,sys; print(plistlib.load(sys.stdin.buffer)['CFBundleShortVersionString'])")
+          APP_VERSION=$(unzip -p Buddy-mac.zip Buddy.app/Contents/Info.plist | python3 -c "import plistlib,sys; print(plistlib.loads(sys.stdin.buffer.read())['CFBundleShortVersionString'])")
           if [ "$APP_VERSION" != "${TAG#v}" ]; then
             echo "::error::Buddy.app is $APP_VERSION but the latest release is $TAG; set VERSION in mac/buddy_mac/core.py to ${TAG#v}"
             exit 1
