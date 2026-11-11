@@ -1,19 +1,18 @@
 {
-  "version": "1.3.1",
+  "version": "1.3.2",
   "date": "2026-11-11",
   "notes": [
-    "Buddy points right when it answers in your language.",
-    "1.3.0 began answering in the language of the question. A live test showed the cost: after a non-English answer the arrow often went to the top-left corner of the screen instead of the menu item (in 14 of 26 answers, the tour ended somewhere other than the item asked about).",
-    "1.3.1 ignores those corner points and takes a second look: it finds the named control among the controls Windows lists, otherwise it asks the AI once more, in English, only where the control is. In the same test, every one of 13 answers then ended on the right item (4 needed the second look).",
-    "Every answer in that test came in the language of the question (26 of 26 with the 1.3.0 prompt; 1.2.0 answered Malay, Spanish and French in English).",
-    "With Ollama on the processor only, Buddy skips the second look (about a minute) and shows no pointer rather than a wrong one."
+    "Buddy for Mac (Buddy Lite 1.2.0) is no longer English-only. Menu bar, Voice language: hold-to-talk listens in Indonesian, Chinese (Taiwan or Mainland), Cantonese, Japanese, Korean, Malay, Thai, Vietnamese, Hindi, German, French, Spanish, Portuguese or English.",
+    "On the Mac, Buddy answers in the language you asked in and reads the answer with a Mac voice for that language. On a test Mac, Apple's older language detector read Indonesian as Turkish; Buddy now uses the newer recogniser and your voice language as a hint.",
+    "On the Mac, menu items a non-English answer puts on the screen's top edge now snap to the matching text on screen, the Mac form of the 1.3.1 Windows fix.",
+    "Windows: the Focus tab's summary uses the whole width of the tab and says 1/5 stars instead of 1 stars."
   ],
-  "page": "https://github.com/juw12/buddy/releases/tag/v1.3.1",
+  "page": "https://github.com/juw12/buddy/releases/tag/v1.3.2",
   "windows": {
-    "version": "1.3.1",
-    "url": "https://github.com/juw12/buddy/releases/download/v1.3.1/Buddy-win64.zip",
-    "size": 179225191,
-    "sha256": "bdca3be6d9514482824ca0458b31d62f9e2039e111feea8c09c149bd9b27a0cc"
+    "version": "1.3.2",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.3.2/Buddy-win64.zip",
+    "size": 179233859,
+    "sha256": "44c5c76ccced8702a94f3992be7e2d251ed2d3046ff0c642d0f36d9205525f73"
   },
   "mac": {
     "version": "1.1.0",
