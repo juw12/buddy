@@ -311,7 +311,7 @@ def test_island_is_on_by_default():
     assert core.DEFAULTS["island"] is True
 
 
-# --------------------------------------------------------------------------- languages (1.2.0)
+# --------------------------------------------------------------------------- languages (1.3.2)
 def test_prompt_answers_in_the_questions_language():
     assert "Reply in the language of the question" in core.SYSTEM_PROMPT
 
