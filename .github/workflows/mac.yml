@@ -73,6 +73,7 @@ jobs:
             --osx-bundle-identifier io.github.juw12.buddy \
             --icon ../build/Buddy.icns \
             --hidden-import Speech --hidden-import AVFoundation --hidden-import Quartz --hidden-import Vision \
+            --hidden-import NaturalLanguage \
             BuddyMac.py
           PLIST=dist/Buddy.app/Contents/Info.plist
           plutil -replace CFBundleShortVersionString -string "$VERSION" "$PLIST"

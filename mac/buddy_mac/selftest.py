@@ -121,7 +121,10 @@ class SelfTestController(Controller):
         }
         detected = {expected: text_language(text) for expected, text in samples.items()}
         self.report["language_detect"] = detected
-        checks["language_detect"] = all(found == expected for expected, found in detected.items())
+        detected["id with id-ID picked"] = text_language(samples["id"], "id-ID")
+        self.report["language_detect"] = detected
+        checks["language_detect"] = (all(detected[expected] == expected for expected in samples)
+                                     and detected["id with id-ID picked"] == "id")
         voices = {}
         for expected, text in samples.items():
             voice = self.speaker.voice_for(text, "")

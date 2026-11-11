@@ -16,16 +16,40 @@ from PyObjCTools import AppHelper
 from . import core
 
 
-def text_language(text: str) -> str:
-    """The language a text is written in, as macOS sees it ("id", "en", "zh-Hant"), or "" if unsure."""
+def text_language(text: str, preferred: str = "") -> str:
+    """The language a text is written in ("id", "en", "zh-Hant"), or "" if unsure.
+
+    Uses Apple's NaturalLanguage recognizer; the older NSLinguisticTagger reads Indonesian as Turkish. When
+    the hold-to-talk language (preferred) is among the likely languages, it wins: short answers are often
+    ambiguous between close languages (Indonesian and Malay).
+    """
+    text = text or ""
+    try:
+        from NaturalLanguage import NLLanguageRecognizer
+
+        recognizer = NLLanguageRecognizer.alloc().init()
+        wanted = core.primary(preferred)
+        if wanted:
+            recognizer.setLanguageHints_({wanted: 0.6})
+        recognizer.processString_(text)
+        hypotheses = {str(code): float(chance) for code, chance in
+                      (recognizer.languageHypothesesWithMaximum_(3) or {}).items()}
+        if wanted and hypotheses.get(wanted, 0.0) >= 0.2:
+            return wanted
+        if hypotheses:
+            best = max(hypotheses, key=hypotheses.get)
+            return best if hypotheses[best] >= 0.5 and best != "und" else ""
+        return ""
+    except Exception:                                       # noqa: BLE001
+        logging.info("NaturalLanguage unavailable; using NSLinguisticTagger")
     try:
         from Foundation import NSLinguisticTagger
 
-        language = NSLinguisticTagger.dominantLanguageForString_(text or "") or ""
+        language = str(NSLinguisticTagger.dominantLanguageForString_(text) or "")
     except Exception:                                       # noqa: BLE001
         logging.exception("language detection unavailable")
         return ""
-    return "" if language == "und" else str(language)
+    return "" if language == "und" else language
 
 
 class Speaker:
@@ -58,7 +82,7 @@ class Speaker:
             return None
         from AVFoundation import AVSpeechSynthesisVoice
 
-        language = text_language(text) or preferred
+        language = text_language(text, preferred) or preferred
         default = str(AVSpeechSynthesisVoice.currentLanguageCode() or "")
         if not language or core.primary(language) == core.primary(default):
             return None                                     # the user's own default voice speaks it
