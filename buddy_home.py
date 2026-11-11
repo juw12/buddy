@@ -98,7 +98,9 @@ class BuddyTabs:
         focus.columnconfigure(0, weight=1)
         ttk.Label(focus, text="Today", font=("Segoe UI Semibold", 13)).grid(row=0, column=0, sticky="w")
         self.focus_text = ttk.Label(focus, justify="left", wraplength=430)
-        self.focus_text.grid(row=1, column=0, sticky="w", pady=(6, 12))
+        self.focus_text.grid(row=1, column=0, sticky="ew", pady=(6, 12))
+        # Wrap at the tab's real width (a fixed 430 px left two thirds of the tab empty on scaled screens).
+        self.focus_text.bind("<Configure>", self._wrap_focus_text)
         buttons = ttk.Frame(focus)
         buttons.grid(row=2, column=0, sticky="w")
         ttk.Button(buttons, text="Focus card", command=self.app.open_focus_card).pack(side="left")
@@ -107,6 +109,11 @@ class BuddyTabs:
         ttk.Button(buttons, text="Refresh", command=self.refresh).pack(side="left", padx=(6, 0))
         ttk.Label(focus, text="Pomodoros, goals, reminders and friends: right-click Buddy on your desktop.",
                   foreground=MUTED).grid(row=3, column=0, sticky="w", pady=(14, 0))
+
+    def _wrap_focus_text(self, event):
+        width = max(200, event.width - 4)
+        if int(str(self.focus_text.cget("wraplength")) or 0) != width:
+            self.focus_text.config(wraplength=width)
 
     # ------------------------------------------------------------------ updates
     def refresh(self):
