@@ -61,7 +61,7 @@ def pips_focus_summary(widget):
     data = scoring.compute_daily(widget.con, day, widget.cfg)
     minutes = lambda key: int(data.get(key, 0) or 0) // 60
     lines = [
-        f"Today so far: focus score {float(data.get('score', 0)):.0f}/100 ({data.get('stars', 0)} stars), "
+        f"Today so far: focus score {float(data.get('score', 0)):.0f}/100 ({data.get('stars', 0)}/5 stars), "
         f"productive {minutes('productive_seconds')} min, distracting {minutes('distracting_seconds')} min, "
         f"idle {minutes('idle_seconds')} min, {data.get('pomodoros_done', 0)} pomodoros, "
         f"{data.get('app_switches', 0)} app switches."
