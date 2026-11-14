@@ -1,0 +1,1114 @@
+{
+ "when": "2026-11-14 16:41 (parts a, b) and 2026-11-14 16:13 (parts c, d)",
+ "machine": "Intel64 Family 6 Model 189 Stepping 1, GenuineIntel, 8 logical CPUs, Windows 10",
+ "jev": {
+  "label": "published by the vendor, not measured by us",
+  "decision_ms": "about 300 ms per decision",
+  "end_to_end_ms": "70 to 500",
+  "price": "$0.042 per million input tokens",
+  "runs": "vendor cloud only",
+  "input": "a transcript",
+  "sources": [
+   "https://evalgent.com/blog/jev-voice-agent-use-cases",
+   "https://evalgent.com/blog/jev-for-voice-agents",
+   "https://evalgent.com/blog/jev-vs-llm-voice-agents",
+   "https://veris.ai/blog/jev-turn-detection",
+   "https://devwithjev.com/builds/full-duplex-voice-agent"
+  ]
+ },
+ "text_only": {
+  "en_dev": {
+   "finished": 1.0,
+   "unfinished": 0.688,
+   "balanced_accuracy": 0.844,
+   "n": 32,
+   "wrong": [
+    "Can you copy this to",
+    "Select the first row and then",
+    "The issue is that",
+    "Maybe we could",
+    "We have to do this before"
+   ]
+  },
+  "en_held_out": {
+   "finished": 1.0,
+   "unfinished": 0.583,
+   "balanced_accuracy": 0.792,
+   "n": 48,
+   "wrong": [
+    "Can you send this to",
+    "First select the column and then",
+    "The problem is that",
+    "I was thinking we could",
+    "Move this file into the folder called",
+    "So basically what I need is",
+    "We need to finish this before",
+    "Add a row between the second and the third and also",
+    "I would rather",
+    "After that we should probably"
+   ]
+  },
+  "zh": {
+   "finished": 1.0,
+   "unfinished": 0.875,
+   "balanced_accuracy": 0.938,
+   "n": 16,
+   "wrong": [
+    "把檔案放到"
+   ]
+  },
+  "id": {
+   "finished": 1.0,
+   "unfinished": 0.625,
+   "balanced_accuracy": 0.812,
+   "n": 16,
+   "wrong": [
+    "Saya mau buka",
+    "Masalahnya adalah",
+    "Simpan di dalam"
+   ]
+  }
+ },
+ "gate": {
+  "MARGIN": 1.5,
+  "BLIND_MARGIN": 2.5,
+  "NEED": 5,
+  "OUT_OF": 12
+ },
+ "gaps_s": {
+  "complete": 0.3,
+  "neutral": 0.7,
+  "unfinished": 1.6
+ },
+ "barge_in": {
+  "buddy_seconds": 19.8,
+  "own_voice": [
+   {
+    "voice": "natural",
+    "leak": 0.02,
+    "runs": 9,
+    "buddy_minutes": 3.0,
+    "false_barge_ins": 0
+   },
+   {
+    "voice": "natural",
+    "leak": 0.2,
+    "runs": 9,
+    "buddy_minutes": 3.0,
+    "false_barge_ins": 0
+   },
+   {
+    "voice": "natural",
+    "leak": 0.8,
+    "runs": 9,
+    "buddy_minutes": 3.0,
+    "false_barge_ins": 0
+   },
+   {
+    "voice": "natural",
+    "leak": 2.0,
+    "runs": 9,
+    "buddy_minutes": 3.0,
+    "false_barge_ins": 0
+   },
+   {
+    "voice": "blind (SAPI)",
+    "leak": 0.02,
+    "runs": 9,
+    "buddy_minutes": 3.0,
+    "false_barge_ins": 0
+   },
+   {
+    "voice": "blind (SAPI)",
+    "leak": 0.2,
+    "runs": 9,
+    "buddy_minutes": 3.0,
+    "false_barge_ins": 0
+   },
+   {
+    "voice": "blind (SAPI)",
+    "leak": 0.8,
+    "runs": 9,
+    "buddy_minutes": 3.0,
+    "false_barge_ins": 0
+   },
+   {
+    "voice": "blind (SAPI)",
+    "leak": 2.0,
+    "runs": 9,
+    "buddy_minutes": 3.0,
+    "false_barge_ins": 0
+   }
+  ],
+  "user": [
+   {
+    "voice": "natural",
+    "user_vs_echo": "headset",
+    "tries": 8,
+    "noticed_within_0.5s": 1.0,
+    "noticed_within_1s": 1.0,
+    "before_onset": 0,
+    "onset_to_stop_s": {
+     "n": 8,
+     "p50": 0.11,
+     "p95": 0.14,
+     "max": 0.14,
+     "mean": 0.116
+    }
+   },
+   {
+    "voice": "natural",
+    "user_vs_echo": "x1.5",
+    "tries": 24,
+    "noticed_within_0.5s": 0.292,
+    "noticed_within_1s": 0.292,
+    "before_onset": 0,
+    "onset_to_stop_s": {
+     "n": 7,
+     "p50": 0.19,
+     "p95": 0.2,
+     "max": 0.2,
+     "mean": 0.194
+    }
+   },
+   {
+    "voice": "natural",
+    "user_vs_echo": "x2",
+    "tries": 24,
+    "noticed_within_0.5s": 0.458,
+    "noticed_within_1s": 0.458,
+    "before_onset": 0,
+    "onset_to_stop_s": {
+     "n": 11,
+     "p50": 0.19,
+     "p95": 0.2,
+     "max": 0.2,
+     "mean": 0.195
+    }
+   },
+   {
+    "voice": "natural",
+    "user_vs_echo": "x3",
+    "tries": 24,
+    "noticed_within_0.5s": 1.0,
+    "noticed_within_1s": 1.0,
+    "before_onset": 0,
+    "onset_to_stop_s": {
+     "n": 24,
+     "p50": 0.2,
+     "p95": 0.2,
+     "max": 0.2,
+     "mean": 0.195
+    }
+   },
+   {
+    "voice": "natural",
+    "user_vs_echo": "x4",
+    "tries": 24,
+    "noticed_within_0.5s": 1.0,
+    "noticed_within_1s": 1.0,
+    "before_onset": 0,
+    "onset_to_stop_s": {
+     "n": 24,
+     "p50": 0.2,
+     "p95": 0.2,
+     "max": 0.2,
+     "mean": 0.194
+    }
+   },
+   {
+    "voice": "natural",
+    "user_vs_echo": "x6",
+    "tries": 24,
+    "noticed_within_0.5s": 1.0,
+    "noticed_within_1s": 1.0,
+    "before_onset": 0,
+    "onset_to_stop_s": {
+     "n": 24,
+     "p50": 0.17,
+     "p95": 0.2,
+     "max": 0.2,
+     "mean": 0.176
+    }
+   },
+   {
+    "voice": "natural",
+    "user_vs_echo": "x10",
+    "tries": 24,
+    "noticed_within_0.5s": 1.0,
+    "noticed_within_1s": 1.0,
+    "before_onset": 0,
+    "onset_to_stop_s": {
+     "n": 24,
+     "p50": 0.14,
+     "p95": 0.17,
+     "max": 0.17,
+     "mean": 0.145
+    }
+   },
+   {
+    "voice": "blind (SAPI)",
+    "user_vs_echo": "headset",
+    "tries": 8,
+    "noticed_within_0.5s": 1.0,
+    "noticed_within_1s": 1.0,
+    "before_onset": 0,
+    "onset_to_stop_s": {
+     "n": 8,
+     "p50": 0.14,
+     "p95": 0.14,
+     "max": 0.14,
+     "mean": 0.135
+    }
+   },
+   {
+    "voice": "blind (SAPI)",
+    "user_vs_echo": "x1.5",
+    "tries": 24,
+    "noticed_within_0.5s": 0.0,
+    "noticed_within_1s": 0.0,
+    "before_onset": 0,
+    "onset_to_stop_s": null
+   },
+   {
+    "voice": "blind (SAPI)",
+    "user_vs_echo": "x2",
+    "tries": 24,
+    "noticed_within_0.5s": 0.0,
+    "noticed_within_1s": 0.0,
+    "before_onset": 0,
+    "onset_to_stop_s": null
+   },
+   {
+    "voice": "blind (SAPI)",
+    "user_vs_echo": "x3",
+    "tries": 24,
+    "noticed_within_0.5s": 0.542,
+    "noticed_within_1s": 0.542,
+    "before_onset": 0,
+    "onset_to_stop_s": {
+     "n": 13,
+     "p50": 0.19,
+     "p95": 0.2,
+     "max": 0.2,
+     "mean": 0.195
+    }
+   },
+   {
+    "voice": "blind (SAPI)",
+    "user_vs_echo": "x4",
+    "tries": 24,
+    "noticed_within_0.5s": 1.0,
+    "noticed_within_1s": 1.0,
+    "before_onset": 0,
+    "onset_to_stop_s": {
+     "n": 24,
+     "p50": 0.2,
+     "p95": 0.2,
+     "max": 0.2,
+     "mean": 0.195
+    }
+   },
+   {
+    "voice": "blind (SAPI)",
+    "user_vs_echo": "x6",
+    "tries": 24,
+    "noticed_within_0.5s": 1.0,
+    "noticed_within_1s": 1.0,
+    "before_onset": 0,
+    "onset_to_stop_s": {
+     "n": 24,
+     "p50": 0.2,
+     "p95": 0.2,
+     "max": 0.2,
+     "mean": 0.195
+    }
+   },
+   {
+    "voice": "blind (SAPI)",
+    "user_vs_echo": "x10",
+    "tries": 24,
+    "noticed_within_0.5s": 1.0,
+    "noticed_within_1s": 1.0,
+    "before_onset": 0,
+    "onset_to_stop_s": {
+     "n": 24,
+     "p50": 0.17,
+     "p95": 0.2,
+     "max": 0.2,
+     "mean": 0.175
+    }
+   }
+  ],
+  "hear_ms": {
+   "n": 50976,
+   "p50": 0.026,
+   "p95": 0.1195,
+   "max": 505.6175,
+   "mean": 0.1803
+  }
+ },
+ "voice": {
+  "measured": false,
+  "why": "the output device did not start"
+ },
+ "synthesis_s_per_clip": {
+  "n": 55,
+  "p50": 10.938,
+  "p95": 31.65,
+  "max": 36.623,
+  "mean": 14.282
+ },
+ "turn_rows": [
+  {
+   "label": "finished",
+   "said": "What time is it in Tokyo right now?",
+   "heard": "What time is it in Tokyo right now?",
+   "kind": "complete",
+   "fired": 0.327,
+   "detector": 0.327,
+   "decide_s": [
+    2.549
+   ],
+   "detector_end": 0.027000000000000024
+  },
+  {
+   "label": "finished",
+   "said": "Open the downloads folder.",
+   "heard": "Open the Downloads folder.",
+   "kind": "complete",
+   "fired": 0.3543125,
+   "detector": 0.3543125,
+   "decide_s": [
+    0.377
+   ],
+   "detector_end": 0.054312499999999986
+  },
+  {
+   "label": "finished",
+   "said": "How do I merge these two cells?",
+   "heard": "How do I merge these two cells?",
+   "kind": "complete",
+   "fired": 0.375875,
+   "detector": 0.375875,
+   "decide_s": [
+    0.752
+   ],
+   "detector_end": 0.07587500000000003
+  },
+  {
+   "label": "finished",
+   "said": "Summarize this email for me.",
+   "heard": "summarize this email from me.",
+   "kind": "complete",
+   "fired": 0.438125,
+   "detector": 0.438125,
+   "decide_s": [
+    0.424
+   ],
+   "detector_end": 0.138125
+  },
+  {
+   "label": "finished",
+   "said": "Yes, go ahead.",
+   "heard": "Yes, go ahead.",
+   "kind": "neutral",
+   "fired": 0.788,
+   "detector": 0.368,
+   "decide_s": [
+    0.285
+   ],
+   "detector_end": 0.068
+  },
+  {
+   "label": "finished",
+   "said": "No, that's not what I meant.",
+   "heard": "No, that's not what I meant.",
+   "kind": "neutral",
+   "fired": 0.766375,
+   "detector": 0.346375,
+   "decide_s": [
+    0.79
+   ],
+   "detector_end": 0.046375
+  },
+  {
+   "label": "finished",
+   "said": "Can you make the font bigger?",
+   "heard": "Can you make the font bigger?",
+   "kind": "complete",
+   "fired": 0.360875,
+   "detector": 0.360875,
+   "decide_s": [
+    0.667
+   ],
+   "detector_end": 0.06087500000000001
+  },
+  {
+   "label": "finished",
+   "said": "I think the second option is better.",
+   "heard": "I think the second option is better.",
+   "kind": "neutral",
+   "fired": 0.7505625,
+   "detector": 0.3605625,
+   "decide_s": [
+    0.73
+   ],
+   "detector_end": 0.06056250000000002
+  },
+  {
+   "label": "finished",
+   "said": "Translate this paragraph into Chinese.",
+   "heard": "Translate this paragraph into Chinese.",
+   "kind": "complete",
+   "fired": 0.366,
+   "detector": 0.366,
+   "decide_s": [
+    0.682
+   ],
+   "detector_end": 0.066
+  },
+  {
+   "label": "finished",
+   "said": "Why is my laptop so slow today?",
+   "heard": "Why is my laptop so slow today?",
+   "kind": "complete",
+   "fired": 0.3856875,
+   "detector": 0.3856875,
+   "decide_s": [
+    0.454
+   ],
+   "detector_end": 0.08568750000000003
+  },
+  {
+   "label": "finished",
+   "said": "Remind me to call the supplier at three.",
+   "heard": "Remind me to call the supplier at 3.",
+   "kind": "neutral",
+   "fired": 0.7773125,
+   "detector": 0.3873125,
+   "decide_s": [
+    0.73
+   ],
+   "detector_end": 0.08731250000000002
+  },
+  {
+   "label": "finished",
+   "said": "That looks good, thanks.",
+   "heard": "That looks good, thanks.",
+   "kind": "complete",
+   "fired": 0.370375,
+   "detector": 0.370375,
+   "decide_s": [
+    0.532
+   ],
+   "detector_end": 0.07037500000000002
+  },
+  {
+   "label": "finished",
+   "said": "Who should I send this to?",
+   "heard": "Who should I send this to?",
+   "kind": "neutral",
+   "fired": 0.7544375,
+   "detector": 0.3644375,
+   "decide_s": [
+    0.599
+   ],
+   "detector_end": 0.06443750000000004
+  },
+  {
+   "label": "finished",
+   "said": "What is this button for?",
+   "heard": "What is this button for?",
+   "kind": "neutral",
+   "fired": 0.80825,
+   "detector": 0.38825,
+   "decide_s": [
+    0.33
+   ],
+   "detector_end": 0.08825
+  },
+  {
+   "label": "finished",
+   "said": "Show me where the settings are.",
+   "heard": "Show me where the settings are.",
+   "kind": "neutral",
+   "fired": 0.741,
+   "detector": 0.351,
+   "decide_s": [
+    0.507
+   ],
+   "detector_end": 0.05099999999999999
+  },
+  {
+   "label": "finished",
+   "said": "The meeting got moved to Thursday afternoon.",
+   "heard": "The meeting got moved to Thursday afternoon.",
+   "kind": "neutral",
+   "fired": 0.787625,
+   "detector": 0.397625,
+   "decide_s": [
+    0.426
+   ],
+   "detector_end": 0.09762500000000002
+  },
+  {
+   "label": "finished",
+   "said": "Close all the tabs except this one.",
+   "heard": "Close all the tabs except this one.",
+   "kind": "complete",
+   "fired": 0.373,
+   "detector": 0.373,
+   "decide_s": [
+    0.501
+   ],
+   "detector_end": 0.07300000000000001
+  },
+  {
+   "label": "finished",
+   "said": "I don't know what that error means.",
+   "heard": "I don't know what that error means.",
+   "kind": "neutral",
+   "fired": 0.7680625,
+   "detector": 0.3780625,
+   "decide_s": [
+    0.549
+   ],
+   "detector_end": 0.07806250000000003
+  },
+  {
+   "label": "finished",
+   "said": "Is there a faster way to do it?",
+   "heard": "Is there a faster way to do it?",
+   "kind": "complete",
+   "fired": 0.4088125,
+   "detector": 0.3788125,
+   "decide_s": [
+    0.408
+   ],
+   "detector_end": 0.07881250000000001
+  },
+  {
+   "label": "finished",
+   "said": "Read the last message out loud.",
+   "heard": "Read the last message out loud.",
+   "kind": "complete",
+   "fired": 0.2218125,
+   "detector": 0.2218125,
+   "decide_s": [
+    0.368
+   ],
+   "detector_end": -0.0781875
+  },
+  {
+   "label": "finished",
+   "said": "Tell me what you see on the screen.",
+   "heard": "Tell me what you see on the screen.",
+   "kind": "complete",
+   "fired": 0.3923125,
+   "detector": 0.3923125,
+   "decide_s": [
+    0.46
+   ],
+   "detector_end": 0.09231250000000002
+  },
+  {
+   "label": "finished",
+   "said": "It crashed again when I pressed save.",
+   "heard": "It crashed again when I pressed save.",
+   "kind": "neutral",
+   "fired": 0.73525,
+   "detector": 0.34525,
+   "decide_s": [
+    0.455
+   ],
+   "detector_end": 0.04525000000000001
+  },
+  {
+   "label": "finished",
+   "said": "Which file did I edit most recently?",
+   "heard": "Which file did I edit most recently?",
+   "kind": "complete",
+   "fired": 0.39525,
+   "detector": 0.39525,
+   "decide_s": [
+    0.494
+   ],
+   "detector_end": 0.09525
+  },
+  {
+   "label": "finished",
+   "said": "Let's try the other one.",
+   "heard": "Let's try the other one.",
+   "kind": "neutral",
+   "fired": 0.7315625,
+   "detector": 0.3415625,
+   "decide_s": [
+    0.542
+   ],
+   "detector_end": 0.0415625
+  },
+  {
+   "label": "unfinished",
+   "said": "I want to open the",
+   "heard": "I want to open they",
+   "kind": "neutral",
+   "fired": 0.818625,
+   "detector": 0.398625,
+   "decide_s": [
+    1.556
+   ],
+   "detector_end": 0.09862500000000002
+  },
+  {
+   "label": "unfinished",
+   "said": "Can you send this to",
+   "heard": "Can you send this to?",
+   "kind": "neutral",
+   "fired": 0.8025625,
+   "detector": 0.4125625,
+   "decide_s": [
+    0.186
+   ],
+   "detector_end": 0.11256250000000001
+  },
+  {
+   "label": "unfinished",
+   "said": "First select the column and then",
+   "heard": "First select the column and then...",
+   "kind": "unfinished",
+   "fired": 1.602,
+   "detector": 0.342,
+   "decide_s": [
+    0.182
+   ],
+   "detector_end": 0.04200000000000004
+  },
+  {
+   "label": "unfinished",
+   "said": "The problem is that",
+   "heard": "The problem is that.",
+   "kind": "neutral",
+   "fired": 0.76625,
+   "detector": 0.34625,
+   "decide_s": [
+    0.176
+   ],
+   "detector_end": 0.04625000000000001
+  },
+  {
+   "label": "unfinished",
+   "said": "I was thinking we could",
+   "heard": "I was thinking we could.",
+   "kind": "neutral",
+   "fired": 0.7625,
+   "detector": 0.3725,
+   "decide_s": [
+    0.361
+   ],
+   "detector_end": 0.07250000000000001
+  },
+  {
+   "label": "unfinished",
+   "said": "Move this file into the folder called",
+   "heard": "Move this file into the folder called.",
+   "kind": "complete",
+   "fired": 0.2708125,
+   "detector": 0.2708125,
+   "decide_s": [
+    0.285
+   ],
+   "detector_end": -0.029187499999999977
+  },
+  {
+   "label": "unfinished",
+   "said": "It should be bigger but",
+   "heard": "it it should be it should be it should be",
+   "kind": "neutral",
+   "fired": 0.784,
+   "detector": 0.394,
+   "decide_s": [
+    0.303
+   ],
+   "detector_end": 0.09400000000000003
+  },
+  {
+   "label": "unfinished",
+   "said": "Change the color of the title and",
+   "heard": "Change the color of the title and",
+   "kind": "unfinished",
+   "fired": 1.5758125,
+   "detector": 0.2858125,
+   "decide_s": [
+    0.302
+   ],
+   "detector_end": -0.014187499999999964
+  },
+  {
+   "label": "unfinished",
+   "said": "So basically what I need is",
+   "heard": "So basically what I need is...",
+   "kind": "unfinished",
+   "fired": 1.67575,
+   "detector": 0.38575,
+   "decide_s": [
+    0.28
+   ],
+   "detector_end": 0.08574999999999999
+  },
+  {
+   "label": "unfinished",
+   "said": "Could you look at the chart and tell me if",
+   "heard": "Could you look at the chart and tell me if?",
+   "kind": "unfinished",
+   "fired": 1.6514375,
+   "detector": 0.3614375,
+   "decide_s": [
+    0.874
+   ],
+   "detector_end": 0.061437500000000034
+  },
+  {
+   "label": "unfinished",
+   "said": "Put the total at the bottom of",
+   "heard": "Put the total at the bottom of",
+   "kind": "unfinished",
+   "fired": 1.6695625,
+   "detector": 0.3795625,
+   "decide_s": [
+    0.864
+   ],
+   "detector_end": 0.07956250000000004
+  },
+  {
+   "label": "unfinished",
+   "said": "I tried restarting it because",
+   "heard": "I tried restarting it because",
+   "kind": "unfinished",
+   "fired": 1.693625,
+   "detector": 0.403625,
+   "decide_s": [
+    0.537
+   ],
+   "detector_end": 0.10362500000000002
+  },
+  {
+   "label": "unfinished",
+   "said": "Compare this version with",
+   "heard": "Compare this version with",
+   "kind": "unfinished",
+   "fired": 1.658375,
+   "detector": 0.368375,
+   "decide_s": [
+    1.065
+   ],
+   "detector_end": 0.06837500000000002
+  },
+  {
+   "label": "unfinished",
+   "said": "Um, how do I, uh",
+   "heard": "How how how do I",
+   "kind": "unfinished",
+   "fired": 1.66575,
+   "detector": 0.37575,
+   "decide_s": [
+    0.678
+   ],
+   "detector_end": 0.07574999999999998
+  },
+  {
+   "label": "unfinished",
+   "said": "Set a reminder for tomorrow at",
+   "heard": "Set a reminder for tomorrow at",
+   "kind": "unfinished",
+   "fired": 1.699125,
+   "detector": 0.379125,
+   "decide_s": [
+    0.211
+   ],
+   "detector_end": 0.079125
+  },
+  {
+   "label": "unfinished",
+   "said": "Open the report, or",
+   "heard": "Open the report or...",
+   "kind": "unfinished",
+   "fired": 1.653125,
+   "detector": 0.363125,
+   "decide_s": [
+    0.222
+   ],
+   "detector_end": 0.06312499999999999
+  },
+  {
+   "label": "unfinished",
+   "said": "We need to finish this before",
+   "heard": "We need to finish this before.",
+   "kind": "neutral",
+   "fired": 0.770625,
+   "detector": 0.380625,
+   "decide_s": [
+    0.242
+   ],
+   "detector_end": 0.080625
+  },
+  {
+   "label": "unfinished",
+   "said": "The file is saved in my",
+   "heard": "The file is saved in mine.",
+   "kind": "neutral",
+   "fired": 0.763375,
+   "detector": 0.343375,
+   "decide_s": [
+    0.361
+   ],
+   "detector_end": 0.043375
+  },
+  {
+   "label": "unfinished",
+   "said": "Let me think, it was something like",
+   "heard": "Let me think it was something like",
+   "kind": "unfinished",
+   "fired": 1.583,
+   "detector": 0.293,
+   "decide_s": [
+    0.374
+   ],
+   "detector_end": -0.007000000000000006
+  },
+  {
+   "label": "unfinished",
+   "said": "Add a row between the second and the third and also",
+   "heard": "Add a row between the second and the third, and also...",
+   "kind": "unfinished",
+   "fired": 1.7045625,
+   "detector": 0.3545625,
+   "decide_s": [
+    0.535
+   ],
+   "detector_end": 0.054562500000000014
+  },
+  {
+   "label": "unfinished",
+   "said": "I would rather",
+   "heard": "I would rather",
+   "kind": "neutral",
+   "fired": 0.766875,
+   "detector": 0.346875,
+   "decide_s": [
+    0.483
+   ],
+   "detector_end": 0.046875
+  },
+  {
+   "label": "unfinished",
+   "said": "Can you check whether the",
+   "heard": "Can you check whether the █████ █████ █",
+   "kind": "unfinished",
+   "fired": 1.653125,
+   "detector": 0.363125,
+   "decide_s": [
+    0.298
+   ],
+   "detector_end": 0.06312499999999999
+  },
+  {
+   "label": "unfinished",
+   "said": "It needs to go from here to, hmm",
+   "heard": "It needs to go from here to hung.",
+   "kind": "neutral",
+   "fired": 0.7586875,
+   "detector": 0.3386875,
+   "decide_s": [
+    0.487
+   ],
+   "detector_end": 0.038687499999999986
+  },
+  {
+   "label": "unfinished",
+   "said": "After that we should probably",
+   "heard": "After that, we should probably...",
+   "kind": "unfinished",
+   "fired": 1.699,
+   "detector": 0.409,
+   "decide_s": [
+    0.429
+   ],
+   "detector_end": 0.10899999999999999
+  },
+  {
+   "label": "added_to",
+   "said": "Open the spreadsheet",
+   "heard": "Open the spreadsheet.",
+   "kind": "complete",
+   "fired": 0.421,
+   "detector": 0.421,
+   "decide_s": [
+    0.435
+   ],
+   "detector_end": 0.121
+  },
+  {
+   "label": "added_to",
+   "said": "I need the report",
+   "heard": "I need the report.",
+   "kind": "neutral",
+   "fired": 0.7821875,
+   "detector": 0.3921875,
+   "decide_s": [
+    0.438
+   ],
+   "detector_end": 0.09218750000000003
+  },
+  {
+   "label": "added_to",
+   "said": "Send it to the team",
+   "heard": "Send it to the team.",
+   "kind": "neutral",
+   "fired": 0.734,
+   "detector": 0.314,
+   "decide_s": [
+    0.515
+   ],
+   "detector_end": 0.014000000000000012
+  },
+  {
+   "label": "added_to",
+   "said": "Make the title bold",
+   "heard": "Make the title bold.",
+   "kind": "complete",
+   "fired": 0.34775,
+   "detector": 0.37775,
+   "decide_s": [
+    0.626
+   ],
+   "detector_end": 0.07774999999999999
+  },
+  {
+   "label": "added_to",
+   "said": "There is an error in line twelve",
+   "heard": "There is an error in line 12.",
+   "kind": "neutral",
+   "fired": 0.7499375,
+   "detector": 0.3599375,
+   "decide_s": [
+    0.528
+   ],
+   "detector_end": 0.05993750000000003
+  },
+  {
+   "label": "added_to",
+   "said": "I want to change the background",
+   "heard": "I want to change the background.",
+   "kind": "neutral",
+   "fired": 0.6971875,
+   "detector": 0.2471875,
+   "decide_s": [
+    0.504
+   ],
+   "detector_end": -0.052812499999999984
+  },
+  {
+   "label": "added_to",
+   "said": "Search for the invoice",
+   "heard": "Search for the invoice.",
+   "kind": "complete",
+   "fired": 0.371375,
+   "detector": 0.371375,
+   "decide_s": [
+    0.377
+   ],
+   "detector_end": 0.07137500000000002
+  }
+ ],
+ "turns": {
+  "buddy": {
+   "finished_in_time": 1.0,
+   "unfinished_held": 0.708,
+   "held_by_pause": {
+    "0.5": 0.958,
+    "0.8": 0.583,
+    "1.2": 0.583
+   },
+   "balanced_accuracy": 0.854,
+   "mean_delay_finished_s": 0.549
+  },
+  "buddy_with_compute": {
+   "finished_in_time": 0.708,
+   "unfinished_held": 0.736,
+   "held_by_pause": {
+    "0.5": 0.958,
+    "0.8": 0.625,
+    "1.2": 0.625
+   },
+   "balanced_accuracy": 0.722,
+   "mean_delay_finished_s": 0.983
+  },
+  "fixed_silence_same_delay": {
+   "gap_s": 0.45,
+   "finished_in_time": 1.0,
+   "unfinished_held": 0.0,
+   "held_by_pause": {
+    "0.5": 0.0,
+    "0.8": 0.0,
+    "1.2": 0.0
+   },
+   "balanced_accuracy": 0.5,
+   "mean_delay_finished_s": 0.531
+  },
+  "fixed_silence_0.7": {
+   "finished_in_time": 1.0,
+   "unfinished_held": 0.333,
+   "held_by_pause": {
+    "0.5": 1.0,
+    "0.8": 0.0,
+    "1.2": 0.0
+   },
+   "balanced_accuracy": 0.667,
+   "mean_delay_finished_s": 0.779
+  },
+  "fixed_silence_best": {
+   "gap_s": 0.9,
+   "finished_in_time": 0.833,
+   "unfinished_held": 0.625,
+   "held_by_pause": {
+    "0.5": 1.0,
+    "0.8": 0.875,
+    "1.2": 0.0
+   },
+   "balanced_accuracy": 0.729,
+   "mean_delay_finished_s": 0.981
+  },
+  "added_to_cut_by_pause": {
+   "0.5": 0.429,
+   "0.8": 1.0,
+   "1.2": 1.0
+  },
+  "counts": {
+   "finished": 24,
+   "unfinished": 24,
+   "added_to": 7
+  }
+ },
+ "decisions": {
+  "rules_ms": {
+   "n": 4000,
+   "p50": 0.0027,
+   "p95": 0.0048,
+   "max": 0.4236,
+   "mean": 0.0037
+  },
+  "stt_and_rules_s": {
+   "n": 55,
+   "p50": 0.46,
+   "p95": 0.874,
+   "max": 2.549,
+   "mean": 0.533
+  },
+  "load": {
+   "mean_percent": 89.8,
+   "max_percent": 100.0,
+   "logical_cpus": 8
+  }
+ }
+}

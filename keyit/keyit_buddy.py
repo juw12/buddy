@@ -13,6 +13,7 @@ Pointing protocol: the model appends tags  [POINT:x,y:label]  with x, y in 0..10
 normalized screenshot coordinates (the convention Qwen-VL models are trained on).
 """
 import base64
+import collections
 import ctypes
 import http.client
 import io
@@ -39,6 +40,7 @@ import keyit_core as core
 import keyit_gpu
 import keyit_script
 import keyit_speech
+import keyit_talk
 import keyit_targets
 import keyit_words
 
@@ -49,6 +51,7 @@ DEFAULTS = {
     "whisper_model": "auto",          # old setting, read once by keyit_speech.migrate
     "speech_model": "auto",           # Voice input -> Speech model: one of keyit_speech.CHOICES
     "dictation": True,                # Ctrl+Alt+D types what you say into the app in front
+    "talk_mode": True,                # Ctrl+Alt+T starts a spoken conversation (keyit_talk)
     "voice_cleanup": True,            # drop um/uh, apply spoken corrections ("no wait")
     "my_words": "",                   # Voice input -> My words: spellings + spoken shortcuts (keyit_words)
     "mic_device": "",                 # Voice input -> Microphone: "" = the Windows default
@@ -80,6 +83,14 @@ DICTATION_HISTORY = 20        # last dictations kept in memory (never on disk) f
 CHIME_SKIP_SECONDS = 0.25     # drop the start of the recording so speech recognition doesn't hear the chime
 SELECTION_MAX_CHARS = 4000
 HISTORY_TURNS = 4
+TALK_WAIT = 4.0                 # s a talk-mode question waits for the interrupted answer to stop
+TALK_IDLE_SECONDS = 60.0        # talk mode ends by itself after this much silence
+TALK_ENDED = {
+    "hotkey": "Talk mode off.",
+    "goodbye": "Bye! Ctrl+Alt+T to talk again.",
+    "idle": "Talk mode off after a minute of silence. Ctrl+Alt+T to talk again.",
+    "error": "Talk mode stopped: something went wrong (see the log).",
+}
 
 SYSTEM_PROMPT = """You are KeyIt Buddy, a friendly expert tutor that lives next to the user's mouse cursor on Windows.
 You are given a screenshot of the user's current screen and their spoken question. Your reply is read aloud.
@@ -483,6 +494,7 @@ class Speaker:
 
     SVSF_ASYNC = 1
     SVSF_PURGE = 2
+    SRSE_SPEAKING = 2       # SpVoice.Status.RunningState while it speaks
 
     def __init__(self, voice_name="", on_status=lambda text: None):
         self.jobs = queue.SimpleQueue()
@@ -490,6 +502,11 @@ class Speaker:
         self.voice_name = voice_name or default_voice()
         self.voices = []
         self.natural = None                    # keyit_voice.NaturalVoice once a natural voice is picked
+        self.recent = collections.deque(maxlen=8)   # the last things said (talk mode: is that my own echo?)
+        self.audio_listener = None             # talk mode: gets the samples a natural voice plays
+        self.watching = False                  # talk mode: keep sapi_speaking up to date
+        self.sapi_speaking = False
+        self.sapi_paused = False
         self._ready = threading.Event()
         threading.Thread(target=self._run, name="keyit-tts", daemon=True).start()
         self._ready.wait(30)   # first run in the exe generates COM bindings (several seconds)
@@ -503,6 +520,7 @@ class Speaker:
             return
         if self.natural is None:
             self.natural = keyit_voice.NaturalVoice(keyit_voice.voice_id(name), on_status=self.on_status)
+            self.natural.on_block = self.audio_listener
         else:
             self.natural.set_voice(keyit_voice.voice_id(name))
 
@@ -523,13 +541,34 @@ class Speaker:
         self._select_voice(self.voice_name)
         self._ready.set()
         while True:
-            kind, value = self.jobs.get()
-            if kind == "say":
-                self.voice.Speak(value, self.SVSF_ASYNC)
-            elif kind == "stop":
-                self.voice.Speak("", self.SVSF_ASYNC | self.SVSF_PURGE)
-            elif kind == "voice":
-                self._select_voice(value)
+            try:
+                kind, value = self.jobs.get(timeout=0.1 if self.watching else None)
+            except queue.Empty:
+                self.sapi_speaking = self.voice.Status.RunningState == self.SRSE_SPEAKING
+                continue
+            self._job(kind, value)
+
+    def _job(self, kind, value):
+        if kind == "say":
+            self.voice.Speak(value, self.SVSF_ASYNC)
+        elif kind == "stop":
+            self.voice.Speak("", self.SVSF_ASYNC | self.SVSF_PURGE)
+            self._sapi_pause(False)                # a paused voice would stay silent for good
+            self.sapi_speaking = False
+        elif kind == "voice":
+            self._select_voice(value)
+        elif kind == "pause":
+            self._sapi_pause(value)
+        elif kind == "watch":
+            self.watching = value
+
+    def _sapi_pause(self, on):
+        if on != self.sapi_paused:                 # SAPI counts Pause() calls: never two in a row
+            if on:
+                self.voice.Pause()
+            else:
+                self.voice.Resume()
+            self.sapi_paused = on
 
     def _select_voice(self, name):
         if not name:
@@ -543,15 +582,43 @@ class Speaker:
     def say(self, text):
         if not text.strip():
             return
+        self.recent.append(text)
         if self._natural_on():
             self.natural.say(text)
         else:
+            self.sapi_speaking = True
             self.jobs.put(("say", text))
 
     def stop(self):
         if self.natural is not None:
             self.natural.stop()
         self.jobs.put(("stop", None))
+
+    # -- talk mode (keyit_talk): Buddy has to know when it is speaking, and be able to hold its breath
+    def speaking(self):
+        """True while there is speech queued, being made or playing."""
+        return self.natural.busy() if self._natural_on() else self.sapi_speaking
+
+    def reference(self):
+        """True when listen() gets the audio: natural voices do, Windows SAPI plays out of our sight."""
+        return self._natural_on()
+
+    def listen(self, callback):
+        """callback(samples, rate, play_time) for audio that is about to play; None to stop."""
+        self.audio_listener = callback
+        if self.natural is not None:
+            self.natural.on_block = callback
+        self.jobs.put(("watch", callback is not None))
+
+    def pause(self):
+        if self.natural is not None:
+            self.natural.pause()
+        self.jobs.put(("pause", True))
+
+    def resume(self):
+        if self.natural is not None:
+            self.natural.resume()
+        self.jobs.put(("pause", False))
 
     def set_voice(self, name):
         self.stop()
@@ -955,6 +1022,7 @@ class Buddy:
         self.stt_name = None
         self.mic = None
         self.dictation = None                  # {"mic", "hands_free", "stop_on_release", ...} while dictating
+        self.talk = None                       # keyit_talk.TalkSession while in talk mode (Ctrl+Alt+T)
         self.dictations = []                   # last few dictated texts (memory only)
         self.last_reply = None
         self.last_timing = None
@@ -1204,6 +1272,8 @@ class Buddy:
             if current.get("hands_free"):
                 current["stop_on_release"] = True        # this press ends hands-free dictation
             return
+        if getattr(self, "talk", None) is not None:      # dictation takes the microphone over from talk mode
+            self.cancel()
         self.speaker.stop()
         monitor, cursor = monitor_under_cursor(), cursor_position()
         try:
@@ -1362,10 +1432,20 @@ class Buddy:
         AskBox(self.root, monitor_under_cursor(), cursor_position(), selection,
                on_submit=lambda question: self.ask_text(question, selection=selection))
 
-    def cancel(self):
+    def _interrupt(self):
+        """Stop the answer that is being thought or spoken. Talk mode calls just this: the conversation
+        itself goes on."""
         self.generation += 1
         self.speaker.stop()
         self._stop_look_ahead()
+
+    def cancel(self):
+        self.generation += 1                   # the same three steps as _interrupt, kept in line: callers
+        self.speaker.stop()                    # and tests hand cancel() objects that are not a whole Buddy
+        self._stop_look_ahead()
+        talk, self.talk = getattr(self, "talk", None), None
+        if talk is not None:
+            talk.stop()
         if self.mic:
             try:
                 self.mic.stop()
@@ -1382,6 +1462,63 @@ class Buddy:
                 dictation["held"].cancel()
         self.post(self.overlay.hide)
         self.post(AskBox.close_current)
+
+    # -- talk mode: Ctrl+Alt+T, a conversation without holding a key (keyit_talk)
+    def talk_enabled(self):
+        return bool(self.settings.get("talk_mode", True))
+
+    def talk_toggle(self):
+        """Ctrl+Alt+T: start a conversation, or end the one that is going on."""
+        if not self.talk_enabled():
+            return
+        if self.talk is not None:
+            self.talk.stop("hotkey")
+            self.cancel()
+            return
+        self.cancel()
+        self.monitor = monitor_under_cursor()
+        mic = None
+        try:
+            waiting = self._ensure_stt().waiting()
+            if waiting:
+                raise RuntimeError(waiting)
+            detector = keyit_speech.VoiceDetector()
+            detector.listen(1)                               # fails here, not mid-sentence, without the model
+            mic = self._mic()
+            mic.start()
+        except Exception as error:
+            logging.warning("Talk mode could not start", exc_info=True)
+            self.post(self.overlay.thinking, f"I can't start talk mode yet: {error}")
+            self.post(self.overlay.hide_later, 6000)
+            return
+
+        def transcribe(audio):
+            return self._words(self._ensure_stt().transcribe(audio, keyit_speech.RATE), "ask")
+
+        def look():
+            self.monitor = monitor_under_cursor()
+            self._start_look_ahead()
+
+        session = keyit_talk.TalkSession(
+            mic, keyit_speech.Stream16k(mic.sample_rate).feed, lambda: detector.listen(60), transcribe,
+            ask=lambda text: self._ask(text, wait=TALK_WAIT), interrupt=self._interrupt, speaker=self.speaker,
+            show=lambda state: self.post(self.overlay.listening, self.monitor, cursor_position()),
+            look=look, on_end=lambda reason: self._talk_ended(session, reason),
+            idle_seconds=TALK_IDLE_SECONDS)
+        self.talk = session
+        self.chime("buddy_wake")
+        self.post(self.overlay.listening, self.monitor, cursor_position())
+        session.start()
+        logging.info("Talk mode on")
+
+    def _talk_ended(self, session, reason):
+        if self.talk is session:
+            self.talk = None
+        if reason == "cancelled":                           # Esc, push-to-talk or dictation took over
+            return
+        self.chime("buddy_got_it")
+        self.post(self.overlay.thinking, TALK_ENDED.get(reason, TALK_ENDED["hotkey"]))
+        self.post(self.overlay.hide_later, 3000)
 
     # -- look-ahead: start reading the screen the moment the hotkey goes down
     def _start_look_ahead(self):
@@ -1576,8 +1713,10 @@ class Buddy:
 
         self.post(start)
 
-    def _ask(self, question, selection=""):
-        if not self.busy.acquire(blocking=False):
+    def _ask(self, question, selection="", wait=0.0):
+        """One question at a time: a second one is dropped - unless it may `wait` (s) for the first to stop,
+        as in talk mode, where the user has just interrupted it."""
+        if not self.busy.acquire(wait > 0, wait if wait > 0 else -1):
             return
         generation = self.generation
         try:
@@ -1661,6 +1800,12 @@ class Buddy:
         first_token_at = None
         for chunk in self._stream(messages):
             if generation != self.generation:
+                if getattr(self, "talk", None) is not None and spoken_upto:
+                    said = reply.split("[")[0][:spoken_upto].strip()      # talk mode: "what did you just say?"
+                    self.history += [
+                        {"role": "user", "content": question},
+                        {"role": "assistant", "content": f"{said} (the user interrupted here)"},
+                    ]
                 return                                            # cancelled
             if first_token_at is None:
                 first_token_at = time.perf_counter()

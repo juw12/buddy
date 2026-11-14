@@ -37,6 +37,7 @@ the import stops. Add `--force` to replace that profile; the old one is moved to
 ## Use
 - **Ctrl+Alt+Space**, hold it: ask Buddy about your screen by voice. Release to send, and press Esc to cancel. Your question is heard in the language picked in the *Voice input* tab, and the model is asked to answer in the language of the question. A Chinese, Japanese or Hindi answer is spoken sentence by sentence, like an English one. An answer in a language without a natural voice (see **Voice** below) is read by the voice you picked.
 - **Ctrl+Alt+D**: type by voice into any app (mail, chat, PLM forms, Word). Hold it while you talk and release, or tap it once to talk hands-free and tap again to type it (Esc cancels, 5 minutes max). Buddy drops "um"/"uh", follows corrections you say out loud ("at three, no wait, at four" types "at four"; "... scratch that" drops the sentence), and never touches your clipboard. Corrections also work in Indonesian and Malay ("jam tiga, eh salah, jam empat" types "jam empat"), Chinese ("三点，不对，四点"), German, Spanish and French; in other languages only the filler sounds are dropped. *Voice input -> Type last dictation again / Copy last dictation* if it went into the wrong window.
+- **Ctrl+Alt+T**: talk with Buddy hands-free, like a call (also *Talk with Buddy* in the tray menu). There is no key to hold: Buddy waits until your sentence sounds finished (about 0.3 s after a complete sentence, 0.7 s when it can't tell, 1.6 s when you trail off on "and", "because" or "um"), starts speaking while the rest of the answer is still being written, and stops when you talk over it. End the conversation with Ctrl+Alt+T, Esc or by saying "goodbye". Use a headset: Buddy has no echo canceller, so through loudspeakers you must be clearly louder than its voice to interrupt it (or press Esc). How soon the answer starts depends on the brain (Smart about 1 to 2 s, Free about 5 s). Measurements and limits: [Talk mode vs Jev](#talk-mode-vs-jev). Switch it off with *Talk with Buddy* in Settings.
 - **Language and speech model** (the *Voice input* tab): pick the language you speak and leave the model on *Auto*. Auto uses Whisper base.en for English (the most accurate in [our benchmark](#voice-buddy-vs-wispr-flow-vs-handy)), SenseVoice for Mandarin and Cantonese, Omnilingual for Indonesian, Dolphin for Malay, Japanese, Korean, Thai and Vietnamese, Parakeet V3 for German, Spanish, French and other European languages, and Whisper base when the language is *Auto-detect*. Chinese is typed in the characters you pick: Simplified for *Chinese, Simplified*, Traditional for *Chinese, Traditional* and for Cantonese. Indonesian, Malay, Japanese, Korean, Thai and Vietnamese are newer and make more mistakes than English or Chinese, so check names and numbers; the line under the picker says what to expect. All models run offline on this PC; the one for your language (80 to 490 MB) downloads once from GitHub in the background and resumes if the office network cuts it. For English, German, Spanish, French, Japanese and Chinese the Windows recognizer answers until it is ready (when that Windows speech language is installed); for the other languages voice input waits for the download, and if you try it too early the bubble says how far the download is. Silero voice detection runs first, so a key click or a fan never turns into made-up text. The microphone is picked on the same tab. While it turns your speech into text, Buddy asks Windows for above-normal priority and gives it back afterwards, so other busy programs hold dictation up less ([measured](bench/README.md#release-to-text-on-a-busy-pc)). A dictation longer than 15 seconds is turned into text in parts while you are still talking, so letting go of the key only waits for the last part, and English no longer loses what you say after the first 30 seconds ([measured](bench/README.md#long-dictations-release-to-text)).
 - **My words** (Voice input -> My words...): one word per line that Buddy must always spell your way (`SRM`, `eGreen`, `PureGMS`: "s r m" and "e green" are fixed, near misses like "Zyris" -> `ZIRIS` too; with the language set to English, Chinese, Japanese, Korean or Thai also a mishearing that only sounds like it, such as "Bizaira's" -> `ZIRIS`), and spoken shortcuts like `my sign off => Best regards, Juwen`. If a real name sounds like one of your words, add the name too, so Buddy leaves it alone. Ordinary English words are left alone unless they are said exactly like your word ("speck green" -> `Spec Green`), so "not paid" never turns into `Notepad`; if Buddy keeps hearing real words for one of yours, add a line such as `peg vision => Pega-Vision`.
 - **Voice**: Settings -> Voice. "Natural: ..." voices sound human (Kokoro, offline, ~120 MB downloaded once into %APPDATA%\Buddy\voices) in English (US/UK), Chinese (Mandarin), Spanish, French, Italian, Portuguese (Brazil) and Hindi. If Buddy answers in Chinese or Hindi while another language's voice is picked, a voice of the same gender reads that part; the Microsoft voices are the old robotic ones. Press **Test** to hear one. Natural voices run on the CPU, so on a very busy PC they can start a second or two later.
@@ -103,6 +104,36 @@ voices are synthetic (Windows TTS), so real voices will differ, but the order be
 | Chinese | Yes | With Whisper models | Yes, SenseVoice (0% errors above) |
 | Ignores silence / noise | - | Yes (Silero) | Yes (Silero) |
 | Sees your screen, points at buttons, clicks and types for you | No | No | Yes (Ctrl+Alt+Space) |
+
+## Talk mode vs Jev
+Jev is a cloud model that voice agents call to decide whether the speaker has finished a turn. It could not be run here
+(vendor cloud, paid, and the office data rules), so **its column is what the vendor publishes, not something we measured**.
+Buddy's column is measured with [bench/talk_turns.py](bench/talk_turns.py) on the same office laptop while it was busy with
+other work (about 90% CPU load on 8 logical CPUs). Full tables: [bench/README.md](bench/README.md#talk-mode-turns-and-barge-in).
+
+| | Jev (published by the vendor, not measured here) | Buddy talk mode (measured here) |
+|---|---|---|
+| Where it runs | Vendor cloud only | On your PC, offline |
+| Price | $0.042 per million input tokens | Free |
+| How it decides you are done | A model that reads the transcript | Hand-written rules that read the transcript (English, Indonesian, Chinese); other languages get a plain 0.7 s pause |
+| Time for one decision, given the words | About 300 ms | 0.005 ms (p95) |
+| Time for one decision, speech recognition included | 70 to 500 ms end to end | 0.46 s median, 0.87 s p95 at 90% CPU load |
+| Finished or not, on our 48 synthetic clips | Not measured | 85% balanced accuracy, against 67% for a fixed 0.7 s pause |
+| Stops talking when you interrupt | Not its job | Stop requested 0.2 s (p95) after you start, in a simulated room |
+
+Where Buddy does **not** beat Jev, and what was not shown:
+- Accuracy was never compared with Jev. Buddy's 85% is on 48 of our own English clips spoken by a synthetic voice (24 finished,
+  24 cut off mid-sentence), against a fixed-pause baseline. It clears our 85% target by 0.4 points.
+- Buddy has to run Whisper at every pause before the rules can read anything. On this busy PC that took 0.87 s (p95), slower
+  than Jev's published figure and over our own 300 ms target. Counting that compute time, Buddy's accuracy drops to 72%, about
+  the same as the best fixed pause (0.9 s: 73%).
+- 7 clips that sound finished but where the speaker then adds more are left out of the accuracy. Buddy answered before the
+  speaker went on in 43% of them at a 0.5 s pause and in all of them at 0.8 s and longer.
+- There is no echo canceller. With a headset every interruption was noticed. Through loudspeakers you were noticed every time
+  only when 3 times louder at the microphone than Buddy's echo (natural voice) or 4 times (Windows voice); below that, press Esc.
+  Other people talking in the room are heard as you. Buddy never interrupted itself in 24 minutes of simulated echo.
+- The speaker-to-microphone path was simulated and the voices are synthetic. Nobody has been measured at a real microphone
+  yet, and how fast the voice stops on the real sound device was not measured (the device did not start in the bench).
 
 ## Buddy Island
 Buddy lives in your screen's notch, so it is always one move away, on every device:
