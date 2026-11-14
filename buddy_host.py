@@ -341,6 +341,7 @@ def install_pet_menu(app):
                 base.section(self, BUDDY_NAME)
                 base.item(self, "\U0001F3E0", "Open Buddy", app.open_home)
                 base.item(self, "\U0001F399", "Ask Buddy", app.open_ask, hint="tap Ctrl+Alt+Space")
+                base.item(self, "\U0001F4AC", "Talk with Buddy", app.toggle_talk, hint="Ctrl+Alt+T")
                 base.toggle(self, "\u2328", "Keyboard sounds", app.sounds_enabled(), app.toggle_sounds)
 
             def section(self, label):
@@ -499,7 +500,7 @@ def install_menu_scrolling():
 
 
 # --------------------------------------------------------------------------- the app
-TRAY_MENU = ("summon", "ask", "sounds", None, "pet", "focus", None, "update", "quit")   # "summon" = left click
+TRAY_MENU = ("summon", "ask", "talk", "sounds", None, "pet", "focus", None, "update", "quit")   # "summon" = left click
 
 
 class BuddyApp:
@@ -660,6 +661,14 @@ class BuddyApp:
             self.root.after(150, buddy.open_ask_box)     # let the menu close first
             return
         self.open_home("home")
+
+    def toggle_talk(self):
+        """Tray / pet menu 'Talk with Buddy': same as Ctrl+Alt+T (Home if the brain is off)."""
+        buddy = getattr(self.window, "buddy", None)
+        if buddy is not None:
+            threading.Thread(target=buddy.talk_toggle, name="buddy-talk-toggle", daemon=True).start()
+            return
+        self.open_home("home")
         if self.tabs is not None:
             self.tabs.focus_ask_box()
 
@@ -711,6 +720,7 @@ class BuddyApp:
         return {
             "summon": "Open Buddy",
             "ask": "Ask Buddy   (tap Ctrl+Alt+Space, hold to talk)",
+            "talk": "Talk with Buddy   (Ctrl+Alt+T starts and ends a conversation)",
             "sounds": f"{sound}   (Ctrl+Alt+M)",
             "pet": f"Where are you, Buddy?   ({self.pet_hotkey()})",
             "focus": "Focus card",
@@ -733,6 +743,7 @@ class BuddyApp:
         actions = {
             "summon": self.open_home,
             "ask": self.open_ask,
+            "talk": self.toggle_talk,
             "sounds": self.toggle_sounds,
             "pet": self.summon_pet,
             "hotkey": lambda: self.summon_pet(source="hotkey"),
