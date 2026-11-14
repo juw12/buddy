@@ -391,6 +391,9 @@ How it was measured, and what that does and does not show:
   worst-case; they were not measured on a quiet PC.
 * Our own target for one decision was 300 ms (p95). The rules take 0.005 ms, but with speech recognition it is 0.87 s
   here, so the target is **missed**.
+* Decoding less audio does not fix it. A separate probe on 36 of the clips, at 100% CPU load, gave Whisper only the
+  end of each one: whole clip 0.63 s (p95), last 2.0 s 0.50 s, last 1.2 s 0.43 s. The decode has a fixed cost, and the
+  short tail also loses words. Meeting 300 ms needs a streaming recognizer or a quiet PC; neither was tried.
 * The 10 unfinished clips Buddy cut too early ended in "to", "that", "could", "called", "before", "rather", or were
   misheard by Whisper ("the" as "they", "my" as "mine"). Whisper puts a full stop on everything, so punctuation carries
   no signal.
