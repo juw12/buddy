@@ -109,7 +109,7 @@ voices are synthetic (Windows TTS), so real voices will differ, but the order be
 Jev is a cloud model that voice agents call to decide whether the speaker has finished a turn. It could not be run here
 (vendor cloud, paid, and the office data rules), so **its column is what the vendor publishes, not something we measured**.
 Buddy's column is measured with [bench/talk_turns.py](bench/talk_turns.py) on the same office laptop while it was busy with
-other work (about 90% CPU load on 8 logical CPUs). Full tables: [bench/README.md](bench/README.md#talk-mode-turns-and-barge-in).
+other work (88% CPU load on 8 logical CPUs in the latest run). Full tables: [bench/README.md](bench/README.md#talk-mode-turns-and-barge-in).
 
 | | Jev (published by the vendor, not measured here) | Buddy talk mode (measured here) |
 |---|---|---|
@@ -117,16 +117,22 @@ other work (about 90% CPU load on 8 logical CPUs). Full tables: [bench/README.md
 | Price | $0.042 per million input tokens | Free |
 | How it decides you are done | A model that reads the transcript | Hand-written rules that read the transcript (English, Indonesian, Chinese); other languages get a plain 0.7 s pause |
 | Time for one decision, given the words | About 300 ms | 0.005 ms (p95) |
-| Time for one decision, speech recognition included | 70 to 500 ms end to end | 0.46 s median, 0.87 s p95 at 90% CPU load |
-| Finished or not, on our 48 synthetic clips | Not measured | 85% balanced accuracy, against 67% for a fixed 0.7 s pause |
+| Time for one decision, speech recognition included | 70 to 500 ms end to end | **Slower:** 0.55 s median, 1.34 s p95 at 88% CPU load |
+| Finished or not, on our synthetic clips | Not measured | 87.5% balanced accuracy on 48 clips the rules had never met (87.8% on all 96), against 67% for a fixed 0.7 s pause |
+| What leaves your PC to decide this | The transcript of what you said | Nothing (your question still goes to the brain you picked) |
 | Stops talking when you interrupt | Not its job | Stop requested 0.2 s (p95) after you start, in a simulated room |
 
 Where Buddy does **not** beat Jev, and what was not shown:
-- Accuracy was never compared with Jev. Buddy's 85% is on 48 of our own English clips spoken by a synthetic voice (24 finished,
-  24 cut off mid-sentence), against a fixed-pause baseline. It clears our 85% target by 0.4 points.
-- Buddy has to run Whisper at every pause before the rules can read anything. On this busy PC that took 0.87 s (p95), slower
-  than Jev's published figure and over our own 300 ms target. Counting that compute time, Buddy's accuracy drops to 72%, about
-  the same as the best fixed pause (0.9 s: 73%).
+- Accuracy was never compared with Jev. Buddy's figures are on our own English clips spoken by a synthetic voice, half
+  finished and half cut off mid-sentence, against a fixed-pause baseline. The rules were improved on the first 48 clips
+  (now 88.2%, was 85.4%) and then run once on 48 new clips written before that run: 87.5%. Both lists were written by the
+  same person, so the second is a parallel form of the first, not a sample of real talk. One rule was fixed after the run
+  ("What does this icon do?" was read as unfinished); the tables are from before that fix.
+- Buddy has to run Whisper at every pause before the rules can read anything. On this busy PC that took 0.55 s (median)
+  and 1.34 s (p95), slower than Jev's published figure and over our own 300 ms target. Counting that compute time, Buddy's
+  accuracy drops to 66%, **below** the best fixed pause (0.85 s: 72%). Three faster engines were tried and none was
+  adopted, because each was either still too slow or less accurate
+  ([table](bench/README.md#talk-mode-turns-and-barge-in)). It has not been measured on a quiet PC.
 - 7 clips that sound finished but where the speaker then adds more are left out of the accuracy. Buddy answered before the
   speaker went on in 43% of them at a 0.5 s pause and in all of them at 0.8 s and longer.
 - There is no echo canceller. With a headset every interruption was noticed. Through loudspeakers you were noticed every time

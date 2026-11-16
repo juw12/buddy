@@ -88,6 +88,28 @@ class Completeness(unittest.TestCase):
         for text in ("", "  ", "...", "?!"):
             self.assertEqual(talk.completeness(text), talk.EMPTY, repr(text))
 
+    def test_a_yes_no_question_does_not_end_on_a_preposition(self):
+        for text in ("Can you copy this to", "could you send it to?", "Is this the shortcut for.",
+                     "do you want me to save it as"):
+            self.assertEqual(talk.completeness(text), talk.UNFINISHED, text)
+        for text in ("What is this for?", "who should I send this to", "Do you know who this is from?",
+                     "Can you come in?", "is the light on", "Is that what it looks like?"):
+            self.assertNotEqual(talk.completeness(text), talk.UNFINISHED, text)
+
+    def test_and_then_and_is_that_promise_more(self):
+        for text in ("Select the first row and then", "Make it bold and also.", "The issue is that",
+                     "the surprise was that"):
+            self.assertEqual(talk.completeness(text), talk.UNFINISHED, text)
+        for text in ("What is that?", "who was that", "And what happened then?", "I like that.",
+                     "I have seen it also."):
+            self.assertNotEqual(talk.completeness(text), talk.UNFINISHED, text)
+
+    def test_what_should_i_do_is_a_whole_question(self):
+        for text in ("What does this icon do?", "what should I do", "What can you do."):
+            self.assertEqual(talk.completeness(text), talk.COMPLETE, text)
+        for text in ("what do", "What I can do", "what does"):
+            self.assertEqual(talk.completeness(text), talk.UNFINISHED, text)
+
     def test_what_was_said(self):
         kinds = {"Goodbye!": talk.GOODBYE, "stop listening": talk.GOODBYE, "再見": talk.GOODBYE,
                  "Wait.": talk.INTERRUPT, "no": talk.INTERRUPT, "等一下": talk.INTERRUPT,

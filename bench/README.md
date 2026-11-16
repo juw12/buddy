@@ -314,34 +314,39 @@ pointer lands on the "Save As..." row.
 `talk_turns.py` measures the two things a spoken conversation needs: knowing when you have finished (so Buddy neither
 cuts in nor leaves a long silence) and stopping when you talk over it. Raw rows: `results_talk/talk_turns.json`.
 
-Run 2026-11-14 16:41 (parts a, b) and 2026-11-14 16:13 (parts c, d) on Intel64 Family 6 Model 189 Stepping 1, GenuineIntel, 8 logical CPUs, Windows 10.
+Run 2026-11-16 10:02 (parts a, b) and 2026-11-14 16:13 (parts c, d) on Intel64 Family 6 Model 189 Stepping 1, GenuineIntel, 8 logical CPUs, Windows 10.
 
 ### (a) Turns: finished or not (English, real voice detector + whisper-en on Kokoro speech)
 
-24 finished and 24 unfinished held-out utterances; pauses (0.5, 0.8, 1.2) s; a finished turn has to be taken within 1.0 s of silence. Delays are on the audio timeline; compute time is in (b).
+48 finished and 48 unfinished utterances in two lists (see the table by list); pauses (0.5, 0.8, 1.2) s; a finished turn has to be taken within 1.0 s of silence. Delays are on the audio timeline; compute time is in (b).
 
 | end-pointer | finished taken in time | unfinished not cut | balanced accuracy | mean delay, finished |
 |---|---|---|---|---|
-| Buddy (reads the words) | 100% | 71% | 85.4% | 0.549 s |
-| Buddy, with compute under this load | 71% | 74% | 72.2% | 0.983 s |
-| fixed silence, same delay (0.45 s) | 100% | 0% | 50.0% | 0.531 s |
-| fixed silence 0.7 s | 100% | 33% | 66.7% | 0.779 s |
-| fixed silence, its best gap (0.9 s) | 83% | 62% | 72.9% | 0.981 s |
+| Buddy (reads the words) | 98% | 78% | 87.8% | 0.589 s |
+| Buddy, with compute under this load | 46% | 87% | 66.3% | 1.371 s |
+| fixed silence, same delay (0.5 s) | 100% | 0% | 50.0% | 0.578 s |
+| fixed silence 0.7 s | 100% | 33% | 66.7% | 0.777 s |
+| fixed silence, its best gap (0.85 s) | 100% | 44% | 72.2% | 0.927 s |
 
-Buddy, unfinished not cut, by pause length: 0.5 s pause 96%, 0.8 s pause 58%, 1.2 s pause 58%.
+| list | finished taken in time | unfinished not cut | balanced accuracy | fixed silence, same delay |
+|---|---|---|---|---|
+| first list (its reads were seen while the rules were revised) | 100% | 76% | 88.2% | 50.0% |
+| second list (written after the rules were frozen; never read before this run) | 96% | 79% | 87.5% | 56.2% |
+
+Buddy, unfinished not cut, by pause length: 0.5 s pause 92%, 0.8 s pause 71%, 1.2 s pause 71%.
 
 Sounds finished but the speaker adds to it (7 clips, not in the accuracy): answered before the speaker went on, 0.5 s pause 43%, 0.8 s pause 100%, 1.2 s pause 100%.
 
-Rules on typed text (no audio): en_dev 84% (n=32), en_held_out 79% (n=48), zh 94% (n=16), id 81% (n=16).
+Rules on typed text (no audio): en_dev 94% (n=32), en_held_out 88% (n=48), en_held_out_2 90% (n=48), zh 94% (n=16), id 81% (n=16).
 
 ### (b) One decision
 
-CPU load during the run: {'mean_percent': 89.8, 'max_percent': 100.0, 'logical_cpus': 8}.
+CPU load during the run: {'mean_percent': 87.6, 'max_percent': 100.0, 'logical_cpus': 8}.
 
 | what | p50 | p95 | n |
 |---|---|---|---|
-| rules alone, given the words (what Jev is given) | 0.0027 ms | 0.0048 ms | 4000 |
-| speech engine (whisper-en) + rules | 0.46 s | 0.874 s | 55 |
+| rules alone, given the words (what Jev is given) | 0.003 ms | 0.0045 ms | 6400 |
+| speech engine (whisper-en) + rules | 0.551 s | 1.343 s | 103 |
 
 Jev (published by the vendor, not measured by us): about 300 ms per decision, vendor cloud only, $0.042 per million input tokens.
 
@@ -385,18 +390,39 @@ How it was measured, and what that does and does not show:
 * Part (a) plays Kokoro speech (`am_michael`) through the shipped Silero voice detector, Whisper base.en and
   `keyit_talk.TurnTaker`. An unfinished clip is cut mid-sentence, followed by a pause and then the rest; it counts as
   held when Buddy does not take the turn inside that pause. Balanced accuracy is the mean of the two middle columns.
-  The rules were tuned on a separate DEV list (`en_dev`), not on these clips.
+* There are two lists, each 24 finished and 24 unfinished utterances. The first is the list from the 2026-11-14 run. Its
+  misses were read while the rules were revised, so its 88.2% (was 85.4%) is not a blind figure. The second list was
+  written after those rule changes were frozen and before any of it was synthesized or read: 87.5%. Both lists have the
+  same author, so the second is a parallel form of the first, not a sample of real talk, and it is no longer blind for
+  any later change.
 * "With compute under this load" adds the time of the Whisper decode, which blocks the loop: a turn counts at
-  max(fired, detector + decode). The PC was at about 90% CPU load from other work, so this row and part (b) are
-  worst-case; they were not measured on a quiet PC.
-* Our own target for one decision was 300 ms (p95). The rules take 0.005 ms, but with speech recognition it is 0.87 s
-  here, so the target is **missed**.
+  max(fired, detector + decode). At 88% CPU load that gives 66.3%, **below** the best fixed pause (72.2%), because a
+  finished turn was then taken within 1.0 s only 46% of the time. It was not measured on a quiet PC.
+* Our own target for one decision was 300 ms (p95). The rules take 0.005 ms, but with speech recognition it is 1.34 s
+  here (0.87 s in the 2026-11-14 run at 90% load), so the target is **missed**.
 * Decoding less audio does not fix it. A separate probe on 36 of the clips, at 100% CPU load, gave Whisper only the
   end of each one: whole clip 0.63 s (p95), last 2.0 s 0.50 s, last 1.2 s 0.43 s. The decode has a fixed cost, and the
-  short tail also loses words. Meeting 300 ms needs a streaming recognizer or a quiet PC; neither was tried.
-* The 10 unfinished clips Buddy cut too early ended in "to", "that", "could", "called", "before", "rather", or were
-  misheard by Whisper ("the" as "they", "my" as "mine"). Whisper puts a full stop on everything, so punctuation carries
-  no signal.
+  short tail also loses words.
+* Three other engines were probed on the same clips on 2026-11-16 and none was adopted. These were short probes, not
+  the full bench: the two accuracy estimates come from running the rules over each engine's reads.
+
+  | engine | one decision, p95 (busy PC) | accuracy | why not |
+  |---|---|---|---|
+  | Whisper base.en + rules (shipped) | 1.34 s (0.87 s on 2026-11-14) | 87.8% measured | misses 300 ms |
+  | Streaming Zipformer en-20M + rules | 0.07 to 0.18 s | about 78% (estimate) | drops the start of utterances, no punctuation |
+  | Moonshine tiny en int8 + rules | 0.52 to 0.74 s (0.14 s when the PC was less busy) | about 77 to 82% (estimate) | invents an ending for cut-off speech |
+  | Smart Turn v3.2 (audio only, no words) | 0.33 s on 1 thread | 40 of 40 finished clips right, 11 of 40 cut-off clips right at threshold 0.5 | calls most cut-off clips complete |
+
+  The Smart Turn result says little about real speech: these clips are a synthetic voice reading a sentence that was cut
+  in the text, and it may well end them with a falling tone (not tested). Whisper tiny.en was not probed.
+* The 14 unfinished clips Buddy cut too early. First list (8): "open the" (heard as "they"), "we could", "folder
+  called", "It should be bigger but" (garbled), "before", "in my" (heard as "mine"), "I would rather", "to, hmm" (heard
+  as "hung"). Second list (6): "I need to change the" (heard as "them."), "I guess we should", "Save a copy in the
+  folder named", "Paste it right below the" (heard as "that."), "I have to submit this before", "Do you know whether
+  the" (heard as "whether or not they're not"). Whisper puts a full stop on everything, so punctuation carries no signal.
+* The one finished clip taken late on the second list was "What does this icon do?", read as unfinished because it ends
+  in "do". That rule was fixed after the run. Replaying the recorded reads through the fixed rules changes that one row
+  and no other; the bench itself was **not** re-run, and the tables above are from before the fix.
 * Part (c) is a simulation: Buddy's voice is passed through a synthetic room echo at the given level and mixed with the
   user's clip. No real loudspeaker, room or microphone was used. Parts (c) and (d) were run before the echo was switched
   to an FFT convolution (same numbers, faster).

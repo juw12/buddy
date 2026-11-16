@@ -76,6 +76,33 @@ HELD_OUT_UNFINISHED = [
     "Add a row between the second and the third and also", "I would rather", "Can you check whether the",
     "It needs to go from here to, hmm", "After that we should probably",
 ]
+# A second held-out list, same recipe as the first. The reads of the first list were looked at while the
+# rules were revised, so it is no longer blind. This one was written after the rules were frozen and before
+# any clip of it was synthesized or read; it is reported on its own.
+HELD_OUT_2_FINISHED = [
+    "What is the shortcut for undo?", "Open the calendar.", "How do I freeze the top row?",
+    "Reply to this message for me.", "Sure, do that.", "No, I meant the other window.",
+    "Could you zoom in a little?", "I prefer the darker theme.", "Convert this table to a chart.",
+    "Why did the download stop?", "Send the invoice to accounting tomorrow morning.",
+    "Okay, that works for me.", "Where can I find the export option?", "What does this icon do?",
+    "Show me the latest sales numbers.", "The screen went black for a second.",
+    "Rename this sheet to summary.", "I am not sure which one to pick.",
+    "Does this work without the internet?", "Read the first paragraph again.",
+    "Explain what this formula does.", "It froze right after the update.", "Which of these is the newest?",
+    "Let's leave it for now.",
+]
+HELD_OUT_2_UNFINISHED = [
+    "I need to change the", "Could you move this over to", "Copy the second table and then",
+    "The reason I ask is that", "I guess we should", "Save a copy in the folder named",
+    "That one is fine but", "Make the header bigger and", "What I really want is",
+    "Check the formula and let me know if", "Paste it right below the", "It stopped working because",
+    "Replace the old logo with", "Uh, where is the, um", "Book the room for Friday at",
+    "Send it today, or", "I have to submit this before", "The password is in my",
+    "Hold on, it was called something like", "Sort the list by date and also", "I would prefer to",
+    "Do you know whether the", "It goes from the first page to, uh", "Then we can maybe",
+]
+LISTS = {"first": "first list (its reads were seen while the rules were revised)",
+         "second": "second list (written after the rules were frozen; never read before this run)"}
 # Sounds finished, but the speaker adds to it after the pause. No text rule can know; reported on its own.
 HELD_OUT_ADDED_TO = [
     "Open the spreadsheet", "I need the report", "Send it to the team", "Make the title bold",
@@ -212,14 +239,17 @@ def turns(talk, detector, stt, clips, log, urgent):
 
     rows, decisions = [], []
     plain = {kind: 0.0 for kind in talk.GAPS}                    # fires as soon as the detector hears the end
-    for label, texts in (("finished", HELD_OUT_FINISHED), ("unfinished", HELD_OUT_UNFINISHED),
-                         ("added_to", HELD_OUT_ADDED_TO)):
+    for label, group, texts in (("finished", "first", HELD_OUT_FINISHED),
+                                ("unfinished", "first", HELD_OUT_UNFINISHED),
+                                ("finished", "second", HELD_OUT_2_FINISHED),
+                                ("unfinished", "second", HELD_OUT_2_UNFINISHED),
+                                ("added_to", "first", HELD_OUT_ADDED_TO)):
         for text in texts:
             speech = clips.get(text, USER_VOICE)
             fired, read, kind, took = fire_time(talk, detector, heard, speech, rng)
             decisions += took
             earliest, *_ = fire_time(talk, detector, lambda audio: "okay then", speech, rng, gaps=plain)
-            rows.append({"label": label, "said": text, "heard": read, "kind": kind, "fired": fired,
+            rows.append({"label": label, "list": group, "said": text, "heard": read, "kind": kind, "fired": fired,
                          "detector": earliest, "decide_s": [round(value, 3) for value in took]})
             log(f"  {label:10} {kind or '-':10} fired {fired}  heard {read!r}")
     return rows, decisions
@@ -281,14 +311,16 @@ def text_only(talk):
                 "wrong": [text for text, ok in zip(finished + unfinished, done + open_) if not ok]}
 
     out = {"en_dev": accuracy(DEV_FINISHED, DEV_UNFINISHED),
-           "en_held_out": accuracy(HELD_OUT_FINISHED, HELD_OUT_UNFINISHED)}
+           "en_held_out": accuracy(HELD_OUT_FINISHED, HELD_OUT_UNFINISHED),
+           "en_held_out_2": accuracy(HELD_OUT_2_FINISHED, HELD_OUT_2_UNFINISHED)}
     for language, (finished, unfinished) in OTHER_LANGUAGES.items():
         out[language] = accuracy(finished, unfinished)
     return out
 
 
 def rules_speed(talk):
-    texts = DEV_FINISHED + DEV_UNFINISHED + HELD_OUT_FINISHED + HELD_OUT_UNFINISHED
+    texts = (DEV_FINISHED + DEV_UNFINISHED + HELD_OUT_FINISHED + HELD_OUT_UNFINISHED
+             + HELD_OUT_2_FINISHED + HELD_OUT_2_UNFINISHED)
     took = []
     for _ in range(50):
         for text in texts:
@@ -450,8 +482,8 @@ def report(result):
     lines = ["# Talk mode bench", "", f"Run {result['when']} on {result['machine']}.", ""]
     if turns_:
         lines += ["## (a) Turns: finished or not (English, real voice detector + whisper-en on Kokoro speech)", "",
-                  f"{turns_['counts']['finished']} finished and {turns_['counts']['unfinished']} unfinished held-out "
-                  f"utterances; pauses {PAUSES} s; a finished turn has to be taken within {BUDGET} s of silence. "
+                  f"{turns_['counts']['finished']} finished and {turns_['counts']['unfinished']} unfinished "
+                  f"utterances in two lists (see the table by list); pauses {PAUSES} s; a finished turn has to be taken within {BUDGET} s of silence. "
                   "Delays are on the audio timeline; compute time is in (b).", "",
                   "| end-pointer | finished taken in time | unfinished not cut | balanced accuracy | mean delay, finished |",
                   "|---|---|---|---|---|"]
@@ -465,6 +497,13 @@ def report(result):
             gap = f" ({row['gap_s']} s)" if "gap_s" in row else ""
             lines.append(f"| {name}{gap} | {row['finished_in_time']:.0%} | {row['unfinished_held']:.0%} | "
                          f"{row['balanced_accuracy']:.1%} | {row['mean_delay_finished_s']} s |")
+        if result.get("turns_by_list"):
+            lines += ["", "| list | finished taken in time | unfinished not cut | balanced accuracy | "
+                      "fixed silence, same delay |", "|---|---|---|---|---|"]
+            for group, scored in result["turns_by_list"].items():
+                lines.append(f"| {LISTS[group]} | {scored['buddy']['finished_in_time']:.0%} | "
+                             f"{scored['buddy']['unfinished_held']:.0%} | {scored['buddy']['balanced_accuracy']:.1%} | "
+                             f"{scored['fixed_silence_same_delay']['balanced_accuracy']:.1%} |")
         shares = lambda by_pause: ", ".join(f"{pause} s pause {share:.0%}" for pause, share in by_pause.items())
         lines += ["", f"Buddy, unfinished not cut, by pause length: {shares(turns_['buddy']['held_by_pause'])}.", "",
                   f"Sounds finished but the speaker adds to it ({turns_['counts']['added_to']} clips, not in the "
@@ -530,7 +569,8 @@ def main():
     clips = Clips(args.cache, voice, keyit_speech.resample)
     if "a" in args.only or "b" in args.only:
         log("(a) turns")
-        for text in HELD_OUT_FINISHED + HELD_OUT_UNFINISHED + HELD_OUT_ADDED_TO:      # synthesize before timing
+        for text in (HELD_OUT_FINISHED + HELD_OUT_UNFINISHED + HELD_OUT_2_FINISHED + HELD_OUT_2_UNFINISHED
+                     + HELD_OUT_ADDED_TO):                                            # synthesize before timing
             clips.get(text, USER_VOICE)
         stt = keyit_speech.SherpaSpeech("whisper-en")
         stt.warm_up()
@@ -538,6 +578,9 @@ def main():
         rows, decisions = turns(talk, keyit_speech.VoiceDetector(), stt, clips, log, keyit_speech.urgent)
         result["turn_rows"] = rows
         result["turns"] = score(rows)
+        result["turns_by_list"] = {group: score([row for row in rows
+                                                 if row["list"] == group and row["label"] != "added_to"])
+                                   for group in LISTS}
         result["decisions"] = {"rules_ms": rules_speed(talk), "stt_and_rules_s": spread(decisions),
                                "load": load.since(mark)}
         log(json.dumps(result["turns"], indent=1))

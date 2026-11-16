@@ -47,6 +47,13 @@ HANGING = set(
 PREPOSITIONS = set("to of with for from in on at by about into onto like as than".split())
 AUXILIARIES = set("is are was were am be been can could would should will shall may might must do does did "
                   "have has had".split())
+# "can you come in" is whole, "can you copy this to" is not: a yes/no question may only end on these.
+PARTICLES = {"in", "on", "like"}
+WH_WORDS = set("what what's who who's whom where where's when why how how's which whose".split())
+# "... and then" promises more just as "... and" does.
+CARRYING_ON = {("and", "then"), ("and", "also"), ("but", "then"), ("but", "also"), ("or", "then")}
+# "the issue is that" opens a clause; "what is that" does not.
+OPENING_A_CLAUSE = {("is", "that"), ("was", "that")}
 SETTLED = {("think", "so"), ("hope", "so"), ("guess", "so"), ("say", "so"), ("do", "so")}
 QUESTION_STARTS = set(
     "what what's who who's where where's when why how how's which whose is are was were do does did can "
@@ -98,11 +105,20 @@ def completeness(text):
     opens = first in QUESTION_STARTS
     if tuple(tokens[-2:]) in SETTLED:
         return NEUTRAL
-    if last in HANGING:
+    if last in HANGING or tuple(tokens[-2:]) in CARRYING_ON:
+        return UNFINISHED
+    if tuple(tokens[-2:]) in OPENING_A_CLAUSE and not opens:
         return UNFINISHED
     if last in PREPOSITIONS:
+        # "what is this for" and "do you know who it is from" are whole; "can you copy this to" is not.
+        yes_no = opens and first not in WH_WORDS
+        if yes_no and last not in PARTICLES and not WH_WORDS.intersection(tokens):
+            return UNFINISHED
         return NEUTRAL if opens or asked else UNFINISHED
     if last in AUXILIARIES:
+        # "what is" waits for the rest; "what does this icon do" and "what should I do" are whole.
+        if first == "what" and last == "do" and len(tokens) >= 4 and tokens[1] in AUXILIARIES:
+            return COMPLETE
         return UNFINISHED if opens else NEUTRAL
     if asked and len(tokens) >= 2:
         return COMPLETE
