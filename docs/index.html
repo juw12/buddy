@@ -492,15 +492,15 @@
           <tr><td>Where it runs</td><td class="us yes">On your PC, works offline</td><td class="no">The vendor's cloud only</td></tr>
           <tr><td>Price</td><td class="us yes">Free</td><td>$0.042 per million input tokens</td></tr>
           <tr><td>What leaves your PC to decide you're done</td><td class="us yes">Nothing. Your question still goes to the brain you picked</td><td>The transcript of what you said</td></tr>
-          <tr><td>Time to decide, once the words are known</td><td class="us yes">0.004 ms</td><td>About 300 ms</td></tr>
-          <tr><td>Time to decide, speech recognition included</td><td class="us no">Slower. 0.39 s typical, 2.9 s for the slowest 1 in 20, on a busy office laptop</td><td class="yes">70 to 500 ms end to end</td></tr>
-          <tr><td>How often it's right</td><td class="us">89% on 144 test clips, 90% on the 48 newest. A fixed 0.7 s pause: 66%</td><td class="na">Not compared</td></tr>
+          <tr><td>Time to decide, once the words are known</td><td class="us yes">0.005 ms</td><td>About 300 ms</td></tr>
+          <tr><td>Time to decide, speech recognition included</td><td class="us no">Slower. 0.39 s typical on a busy office laptop. The slowest 1 in 20 took 4 to 5 s in two runs, when the laptop slowed its own processor</td><td class="yes">70 to 500 ms end to end</td></tr>
+          <tr><td>How often it's right</td><td class="us">92.9% on 192 test clips, 90.3% on the 48 newest. A fixed 0.7 s pause: 66.5%</td><td class="na">Not compared</td></tr>
           <tr><td>Stops when you talk over it</td><td class="us yes">Yes, within 0.2 s in a simulated room</td><td class="na">Not its job</td></tr>
           <tr><td>Languages</td><td class="us">Rules for English, Indonesian and Chinese. A plain 0.7 s pause for the rest</td><td class="na">Not stated</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="footnote">Jev figures are published by the vendor, not measured by us. Buddy figures are measured on a busy office laptop with a synthetic voice; nobody has been timed at a real microphone yet. Once the wait for speech recognition is counted, Buddy was right 83% of the time against 74% for the best fixed pause. That is one run on that laptop, and on the 48 newest clips the fixed pause was still ahead (76% against 74%). <a href="https://github.com/juw12/buddy#talk-mode-vs-jev" target="_blank" rel="noopener">Full numbers and limits →</a></p>
+    <p class="footnote">Jev figures are published by the vendor, not measured by us. Buddy figures are measured on a busy office laptop with a synthetic voice; nobody has been timed at a real microphone yet. Once the wait for speech recognition is counted, Buddy was right 90% and 89% of the time in two runs against 73% for the best fixed pause, and ahead on each of the four clip lists. About 1 finished sentence in 10 was not answered within a second, mostly because the laptop's firmware slowed its processor for a few seconds. Our own 300 ms target is still missed. <a href="https://github.com/juw12/buddy#talk-mode-vs-jev" target="_blank" rel="noopener">Full numbers and limits →</a></p>
   </section>
 
   <!-- ============ FAQ ============ -->

@@ -27,11 +27,13 @@ RATE = 16000
 EMPTY_AUDIO = np.zeros(0, dtype=np.float32)
 
 # --------------------------------------------------------------------------- reading a turn
-COMPLETE, NEUTRAL, UNFINISHED, EMPTY = "complete", "neutral", "unfinished", "empty"
+COMPLETE, NEUTRAL, LEANING, UNFINISHED, EMPTY = "complete", "neutral", "leaning", "unfinished", "empty"
 
 # Seconds of silence, counted from the last sound, after which a turn is over - by how finished it reads.
 # The voice detector needs 0.3 s of silence to report a pause at all.
-GAPS = {COMPLETE: 0.3, NEUTRAL: 0.7, UNFINISHED: 1.6}
+# LEANING reads whole but as often is not ("we need to finish this before"): long enough to sit out a
+# 0.8 s pause for thought, short enough that a finished one is still answered within about a second.
+GAPS = {COMPLETE: 0.3, NEUTRAL: 0.7, LEANING: 0.9, UNFINISHED: 1.6}
 FIXED_GAP = GAPS[NEUTRAL]          # what a plain "wait for silence" end-pointer does for every turn
 EARLY = 0.1                        # s of quiet after which talk mode starts to read what was said: the read
                                    # then runs while the shortest gap is waited out, not after it
@@ -44,12 +46,25 @@ TRAILING_OFF = re.compile(r"(\.\.\.|\u2026|,|\uff0c|\u3001|-|\u2014|\u2013)\s*$"
 # Last words that promise more. English first, then Indonesian.
 HANGING = set(
     "and or but because cause although unless plus if whether so the a an my your our their some every "
-    "i we i'm it's that's there's let's um uh er erm hmm umm uhh "
+    "rather i'm it's that's there's let's um uh er erm hmm umm uhh "
     "dan atau tapi tetapi karena jadi yang untuk dengan lalu terus kalau di ke dari eh em anu".split())
 # "what is this for" is whole, "the shortcut for" is not: a question may end on these.
 PREPOSITIONS = set("to of with for from in on at by about into onto like as than".split())
 AUXILIARIES = set("is are was were am be been can could would should will shall may might must do does did "
                   "have has had".split())
+# "where are we" may be whole; "what should we" is not, nor is "I want to open they" (a misheard "the").
+SUBJECTS = {"i", "we", "they", "he", "she"}
+BEING = {"is", "are", "was", "were", "am"}
+# "yes, we could" and "I will" answer something; "I was thinking we could" is on its way somewhere.
+MODALS = set("can could would should will shall may might must".split())
+ANSWERS = set("yes yeah yep no nope sure okay ok".split())
+# "I have seen this before" is whole and "we need to finish this before" is not: the words cannot tell.
+EITHER_WAY = {"before", "after"}
+# "put it in the folder called" waits for the name. "The client called" and "what is this called" do not:
+# only after a command or a "can you ..." is the last word not the verb of the sentence.
+NAMING = {"called", "named"}
+DETERMINERS = set("the a an this that my your our their some".split())
+BARE_VERB_STARTS = set("can could would will should shall may do does did can't don't doesn't".split())
 # "can you come in" is whole, "can you copy this to" is not: a yes/no question may only end on these.
 PARTICLES = {"in", "on", "like"}
 WH_WORDS = set("what what's who who's whom where where's when why how how's which whose".split())
@@ -82,7 +97,7 @@ def words(text):
 
 
 def completeness(text):
-    """How finished a turn reads: COMPLETE, NEUTRAL, UNFINISHED - or EMPTY when there are no words.
+    """How finished a turn reads: COMPLETE, NEUTRAL, LEANING, UNFINISHED - or EMPTY when there are no words.
 
     Full stops are not trusted: a speech engine ends whatever it is given with one. Languages without
     rules here (anything but English, Indonesian and Chinese) come out NEUTRAL, i.e. the plain gap."""
@@ -108,7 +123,14 @@ def completeness(text):
     opens = first in QUESTION_STARTS
     if tuple(tokens[-2:]) in SETTLED:
         return NEUTRAL
+    if last in SUBJECTS:
+        asking_where = tokens[-2:-1] and tokens[-2] in BEING and WH_WORDS.intersection(tokens)
+        return NEUTRAL if asking_where else UNFINISHED
     if last in HANGING or tuple(tokens[-2:]) in CARRYING_ON:
+        return UNFINISHED
+    if (last in NAMING and (first in COMMAND_STARTS or first in BARE_VERB_STARTS)
+            and tokens[-3:-2] and tokens[-3] in DETERMINERS
+            and not WH_WORDS.intersection(tokens) and not {"if", "whether"}.intersection(tokens)):
         return UNFINISHED
     if tuple(tokens[-2:]) in OPENING_A_CLAUSE and not opens:
         return UNFINISHED
@@ -122,9 +144,13 @@ def completeness(text):
         # "what is" waits for the rest; "what does this icon do" and "what should I do" are whole.
         if first == "what" and last == "do" and len(tokens) >= 4 and tokens[1] in AUXILIARIES:
             return COMPLETE
-        return UNFINISHED if opens else NEUTRAL
+        if opens:
+            return UNFINISHED
+        return LEANING if last in MODALS and len(tokens) > 2 and first not in ANSWERS else NEUTRAL
     if asked and len(tokens) >= 2:
         return COMPLETE
+    if last in EITHER_WAY:
+        return LEANING
     if len(tokens) >= 3 and (opens or first in COMMAND_STARTS):
         return COMPLETE
     if last in CLOSERS or tokens[-2:] == ["thank", "you"]:
@@ -193,7 +219,7 @@ class TurnTaker:
         self.new_listening = new_listening
         self.transcribe = transcribe
         self.rate = rate
-        self.gaps = gaps
+        self.gaps = {**GAPS, **gaps}               # a caller's own gaps need not name every kind
         self.clock = clock
         self.background = background               # read on a thread: feed() never waits for the speech engine
         self.decisions = []                        # seconds each "is the turn over?" took (speech engine + rules)

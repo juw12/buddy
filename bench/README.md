@@ -312,35 +312,38 @@ pointer lands on the "Save As..." row.
 
 ## Talk mode: turns and barge-in
 `talk_turns.py` measures the two things a spoken conversation needs: knowing when you have finished (so Buddy neither
-cuts in nor leaves a long silence) and stopping when you talk over it. Raw rows: `results_talk/talk_turns.json`.
+cuts in nor leaves a long silence) and stopping when you talk over it. Raw rows: `results_talk/talk_turns.json` (run A,
+the tables below) and `results_talk/talk_turns_run_b.json` (run B, the same bench 35 minutes later).
 
-Run 2026-11-16 14:41 (parts a, a2, b) and 2026-11-16 13:13 (parts c, d) on Intel64 Family 6 Model 189 Stepping 1, GenuineIntel, 8 logical CPUs, Windows 10.
+
+Run 2026-11-16 16:40 (parts a, a2, b) and 2026-11-16 13:13 (parts c, d) on Intel64 Family 6 Model 189 Stepping 1, GenuineIntel, 8 logical CPUs, Windows 10.
 
 ### (a) Turns: finished or not (English, real voice detector + whisper-en on Kokoro speech)
 
-72 finished and 72 unfinished utterances in 3 lists (see the table by list); pauses (0.5, 0.8, 1.2) s; a finished turn has to be taken within 1.0 s of silence. Delays are on the audio timeline; compute time is in (b). The row with compute is measured in real time: wall clock, the speech engine reading on its own thread while the clip plays, as talk mode runs it.
+96 finished and 96 unfinished utterances in 4 lists (see the table by list); pauses (0.5, 0.8, 1.2) s; a finished turn has to be taken within 1.0 s of silence. Delays are on the audio timeline; compute time is in (b). The row with compute is measured in real time: wall clock, the speech engine reading on its own thread while the clip plays, as talk mode runs it.
 
 | end-pointer | finished taken in time | unfinished not cut | balanced accuracy | mean delay, finished |
 |---|---|---|---|---|
-| Buddy (reads the words) | 99% | 80% | 89.4% | 0.567 s |
-| Buddy, with compute under this load | 82% | 83% | 82.6% | 0.727 s |
-| fixed silence, same delay (0.5 s) | 100% | 0% | 50.2% | 0.582 s |
-| fixed silence 0.7 s | 100% | 33% | 66.4% | 0.784 s |
-| fixed silence, its best gap (0.85 s) | 100% | 47% | 73.6% | 0.934 s |
-| fixed silence 0.7 s, then waits for the same read (computed) | 82% | 39% | 60.6% | 0.821 s |
-| fixed silence, its best gap, then waits for the same read (computed) (0.85 s) | 82% | 52% | 66.9% | 0.949 s |
+| Buddy (reads the words) | 98% | 88% | 92.9% | 0.563 s |
+| Buddy, with compute under this load | 90% | 90% | 89.8% | 0.642 s |
+| fixed silence, same delay (0.5 s) | 100% | 0% | 50.2% | 0.583 s |
+| fixed silence 0.7 s | 100% | 33% | 66.5% | 0.785 s |
+| fixed silence, its best gap (0.85 s) | 100% | 46% | 73.3% | 0.935 s |
+| fixed silence 0.7 s, then waits for the same read (computed) | 90% | 40% | 64.6% | 0.789 s |
+| fixed silence, its best gap, then waits for the same read (computed) (0.85 s) | 90% | 52% | 70.7% | 0.938 s |
 
 | list | finished taken in time | unfinished not cut | balanced accuracy | with compute | fixed silence, same delay | fixed silence, its best gap |
 |---|---|---|---|---|---|---|
-| first list (its reads were seen while the rules were revised) | 100% | 79% | 89.6% | 86.8% | 50.0% | 72.9% |
-| second list (written after the rules were frozen; first read in the round 2 run) | 96% | 82% | 88.9% | 87.5% | 56.2% | 72.2% |
-| third list (same author, parallel in form to the second; never read before this run) | 100% | 79% | 89.6% | 73.6% | 50.0% | 75.7% |
+| first list (its reads were seen while the rules were revised) | 100% | 92% | 95.8% | 89.6% | 50.0% | 72.9% |
+| second list (written after the rules were frozen; first read in the round 2 run) | 96% | 89% | 92.4% | 91.0% | 56.2% | 72.2% |
+| third list (same author, parallel in form to the second; first read in the round 3 run) | 100% | 86% | 93.1% | 91.0% | 50.0% | 75.7% |
+| fourth list (same author, written after the round 4 rules; never read before this run) | 96% | 85% | 90.3% | 87.5% | 50.0% | 72.2% |
 
-Buddy, unfinished not cut, by pause length: 0.5 s pause 94%, 0.8 s pause 74%, 1.2 s pause 72%.
+Buddy, unfinished not cut, by pause length: 0.5 s pause 98%, 0.8 s pause 86%, 1.2 s pause 79%.
 
 Sounds finished but the speaker adds to it (7 clips, not in the accuracy): answered before the speaker went on, 0.5 s pause 43%, 0.8 s pause 100%, 1.2 s pause 100%.
 
-Rules on typed text (no audio): en_dev 94% (n=32), en_held_out 88% (n=48), en_held_out_2 92% (n=48), zh 94% (n=16), id 81% (n=16).
+Rules on typed text (no audio): en_dev 94% (n=32), en_held_out 92% (n=48), en_held_out_2 94% (n=48), en_held_out_3 94% (n=48), en_held_out_4 94% (n=48), zh 94% (n=16), id 81% (n=16).
 
 ### (a2) Turn repair: the speaker adds to something that sounded finished
 
@@ -356,16 +359,16 @@ The session only joins the parts if Buddy has been audible for less than 0.5 s w
 
 ### (b) One decision
 
-CPU load during the run: {'mean_percent': 89.7, 'max_percent': 100.0, 'logical_cpus': 8}.
+CPU load during the run: {'mean_percent': 90.8, 'max_percent': 100.0, 'logical_cpus': 8}.
 
 | what | p50 | p95 | n |
 |---|---|---|---|
-| rules alone, given the words (what Jev is given) | 0.0029 ms | 0.0041 ms | 6400 |
-| speech engine (whisper-en) + rules | 0.417 s | 1.514 s | 153 |
-| the same in the real-time pass | 0.389 s | 2.863 s | 153 |
+| rules alone, given the words (what Jev is given) | 0.0029 ms | 0.0047 ms | 6400 |
+| speech engine (whisper-en) + rules | 0.386 s | 1.361 s | 201 |
+| the same in the real-time pass | 0.354 s | 4.1 s | 201 |
 
-Read-ahead: the read starts 0.1 s into a pause and the shortest gap is 0.3 s, so the first 0.2 s of a read cost the speaker nothing. 0 of 153 reads were thrown away because the speaker had gone on.
-Finished turns in real time: taken p50 0.744 s, p95 1.081 s after the last sound; that is p50 0.077 s, p95 0.655 s later than on the audio timeline (n=66).
+Read-ahead: the read starts 0.1 s into a pause and the shortest gap is 0.3 s, so the first 0.2 s of a read cost the speaker nothing. 0 of 201 reads were thrown away because the speaker had gone on.
+Finished turns in real time: taken p50 0.639 s, p95 0.834 s after the last sound; that is p50 0.043 s, p95 0.281 s later than on the audio timeline (n=87).
 
 Jev (published by the vendor, not measured by us): about 300 ms per decision, vendor cloud only, $0.042 per million input tokens.
 
@@ -415,44 +418,100 @@ How it was measured, and what that does and does not show:
 * Part (a) plays Kokoro speech (`am_michael`) through the shipped Silero voice detector, Whisper base.en (4 threads) and
   `keyit_talk.TurnTaker`. An unfinished clip is cut mid-sentence, followed by a pause and then the rest; it counts as
   held when Buddy does not take the turn inside that pause. Balanced accuracy is the mean of the two middle columns.
-* There are three lists, each 24 finished and 24 unfinished utterances, all by the same author. The first is the list
-  from the 2026-11-14 run; its misses were read while the rules were revised, so its 89.6% is not a blind figure. The
-  second was written after those rule changes were frozen and was first read in the round 2 run. The third was written
-  for this run and had never been synthesized or read before it: 89.6% on the audio timeline. It repeats three finished
-  sentences of the first list ("How do I merge these two cells?", "I think the second option is better.", "Yes, go
+* There are four lists, each 24 finished and 24 unfinished utterances, all by the same author. The first is the list
+  from the 2026-11-14 run, the second was first read in the round 2 run and the third in the round 3 run. The rules of
+  this round (a fourth kind, "leaning", with a 0.9 s gap; a sentence that ends on "I", "we", "they"; "the folder
+  called") were written from the misses on those three lists and the 0.9 s gap was chosen on them, so their 95.8%, 92.4%
+  and 93.1% are **not** blind figures. The fourth list was written after these rules, by the person who wrote the rules,
+  and had never been synthesized or read before run A: 90.3% on the audio timeline. The third list repeats three
+  finished sentences of the first ("How do I merge these two cells?", "I think the second option is better.", "Yes, go
   ahead.") and one unfinished one ("After that we should probably"); all four were handled correctly. The lists are
   parallel forms of each other, not a sample of real talk, and none is blind for any later change.
-* "With compute under this load" is no longer an estimate. Each clip is played a second time against the wall clock,
+* What the new rules bought, on the same reads. `talk_rules_ab.py` takes run A's reads and works out what the rules
+  of the previous revision (`b0e364a`) would have done with them. It is derived from run A on the audio timeline, **not
+  a second run**; nothing was read again (`results_talk/talk_rules_ab.json`).
+
+  | list | old rules | new rules | unfinished held, old to new | finished taken in time, old to new |
+  |---|---|---|---|---|
+  | first | 89.6% | 95.8% | 57 to 66 of 72 | 24 to 24 of 24 |
+  | second | 88.9% | 92.4% | 59 to 64 of 72 | 23 to 23 of 24 |
+  | third | 89.6% | 93.1% | 57 to 62 of 72 | 24 to 24 of 24 |
+  | fourth (not used to write the rules) | 85.4% | 90.3% | 54 to 61 of 72 | 23 to 23 of 24 |
+  | all | 88.4% | 92.9% | 227 to 253 of 288 | 94 to 94 of 96 |
+
+  16 clips changed. On the fourth list three cut-off clips are now held through all three pauses, "How far along are
+  we?" is no longer read as unfinished, and one finished sentence got **worse**: "I have seen this error before." now
+  counts as leaning and was taken 1.005 s after the last sound, 5 ms too late. The 0.9 s gap is marginal for 0.8 s
+  pauses: the leaning clips are held at 0.5 s and 0.8 s and taken at 0.93 to 0.98 s, before a 1.2 s pause is over.
+* "With compute under this load" is measured, not estimated. Each clip is played a second time against the wall clock,
   with the speech engine reading on its own thread while the audio goes on, as talk mode runs it; a turn counts when it
-  was really taken. At 90% CPU load that gives 82.6%, above the best fixed pause (73.6%). It is **one run**. On the
-  third list alone Buddy is still **below** the best fixed pause (73.6% against 75.7%).
-* Why it moved. The round 2 figure was 66.3% (96 clips, 88% load). An earlier run on 2026-11-16, which raised the
-  process priority only while a read was running, gave 57.2% (87% load). The run reported here holds above-normal
-  priority for the whole conversation, as the app now does. A separate A/B on 36 finished clips, the two settings
-  interleaved, at about 91% load:
+  was really taken. It was run twice on the same clips (the audio-timeline rows are identical in both runs):
+
+  | | run A (16:40) | run B (17:15) |
+  |---|---|---|
+  | CPU load, mean | 90.8% | 92.0% |
+  | Buddy with compute: balanced accuracy | 89.8% | 89.2% |
+  | finished taken in time / unfinished not cut | 90% / 90% | 88% / 90% |
+  | mean delay, finished | 0.642 s | 0.682 s |
+  | with compute by list (first, second, third, fourth) | 89.6 / 91.0 / 91.0 / 87.5% | 92.4 / 90.3 / 86.1 / 88.2% |
+  | best fixed pause by list (the same in both runs) | 72.9 / 72.2 / 75.7 / 72.2% | 72.9 / 72.2 / 75.7 / 72.2% |
+  | best fixed pause, then waits for the same read (computed) | 70.7% | 71.0% |
+  | one decision, speech engine + rules, p50 / p95 | 0.386 s / 1.361 s | 0.395 s / 0.662 s |
+  | the same in the real-time pass, p50 / p95 | 0.354 s / 4.1 s | 0.363 s / 5.021 s |
+  | finished turns not taken within 1.0 s | 10 of 96 | 11 of 96 |
+  | of those, never taken | 9 | 8 |
+
+  In both runs Buddy with compute is above the best fixed pause on every one of the four lists. In round 3 it was below
+  it on the third list (73.6% against 75.7%).
+* Why it moved. With compute: 57.2% in the first run of 2026-11-16, 66.3% in round 2 (96 clips), 82.6% in round 3 (144
+  clips), 89.8% and 89.2% now (192 clips). Round 3 came from holding above-normal priority for the whole conversation
+  instead of only during a read. A separate A/B on 36 finished clips, the two settings interleaved, at about 91% load:
 
   | priority | taken within 1.0 s | never taken | taken, p50 | read back, p50 | p90 |
   |---|---|---|---|---|---|
   | above normal only during a read | 26 of 36 | 4 | 0.811 s | 0.685 s | 5.07 s |
   | above normal for the whole clip (adopted) | 34 of 36 | 2 | 0.693 s | 0.509 s | 0.684 s |
 
-* 13 of the 72 finished turns were not taken within 1.0 s in real time (2, 2 and 9 by list). Six were never taken
-  because one read took 2.6 to 4.7 s. The CPU load reading during those six clips was 67% to 83%, against a median of
-  100% for the turns that were taken, so a fuller CPU does not explain them; the cause was **not found**. The same
-  kind of stall shows up outside speech recognition: in part (c) one `EchoGate.hear` tick of 50,976 took 17 s. The
-  other seven are all on the third list: taken 1.04 to 1.21 s after the last sound, with reads of 0.83 to 1.02 s at
-  about 100% load.
-* Our own target for one decision was 300 ms (p95). The rules take 0.004 ms, but with speech recognition it is 1.51 s
-  (2.86 s in the real-time pass), so the target is **missed**. Earlier runs: 1.34 s (2026-11-16 10:02, 88% load) and
-  0.87 s (2026-11-14, 90% load).
+  This round's gain comes from the rules (table above) and from a fix to that priority code: when a read was already
+  running as the conversation began, the priority fell back to normal as soon as that read came back. `talk_priority.py`
+  starts a session in a second process and reads its priority class from outside, as Task Manager would: before the fix
+  1 of 15 steps was wrong ("talking, the read is back" showed normal), after it 0 of 15
+  (`results_talk/talk_priority_before_fix.json`, `results_talk/talk_priority.json`). It checks the session thread and
+  the priority code in a separate process, **not the installed app**: no hotkey is pressed and no window is shown.
+* The finished turns that were not taken, and why. 10 of 96 (run A; 3, 2, 2, 3 by list) and 11 of 96 (run B; 2, 2, 4,
+  3) were not taken within 1.0 s. Nine and eight of them were never taken because one read took 2.8 to 6.3 s instead of
+  0.4 s. In round 3 the cause of these stalls was not found. It is now: **the laptop's firmware slows the processor
+  down for seconds at a time**. `talk_stalls.py` reads the same clips over and over and writes down, for every read,
+  the wall time, the processor time, the page faults and the "% Processor Performance" counter (how fast the cores are
+  allowed to run; above 100% is turbo).
+
+  | variant, 30 reads each (stall = a read over 1.0 s) | p50 | p95 | max | stalls |
+  |---|---|---|---|---|
+  | live: as shipped, 4 threads, read on the reader thread | 0.354 s | 3.895 s | 4.054 s | 5 |
+  | plain: the same clip read on the main thread (control) | 0.378 s | 0.913 s | 5.205 s | 1 |
+  | two threads | 0.56 s | 4.081 s | 4.725 s | 4 |
+  | one thread | 0.923 s | 1.364 s | 6.316 s | 11 (10 of them only slow, at full speed) |
+
+  The 99 quick reads (1.0 s or less) ran with the cores at 112% to 175% of nominal speed (median 157%). **All 9 reads
+  over 1.5 s ran at 18% to 71%**: seven at 18% to 20%, one at 38%, one at 71%. None of the nine had a hard page fault,
+  so it is not Windows fetching memory back from disk, and the CPU load reading during them was 50% to 89%, so it is not
+  a fuller processor either. Earlier on the same day the counter read about 18% with the processor at about 93 °C. In
+  a first stage with 100 plain reads and pauses between them there was no stall at all (4 threads: p50 0.293 s, p95
+  0.35 s, max 0.381 s). Fewer threads do not help, as the table shows, and Buddy cannot switch the throttling off, so
+  this is **not fixed**; a cooler or faster PC should not show it (not measured). Raw rows:
+  `results_talk/talk_stalls_stage1.json`, `results_talk/talk_stalls_live.json`. The remaining late turns (1 in run A, 3
+  in run B) were taken 1.00 to 2.74 s after the last sound, with reads of 0.39 to 2.2 s.
+* Our own target for one decision was 300 ms (p95). The rules take 0.005 ms, but with speech recognition it is 1.36 s
+  in run A and 0.66 s in run B (4.1 s and 5.0 s in the real-time pass, where the stalls above land), so the target is
+  **missed**. Earlier runs: 1.51 s (round 3), 1.34 s (2026-11-16 10:02, 88% load) and 0.87 s (2026-11-14, 90% load).
 * Read-ahead hides part of that wait: the read starts 0.1 s into a pause instead of at the end of it, and no read was
-  thrown away. A finished turn that was taken (n=66) came a median 0.077 s, p95 0.655 s, later than the audio alone
-  allows.
+  thrown away in either run (0 of 201). A finished turn that was taken came a median 0.043 s later than the audio alone
+  allows in both runs; p95 0.281 s (run A, n=87) and 0.347 s (run B, n=88).
 * The two "then waits for the same read" rows are computed, not run: a fixed pause that also had to wait for the read
   Buddy waited for. They are there so the with-compute row is not compared only with a baseline that needs no words.
 * Decoding less audio does not fix it. A separate probe on 36 of the clips, at 100% CPU load, gave Whisper only the
   end of each one: whole clip 0.63 s (p95), last 2.0 s 0.50 s, last 1.2 s 0.43 s. The decode has a fixed cost, and the
-  short tail also loses words.
+  short tail also loses words. Measured, not adopted.
 * Other engines were probed and none was adopted. These were short probes, not the full bench. The Whisper rows are
   one read of each of the 96 clips of lists one and two with the priority raised; "cut-offs caught" is the share of the
   48 unfinished clips the rules call unfinished on that engine's reads.
@@ -470,51 +529,64 @@ How it was measured, and what that does and does not show:
 
   | engine | one decision, p95 (busy PC) | accuracy | why not |
   |---|---|---|---|
-  | Whisper base.en + rules (shipped) | 1.51 s (2.86 s in real time) | 89.4% measured | misses 300 ms |
+  | Whisper base.en + rules (shipped) | 1.36 s and 0.66 s in two runs (4.1 and 5.0 s in real time) | 92.9% measured | misses 300 ms |
   | Streaming Zipformer en-20M + rules | 0.07 to 0.18 s | about 78% (estimate) | drops the start of utterances, no punctuation |
   | Moonshine tiny en int8 + rules | 0.52 to 0.74 s (0.14 s when the PC was less busy) | about 77 to 82% (estimate) | invents an ending for cut-off speech |
   | Smart Turn v3.2 (audio only, no words) | 0.33 s on 1 thread | 40 of 40 finished clips right, 11 of 40 cut-off clips right at threshold 0.5 | calls most cut-off clips complete |
 
   The Smart Turn result says little about real speech: these clips are a synthetic voice reading a sentence that was cut
   in the text, and it may well end them with a falling tone (not tested).
-* The 19 unfinished clips Buddy cut too early (taken before a 1.2 s pause was over; 7, 5 and 7 by list). Four were read
-  as complete and taken 0.30 to 0.38 s into the pause: "…the folder called" (twice), "…the folder named" and "Paste it
-  right below the" (heard as "that"). The other 15 were read as neutral and taken at 0.73 to 0.82 s: "open the" (heard
-  as "they" and as "things."), "change the" (heard as "them."), "just above the" (heard as "that."), "in my" (heard as
-  "mine.", twice), "to, hmm" (heard as "hung."), "and, uh" (heard as "and up."), "…before" (three times), "we could"
-  (twice), "I would rather" and "I guess we should". Whisper puts a full stop on cut-off speech, so punctuation carries
-  no signal.
+* The 20 unfinished clips Buddy still cut too early (taken before a 1.2 s pause was over; 4, 5, 6 and 5 by list; round
+  3: 19 of 72). Two were read as complete and taken 0.38 to 0.41 s into the pause: "Paste it right below the" (heard as
+  "that") and "Could you forward this to" (heard as "too?"). Nine were read as neutral and taken at 0.73 to 0.83 s;
+  eight of those are mis-hearings of the last word that the words alone cannot catch: "my" heard as "mine." (three
+  times), "to, hmm" as "hung.", "change the" as "them.", "open the" as "things.", "above the" as "that." and "and, uh"
+  as "and up."; the ninth is "Next we could probably". Eight are leaning ("we could", "we should" twice, "before" four
+  times) and were taken at 0.93 to 0.98 s, so they are held through a 0.5 s and a 0.8 s pause but not a 1.2 s one. One
+  was read as unfinished ("to, uh") and taken at 1.21 s. Whisper puts a full stop on cut-off speech, so punctuation
+  carries no signal; telling "my" from "mine." needs the melody of the voice, which Buddy does not use.
+* The two finished turns missed on the audio timeline: "Open the calendar." (second list, read as unfinished, taken
+  at 1.67 s) and "I have seen this error before." (fourth list, leaning, 1.005 s).
 * Parts (a) and (a2) disagree at a 0.5 s pause (43% against 57%, one clip of 7) and the cause is known. Part (a) counts
   a turn as taken before the speaker went on when it fires earlier than the pause plus `ONSET` = 0.15 s, the time
   allowed for the voice detector to notice the speaker again. For "I want to change the background" the turn fired
   0.667 s after part one, 0.167 s after part two began: the detector needed about 0.17 s. With `ONSET` = 0.2 s part (a)
   gives 57% as well.
-* `ONSET` was frozen at 0.15 s before this round and the tables above use it. Re-scoring the saved rows with other
-  values (nothing re-measured; set `talk_turns.ONSET` and score the JSON again) shows 0.15 s is the value that favours
-  the fixed pause:
+* `ONSET` was frozen at 0.15 s before round 3 and the tables above use it. Re-scoring the saved rows of both runs with
+  other values (nothing re-measured; set `talk_turns.ONSET` and score the JSON again):
 
-  | `ONSET` | Buddy, audio timeline | with compute | fixed 0.7 s | best fixed pause | third list: with compute against best fixed |
+  | `ONSET` | Buddy, audio timeline | with compute, run A / run B | fixed 0.7 s | best fixed pause | closest list: with compute against best fixed |
   |---|---|---|---|---|---|
-  | 0.15 s (frozen, used above) | 89.4% | 82.6% | 66.4% | 73.6% | 73.6% against 75.7% |
-  | 0.20 s | 89.4% | 82.6% | 66.0% | 66.7% | 73.6% against 67.4% |
-  | 0.25 s | 88.9% | 82.6% | 64.8% | 66.4% | 73.6% against 66.7% |
-  | 0.30 s | 86.3% | 80.3% | 57.2% | 66.4% | 71.5% against 66.7% |
+  | 0.15 s (frozen, used above) | 92.9% | 89.8% / 89.2% | 66.5% | 73.3% | third list, run B: 86.1% against 75.7% |
+  | 0.20 s | 91.8% | 88.9% / 88.5% | 66.0% | 66.7% | third list, run B: 85.4% against 67.4% |
+  | 0.25 s | 91.5% | 88.7% / 88.0% | 64.9% | 66.5% | third list, run B: 84.7% against 66.7% |
+  | 0.30 s | 90.8% | 87.7% / 87.2% | 56.8% | 66.5% | third list, run B: 84.0% against 66.7% |
 
-  The detector's real onset time was seen on one clip (about 0.17 s), not measured over all of them, so the headline
-  stays at 0.15 s and the third-list result stays a loss.
-* Part (a2) scores the question Buddy ends up with after the speaker adds to something that sounded finished. Over the
-  18 early answers the joined question had every scripted word in order in 66.7% and 96.3% of the words on average. It
-  is on the audio timeline, and it assumes Buddy had been audible for less than 0.5 s; how soon Buddy is audible
-  depends on the model that answers and was not measured.
-* Part (c) is a simulation: Buddy's voice is passed through a synthetic room echo at the given level and mixed with the
-  user's clip. No real loudspeaker, room or microphone was used. Re-run on 2026-11-16 it gave the same detections as
-  on 2026-11-14 (the simulation is deterministic); only the compute time per tick is new.
-* Part (d) now runs on the real output device, playing silence so nothing is audible. The voice was silent 0.05 s after
-  a pause request in all 8 rounds. One of the 8 stops took 3.3 s to leave the device idle (the others about 0.2 s); it
-  was not investigated.
+  No value makes the fixed pause win on any list in either run. The detector's real onset time was seen on one clip
+  (about 0.17 s), not measured over all of them, so the headline stays at 0.15 s, the value that is kindest to the
+  fixed pause.
+* Part (a2) scores the question Buddy ends up with after the speaker adds to something that sounded finished. Buddy
+  answered early in 4 of 7 clips at a 0.5 s pause and in 7 of 7 at 0.8 s and 1.2 s. Over those 18 early answers the
+  joined question had every scripted word in order in 12 (2 of 4, 5 of 7, 5 of 7) and 96.3% of the words on average.
+  Of the 6 misses, 5 are a word Whisper wrote differently ("open" as "opened", "twelve" as "12") and in 1 a word was
+  lost ("to"). It is on the audio timeline, and it assumes Buddy had been audible for less than 0.5 s; how soon Buddy
+  is audible depends on the model that answers and was not measured.
+* Parts (c) and (d) are **from the 13:13 run (round 3) and were not measured again this round**; the echo gate and the
+  voice code they exercise were not changed. Part (c) is a simulation: Buddy's voice is passed through a synthetic room echo at the given level and
+  mixed with the user's clip. No real loudspeaker, room or microphone was used, and Buddy has no echo canceller. One
+  `EchoGate.hear` tick of 50,976 took 17 s in that run.
+* Part (d) runs on the real output device, playing silence so nothing is audible. The voice was silent 0.05 s after a
+  pause request in all 8 rounds. One of the 8 stops took 3.3 s to leave the device idle (the others about 0.2 s). That
+  and the 17 s tick are likely the same throttling as above; this was **not measured**.
 * Jev was not run. Its figures are quoted from the vendor's pages listed under `jev.sources` in the JSON.
 
 Reproduce (Kokoro and the speech models must already be in `%APPDATA%\Buddy`; the first run synthesizes the clips, which
-took 11 s each here; `--hold` keeps above-normal priority for each clip, as the app does for a conversation):
+took 11 s each here; `--hold` keeps above-normal priority for each clip, as the app does for a conversation). Parts (a),
+(a2) and (b) take about 25 minutes:
 
     python bench\talk_turns.py --cache <folder for clips> --only abcd --hold
+    python bench\talk_turns.py --cache <folder for clips> --only ab --hold --out <another folder>
+    python bench\talk_rules_ab.py --results bench\results_talk\talk_turns.json --old b0e364a
+    python bench\talk_priority.py --out bench\results_talk\talk_priority.json
+    python bench\talk_stalls.py --cache <folder for clips> --reads 200
+    python bench\talk_stalls.py --cache <folder for clips> --live --reads 30 --variants live,plain,two-thread,one-thread

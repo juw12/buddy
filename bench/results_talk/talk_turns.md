@@ -1,32 +1,33 @@
 # Talk mode bench
 
-Run 2026-11-16 14:41 on Intel64 Family 6 Model 189 Stepping 1, GenuineIntel, 8 logical CPUs, Windows 10.
+Run 2026-11-16 16:40 (parts a, a2, b) and 2026-11-16 13:13 (parts c, d) on Intel64 Family 6 Model 189 Stepping 1, GenuineIntel, 8 logical CPUs, Windows 10.
 
 ## (a) Turns: finished or not (English, real voice detector + whisper-en on Kokoro speech)
 
-72 finished and 72 unfinished utterances in 3 lists (see the table by list); pauses (0.5, 0.8, 1.2) s; a finished turn has to be taken within 1.0 s of silence. Delays are on the audio timeline; compute time is in (b). The row with compute is measured in real time: wall clock, the speech engine reading on its own thread while the clip plays, as talk mode runs it.
+96 finished and 96 unfinished utterances in 4 lists (see the table by list); pauses (0.5, 0.8, 1.2) s; a finished turn has to be taken within 1.0 s of silence. Delays are on the audio timeline; compute time is in (b). The row with compute is measured in real time: wall clock, the speech engine reading on its own thread while the clip plays, as talk mode runs it.
 
 | end-pointer | finished taken in time | unfinished not cut | balanced accuracy | mean delay, finished |
 |---|---|---|---|---|
-| Buddy (reads the words) | 99% | 80% | 89.4% | 0.567 s |
-| Buddy, with compute under this load | 82% | 83% | 82.6% | 0.727 s |
-| fixed silence, same delay (0.5 s) | 100% | 0% | 50.2% | 0.582 s |
-| fixed silence 0.7 s | 100% | 33% | 66.4% | 0.784 s |
-| fixed silence, its best gap (0.85 s) | 100% | 47% | 73.6% | 0.934 s |
-| fixed silence 0.7 s, then waits for the same read (computed) | 82% | 39% | 60.6% | 0.821 s |
-| fixed silence, its best gap, then waits for the same read (computed) (0.85 s) | 82% | 52% | 66.9% | 0.949 s |
+| Buddy (reads the words) | 98% | 88% | 92.9% | 0.563 s |
+| Buddy, with compute under this load | 90% | 90% | 89.8% | 0.642 s |
+| fixed silence, same delay (0.5 s) | 100% | 0% | 50.2% | 0.583 s |
+| fixed silence 0.7 s | 100% | 33% | 66.5% | 0.785 s |
+| fixed silence, its best gap (0.85 s) | 100% | 46% | 73.3% | 0.935 s |
+| fixed silence 0.7 s, then waits for the same read (computed) | 90% | 40% | 64.6% | 0.789 s |
+| fixed silence, its best gap, then waits for the same read (computed) (0.85 s) | 90% | 52% | 70.7% | 0.938 s |
 
 | list | finished taken in time | unfinished not cut | balanced accuracy | with compute | fixed silence, same delay | fixed silence, its best gap |
 |---|---|---|---|---|---|---|
-| first list (its reads were seen while the rules were revised) | 100% | 79% | 89.6% | 86.8% | 50.0% | 72.9% |
-| second list (written after the rules were frozen; first read in the round 2 run) | 96% | 82% | 88.9% | 87.5% | 56.2% | 72.2% |
-| third list (same author, parallel in form to the second; never read before this run) | 100% | 79% | 89.6% | 73.6% | 50.0% | 75.7% |
+| first list (its reads were seen while the rules were revised) | 100% | 92% | 95.8% | 89.6% | 50.0% | 72.9% |
+| second list (written after the rules were frozen; first read in the round 2 run) | 96% | 89% | 92.4% | 91.0% | 56.2% | 72.2% |
+| third list (same author, parallel in form to the second; first read in the round 3 run) | 100% | 86% | 93.1% | 91.0% | 50.0% | 75.7% |
+| fourth list (same author, written after the round 4 rules; never read before this run) | 96% | 85% | 90.3% | 87.5% | 50.0% | 72.2% |
 
-Buddy, unfinished not cut, by pause length: 0.5 s pause 94%, 0.8 s pause 74%, 1.2 s pause 72%.
+Buddy, unfinished not cut, by pause length: 0.5 s pause 98%, 0.8 s pause 86%, 1.2 s pause 79%.
 
 Sounds finished but the speaker adds to it (7 clips, not in the accuracy): answered before the speaker went on, 0.5 s pause 43%, 0.8 s pause 100%, 1.2 s pause 100%.
 
-Rules on typed text (no audio): en_dev 94% (n=32), en_held_out 88% (n=48), en_held_out_2 92% (n=48), zh 94% (n=16), id 81% (n=16).
+Rules on typed text (no audio): en_dev 94% (n=32), en_held_out 92% (n=48), en_held_out_2 94% (n=48), en_held_out_3 94% (n=48), en_held_out_4 94% (n=48), zh 94% (n=16), id 81% (n=16).
 
 ## (a2) Turn repair: the speaker adds to something that sounded finished
 
@@ -42,16 +43,16 @@ The session only joins the parts if Buddy has been audible for less than 0.5 s w
 
 ## (b) One decision
 
-CPU load during the run: {'mean_percent': 89.7, 'max_percent': 100.0, 'logical_cpus': 8}.
+CPU load during the run: {'mean_percent': 90.8, 'max_percent': 100.0, 'logical_cpus': 8}.
 
 | what | p50 | p95 | n |
 |---|---|---|---|
-| rules alone, given the words (what Jev is given) | 0.0029 ms | 0.0041 ms | 6400 |
-| speech engine (whisper-en) + rules | 0.417 s | 1.514 s | 153 |
-| the same in the real-time pass | 0.389 s | 2.863 s | 153 |
+| rules alone, given the words (what Jev is given) | 0.0029 ms | 0.0047 ms | 6400 |
+| speech engine (whisper-en) + rules | 0.386 s | 1.361 s | 201 |
+| the same in the real-time pass | 0.354 s | 4.1 s | 201 |
 
-Read-ahead: the read starts 0.1 s into a pause and the shortest gap is 0.3 s, so the first 0.2 s of a read cost the speaker nothing. 0 of 153 reads were thrown away because the speaker had gone on.
-Finished turns in real time: taken p50 0.744 s, p95 1.081 s after the last sound; that is p50 0.077 s, p95 0.655 s later than on the audio timeline (n=66).
+Read-ahead: the read starts 0.1 s into a pause and the shortest gap is 0.3 s, so the first 0.2 s of a read cost the speaker nothing. 0 of 201 reads were thrown away because the speaker had gone on.
+Finished turns in real time: taken p50 0.639 s, p95 0.834 s after the last sound; that is p50 0.043 s, p95 0.281 s later than on the audio timeline (n=87).
 
 Jev (published by the vendor, not measured by us): about 300 ms per decision, vendor cloud only, $0.042 per million input tokens.
 

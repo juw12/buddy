@@ -498,6 +498,29 @@ def test_urgent_raises_the_priority_and_puts_it_back():
     assert _priority() == speech.NORMAL_PRIORITY
 
 
+def test_urgent_lasts_until_the_last_block_leaves():
+    """A decode is running when a conversation starts, and comes back during it: the conversation keeps
+    the priority. (Before the blocks were counted, the decode took it away with it.)"""
+    _needs_normal_priority()
+    decoding, talking, decoded = threading.Event(), threading.Event(), threading.Event()
+
+    def decode():
+        with speech.urgent():
+            decoding.set()
+            talking.wait(5)
+        decoded.set()
+
+    thread = threading.Thread(target=decode)
+    thread.start()
+    assert decoding.wait(5)
+    with speech.urgent():                                   # the conversation
+        talking.set()
+        assert decoded.wait(5)
+        thread.join(5)
+        assert _priority() == speech.ABOVE_NORMAL_PRIORITY
+    assert _priority() == speech.NORMAL_PRIORITY
+
+
 def test_urgent_puts_the_priority_back_after_an_error():
     _needs_normal_priority()
     with pytest.raises(RuntimeError):

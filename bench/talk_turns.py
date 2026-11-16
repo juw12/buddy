@@ -125,9 +125,33 @@ HELD_OUT_3_UNFINISHED = [
     "Filter the rows by name and also", "I was going to", "Can you tell me if the",
     "It starts on the second slide and, uh", "After that we should probably",
 ]
+# Fourth list, round 4: same author again, written AFTER the round 4 rules (a subject at the end, "called"
+# after a command, the 'leaning' kind) and before any read of it. Eight of its finished turns end on a word
+# those rules look at ("called", "before", "after", "could", "should", "we"), so it is harder than the others.
+HELD_OUT_4_FINISHED = [
+    "How do I undo the last change?", "Close the task manager.", "What is this file called?",
+    "Make the window a little wider.", "Yes, we could.", "No, not yet.", "Could you say that more slowly?",
+    "I have seen this error before.", "Turn these notes into a list.", "Why is the battery draining so fast?",
+    "Forward the report to the whole team tonight.", "Alright, I think we should.", "How far along are we?",
+    "What does this warning mean?", "Show me yesterday's photos.", "My manager just called.",
+    "Copy this link to the clipboard.", "Have you done this before?", "Is the backup finished?",
+    "Go back to the previous page.", "Tell me which one is cheaper.", "It froze when I opened the camera.",
+    "Which folder has the invoices?", "We can do the rest after.",
+]
+HELD_OUT_4_UNFINISHED = [
+    "I am about to close the", "Could you forward this to", "Highlight the top row and then",
+    "The odd thing is that", "Perhaps we should", "Open the document in the folder called",
+    "This layout is okay but", "Set the font to bold and", "What I am after is",
+    "Look at the log and tell me whether", "Add a comment right under the", "It keeps disconnecting because",
+    "Replace the second chart with", "Well, how can I, um", "Move the meeting to Tuesday at",
+    "Either save it here, or", "I want to back this up before", "The receipt is somewhere in my",
+    "Hang on, the sheet was named something like", "Group the files by type and also", "I think I would rather",
+    "Can you tell me whether the", "It ends on the last page and, uh", "Next we could probably",
+]
 LISTS = {"first": "first list (its reads were seen while the rules were revised)",
          "second": "second list (written after the rules were frozen; first read in the round 2 run)",
-         "third": "third list (same author, parallel in form to the second; never read before this run)"}
+         "third": "third list (same author, parallel in form to the second; first read in the round 3 run)",
+         "fourth": "fourth list (same author, written after the round 4 rules; never read before this run)"}
 # Sounds finished, but the speaker adds to it after the pause. No text rule can know; reported on its own.
 HELD_OUT_ADDED_TO = [
     "Open the spreadsheet", "I need the report", "Send it to the team", "Make the title bold",
@@ -335,6 +359,8 @@ def turns(talk, detector, stt, clips, log, urgent, load=None, hold=contextlib.nu
                                 ("unfinished", "second", HELD_OUT_2_UNFINISHED),
                                 ("finished", "third", HELD_OUT_3_FINISHED),
                                 ("unfinished", "third", HELD_OUT_3_UNFINISHED),
+                                ("finished", "fourth", HELD_OUT_4_FINISHED),
+                                ("unfinished", "fourth", HELD_OUT_4_UNFINISHED),
                                 ("added_to", "first", HELD_OUT_ADDED_TO)):
         for text in texts:
             speech = clips.get(text, USER_VOICE)
@@ -491,7 +517,9 @@ def text_only(talk):
 
     out = {"en_dev": accuracy(DEV_FINISHED, DEV_UNFINISHED),
            "en_held_out": accuracy(HELD_OUT_FINISHED, HELD_OUT_UNFINISHED),
-           "en_held_out_2": accuracy(HELD_OUT_2_FINISHED, HELD_OUT_2_UNFINISHED)}
+           "en_held_out_2": accuracy(HELD_OUT_2_FINISHED, HELD_OUT_2_UNFINISHED),
+           "en_held_out_3": accuracy(HELD_OUT_3_FINISHED, HELD_OUT_3_UNFINISHED),
+           "en_held_out_4": accuracy(HELD_OUT_4_FINISHED, HELD_OUT_4_UNFINISHED)}
     for language, (finished, unfinished) in OTHER_LANGUAGES.items():
         out[language] = accuracy(finished, unfinished)
     return out
@@ -688,7 +716,10 @@ def voice_reaction(voice, log):
 def report(result):
     turns_, speed, barge = result.get("turns"), result.get("decisions"), result.get("barge_in")
     engine, ahead, fix = result.get("engine", "whisper-en"), result.get("read_ahead"), result.get("repair")
-    lines = ["# Talk mode bench", "", f"Run {result['when']} on {result['machine']}.", ""]
+    ran = f"Run {result['when']}"
+    if result.get("when_parts_c_d"):                             # parts (c) and (d) were kept from an earlier run
+        ran += f" (parts a, a2, b) and {result['when_parts_c_d']} (parts c, d)"
+    lines = ["# Talk mode bench", "", f"{ran} on {result['machine']}.", ""]
     if turns_:
         lines += [f"## (a) Turns: finished or not (English, real voice detector + {engine} on Kokoro speech)", "",
                   f"{turns_['counts']['finished']} finished and {turns_['counts']['unfinished']} unfinished "
@@ -817,6 +848,10 @@ def main():
     load = Load()
     result_path = out / "talk_turns.json"
     result = json.loads(result_path.read_text(encoding="utf-8")) if result_path.exists() else {}
+    if "c" in args.only and "d" in args.only:
+        result.pop("when_parts_c_d", None)
+    elif ("barge_in" in result or "voice" in result) and result.get("when"):
+        result.setdefault("when_parts_c_d", result["when"])      # those parts keep the time they were measured
     result.update({"when": time.strftime("%Y-%m-%d %H:%M"),
                    "machine": f"{platform.processor() or platform.machine()}, {os.cpu_count()} logical CPUs, "
                               f"{platform.system()} {platform.release()}",
@@ -836,7 +871,8 @@ def main():
     if "a" in args.only or "b" in args.only:
         log("(a) turns")
         for text in (HELD_OUT_FINISHED + HELD_OUT_UNFINISHED + HELD_OUT_2_FINISHED + HELD_OUT_2_UNFINISHED
-                     + HELD_OUT_3_FINISHED + HELD_OUT_3_UNFINISHED + HELD_OUT_ADDED_TO
+                     + HELD_OUT_3_FINISHED + HELD_OUT_3_UNFINISHED + HELD_OUT_4_FINISHED
+                     + HELD_OUT_4_UNFINISHED + HELD_OUT_ADDED_TO
                      + CONTINUATIONS):                                                # synthesize before timing
             clips.get(text, USER_VOICE)
         stt = keyit_speech.SherpaSpeech(args.engine)

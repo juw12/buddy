@@ -112,6 +112,31 @@ class Completeness(unittest.TestCase):
         for text in ("what do", "What I can do", "what does"):
             self.assertEqual(talk.completeness(text), talk.UNFINISHED, text)
 
+    def test_a_turn_does_not_end_on_its_subject(self):
+        for text in ("I want to open they", "What should we", "How do I", "and then she", "I would rather"):
+            self.assertEqual(talk.completeness(text), talk.UNFINISHED, text)
+        for text in ("Where are we?", "Where am I", "How far along are we?"):
+            self.assertNotEqual(talk.completeness(text), talk.UNFINISHED, text)
+
+    def test_a_folder_called_waits_for_its_name(self):
+        for text in ("Put the file in the folder called.", "Save a copy in the folder named.",
+                     "Can you open the sheet named"):
+            self.assertEqual(talk.completeness(text), talk.UNFINISHED, text)
+        for text in ("My manager just called.", "The client called.", "What is this file called?",
+                     "Tell him I called.", "Tell me if the client called"):
+            self.assertNotEqual(talk.completeness(text), talk.UNFINISHED, text)
+
+    def test_leaning_turns_get_a_longer_gap_but_not_the_longest(self):
+        for text in ("I was thinking we could.", "I guess we should.", "Maybe we could",
+                     "We need to finish this before.", "I have seen this before.", "We can do the rest after."):
+            self.assertEqual(talk.completeness(text), talk.LEANING, text)
+        for text in ("Yes, we could.", "I will.", "Have you done this before?", "No, not yet."):
+            self.assertNotEqual(talk.completeness(text), talk.LEANING, text)
+        gaps = talk.GAPS
+        self.assertLess(gaps[talk.COMPLETE], gaps[talk.NEUTRAL])
+        self.assertLess(gaps[talk.NEUTRAL], gaps[talk.LEANING])
+        self.assertLess(gaps[talk.LEANING], gaps[talk.UNFINISHED])
+
     def test_what_was_said(self):
         kinds = {"Goodbye!": talk.GOODBYE, "stop listening": talk.GOODBYE, "再見": talk.GOODBYE,
                  "Wait.": talk.INTERRUPT, "no": talk.INTERRUPT, "等一下": talk.INTERRUPT,
@@ -165,6 +190,25 @@ class Turns(unittest.TestCase):
         self.assertEqual(turn[2], talk.UNFINISHED)
         self.assertGreater(at - 1.0, 1.5)
         self.assertLess(at - 1.0, 1.8)
+
+    def test_a_leaning_turn_waits_longer_than_a_plain_one_and_shorter_than_an_unfinished_one(self):
+        taker = self.taker(["I guess we should."])
+        events = self.feed(taker, np.concatenate([voice(1.0, 1), quiet(3.0)]))
+        at, turn = events[-1]
+        self.assertEqual(turn[2], talk.LEANING)
+        self.assertGreater(at - 1.0, talk.GAPS[talk.NEUTRAL] + 0.1)
+        self.assertLess(at - 1.0, talk.GAPS[talk.LEANING] + 0.2)
+
+    def test_gaps_from_a_caller_need_not_name_every_kind(self):
+        def transcribe(audio):
+            return "I guess we should."
+
+        own = {talk.COMPLETE: 0.2, talk.NEUTRAL: 0.5, talk.UNFINISHED: 1.2}
+        taker = talk.TurnTaker(FakeListening, transcribe, gaps=own)
+        self.assertEqual(taker.gaps[talk.LEANING], talk.GAPS[talk.LEANING])
+        self.assertEqual(taker.gaps[talk.NEUTRAL], 0.5)
+        events = self.feed(taker, np.concatenate([voice(1.0, 1), quiet(3.0)]))
+        self.assertEqual(events[-1][1][2], talk.LEANING)
 
     def test_a_pause_in_the_middle_does_not_split_the_turn(self):
         taker = self.taker(["open the file and", "open the file and click save"])

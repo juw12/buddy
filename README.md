@@ -37,7 +37,7 @@ the import stops. Add `--force` to replace that profile; the old one is moved to
 ## Use
 - **Ctrl+Alt+Space**, hold it: ask Buddy about your screen by voice. Release to send, and press Esc to cancel. Your question is heard in the language picked in the *Voice input* tab, and the model is asked to answer in the language of the question. A Chinese, Japanese or Hindi answer is spoken sentence by sentence, like an English one. An answer in a language without a natural voice (see **Voice** below) is read by the voice you picked.
 - **Ctrl+Alt+D**: type by voice into any app (mail, chat, PLM forms, Word). Hold it while you talk and release, or tap it once to talk hands-free and tap again to type it (Esc cancels, 5 minutes max). Buddy drops "um"/"uh", follows corrections you say out loud ("at three, no wait, at four" types "at four"; "... scratch that" drops the sentence), and never touches your clipboard. Corrections also work in Indonesian and Malay ("jam tiga, eh salah, jam empat" types "jam empat"), Chinese ("三点，不对，四点"), German, Spanish and French; in other languages only the filler sounds are dropped. *Voice input -> Type last dictation again / Copy last dictation* if it went into the wrong window.
-- **Ctrl+Alt+T**: talk with Buddy hands-free, like a call (also *Talk with Buddy* in the tray menu). There is no key to hold: Buddy waits until your sentence sounds finished (about 0.3 s after a complete sentence, 0.7 s when it can't tell, 1.6 s when you trail off on "and", "because" or "um"), starts speaking while the rest of the answer is still being written, and stops when you talk over it. End the conversation with Ctrl+Alt+T, Esc or by saying "goodbye". Use a headset: Buddy has no echo canceller, so through loudspeakers you must be clearly louder than its voice to interrupt it (or press Esc). How soon the answer starts depends on the brain (Smart about 1 to 2 s, Free about 5 s). Measurements and limits: [Talk mode vs Jev](#talk-mode-vs-jev). Switch it off with *Talk with Buddy* in Settings.
+- **Ctrl+Alt+T**: talk with Buddy hands-free, like a call (also *Talk with Buddy* in the tray menu). There is no key to hold: Buddy waits until your sentence sounds finished (about 0.3 s after a complete sentence, 0.7 s when it can't tell, 0.9 s when it could go either way, as after "we could" or "before", and 1.6 s when you trail off on "and", "because" or "um"), starts speaking while the rest of the answer is still being written, and stops when you talk over it. End the conversation with Ctrl+Alt+T, Esc or by saying "goodbye". Use a headset: Buddy has no echo canceller, so through loudspeakers you must be clearly louder than its voice to interrupt it (or press Esc). How soon the answer starts depends on the brain (Smart about 1 to 2 s, Free about 5 s). Measurements and limits: [Talk mode vs Jev](#talk-mode-vs-jev). Switch it off with *Talk with Buddy* in Settings.
 - **Language and speech model** (the *Voice input* tab): pick the language you speak and leave the model on *Auto*. Auto uses Whisper base.en for English (the most accurate in [our benchmark](#voice-buddy-vs-wispr-flow-vs-handy)), SenseVoice for Mandarin and Cantonese, Omnilingual for Indonesian, Dolphin for Malay, Japanese, Korean, Thai and Vietnamese, Parakeet V3 for German, Spanish, French and other European languages, and Whisper base when the language is *Auto-detect*. Chinese is typed in the characters you pick: Simplified for *Chinese, Simplified*, Traditional for *Chinese, Traditional* and for Cantonese. Indonesian, Malay, Japanese, Korean, Thai and Vietnamese are newer and make more mistakes than English or Chinese, so check names and numbers; the line under the picker says what to expect. All models run offline on this PC; the one for your language (80 to 490 MB) downloads once from GitHub in the background and resumes if the office network cuts it. For English, German, Spanish, French, Japanese and Chinese the Windows recognizer answers until it is ready (when that Windows speech language is installed); for the other languages voice input waits for the download, and if you try it too early the bubble says how far the download is. Silero voice detection runs first, so a key click or a fan never turns into made-up text. The microphone is picked on the same tab. While it turns your speech into text, Buddy asks Windows for above-normal priority and gives it back afterwards, so other busy programs hold dictation up less ([measured](bench/README.md#release-to-text-on-a-busy-pc)). A dictation longer than 15 seconds is turned into text in parts while you are still talking, so letting go of the key only waits for the last part, and English no longer loses what you say after the first 30 seconds ([measured](bench/README.md#long-dictations-release-to-text)).
 - **My words** (Voice input -> My words...): one word per line that Buddy must always spell your way (`SRM`, `eGreen`, `PureGMS`: "s r m" and "e green" are fixed, near misses like "Zyris" -> `ZIRIS` too; with the language set to English, Chinese, Japanese, Korean or Thai also a mishearing that only sounds like it, such as "Bizaira's" -> `ZIRIS`), and spoken shortcuts like `my sign off => Best regards, Juwen`. If a real name sounds like one of your words, add the name too, so Buddy leaves it alone. Ordinary English words are left alone unless they are said exactly like your word ("speck green" -> `Spec Green`), so "not paid" never turns into `Notepad`; if Buddy keeps hearing real words for one of yours, add a line such as `peg vision => Pega-Vision`.
 - **Voice**: Settings -> Voice. "Natural: ..." voices sound human (Kokoro, offline, ~120 MB downloaded once into %APPDATA%\Buddy\voices) in English (US/UK), Chinese (Mandarin), Spanish, French, Italian, Portuguese (Brazil) and Hindi. If Buddy answers in Chinese or Hindi while another language's voice is picked, a voice of the same gender reads that part; the Microsoft voices are the old robotic ones. Press **Test** to hear one. Natural voices run on the CPU, so on a very busy PC they can start a second or two later.
@@ -109,47 +109,54 @@ voices are synthetic (Windows TTS), so real voices will differ, but the order be
 Jev is a cloud model that voice agents call to decide whether the speaker has finished a turn. It could not be run here
 (vendor cloud, paid, and the office data rules), so **its column is what the vendor publishes, not something we measured**.
 Buddy's column is measured with [bench/talk_turns.py](bench/talk_turns.py) on the same office laptop while it was busy with
-other work (90% CPU load on 8 logical CPUs in the latest run). Full tables: [bench/README.md](bench/README.md#talk-mode-turns-and-barge-in).
+other work (91% and 92% CPU load on 8 logical CPUs in the two latest runs). Full tables: [bench/README.md](bench/README.md#talk-mode-turns-and-barge-in).
 
 | | Jev (published by the vendor, not measured here) | Buddy talk mode (measured here) |
 |---|---|---|
 | Where it runs | Vendor cloud only | On your PC, offline |
 | Price | $0.042 per million input tokens | Free |
 | How it decides you are done | A model that reads the transcript | Hand-written rules that read the transcript (English, Indonesian, Chinese); other languages get a plain 0.7 s pause |
-| Time for one decision, given the words | About 300 ms | 0.004 ms (p95) |
-| Time for one decision, speech recognition included | 70 to 500 ms end to end | **Slower:** 0.39 s median, 2.86 s p95 at 90% CPU load. The read starts 0.1 s into a pause, so a finished turn was taken a median 0.08 s (p95 0.66 s) later than the audio alone allows |
-| Finished or not, on our synthetic clips | Not measured | 89.4% balanced accuracy on 144 clips in three lists (89.6% on the 48 newest), against 66% for a fixed 0.7 s pause and 74% for the best fixed pause. With real recognition time counted: 82.6% |
+| Time for one decision, given the words | About 300 ms | 0.005 ms (p95) |
+| Time for one decision, speech recognition included | 70 to 500 ms end to end | **Slower:** 0.39 s median. p95 was 1.36 s and 0.66 s in two runs reading one clip at a time, and 4.1 s and 5.0 s in the real-time pass (2.86 s a round earlier), at 91% to 92% CPU load. The read starts 0.1 s into a pause, so a finished turn that was taken came a median 0.04 s (p95 0.28 to 0.35 s) later than the audio alone allows |
+| Finished or not, on our synthetic clips | Not measured | 92.9% balanced accuracy on 192 clips in four lists (90.3% on the 48 newest), against 66.5% for a fixed 0.7 s pause and 73.3% for the best fixed pause. With real recognition time counted: 89.8% and 89.2% in two runs |
 | What leaves your PC to decide this | The transcript of what you said | Nothing (your question still goes to the brain you picked) |
 | Stops talking when you interrupt | Not its job | Stop requested 0.2 s (p95) after you start, in a simulated room. On the real sound device the voice was silent 0.05 s after the request (8 rounds, silent samples) |
 
 Where Buddy does **not** beat Jev, and what was not shown:
 - Accuracy was never compared with Jev. Buddy's figures are on our own English clips spoken by a synthetic voice, half
-  finished and half cut off mid-sentence, against a fixed-pause baseline. There are three lists of 48 clips by the same
-  author: 89.6%, 88.9% and, on the list that had never been read before this run, 89.6%. That newest list repeats three
-  finished sentences and one unfinished one from the first list. The lists are parallel forms of each other, not a
-  sample of real talk.
-- Buddy has to run Whisper at every pause before the rules can read anything. The read now starts 0.1 s into a pause on
-  a thread that is kept running, and Buddy holds above-normal priority for the whole conversation. On this busy PC one
-  read still took 0.39 s (median) and 2.86 s (p95): slower than Jev's published figure, and our own 300 ms target is
-  **missed**. Counting that time, Buddy's accuracy is 82.6%, above the best fixed pause (0.85 s: 73.6%); it was 66.3% a
-  round earlier, and 57.2% in a run the same day that raised the priority only during a read. It is one run, and on the
-  newest list alone Buddy is still **below** the best fixed pause (73.6% against 75.7%). 6 of 72 finished turns were not
-  taken at all because a read stalled for 2.6 to 4.7 s; the cause was not found. Whisper tiny.en and three other engines
-  were tried and none was adopted ([table](bench/README.md#talk-mode-turns-and-barge-in)). It has not been measured on a
-  quiet PC.
+  finished and half cut off mid-sentence, against a fixed-pause baseline. There are four lists of 48 clips by the same
+  author: 95.8%, 92.4%, 93.1% and 90.3%. The first three are **not** blind: this round's rules were written from their
+  misses. The fourth was written after those rules, by the person who wrote them, and had never been read before; on the
+  same reads the rules of the round before score 85.4% on it. The lists are parallel forms of each other, not a sample
+  of real talk.
+- Buddy has to run Whisper at every pause before the rules can read anything. The read starts 0.1 s into a pause on a
+  thread that is kept running, and Buddy holds above-normal priority for the whole conversation. On this busy PC one
+  read still took 0.39 s (median); the slowest 1 in 20 took 0.66 to 1.36 s one clip at a time and 4.1 to 5.0 s in the
+  real-time pass. That is slower than Jev's published figure, and our own 300 ms target is **missed**.
+- Counting that time, Buddy's accuracy is 89.8% and 89.2% in two runs (82.6% a round earlier), above the best fixed pause
+  (73.3%) on every one of the four lists in both runs, the newest included (87.5% and 88.2% against 72.2%).
+- 10 and 11 of 96 finished turns were not taken within 1.0 s, and 9 and 8 of those were not taken at all because one read
+  took 2.8 to 6.3 s. The cause was found: the laptop's firmware slows the processor to about a fifth of its speed for
+  seconds at a time (all 9 reads over 1.5 s in a separate probe ran at 18% to 71% speed; quick reads ran at 112% to
+  175%). Buddy cannot switch that off and fewer threads did not help, so it is **not fixed**. It has not been measured on
+  a cool or quiet PC. Whisper tiny.en and three other engines were tried and none was adopted
+  ([table](bench/README.md#talk-mode-turns-and-barge-in)).
 - 7 questions that sound finished but where the speaker then adds more are left out of the accuracy. At a 0.5 s pause
   Buddy answered before the speaker went on in 4 of the 7, and at 0.8 s and longer in all of them. If Buddy has been
   audible for less than 0.5 s when that happens, it joins the two parts into one question: the joined question had every
-  scripted word in order in 67% of the 18 early answers (96% of the words on average). After 0.5 s of Buddy's voice the
+  scripted word in order in 12 of the 18 early answers (96% of the words on average). After 0.5 s of Buddy's voice the
   second part is a new question. How soon Buddy is audible depends on the brain and was not measured.
-- 19 of the 72 cut-off clips were still taken as finished before a 1.2 s pause was over, 4 of them before 0.5 s. Whisper
-  puts a full stop on a cut-off sentence and hears "the" as "they" or "that", so the words look finished.
+- 20 of the 96 cut-off clips were still taken as finished before a 1.2 s pause was over, 2 of them before 0.5 s. Eight of
+  them end on a word Whisper heard as another one ("my" as "mine.", "the" as "them." or "that."), so the words look
+  finished; telling those apart needs the melody of the voice, which Buddy does not use. Eight more end on "we could",
+  "we should" or "before": Buddy now waits 0.9 s there, which holds through a 0.8 s pause but not a 1.2 s one.
 - There is no echo canceller. With a headset every interruption was noticed. Through loudspeakers you were noticed every time
   only when 3 times louder at the microphone than Buddy's echo (natural voice) or 4 times (Windows voice); below that, press Esc.
   Other people talking in the room are heard as you. Buddy never interrupted itself in 24 minutes of simulated echo.
 - The speaker-to-microphone path was simulated and the voices are synthetic. Nobody has been measured at a real microphone
   yet. On the real sound device (silent samples, 8 rounds) the voice was silent 0.05 s after a pause request and the
-  device was idle 0.2 s (median) after a stop, with one stop that took 3.3 s.
+  device was idle 0.2 s (median) after a stop, with one stop that took 3.3 s. The interruption and sound-device figures
+  are from the round before and were not measured again this round.
 
 ## Buddy Island
 Buddy lives in your screen's notch, so it is always one move away, on every device:

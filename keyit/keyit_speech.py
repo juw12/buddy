@@ -890,18 +890,34 @@ def _swap_priority(expected, wanted):
         return False
 
 
+_urgent_lock = threading.Lock()
+_urgent_blocks = 0                                         # blocks inside urgent() right now, on any thread
+_urgent_raised = False                                     # it was the first of them that raised the priority
+
+
 @contextlib.contextmanager
 def urgent():
     """Run the block at above-normal priority, then put the process back.
 
     Between letting go of the key and seeing the text the user is waiting, so the decode should not queue
-    up behind whatever else keeps the processor busy. bench/latency_load.py measures what this is worth."""
-    raised = _swap_priority(NORMAL_PRIORITY, ABOVE_NORMAL_PRIORITY)
+    up behind whatever else keeps the processor busy. bench/latency_load.py measures what this is worth.
+
+    Blocks overlap on different threads (a decode is running when a conversation starts and ends during
+    it), so they are counted: the priority goes back when the last one leaves, not when the one that raised
+    it does. bench/talk_priority.py watches this from outside the process."""
+    global _urgent_blocks, _urgent_raised
+    with _urgent_lock:
+        if _urgent_blocks == 0:
+            _urgent_raised = _swap_priority(NORMAL_PRIORITY, ABOVE_NORMAL_PRIORITY)
+        _urgent_blocks += 1
     try:
         yield
     finally:
-        if raised:
-            _swap_priority(ABOVE_NORMAL_PRIORITY, NORMAL_PRIORITY)
+        with _urgent_lock:
+            _urgent_blocks -= 1
+            if _urgent_blocks == 0 and _urgent_raised:
+                _urgent_raised = False
+                _swap_priority(ABOVE_NORMAL_PRIORITY, NORMAL_PRIORITY)
 
 
 class Speech:
