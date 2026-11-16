@@ -3,11 +3,14 @@
     python -m pytest keyit/tests/test_talk.py -q
 """
 import contextlib
+import queue
 import sys
 import threading
 import time
+import types
 import unittest
 from pathlib import Path
+from unittest import mock
 
 import numpy as np
 
@@ -689,6 +692,64 @@ class Session(unittest.TestCase):
         self.assertEqual(talking.ended, ["hotkey"])
 
 
+class StartedMic(FakeMic):
+    def __init__(self, fails=False):
+        super().__init__()
+        self.fails = fails
+        self.started = False
+
+    def start(self):
+        if self.fails:
+            raise OSError("no microphone")
+        self.started = True
+
+
+class StoppableSpeaker(FakeSpeaker):
+    stops = 0
+
+    def stop(self):
+        self.stops += 1
+        self.is_speaking = False
+
+
+class FakeOverlay:
+    """What Buddy's bubble was told to show. `ended` is set by hide_later, the last call of a goodbye."""
+
+    def __init__(self):
+        self.calls = []
+        self.ended = threading.Event()
+
+    def listening(self, monitor, position):
+        self.calls.append(("listening", monitor, position))
+
+    def thinking(self, text):
+        self.calls.append(("thinking", text))
+
+    def hide(self):
+        self.calls.append(("hide",))
+
+    def hide_later(self, milliseconds):
+        self.calls.append(("hide_later", milliseconds))
+        self.ended.set()
+
+
+class FakeSpeech:
+    """The speech engine as talk_toggle uses it: ready or not, and one text for each read."""
+
+    def __init__(self, texts, waiting=""):
+        self.texts = list(texts)
+        self.not_ready = waiting
+
+    def waiting(self):
+        return self.not_ready
+
+    def transcribe(self, audio, rate):
+        return self.texts.pop(0) if self.texts else ""
+
+    def spoken_language(self):
+        return "en"
+
+
 class Wiring(unittest.TestCase):
     """The few lines talk mode needs in Buddy's voice and brain."""
 
@@ -776,6 +837,125 @@ class Wiring(unittest.TestCase):
         self.assertEqual(asked, ["kept"])
         self.assertFalse(buddy.busy.locked())
         self.assertTrue(module.DEFAULTS["talk_mode"])
+
+    def talking_buddy(self, texts=(), waiting="", mic_fails=False, **settings):
+        """A Buddy whose talk_toggle() runs as written, with a fake for everything outside it: no window,
+        no microphone, no speech model, no brain. This is the code of the app, not the installed app."""
+        module = self.buddy_module()
+        fakes = types.SimpleNamespace(
+            module=module, overlay=FakeOverlay(), mic=StartedMic(mic_fails), speech=FakeSpeech(texts, waiting),
+            asked=queue.Queue(), sounds=[], looks=[], held=[], silences=[])
+
+        class FakeDetector:
+            def __init__(self, min_silence):
+                fakes.silences.append(min_silence)
+
+            def listen(self, seconds):
+                return FakeListening()
+
+        @contextlib.contextmanager
+        def held():
+            fakes.held.append("in")
+            try:
+                yield
+            finally:
+                fakes.held.append("out")
+
+        for owner, name, fake in ((module, "monitor_under_cursor", lambda: "screen 1"),
+                                  (module, "cursor_position", lambda: (10, 20)),
+                                  (module.keyit_speech, "VoiceDetector", FakeDetector),
+                                  (module.keyit_speech, "urgent", held)):
+            patcher = mock.patch.object(owner, name, fake)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+        buddy = module.Buddy.__new__(module.Buddy)
+        buddy.settings = {"talk_mode": True, "buddy_sounds": True, "speech_language": "en", "my_words": "",
+                          "voice_cleanup": False, **settings}
+        buddy.talk = buddy.mic = buddy.dictation = buddy.look_ahead = buddy.monitor = None
+        buddy.generation, buddy.busy = 1, threading.Lock()
+        buddy.speaker, buddy.overlay, buddy.sound = StoppableSpeaker(time.monotonic), fakes.overlay, fakes.sounds.append
+        buddy.stt = fakes.speech
+        buddy.post = lambda function, *arguments: (
+            function(*arguments) if getattr(function, "__self__", None) is fakes.overlay else None)
+        buddy._ensure_stt = lambda: fakes.speech
+        buddy._mic = lambda: fakes.mic
+        buddy._ask = lambda text, wait=None: fakes.asked.put((text, wait))
+        buddy._start_look_ahead = lambda: fakes.looks.append(buddy.monitor)
+        self.addCleanup(lambda: buddy.talk is not None and buddy.talk.stop())
+        return buddy, fakes
+
+    def say(self, fakes, seed=3):
+        """One second of voice at the fake microphone, then quiet until Buddy does something about it."""
+        fakes.mic.blocks.extend(steps(voice(1.0, seed)))
+        for _ in range(50):
+            fakes.mic.blocks.append(quiet(0.1))
+            if fakes.overlay.ended.is_set():
+                return None
+            try:
+                return fakes.asked.get(timeout=0.1)
+            except queue.Empty:
+                pass
+        return None
+
+    def test_the_hotkey_starts_a_conversation_asks_what_was_said_and_ends_it(self):
+        buddy, fakes = self.talking_buddy(texts=["What is on my screen?"])
+        buddy.talk_toggle()
+        session = buddy.talk
+        self.assertIsNotNone(session)
+        self.assertTrue(fakes.mic.started)
+        self.assertEqual(fakes.silences, [talk.EARLY])
+        self.assertEqual(fakes.sounds, ["buddy_wake"])
+        self.assertEqual(fakes.overlay.calls[-1], ("listening", "screen 1", (10, 20)))
+        self.assertEqual(buddy.speaker.listener, session.gate.played)
+
+        self.assertEqual(self.say(fakes), ("What is on my screen?", fakes.module.TALK_WAIT))
+        self.assertEqual(fakes.looks, ["screen 1"])                        # looked at the screen as the user began
+        self.assertIs(buddy.talk, session)                                 # one question does not end it
+
+        buddy.talk_toggle()                                                # the same key again
+        self.assertIsNone(buddy.talk)
+        self.assertTrue(fakes.overlay.ended.wait(5))
+        self.assertTrue(fakes.mic.stopped)                                 # never left listening
+        self.assertIsNone(buddy.speaker.listener)
+        self.assertIn(("thinking", "Talk mode off."), fakes.overlay.calls)
+        self.assertEqual(fakes.overlay.calls[-1], ("hide_later", 3000))
+        self.assertEqual(fakes.sounds, ["buddy_wake", "buddy_got_it"])
+        self.assertEqual(fakes.held, ["in", "out"])                        # priority held for the conversation only
+        self.assertGreaterEqual(buddy.speaker.stops, 2)                    # cancel() on the way in and on the way out
+
+    def test_goodbye_ends_the_conversation_without_asking_anything(self):
+        buddy, fakes = self.talking_buddy(texts=["Goodbye."])
+        buddy.talk_toggle()
+        self.assertIsNone(self.say(fakes))
+        self.assertTrue(fakes.overlay.ended.wait(5))
+        self.assertIsNone(buddy.talk)
+        self.assertTrue(fakes.mic.stopped)
+        self.assertIn(("thinking", fakes.module.TALK_ENDED["goodbye"]), fakes.overlay.calls)
+        self.assertTrue(fakes.asked.empty())
+
+    def test_talk_mode_that_cannot_start_says_why_and_leaves_nothing_on(self):
+        buddy, fakes = self.talking_buddy(waiting="The speech model is still downloading.")
+        buddy.talk_toggle()
+        self.assertIsNone(buddy.talk)
+        self.assertFalse(fakes.mic.started)
+        self.assertEqual(fakes.overlay.calls[-2:], [
+            ("thinking", "I can't start talk mode yet: The speech model is still downloading."),
+            ("hide_later", 6000)])
+        self.assertEqual(fakes.sounds, [])
+
+        buddy, fakes = self.talking_buddy(mic_fails=True)
+        buddy.talk_toggle()
+        self.assertIsNone(buddy.talk)
+        self.assertFalse(fakes.mic.started)
+        self.assertEqual(fakes.overlay.calls[-2:], [
+            ("thinking", "I can't start talk mode yet: no microphone"), ("hide_later", 6000)])
+        self.assertEqual(fakes.held, [])                                   # no conversation thread was started
+
+        buddy, fakes = self.talking_buddy(talk_mode=False)                 # switched off in Settings
+        buddy.talk_toggle()
+        self.assertIsNone(buddy.talk)
+        self.assertEqual((fakes.overlay.calls, buddy.generation, fakes.mic.started), ([], 1, False))
 
 
 if __name__ == "__main__":
