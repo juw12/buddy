@@ -1,5 +1,5 @@
 {
- "when": "2026-11-16 10:02 (parts a, b) and 2026-11-14 16:13 (parts c, d)",
+ "when": "2026-11-16 14:41",
  "machine": "Intel64 Family 6 Model 189 Stepping 1, GenuineIntel, 8 logical CPUs, Windows 10",
  "jev": {
   "label": "published by the vendor, not measured by us",
@@ -42,12 +42,11 @@
    ]
   },
   "en_held_out_2": {
-   "finished": 0.958,
+   "finished": 1.0,
    "unfinished": 0.833,
-   "balanced_accuracy": 0.896,
+   "balanced_accuracy": 0.917,
    "n": 48,
    "wrong": [
-    "What does this icon do?",
     "I guess we should",
     "Save a copy in the folder named",
     "I have to submit this before",
@@ -348,22 +347,45 @@
   ],
   "hear_ms": {
    "n": 50976,
-   "p50": 0.026,
-   "p95": 0.1195,
-   "max": 505.6175,
-   "mean": 0.1803
+   "p50": 0.0295,
+   "p95": 0.1191,
+   "max": 17001.9751,
+   "mean": 0.7374
   }
  },
  "voice": {
-  "measured": false,
-  "why": "the output device did not start"
+  "measured": true,
+  "samples": "silence",
+  "device": "Headphones (Realtek(R) Audio) (44100 Hz)",
+  "pause_to_silent_s": {
+   "n": 8,
+   "p50": 0.05,
+   "p95": 0.05,
+   "max": 0.05,
+   "mean": 0.05
+  },
+  "resume_to_sound_s": {
+   "n": 8,
+   "p50": 0.145,
+   "p95": 0.371,
+   "max": 0.371,
+   "mean": 0.144
+  },
+  "stop_to_idle_s": {
+   "n": 8,
+   "p50": 0.201,
+   "p95": 3.317,
+   "max": 3.317,
+   "mean": 0.586
+  },
+  "rounds": 8
  },
  "synthesis_s_per_clip": {
-  "n": 48,
-  "p50": 1.592,
-  "p95": 3.715,
-  "max": 25.426,
-  "mean": 2.631
+  "n": 49,
+  "p50": 2.992,
+  "p95": 20.298,
+  "max": 28.644,
+  "mean": 4.431
  },
  "turn_rows": [
   {
@@ -373,11 +395,21 @@
    "heard": "What time is it in Tokyo right now?",
    "kind": "complete",
    "fired": 0.327,
-   "detector": 0.327,
+   "detector": 0.117,
    "decide_s": [
-    0.514
+    0.254
    ],
-   "detector_end": 0.027000000000000024
+   "early": 0.1,
+   "fired_live": 0.43,
+   "heard_live": "What time is it in Tokyo right now?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.295
+   ],
+   "read_done_live": 0.414,
+   "load_live_percent": 100.0,
+   "detector_end": 0.017
   },
   {
    "label": "finished",
@@ -385,12 +417,22 @@
    "said": "Open the downloads folder.",
    "heard": "Open the Downloads folder.",
    "kind": "complete",
-   "fired": 0.3543125,
-   "detector": 0.3543125,
+   "fired": 0.3843125,
+   "detector": 0.1743125,
    "decide_s": [
-    0.321
+    0.194
    ],
-   "detector_end": 0.054312499999999986
+   "early": 0.1,
+   "fired_live": 0.518,
+   "heard_live": "Open the Downloads folder.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.306
+   ],
+   "read_done_live": 0.482,
+   "load_live_percent": 100.0,
+   "detector_end": 0.0743125
   },
   {
    "label": "finished",
@@ -399,24 +441,44 @@
    "heard": "How do I merge these two cells?",
    "kind": "complete",
    "fired": 0.375875,
-   "detector": 0.375875,
+   "detector": 0.195875,
    "decide_s": [
-    0.478
+    0.386
    ],
-   "detector_end": 0.07587500000000003
+   "early": 0.1,
+   "fired_live": 0.602,
+   "heard_live": "How do I merge these two cells?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.363
+   ],
+   "read_done_live": 0.56,
+   "load_live_percent": 100.0,
+   "detector_end": 0.09587499999999999
   },
   {
    "label": "finished",
    "list": "first",
    "said": "Summarize this email for me.",
-   "heard": "summarize this email from me.",
+   "heard": "summarize this email for me.",
    "kind": "complete",
    "fired": 0.438125,
-   "detector": 0.438125,
+   "detector": 0.198125,
    "decide_s": [
-    0.443
+    0.349
    ],
-   "detector_end": 0.138125
+   "early": 0.1,
+   "fired_live": 0.632,
+   "heard_live": "summarize this email from me.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.386
+   ],
+   "read_done_live": 0.615,
+   "load_live_percent": 100.0,
+   "detector_end": 0.09812499999999999
   },
   {
    "label": "finished",
@@ -424,12 +486,22 @@
    "said": "Yes, go ahead.",
    "heard": "Yes, go ahead.",
    "kind": "neutral",
-   "fired": 0.788,
-   "detector": 0.368,
+   "fired": 0.758,
+   "detector": 0.188,
    "decide_s": [
-    0.379
+    0.291
    ],
-   "detector_end": 0.068
+   "early": 0.1,
+   "fired_live": 0.807,
+   "heard_live": "Yes, go ahead.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.298
+   ],
+   "read_done_live": 0.488,
+   "load_live_percent": 100.0,
+   "detector_end": 0.088
   },
   {
    "label": "finished",
@@ -438,11 +510,21 @@
    "heard": "No, that's not what I meant.",
    "kind": "neutral",
    "fired": 0.766375,
-   "detector": 0.346375,
+   "detector": 0.166375,
    "decide_s": [
-    1.428
+    0.408
    ],
-   "detector_end": 0.046375
+   "early": 0.1,
+   "fired_live": 0.781,
+   "heard_live": "No, that's not what I meant.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.453
+   ],
+   "read_done_live": 0.621,
+   "load_live_percent": 100.0,
+   "detector_end": 0.06637499999999999
   },
   {
    "label": "finished",
@@ -451,11 +533,21 @@
    "heard": "Can you make the font bigger?",
    "kind": "complete",
    "fired": 0.360875,
-   "detector": 0.360875,
+   "detector": 0.180875,
    "decide_s": [
-    1.076
+    0.341
    ],
-   "detector_end": 0.06087500000000001
+   "early": 0.1,
+   "fired_live": 0.555,
+   "heard_live": "Can you make the font bigger?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.386
+   ],
+   "read_done_live": 0.539,
+   "load_live_percent": 100.0,
+   "detector_end": 0.080875
   },
   {
    "label": "finished",
@@ -463,12 +555,22 @@
    "said": "I think the second option is better.",
    "heard": "I think the second option is better.",
    "kind": "neutral",
-   "fired": 0.7505625,
-   "detector": 0.3605625,
+   "fired": 0.7805625,
+   "detector": 0.1805625,
    "decide_s": [
-    1.543
+    0.417
    ],
-   "detector_end": 0.06056250000000002
+   "early": 0.1,
+   "fired_live": null,
+   "heard_live": "I think the second option is better.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    4.317
+   ],
+   "read_done_live": 4.544,
+   "load_live_percent": 73.9,
+   "detector_end": 0.08056249999999998
   },
   {
    "label": "finished",
@@ -477,11 +579,21 @@
    "heard": "Translate this paragraph into Chinese.",
    "kind": "complete",
    "fired": 0.366,
-   "detector": 0.366,
+   "detector": 0.186,
    "decide_s": [
-    1.56
+    0.954
    ],
-   "detector_end": 0.066
+   "early": 0.1,
+   "fired_live": 0.437,
+   "heard_live": "Translate this paragraph into Chinese.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.235
+   ],
+   "read_done_live": 0.423,
+   "load_live_percent": 89.3,
+   "detector_end": 0.086
   },
   {
    "label": "finished",
@@ -489,12 +601,22 @@
    "said": "Why is my laptop so slow today?",
    "heard": "Why is my laptop so slow today?",
    "kind": "complete",
-   "fired": 0.3856875,
-   "detector": 0.3856875,
+   "fired": 0.4156875,
+   "detector": 0.2056875,
    "decide_s": [
-    0.227
+    0.226
    ],
-   "detector_end": 0.08568750000000003
+   "early": 0.1,
+   "fired_live": 0.457,
+   "heard_live": "Why is my laptop so slow today?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.223
+   ],
+   "read_done_live": 0.429,
+   "load_live_percent": 100.0,
+   "detector_end": 0.10568749999999999
   },
   {
    "label": "finished",
@@ -503,11 +625,21 @@
    "heard": "Remind me to call the supplier at 3.",
    "kind": "neutral",
    "fired": 0.7773125,
-   "detector": 0.3873125,
+   "detector": 0.1773125,
    "decide_s": [
-    0.291
+    0.288
    ],
-   "detector_end": 0.08731250000000002
+   "early": 0.1,
+   "fired_live": 0.796,
+   "heard_live": "Remind me to call the supplier at 3.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.536
+   ],
+   "read_done_live": 0.715,
+   "load_live_percent": 100.0,
+   "detector_end": 0.0773125
   },
   {
    "label": "finished",
@@ -516,11 +648,21 @@
    "heard": "That looks good, thanks.",
    "kind": "complete",
    "fired": 0.370375,
-   "detector": 0.370375,
+   "detector": 0.160375,
    "decide_s": [
-    0.252
+    0.418
    ],
-   "detector_end": 0.07037500000000002
+   "early": 0.1,
+   "fired_live": 0.568,
+   "heard_live": "That looks good, thanks.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.381
+   ],
+   "read_done_live": 0.544,
+   "load_live_percent": 99.9,
+   "detector_end": 0.060374999999999984
   },
   {
    "label": "finished",
@@ -529,11 +671,21 @@
    "heard": "Who should I send this to?",
    "kind": "neutral",
    "fired": 0.7544375,
-   "detector": 0.3644375,
+   "detector": 0.1544375,
    "decide_s": [
-    0.245
+    0.408
    ],
-   "detector_end": 0.06443750000000004
+   "early": 0.1,
+   "fired_live": 0.741,
+   "heard_live": "Who should I send this to?",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.378
+   ],
+   "read_done_live": 0.505,
+   "load_live_percent": 100.0,
+   "detector_end": 0.0544375
   },
   {
    "label": "finished",
@@ -541,12 +693,22 @@
    "said": "What is this button for?",
    "heard": "What is this button for?",
    "kind": "neutral",
-   "fired": 0.80825,
-   "detector": 0.38825,
+   "fired": 0.77825,
+   "detector": 0.17825,
    "decide_s": [
-    0.186
+    0.426
    ],
-   "detector_end": 0.08825
+   "early": 0.1,
+   "fired_live": 0.798,
+   "heard_live": "What is this button for?",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.349
+   ],
+   "read_done_live": 0.531,
+   "load_live_percent": 100.0,
+   "detector_end": 0.07824999999999999
   },
   {
    "label": "finished",
@@ -554,12 +716,22 @@
    "said": "Show me where the settings are.",
    "heard": "Show me where the settings are.",
    "kind": "neutral",
-   "fired": 0.741,
-   "detector": 0.351,
+   "fired": 0.771,
+   "detector": 0.171,
    "decide_s": [
-    0.668
+    0.396
    ],
-   "detector_end": 0.05099999999999999
+   "early": 0.1,
+   "fired_live": 0.82,
+   "heard_live": "Show me where the settings are.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.403
+   ],
+   "read_done_live": 0.606,
+   "load_live_percent": 100.0,
+   "detector_end": 0.07100000000000001
   },
   {
    "label": "finished",
@@ -567,12 +739,22 @@
    "said": "The meeting got moved to Thursday afternoon.",
    "heard": "The meeting got moved to Thursday afternoon.",
    "kind": "neutral",
-   "fired": 0.787625,
-   "detector": 0.397625,
+   "fired": 0.817625,
+   "detector": 0.217625,
    "decide_s": [
-    0.969
+    0.443
    ],
-   "detector_end": 0.09762500000000002
+   "early": 0.1,
+   "fired_live": null,
+   "heard_live": "The meeting got moved to Thursday afternoon.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    3.484
+   ],
+   "read_done_live": 3.704,
+   "load_live_percent": 83.1,
+   "detector_end": 0.11762500000000001
   },
   {
    "label": "finished",
@@ -581,11 +763,21 @@
    "heard": "Close all the tabs except this one.",
    "kind": "complete",
    "fired": 0.373,
-   "detector": 0.373,
+   "detector": 0.163,
    "decide_s": [
-    0.902
+    1.344
    ],
-   "detector_end": 0.07300000000000001
+   "early": 0.1,
+   "fired_live": 0.416,
+   "heard_live": "Close all the tabs except this one.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.231
+   ],
+   "read_done_live": 0.395,
+   "load_live_percent": 88.8,
+   "detector_end": 0.063
   },
   {
    "label": "finished",
@@ -594,11 +786,21 @@
    "heard": "I don't know what that error means.",
    "kind": "neutral",
    "fired": 0.7680625,
-   "detector": 0.3780625,
+   "detector": 0.1680625,
    "decide_s": [
-    0.925
+    0.253
    ],
-   "detector_end": 0.07806250000000003
+   "early": 0.1,
+   "fired_live": 0.78,
+   "heard_live": "I don't know what that error means.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.246
+   ],
+   "read_done_live": 0.415,
+   "load_live_percent": 100.0,
+   "detector_end": 0.0680625
   },
   {
    "label": "finished",
@@ -606,12 +808,22 @@
    "said": "Is there a faster way to do it?",
    "heard": "Is there a faster way to do it?",
    "kind": "complete",
-   "fired": 0.4088125,
-   "detector": 0.3788125,
+   "fired": 0.3788125,
+   "detector": 0.1688125,
    "decide_s": [
-    0.877
+    0.228
    ],
-   "detector_end": 0.07881250000000001
+   "early": 0.1,
+   "fired_live": 0.667,
+   "heard_live": "Is there a faster way to do it?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.455
+   ],
+   "read_done_live": 0.627,
+   "load_live_percent": 100.0,
+   "detector_end": 0.0688125
   },
   {
    "label": "finished",
@@ -620,11 +832,21 @@
    "heard": "Read the last message out loud.",
    "kind": "complete",
    "fired": 0.2218125,
-   "detector": 0.2218125,
+   "detector": 0.0418125,
    "decide_s": [
-    0.701
+    0.39
    ],
-   "detector_end": -0.0781875
+   "early": 0.1,
+   "fired_live": 0.494,
+   "heard_live": "Read the last message out loud.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.435
+   ],
+   "read_done_live": 0.479,
+   "load_live_percent": 100.0,
+   "detector_end": -0.0581875
   },
   {
    "label": "finished",
@@ -633,11 +855,21 @@
    "heard": "Tell me what you see on the screen.",
    "kind": "complete",
    "fired": 0.3923125,
-   "detector": 0.3923125,
+   "detector": 0.2123125,
    "decide_s": [
-    0.826
+    0.486
    ],
-   "detector_end": 0.09231250000000002
+   "early": 0.1,
+   "fired_live": 0.678,
+   "heard_live": "Tell me what you see on the screen.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.468
+   ],
+   "read_done_live": 0.652,
+   "load_live_percent": 100.0,
+   "detector_end": 0.11231249999999998
   },
   {
    "label": "finished",
@@ -646,11 +878,21 @@
    "heard": "It crashed again when I pressed save.",
    "kind": "neutral",
    "fired": 0.73525,
-   "detector": 0.34525,
+   "detector": 0.13525,
    "decide_s": [
-    0.478
+    0.506
    ],
-   "detector_end": 0.04525000000000001
+   "early": 0.1,
+   "fired_live": 0.751,
+   "heard_live": "It crashed again when I pressed save.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.445
+   ],
+   "read_done_live": 0.582,
+   "load_live_percent": 100.0,
+   "detector_end": 0.035250000000000004
   },
   {
    "label": "finished",
@@ -659,11 +901,21 @@
    "heard": "Which file did I edit most recently?",
    "kind": "complete",
    "fired": 0.39525,
-   "detector": 0.39525,
+   "detector": 0.21525,
    "decide_s": [
-    0.516
+    0.446
    ],
-   "detector_end": 0.09525
+   "early": 0.1,
+   "fired_live": 0.744,
+   "heard_live": "Which file did I edit most recently?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.479
+   ],
+   "read_done_live": 0.727,
+   "load_live_percent": 100.0,
+   "detector_end": 0.11524999999999999
   },
   {
    "label": "finished",
@@ -671,12 +923,22 @@
    "said": "Let's try the other one.",
    "heard": "Let's try the other one.",
    "kind": "neutral",
-   "fired": 0.7315625,
-   "detector": 0.3415625,
+   "fired": 0.7615625,
+   "detector": 0.1315625,
    "decide_s": [
-    0.439
+    0.435
    ],
-   "detector_end": 0.0415625
+   "early": 0.1,
+   "fired_live": 0.783,
+   "heard_live": "Let's try the other one.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.389
+   ],
+   "read_done_live": 0.553,
+   "load_live_percent": 100.0,
+   "detector_end": 0.03156249999999999
   },
   {
    "label": "unfinished",
@@ -684,12 +946,22 @@
    "said": "I want to open the",
    "heard": "I want to open they",
    "kind": "neutral",
-   "fired": 0.818625,
-   "detector": 0.398625,
+   "fired": 0.788625,
+   "detector": 0.188625,
    "decide_s": [
-    0.38
+    0.306
    ],
-   "detector_end": 0.09862500000000002
+   "early": 0.1,
+   "fired_live": 1.659,
+   "heard_live": "I want to open they",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    1.301
+   ],
+   "read_done_live": 1.492,
+   "load_live_percent": 94.1,
+   "detector_end": 0.08862499999999998
   },
   {
    "label": "unfinished",
@@ -698,11 +970,21 @@
    "heard": "Can you send this to?",
    "kind": "unfinished",
    "fired": 1.7025625,
-   "detector": 0.4125625,
+   "detector": 0.2025625,
    "decide_s": [
-    0.441
+    1.628
    ],
-   "detector_end": 0.11256250000000001
+   "early": 0.1,
+   "fired_live": 1.686,
+   "heard_live": "Can you send this to?",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.172
+   ],
+   "read_done_live": 0.345,
+   "load_live_percent": 88.8,
+   "detector_end": 0.1025625
   },
   {
    "label": "unfinished",
@@ -711,11 +993,21 @@
    "heard": "First select the column and then...",
    "kind": "unfinished",
    "fired": 1.602,
-   "detector": 0.342,
+   "detector": 0.102,
    "decide_s": [
-    0.497
+    0.231
    ],
-   "detector_end": 0.04200000000000004
+   "early": 0.1,
+   "fired_live": 1.621,
+   "heard_live": "First select the column and then...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.202
+   ],
+   "read_done_live": 0.305,
+   "load_live_percent": 100.0,
+   "detector_end": 0.001999999999999988
   },
   {
    "label": "unfinished",
@@ -724,11 +1016,21 @@
    "heard": "The problem is that.",
    "kind": "unfinished",
    "fired": 1.66625,
-   "detector": 0.34625,
+   "detector": 0.16625,
    "decide_s": [
-    0.625
+    0.249
    ],
-   "detector_end": 0.04625000000000001
+   "early": 0.1,
+   "fired_live": 1.719,
+   "heard_live": "The problem is that.",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.336
+   ],
+   "read_done_live": 0.534,
+   "load_live_percent": 100.0,
+   "detector_end": 0.06625
   },
   {
    "label": "unfinished",
@@ -737,11 +1039,21 @@
    "heard": "I was thinking we could.",
    "kind": "neutral",
    "fired": 0.7625,
-   "detector": 0.3725,
+   "detector": 0.1625,
    "decide_s": [
-    0.59
+    0.354
    ],
-   "detector_end": 0.07250000000000001
+   "early": 0.1,
+   "fired_live": 0.779,
+   "heard_live": "I was thinking we could.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.341
+   ],
+   "read_done_live": 0.505,
+   "load_live_percent": 100.0,
+   "detector_end": 0.0625
   },
   {
    "label": "unfinished",
@@ -749,25 +1061,45 @@
    "said": "Move this file into the folder called",
    "heard": "Move this file into the folder called.",
    "kind": "complete",
-   "fired": 0.2708125,
-   "detector": 0.2708125,
+   "fired": 0.3008125,
+   "detector": 0.0908125,
    "decide_s": [
-    1.343
+    0.439
    ],
-   "detector_end": -0.029187499999999977
+   "early": 0.1,
+   "fired_live": 0.556,
+   "heard_live": "Move this file into the folder called",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.424
+   ],
+   "read_done_live": 0.516,
+   "load_live_percent": 100.0,
+   "detector_end": -0.009187500000000001
   },
   {
    "label": "unfinished",
    "list": "first",
    "said": "It should be bigger but",
-   "heard": "it it should be it should be it should be",
-   "kind": "neutral",
-   "fired": 0.784,
-   "detector": 0.394,
+   "heard": "It should be bigger but...",
+   "kind": "unfinished",
+   "fired": 1.684,
+   "detector": 0.184,
    "decide_s": [
-    1.208
+    0.353
    ],
-   "detector_end": 0.09400000000000003
+   "early": 0.1,
+   "fired_live": 1.713,
+   "heard_live": "It should be bigger but...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.377
+   ],
+   "read_done_live": 0.564,
+   "load_live_percent": 100.0,
+   "detector_end": 0.08399999999999999
   },
   {
    "label": "unfinished",
@@ -775,12 +1107,22 @@
    "said": "Change the color of the title and",
    "heard": "Change the color of the title and",
    "kind": "unfinished",
-   "fired": 1.5758125,
-   "detector": 0.2858125,
+   "fired": 1.6058125,
+   "detector": 0.1058125,
    "decide_s": [
-    1.099
+    0.451
    ],
-   "detector_end": -0.014187499999999964
+   "early": 0.1,
+   "fired_live": 1.723,
+   "heard_live": "Change the color of the title and",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.505
+   ],
+   "read_done_live": 0.583,
+   "load_live_percent": 97.8,
+   "detector_end": 0.005812499999999998
   },
   {
    "label": "unfinished",
@@ -789,11 +1131,21 @@
    "heard": "So basically what I need is...",
    "kind": "unfinished",
    "fired": 1.67575,
-   "detector": 0.38575,
+   "detector": 0.17575,
    "decide_s": [
-    0.93
+    1.288
    ],
-   "detector_end": 0.08574999999999999
+   "early": 0.1,
+   "fired_live": 1.686,
+   "heard_live": "So basically what I need is...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.207
+   ],
+   "read_done_live": 0.384,
+   "load_live_percent": 73.6,
+   "detector_end": 0.07574999999999998
   },
   {
    "label": "unfinished",
@@ -801,12 +1153,22 @@
    "said": "Could you look at the chart and tell me if",
    "heard": "Could you look at the chart and tell me if?",
    "kind": "unfinished",
-   "fired": 1.6514375,
-   "detector": 0.3614375,
+   "fired": 1.6814375,
+   "detector": 0.1814375,
    "decide_s": [
-    0.945
+    0.299
    ],
-   "detector_end": 0.061437500000000034
+   "early": 0.1,
+   "fired_live": 1.697,
+   "heard_live": "Could you look at the chart and tell me if?",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.274
+   ],
+   "read_done_live": 0.457,
+   "load_live_percent": 100.0,
+   "detector_end": 0.0814375
   },
   {
    "label": "unfinished",
@@ -815,11 +1177,21 @@
    "heard": "Put the total at the bottom of",
    "kind": "unfinished",
    "fired": 1.6695625,
-   "detector": 0.3795625,
+   "detector": 0.1695625,
    "decide_s": [
-    0.926
+    0.28
    ],
-   "detector_end": 0.07956250000000004
+   "early": 0.1,
+   "fired_live": 1.695,
+   "heard_live": "Put the total at the bottom of",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.404
+   ],
+   "read_done_live": 0.576,
+   "load_live_percent": 100.0,
+   "detector_end": 0.0695625
   },
   {
    "label": "unfinished",
@@ -827,12 +1199,22 @@
    "said": "I tried restarting it because",
    "heard": "I tried restarting it because",
    "kind": "unfinished",
-   "fired": 1.693625,
-   "detector": 0.403625,
+   "fired": 1.723625,
+   "detector": 0.223625,
    "decide_s": [
-    0.697
+    0.448
    ],
-   "detector_end": 0.10362500000000002
+   "early": 0.1,
+   "fired_live": 1.753,
+   "heard_live": "I tried restarting it because",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.371
+   ],
+   "read_done_live": 0.597,
+   "load_live_percent": 100.0,
+   "detector_end": 0.12362499999999998
   },
   {
    "label": "unfinished",
@@ -840,51 +1222,91 @@
    "said": "Compare this version with",
    "heard": "Compare this version with",
    "kind": "unfinished",
-   "fired": 1.658375,
-   "detector": 0.368375,
+   "fired": 1.688375,
+   "detector": 0.188375,
    "decide_s": [
-    0.542
+    0.295
    ],
-   "detector_end": 0.06837500000000002
+   "early": 0.1,
+   "fired_live": 1.714,
+   "heard_live": "Compare this version with",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.308
+   ],
+   "read_done_live": 0.497,
+   "load_live_percent": 100.0,
+   "detector_end": 0.08837499999999998
   },
   {
    "label": "unfinished",
    "list": "first",
    "said": "Um, how do I, uh",
-   "heard": "How how how do I",
+   "heard": "Um, how do I?",
    "kind": "unfinished",
    "fired": 1.66575,
-   "detector": 0.37575,
+   "detector": 0.16575,
    "decide_s": [
-    0.613
+    0.351
    ],
-   "detector_end": 0.07574999999999998
+   "early": 0.1,
+   "fired_live": 1.716,
+   "heard_live": "Um, how do I?",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.353
+   ],
+   "read_done_live": 0.552,
+   "load_live_percent": 100.0,
+   "detector_end": 0.06575
   },
   {
    "label": "unfinished",
    "list": "first",
    "said": "Set a reminder for tomorrow at",
-   "heard": "Set a reminder for tomorrow at",
+   "heard": "Set a reminder for tomorrow at ████████.",
    "kind": "unfinished",
    "fired": 1.699125,
-   "detector": 0.379125,
+   "detector": 0.199125,
    "decide_s": [
-    0.786
+    0.523
    ],
-   "detector_end": 0.079125
+   "early": 0.1,
+   "fired_live": null,
+   "heard_live": "Set a reminder for tomorrow at",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    3.422
+   ],
+   "read_done_live": 3.653,
+   "load_live_percent": 72.6,
+   "detector_end": 0.09912499999999999
   },
   {
    "label": "unfinished",
    "list": "first",
    "said": "Open the report, or",
-   "heard": "Open the report or...",
+   "heard": "Open the report or",
    "kind": "unfinished",
-   "fired": 1.653125,
-   "detector": 0.363125,
+   "fired": 1.683125,
+   "detector": 0.183125,
    "decide_s": [
-    0.713
+    1.376
    ],
-   "detector_end": 0.06312499999999999
+   "early": 0.1,
+   "fired_live": 1.695,
+   "heard_live": "Open the report or...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.173
+   ],
+   "read_done_live": 0.357,
+   "load_live_percent": 90.5,
+   "detector_end": 0.083125
   },
   {
    "label": "unfinished",
@@ -893,11 +1315,21 @@
    "heard": "We need to finish this before.",
    "kind": "neutral",
    "fired": 0.770625,
-   "detector": 0.380625,
+   "detector": 0.170625,
    "decide_s": [
-    0.705
+    0.22
    ],
-   "detector_end": 0.080625
+   "early": 0.1,
+   "fired_live": 0.787,
+   "heard_live": "We need to finish this before.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.204
+   ],
+   "read_done_live": 0.375,
+   "load_live_percent": 99.9,
+   "detector_end": 0.070625
   },
   {
    "label": "unfinished",
@@ -906,11 +1338,21 @@
    "heard": "The file is saved in mine.",
    "kind": "neutral",
    "fired": 0.763375,
-   "detector": 0.343375,
+   "detector": 0.163375,
    "decide_s": [
-    0.817
+    0.242
    ],
-   "detector_end": 0.043375
+   "early": 0.1,
+   "fired_live": 0.781,
+   "heard_live": "The file is saved in mine.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.398
+   ],
+   "read_done_live": 0.564,
+   "load_live_percent": 100.0,
+   "detector_end": 0.06337499999999999
   },
   {
    "label": "unfinished",
@@ -919,11 +1361,21 @@
    "heard": "Let me think it was something like",
    "kind": "unfinished",
    "fired": 1.583,
-   "detector": 0.293,
+   "detector": 0.083,
    "decide_s": [
-    0.734
+    0.401
    ],
-   "detector_end": -0.007000000000000006
+   "early": 0.1,
+   "fired_live": 1.612,
+   "heard_live": "Let me think it was something like...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.411
+   ],
+   "read_done_live": 0.497,
+   "load_live_percent": 100.0,
+   "detector_end": -0.017
   },
   {
    "label": "unfinished",
@@ -931,12 +1383,24 @@
    "said": "Add a row between the second and the third and also",
    "heard": "Add a row between the second and the third, and also...",
    "kind": "unfinished",
-   "fired": 1.7045625,
-   "detector": 0.3545625,
+   "fired": 1.6745625,
+   "detector": 0.1745625,
    "decide_s": [
-    1.053
+    0.578,
+    0.632
    ],
-   "detector_end": 0.054562500000000014
+   "early": 0.1,
+   "fired_live": 1.701,
+   "heard_live": "Add a row between the second and the third, and also...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.51,
+    0.681
+   ],
+   "read_done_live": 0.857,
+   "load_live_percent": 100.0,
+   "detector_end": 0.0745625
   },
   {
    "label": "unfinished",
@@ -945,24 +1409,44 @@
    "heard": "I would rather",
    "kind": "neutral",
    "fired": 0.766875,
-   "detector": 0.346875,
+   "detector": 0.196875,
    "decide_s": [
-    0.507
+    0.477
    ],
-   "detector_end": 0.046875
+   "early": 0.1,
+   "fired_live": 0.791,
+   "heard_live": "I would rather",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.239
+   ],
+   "read_done_live": 0.407,
+   "load_live_percent": 100.0,
+   "detector_end": 0.09687499999999999
   },
   {
    "label": "unfinished",
    "list": "first",
    "said": "Can you check whether the",
-   "heard": "Can you check whether the █████ █████ █",
+   "heard": "Can you check whether the...",
    "kind": "unfinished",
    "fired": 1.653125,
-   "detector": 0.363125,
+   "detector": 0.153125,
    "decide_s": [
-    1.072
+    0.364
    ],
-   "detector_end": 0.06312499999999999
+   "early": 0.1,
+   "fired_live": 2.38,
+   "heard_live": "Can you check whether the...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    2.075
+   ],
+   "read_done_live": 2.235,
+   "load_live_percent": 85.0,
+   "detector_end": 0.053125000000000006
   },
   {
    "label": "unfinished",
@@ -970,12 +1454,22 @@
    "said": "It needs to go from here to, hmm",
    "heard": "It needs to go from here to hung.",
    "kind": "neutral",
-   "fired": 0.7586875,
-   "detector": 0.3386875,
+   "fired": 0.7286875,
+   "detector": 0.1286875,
    "decide_s": [
-    0.764
+    1.687
    ],
-   "detector_end": 0.038687499999999986
+   "early": 0.1,
+   "fired_live": 0.774,
+   "heard_live": "It needs to go from here to hung.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.236
+   ],
+   "read_done_live": 0.397,
+   "load_live_percent": 82.9,
+   "detector_end": 0.028687500000000005
   },
   {
    "label": "unfinished",
@@ -984,11 +1478,21 @@
    "heard": "After that, we should probably...",
    "kind": "unfinished",
    "fired": 1.699,
-   "detector": 0.409,
+   "detector": 0.169,
    "decide_s": [
-    0.738
+    0.236
    ],
-   "detector_end": 0.10899999999999999
+   "early": 0.1,
+   "fired_live": 1.685,
+   "heard_live": "After that, we should probably...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.197
+   ],
+   "read_done_live": 0.367,
+   "load_live_percent": 100.0,
+   "detector_end": 0.069
   },
   {
    "label": "finished",
@@ -997,24 +1501,44 @@
    "heard": "What is the shortcut for undo?",
    "kind": "complete",
    "fired": 0.3404375,
-   "detector": 0.3404375,
+   "detector": 0.1604375,
    "decide_s": [
-    0.907
+    0.287
    ],
-   "detector_end": 0.040437500000000015
+   "early": 0.1,
+   "fired_live": 0.533,
+   "heard_live": "What is the shortcut for undo?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.379
+   ],
+   "read_done_live": 0.511,
+   "load_live_percent": 99.7,
+   "detector_end": 0.060437500000000005
   },
   {
    "label": "finished",
    "list": "second",
    "said": "Open the calendar.",
-   "heard": "Open Open Open Open Open Open Open Open Open",
-   "kind": "complete",
-   "fired": 0.3806875,
-   "detector": 0.3806875,
+   "heard": "Open the",
+   "kind": "unfinished",
+   "fired": 1.6706875,
+   "detector": 0.1706875,
    "decide_s": [
-    0.845
+    0.246
    ],
-   "detector_end": 0.08068750000000002
+   "early": 0.1,
+   "fired_live": 0.642,
+   "heard_live": "Open Open Open Open Open Open Open Open Open",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.455
+   ],
+   "read_done_live": 0.627,
+   "load_live_percent": 100.0,
+   "detector_end": 0.07068749999999999
   },
   {
    "label": "finished",
@@ -1023,11 +1547,21 @@
    "heard": "How do I freeze the top row?",
    "kind": "complete",
    "fired": 0.3599375,
-   "detector": 0.3599375,
+   "detector": 0.1499375,
    "decide_s": [
-    0.944
+    0.433
    ],
-   "detector_end": 0.05993750000000003
+   "early": 0.1,
+   "fired_live": 0.618,
+   "heard_live": "How do I freeze the top row?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.428
+   ],
+   "read_done_live": 0.58,
+   "load_live_percent": 100.0,
+   "detector_end": 0.049937499999999996
   },
   {
    "label": "finished",
@@ -1035,12 +1569,22 @@
    "said": "Reply to this message for me.",
    "heard": "reply to this message for me.",
    "kind": "neutral",
-   "fired": 0.78975,
-   "detector": 0.39975,
+   "fired": 0.81975,
+   "detector": 0.21975,
    "decide_s": [
-    0.79
+    0.417
    ],
-   "detector_end": 0.09975
+   "early": 0.1,
+   "fired_live": 0.838,
+   "heard_live": "reply to this message for me.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.409
+   ],
+   "read_done_live": 0.631,
+   "load_live_percent": 100.0,
+   "detector_end": 0.11975
   },
   {
    "label": "finished",
@@ -1049,11 +1593,21 @@
    "heard": "Sure do that.",
    "kind": "neutral",
    "fired": 0.771875,
-   "detector": 0.381875,
+   "detector": 0.171875,
    "decide_s": [
-    0.648
+    0.331
    ],
-   "detector_end": 0.08187500000000003
+   "early": 0.1,
+   "fired_live": 0.792,
+   "heard_live": "Sure do that.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.29
+   ],
+   "read_done_live": 0.464,
+   "load_live_percent": 100.0,
+   "detector_end": 0.071875
   },
   {
    "label": "finished",
@@ -1062,11 +1616,21 @@
    "heard": "No, I met the other window.",
    "kind": "neutral",
    "fired": 0.76675,
-   "detector": 0.37675,
+   "detector": 0.16675,
    "decide_s": [
-    1.785
+    0.423
    ],
-   "detector_end": 0.07674999999999998
+   "early": 0.1,
+   "fired_live": 0.781,
+   "heard_live": "No, I met the other window.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.413
+   ],
+   "read_done_live": 0.581,
+   "load_live_percent": 99.9,
+   "detector_end": 0.06675
   },
   {
    "label": "finished",
@@ -1075,11 +1639,21 @@
    "heard": "Could you zoom in a little?",
    "kind": "complete",
    "fired": 0.3616875,
-   "detector": 0.3616875,
+   "detector": 0.1516875,
    "decide_s": [
-    0.824
+    0.381
    ],
-   "detector_end": 0.061687500000000006
+   "early": 0.1,
+   "fired_live": 0.565,
+   "heard_live": "Could you zoom in a little?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.398
+   ],
+   "read_done_live": 0.552,
+   "load_live_percent": 100.0,
+   "detector_end": 0.0516875
   },
   {
    "label": "finished",
@@ -1088,11 +1662,21 @@
    "heard": "I prefer the darker theme.",
    "kind": "neutral",
    "fired": 0.717125,
-   "detector": 0.297125,
+   "detector": 0.117125,
    "decide_s": [
-    0.855
+    0.395
    ],
-   "detector_end": -0.0028750000000000164
+   "early": 0.1,
+   "fired_live": null,
+   "heard_live": "I prefer the darker theme.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    4.661
+   ],
+   "read_done_live": 4.817,
+   "load_live_percent": 67.0,
+   "detector_end": 0.017125
   },
   {
    "label": "finished",
@@ -1101,11 +1685,21 @@
    "heard": "Convert this table to a chart.",
    "kind": "neutral",
    "fired": 0.778,
-   "detector": 0.388,
+   "detector": 0.178,
    "decide_s": [
-    0.88
+    1.722
    ],
-   "detector_end": 0.08800000000000002
+   "early": 0.1,
+   "fired_live": 0.787,
+   "heard_live": "Convert this table to a chart.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.179
+   ],
+   "read_done_live": 0.359,
+   "load_live_percent": 59.6,
+   "detector_end": 0.07799999999999999
   },
   {
    "label": "finished",
@@ -1113,12 +1707,22 @@
    "said": "Why did the download stop?",
    "heard": "Why did the download stop?",
    "kind": "complete",
-   "fired": 0.24675,
-   "detector": 0.24675,
+   "fired": 0.27675,
+   "detector": 0.06675,
    "decide_s": [
-    0.8
+    0.201
    ],
-   "detector_end": -0.05324999999999999
+   "early": 0.1,
+   "fired_live": 0.62,
+   "heard_live": "Why did the download stop?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.479
+   ],
+   "read_done_live": 0.577,
+   "load_live_percent": 83.7,
+   "detector_end": -0.03325
   },
   {
    "label": "finished",
@@ -1127,24 +1731,44 @@
    "heard": "Send the invoice to accounting tomorrow morning.",
    "kind": "neutral",
    "fired": 0.8133125,
-   "detector": 0.3933125,
+   "detector": 0.2133125,
    "decide_s": [
-    0.959
+    0.644
    ],
-   "detector_end": 0.09331250000000002
+   "early": 0.1,
+   "fired_live": 0.848,
+   "heard_live": "Send the invoice to accounting tomorrow morning.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.472
+   ],
+   "read_done_live": 0.687,
+   "load_live_percent": 69.5,
+   "detector_end": 0.11331249999999998
   },
   {
    "label": "finished",
    "list": "second",
    "said": "Okay, that works for me.",
-   "heard": "Ok ok ok ok ok ok ok ok ok ok ok",
+   "heard": "Ok, that works for me.",
    "kind": "neutral",
-   "fired": 0.739625,
-   "detector": 0.349625,
+   "fired": 0.769625,
+   "detector": 0.169625,
    "decide_s": [
-    1.186
+    0.719
    ],
-   "detector_end": 0.04962500000000003
+   "early": 0.1,
+   "fired_live": 0.863,
+   "heard_live": "Okay, that works for me.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.428
+   ],
+   "read_done_live": 0.599,
+   "load_live_percent": 70.1,
+   "detector_end": 0.06962499999999999
   },
   {
    "label": "finished",
@@ -1153,24 +1777,44 @@
    "heard": "Where can I find the export option?",
    "kind": "complete",
    "fired": 0.3663125,
-   "detector": 0.3963125,
+   "detector": 0.1863125,
    "decide_s": [
-    12.944
+    0.645
    ],
-   "detector_end": 0.09631250000000002
+   "early": 0.1,
+   "fired_live": 0.793,
+   "heard_live": "Where can I find the export option?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.585
+   ],
+   "read_done_live": 0.773,
+   "load_live_percent": 71.7,
+   "detector_end": 0.08631249999999999
   },
   {
    "label": "finished",
    "list": "second",
    "said": "What does this icon do?",
    "heard": "What does this icon do?",
-   "kind": "unfinished",
-   "fired": 1.6629375,
-   "detector": 0.3129375,
+   "kind": "complete",
+   "fired": 0.3429375,
+   "detector": 0.1329375,
    "decide_s": [
-    0.974
+    0.748
    ],
-   "detector_end": 0.01293749999999999
+   "early": 0.1,
+   "fired_live": 0.497,
+   "heard_live": "What does this icon do?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.333
+   ],
+   "read_done_live": 0.467,
+   "load_live_percent": 85.8,
+   "detector_end": 0.03293749999999998
   },
   {
    "label": "finished",
@@ -1179,11 +1823,21 @@
    "heard": "Show me the latest sales numbers.",
    "kind": "complete",
    "fired": 0.38225,
-   "detector": 0.38225,
+   "detector": 0.20225,
    "decide_s": [
-    1.061
+    0.399
    ],
-   "detector_end": 0.08224999999999999
+   "early": 0.1,
+   "fired_live": 0.627,
+   "heard_live": "Show me the latest sales numbers.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.374
+   ],
+   "read_done_live": 0.578,
+   "load_live_percent": 70.0,
+   "detector_end": 0.10225000000000001
   },
   {
    "label": "finished",
@@ -1192,11 +1846,21 @@
    "heard": "The screen went black for a second.",
    "kind": "neutral",
    "fired": 0.7015,
-   "detector": 0.3115,
+   "detector": 0.1015,
    "decide_s": [
-    0.377
+    0.787
    ],
-   "detector_end": 0.01150000000000001
+   "early": 0.1,
+   "fired_live": 0.712,
+   "heard_live": "The screen went black for a second.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.478
+   ],
+   "read_done_live": 0.581,
+   "load_live_percent": 66.4,
+   "detector_end": 0.0015000000000000013
   },
   {
    "label": "finished",
@@ -1205,11 +1869,21 @@
    "heard": "Rename this sheet to summary.",
    "kind": "neutral",
    "fired": 0.757875,
-   "detector": 0.367875,
+   "detector": 0.187875,
    "decide_s": [
-    0.616
+    0.344
    ],
-   "detector_end": 0.06787500000000002
+   "early": 0.1,
+   "fired_live": 0.771,
+   "heard_live": "Rename this sheet to summary.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.423
+   ],
+   "read_done_live": 0.582,
+   "load_live_percent": 100.0,
+   "detector_end": 0.08787499999999998
   },
   {
    "label": "finished",
@@ -1217,12 +1891,22 @@
    "said": "I am not sure which one to pick.",
    "heard": "I am not sure which one to pick.",
    "kind": "neutral",
-   "fired": 0.7561875,
-   "detector": 0.3661875,
+   "fired": 0.7861875,
+   "detector": 0.1561875,
    "decide_s": [
-    0.551
+    0.421
    ],
-   "detector_end": 0.06618750000000001
+   "early": 0.1,
+   "fired_live": 0.772,
+   "heard_live": "I am not sure which one to pick.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.451
+   ],
+   "read_done_live": 0.609,
+   "load_live_percent": 100.0,
+   "detector_end": 0.0561875
   },
   {
    "label": "finished",
@@ -1231,11 +1915,21 @@
    "heard": "Does this work without the internet?",
    "kind": "complete",
    "fired": 0.3895,
-   "detector": 0.3895,
+   "detector": 0.2095,
    "decide_s": [
-    0.484
+    0.425
    ],
-   "detector_end": 0.08950000000000002
+   "early": 0.1,
+   "fired_live": 0.616,
+   "heard_live": "Does this work without the internet?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.38
+   ],
+   "read_done_live": 0.591,
+   "load_live_percent": 100.0,
+   "detector_end": 0.10949999999999999
   },
   {
    "label": "finished",
@@ -1244,11 +1938,21 @@
    "heard": "Read the first paragraph again.",
    "kind": "complete",
    "fired": 0.378125,
-   "detector": 0.378125,
+   "detector": 0.168125,
    "decide_s": [
-    1.03
+    0.426
    ],
-   "detector_end": 0.078125
+   "early": 0.1,
+   "fired_live": null,
+   "heard_live": "Read the first paragraph again.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    4.524
+   ],
+   "read_done_live": 4.703,
+   "load_live_percent": 73.7,
+   "detector_end": 0.06812499999999999
   },
   {
    "label": "finished",
@@ -1256,12 +1960,22 @@
    "said": "Explain what this formula does.",
    "heard": "Explain what this formula does.",
    "kind": "neutral",
-   "fired": 0.763625,
-   "detector": 0.403625,
+   "fired": 0.793625,
+   "detector": 0.193625,
    "decide_s": [
-    0.403
+    0.478
    ],
-   "detector_end": 0.10362500000000002
+   "early": 0.1,
+   "fired_live": 0.808,
+   "heard_live": "Explain what this formula does.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.185
+   ],
+   "read_done_live": 0.379,
+   "load_live_percent": 91.8,
+   "detector_end": 0.09362499999999999
   },
   {
    "label": "finished",
@@ -1269,12 +1983,22 @@
    "said": "It froze right after the update.",
    "heard": "It froze right after the update.",
    "kind": "neutral",
-   "fired": 0.785,
-   "detector": 0.395,
+   "fired": 0.815,
+   "detector": 0.185,
    "decide_s": [
-    0.492
+    0.246
    ],
-   "detector_end": 0.09500000000000003
+   "early": 0.1,
+   "fired_live": 0.824,
+   "heard_live": "It froze right after the update.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.206
+   ],
+   "read_done_live": 0.422,
+   "load_live_percent": 98.8,
+   "detector_end": 0.08499999999999999
   },
   {
    "label": "finished",
@@ -1282,12 +2006,22 @@
    "said": "Which of these is the newest?",
    "heard": "Which of these is the newest?",
    "kind": "complete",
-   "fired": 0.3649375,
-   "detector": 0.3649375,
+   "fired": 0.3949375,
+   "detector": 0.1849375,
    "decide_s": [
-    0.454
+    0.198
    ],
-   "detector_end": 0.06493750000000004
+   "early": 0.1,
+   "fired_live": 0.406,
+   "heard_live": "which of these is the newest.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.209
+   ],
+   "read_done_live": 0.395,
+   "load_live_percent": 100.0,
+   "detector_end": 0.0849375
   },
   {
    "label": "finished",
@@ -1295,12 +2029,22 @@
    "said": "Let's leave it for now.",
    "heard": "Let's leave it for now.",
    "kind": "neutral",
-   "fired": 0.725875,
-   "detector": 0.305875,
+   "fired": 0.695875,
+   "detector": 0.125875,
    "decide_s": [
-    0.384
+    0.194
    ],
-   "detector_end": 0.005875000000000019
+   "early": 0.1,
+   "fired_live": 0.709,
+   "heard_live": "Let's leave it for now.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.246
+   ],
+   "read_done_live": 0.344,
+   "load_live_percent": 100.0,
+   "detector_end": 0.02587499999999998
   },
   {
    "label": "unfinished",
@@ -1309,11 +2053,21 @@
    "heard": "I need to change them.",
    "kind": "neutral",
    "fired": 0.7685,
-   "detector": 0.3785,
+   "detector": 0.1685,
    "decide_s": [
-    0.546
+    0.41
    ],
-   "detector_end": 0.07850000000000001
+   "early": 0.1,
+   "fired_live": 0.785,
+   "heard_live": "I need to change them.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.34
+   ],
+   "read_done_live": 0.51,
+   "load_live_percent": 100.0,
+   "detector_end": 0.0685
   },
   {
    "label": "unfinished",
@@ -1322,11 +2076,21 @@
    "heard": "Could you move this over to?",
    "kind": "unfinished",
    "fired": 1.666125,
-   "detector": 0.346125,
+   "detector": 0.166125,
    "decide_s": [
-    0.569
+    0.421
    ],
-   "detector_end": 0.04612500000000003
+   "early": 0.1,
+   "fired_live": 1.688,
+   "heard_live": "Could you move this over to?",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.412
+   ],
+   "read_done_live": 0.579,
+   "load_live_percent": 100.0,
+   "detector_end": 0.06612499999999999
   },
   {
    "label": "unfinished",
@@ -1335,11 +2099,21 @@
    "heard": "Copy the second table and then...",
    "kind": "unfinished",
    "fired": 1.6611875,
-   "detector": 0.3711875,
+   "detector": 0.1611875,
    "decide_s": [
-    0.501
+    0.433
    ],
-   "detector_end": 0.07118750000000001
+   "early": 0.1,
+   "fired_live": 1.685,
+   "heard_live": "Copy the second table and then...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.397
+   ],
+   "read_done_live": 0.56,
+   "load_live_percent": 99.7,
+   "detector_end": 0.061187500000000006
   },
   {
    "label": "unfinished",
@@ -1347,12 +2121,22 @@
    "said": "The reason I ask is that",
    "heard": "The reason I ask is that.",
    "kind": "unfinished",
-   "fired": 1.66075,
-   "detector": 0.37075,
+   "fired": 1.69075,
+   "detector": 0.19075,
    "decide_s": [
-    0.5
+    0.538
    ],
-   "detector_end": 0.07075000000000004
+   "early": 0.1,
+   "fired_live": 1.719,
+   "heard_live": "The reason I ask is that.",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.391
+   ],
+   "read_done_live": 0.584,
+   "load_live_percent": 100.0,
+   "detector_end": 0.09075
   },
   {
    "label": "unfinished",
@@ -1361,11 +2145,21 @@
    "heard": "I guess we should.",
    "kind": "neutral",
    "fired": 0.772125,
-   "detector": 0.352125,
+   "detector": 0.172125,
    "decide_s": [
-    0.492
+    0.533
    ],
-   "detector_end": 0.05212500000000003
+   "early": 0.1,
+   "fired_live": 1.207,
+   "heard_live": "I guess we should.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    1.019
+   ],
+   "read_done_live": 1.193,
+   "load_live_percent": 51.4,
+   "detector_end": 0.072125
   },
   {
    "label": "unfinished",
@@ -1374,11 +2168,21 @@
    "heard": "Save a copy in the folder named.",
    "kind": "complete",
    "fired": 0.355875,
-   "detector": 0.265875,
+   "detector": 0.175875,
    "decide_s": [
-    0.651
+    0.223
    ],
-   "detector_end": -0.034125000000000016
+   "early": 0.1,
+   "fired_live": 0.395,
+   "heard_live": "Save a copy in the folder named.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.207
+   ],
+   "read_done_live": 0.383,
+   "load_live_percent": 100.0,
+   "detector_end": 0.075875
   },
   {
    "label": "unfinished",
@@ -1387,24 +2191,44 @@
    "heard": "That one is fine but...",
    "kind": "unfinished",
    "fired": 1.699125,
-   "detector": 0.409125,
+   "detector": 0.199125,
    "decide_s": [
-    0.43
+    0.195
    ],
-   "detector_end": 0.10912500000000003
+   "early": 0.1,
+   "fired_live": 1.714,
+   "heard_live": "That one is fine but...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.182
+   ],
+   "read_done_live": 0.383,
+   "load_live_percent": 100.0,
+   "detector_end": 0.09912499999999999
   },
   {
    "label": "unfinished",
    "list": "second",
    "said": "Make the header bigger and",
-   "heard": "Make the header bigger and",
+   "heard": "Make the header bigger and...",
    "kind": "unfinished",
    "fired": 1.658625,
-   "detector": 0.338625,
+   "detector": 0.188625,
    "decide_s": [
-    0.509
+    0.214
    ],
-   "detector_end": 0.03862500000000002
+   "early": 0.1,
+   "fired_live": 1.677,
+   "heard_live": "Make the header bigger and",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.227
+   ],
+   "read_done_live": 0.387,
+   "load_live_percent": 100.0,
+   "detector_end": 0.08862499999999998
   },
   {
    "label": "unfinished",
@@ -1413,11 +2237,21 @@
    "heard": "What I really want is...",
    "kind": "unfinished",
    "fired": 1.6795625,
-   "detector": 0.3895625,
+   "detector": 0.1795625,
    "decide_s": [
-    0.478
+    0.278
    ],
-   "detector_end": 0.08956249999999999
+   "early": 0.1,
+   "fired_live": 1.703,
+   "heard_live": "What I really want is...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.358
+   ],
+   "read_done_live": 0.541,
+   "load_live_percent": 100.0,
+   "detector_end": 0.07956250000000001
   },
   {
    "label": "unfinished",
@@ -1426,24 +2260,44 @@
    "heard": "Check the formula and let me know if.",
    "kind": "unfinished",
    "fired": 1.6334375,
-   "detector": 0.3134375,
+   "detector": 0.1334375,
    "decide_s": [
-    0.749
+    0.446
    ],
-   "detector_end": 0.013437499999999991
+   "early": 0.1,
+   "fired_live": 1.657,
+   "heard_live": "Check the formula and let me know if.",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.478
+   ],
+   "read_done_live": 0.613,
+   "load_live_percent": 100.0,
+   "detector_end": 0.03343749999999998
   },
   {
    "label": "unfinished",
    "list": "second",
    "said": "Paste it right below the",
-   "heard": "Paste it right below that.",
+   "heard": "Paste it right below that",
    "kind": "complete",
    "fired": 0.38325,
-   "detector": 0.38325,
+   "detector": 0.20325,
    "decide_s": [
-    0.73
+    0.315
    ],
-   "detector_end": 0.08324999999999999
+   "early": 0.1,
+   "fired_live": 0.609,
+   "heard_live": "Paste it right below that",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.373
+   ],
+   "read_done_live": 0.578,
+   "load_live_percent": 100.0,
+   "detector_end": 0.10324999999999998
   },
   {
    "label": "unfinished",
@@ -1452,11 +2306,21 @@
    "heard": "It stopped working because",
    "kind": "unfinished",
    "fired": 1.7218125,
-   "detector": 0.4018125,
+   "detector": 0.2218125,
    "decide_s": [
-    0.26
+    0.387
    ],
-   "detector_end": 0.10181250000000003
+   "early": 0.1,
+   "fired_live": 1.759,
+   "heard_live": "It stopped working because",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.336
+   ],
+   "read_done_live": 0.561,
+   "load_live_percent": 100.0,
+   "detector_end": 0.12181249999999999
   },
   {
    "label": "unfinished",
@@ -1465,24 +2329,44 @@
    "heard": "Replace the old logo with",
    "kind": "unfinished",
    "fired": 1.686375,
-   "detector": 0.396375,
+   "detector": 0.186375,
    "decide_s": [
-    0.279
+    4.102
    ],
-   "detector_end": 0.09637499999999999
+   "early": 0.1,
+   "fired_live": 1.704,
+   "heard_live": "Replace the old logo with",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.172
+   ],
+   "read_done_live": 0.36,
+   "load_live_percent": 87.6,
+   "detector_end": 0.08637500000000001
   },
   {
    "label": "unfinished",
    "list": "second",
    "said": "Uh, where is the, um",
-   "heard": "Where is the \"um\"?",
+   "heard": "Where is the UM?",
    "kind": "unfinished",
    "fired": 1.6609375,
-   "detector": 0.3409375,
+   "detector": 0.1609375,
    "decide_s": [
-    0.423
+    0.17
    ],
-   "detector_end": 0.040937500000000016
+   "early": 0.1,
+   "fired_live": 1.677,
+   "heard_live": "Where is the um?",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.153
+   ],
+   "read_done_live": 0.316,
+   "load_live_percent": 100.0,
+   "detector_end": 0.060937500000000006
   },
   {
    "label": "unfinished",
@@ -1491,24 +2375,44 @@
    "heard": "Book the room for Friday at",
    "kind": "unfinished",
    "fired": 1.692625,
-   "detector": 0.402625,
+   "detector": 0.192625,
    "decide_s": [
-    0.436
+    0.337
    ],
-   "detector_end": 0.10262500000000002
+   "early": 0.1,
+   "fired_live": 1.712,
+   "heard_live": "Book the room for Friday at",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.707
+   ],
+   "read_done_live": 0.901,
+   "load_live_percent": 99.0,
+   "detector_end": 0.09262499999999999
   },
   {
    "label": "unfinished",
    "list": "second",
    "said": "Send it today, or",
-   "heard": "Send it today or",
+   "heard": "Send it today or...",
    "kind": "unfinished",
    "fired": 1.6760625,
-   "detector": 0.3860625,
+   "detector": 0.1760625,
    "decide_s": [
-    0.404
+    0.625
    ],
-   "detector_end": 0.08606249999999999
+   "early": 0.1,
+   "fired_live": 1.666,
+   "heard_live": "Send it today or",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.381
+   ],
+   "read_done_live": 0.529,
+   "load_live_percent": 79.4,
+   "detector_end": 0.0760625
   },
   {
    "label": "unfinished",
@@ -1517,11 +2421,21 @@
    "heard": "I have to submit this before.",
    "kind": "neutral",
    "fired": 0.746625,
-   "detector": 0.356625,
+   "detector": 0.146625,
    "decide_s": [
-    0.451
+    0.669
    ],
-   "detector_end": 0.056625000000000036
+   "early": 0.1,
+   "fired_live": 0.769,
+   "heard_live": "I have to submit this before.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.609
+   ],
+   "read_done_live": 0.757,
+   "load_live_percent": 99.3,
+   "detector_end": 0.046625
   },
   {
    "label": "unfinished",
@@ -1529,12 +2443,22 @@
    "said": "The password is in my",
    "heard": "The password is in my",
    "kind": "unfinished",
-   "fired": 1.634,
-   "detector": 0.374,
+   "fired": 1.694,
+   "detector": 0.194,
    "decide_s": [
-    0.4
+    0.97
    ],
-   "detector_end": 0.07400000000000001
+   "early": 0.1,
+   "fired_live": 1.721,
+   "heard_live": "The password is in my",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.773
+   ],
+   "read_done_live": 0.969,
+   "load_live_percent": 99.8,
+   "detector_end": 0.094
   },
   {
    "label": "unfinished",
@@ -1542,12 +2466,22 @@
    "said": "Hold on, it was called something like",
    "heard": "Hold on, it was called something like.",
    "kind": "unfinished",
-   "fired": 1.56325,
-   "detector": 0.27325,
+   "fired": 1.59325,
+   "detector": 0.09325,
    "decide_s": [
-    0.538
+    1.009
    ],
-   "detector_end": -0.026749999999999996
+   "early": 0.1,
+   "fired_live": 1.617,
+   "heard_live": "Hold on, it was called something like.",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    1.047
+   ],
+   "read_done_live": 1.143,
+   "load_live_percent": 99.8,
+   "detector_end": -0.006750000000000006
   },
   {
    "label": "unfinished",
@@ -1556,37 +2490,67 @@
    "heard": "Sort the list by date and also",
    "kind": "unfinished",
    "fired": 1.638,
-   "detector": 0.348,
+   "detector": 0.138,
    "decide_s": [
-    0.435
+    0.898
    ],
-   "detector_end": 0.04799999999999999
+   "early": 0.1,
+   "fired_live": 1.668,
+   "heard_live": "Sort the list by date and also",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.791
+   ],
+   "read_done_live": 0.932,
+   "load_live_percent": 99.7,
+   "detector_end": 0.038000000000000006
   },
   {
    "label": "unfinished",
    "list": "second",
    "said": "I would prefer to",
-   "heard": "I would prefer to.",
+   "heard": "I would prefer to",
    "kind": "unfinished",
    "fired": 1.659375,
-   "detector": 0.339375,
+   "detector": 0.159375,
    "decide_s": [
-    0.4
+    0.791
    ],
-   "detector_end": 0.03937499999999999
+   "early": 0.1,
+   "fired_live": 1.686,
+   "heard_live": "I would prefer to",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.543
+   ],
+   "read_done_live": 0.705,
+   "load_live_percent": 99.8,
+   "detector_end": 0.05937499999999998
   },
   {
    "label": "unfinished",
    "list": "second",
    "said": "Do you know whether the",
-   "heard": "Do you know whether or not they're not",
-   "kind": "complete",
-   "fired": 0.38575,
-   "detector": 0.38575,
+   "heard": "Do you know whether or not they should be",
+   "kind": "unfinished",
+   "fired": 1.67575,
+   "detector": 0.17575,
    "decide_s": [
-    0.511
+    1.015
    ],
-   "detector_end": 0.08574999999999999
+   "early": 0.1,
+   "fired_live": 1.703,
+   "heard_live": "Do you know whether or not they should be",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.971
+   ],
+   "read_done_live": 1.149,
+   "load_live_percent": 100.0,
+   "detector_end": 0.07574999999999998
   },
   {
    "label": "unfinished",
@@ -1594,12 +2558,22 @@
    "said": "It goes from the first page to, uh",
    "heard": "It goes from the first page to",
    "kind": "unfinished",
-   "fired": 1.662,
-   "detector": 0.372,
+   "fired": 1.212,
+   "detector": -0.288,
    "decide_s": [
-    0.476
+    0.938
    ],
-   "detector_end": 0.07200000000000001
+   "early": 0.1,
+   "fired_live": 1.27,
+   "heard_live": "It goes from the first page to",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.778
+   ],
+   "read_done_live": 0.523,
+   "load_live_percent": 99.7,
+   "detector_end": -0.388
   },
   {
    "label": "unfinished",
@@ -1608,11 +2582,1127 @@
    "heard": "Then we can maybe...",
    "kind": "unfinished",
    "fired": 1.693625,
-   "detector": 0.403625,
+   "detector": 0.193625,
+   "decide_s": [
+    0.825
+   ],
+   "early": 0.1,
+   "fired_live": 1.721,
+   "heard_live": "Then we can maybe...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.632
+   ],
+   "read_done_live": 0.827,
+   "load_live_percent": 99.9,
+   "detector_end": 0.09362499999999999
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "How do I merge these two cells?",
+   "heard": "How do I merge these two cells?",
+   "kind": "complete",
+   "fired": 0.375875,
+   "detector": 0.195875,
+   "decide_s": [
+    0.953
+   ],
+   "early": 0.1,
+   "fired_live": 1.081,
+   "heard_live": "How do I merge these two cells?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.856
+   ],
+   "read_done_live": 1.054,
+   "load_live_percent": 100.0,
+   "detector_end": 0.09587499999999999
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "Close all the other tabs.",
+   "heard": "Close all the other tabs.",
+   "kind": "complete",
+   "fired": 0.3908125,
+   "detector": 0.1808125,
+   "decide_s": [
+    1.07
+   ],
+   "early": 0.1,
+   "fired_live": null,
+   "heard_live": "Close all the other tabs.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    2.863
+   ],
+   "read_done_live": 3.049,
+   "load_live_percent": 66.7,
+   "detector_end": 0.08081249999999998
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "What time is my next meeting?",
+   "heard": "What time is my next meeting?",
+   "kind": "complete",
+   "fired": 0.395625,
+   "detector": 0.185625,
+   "decide_s": [
+    1.896
+   ],
+   "early": 0.1,
+   "fired_live": 0.945,
+   "heard_live": "What time is my next meeting?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.742
+   ],
+   "read_done_live": 0.93,
+   "load_live_percent": 50.5,
+   "detector_end": 0.085625
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "Make the font a bit smaller.",
+   "heard": "Make the font a bit smaller.",
+   "kind": "complete",
+   "fired": 0.3744375,
+   "detector": 0.1644375,
+   "decide_s": [
+    1.095
+   ],
+   "early": 0.1,
+   "fired_live": 0.653,
+   "heard_live": "Make the font a bit smaller.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.431
+   ],
+   "read_done_live": 0.598,
+   "load_live_percent": 84.2,
+   "detector_end": 0.06443749999999998
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "Yes, go ahead.",
+   "heard": "Yes, go ahead.",
+   "kind": "neutral",
+   "fired": 0.788,
+   "detector": 0.188,
+   "decide_s": [
+    0.483
+   ],
+   "early": 0.1,
+   "fired_live": 0.851,
+   "heard_live": "Yes, go ahead",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.289
+   ],
+   "read_done_live": 0.478,
+   "load_live_percent": 100.0,
+   "detector_end": 0.088
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "No, not that one.",
+   "heard": "No, not that one.",
+   "kind": "neutral",
+   "fired": 0.77175,
+   "detector": 0.17175,
    "decide_s": [
     0.367
    ],
-   "detector_end": 0.10362500000000002
+   "early": 0.1,
+   "fired_live": 0.849,
+   "heard_live": "No, not that one.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.401
+   ],
+   "read_done_live": 0.574,
+   "load_live_percent": 99.9,
+   "detector_end": 0.07175000000000001
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "Can you read that back to me?",
+   "heard": "Can you read that back to me?",
+   "kind": "complete",
+   "fired": 0.4413125,
+   "detector": 0.2013125,
+   "decide_s": [
+    0.506
+   ],
+   "early": 0.1,
+   "fired_live": 1.161,
+   "heard_live": "Can you read that back to me?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.941
+   ],
+   "read_done_live": 1.145,
+   "load_live_percent": 100.0,
+   "detector_end": 0.1013125
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "I think the second option is better.",
+   "heard": "I think the second option is better.",
+   "kind": "neutral",
+   "fired": 0.7805625,
+   "detector": 0.1805625,
+   "decide_s": [
+    1.069
+   ],
+   "early": 0.1,
+   "fired_live": 1.037,
+   "heard_live": "I think the second option is better.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.832
+   ],
+   "read_done_live": 1.016,
+   "load_live_percent": 99.9,
+   "detector_end": 0.08056249999999998
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "Turn this list into a table.",
+   "heard": "Turn this list into a table.",
+   "kind": "complete",
+   "fired": 0.3891875,
+   "detector": 0.1791875,
+   "decide_s": [
+    1.056
+   ],
+   "early": 0.1,
+   "fired_live": 1.035,
+   "heard_live": "Turn this list into a table.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.836
+   ],
+   "read_done_live": 1.017,
+   "load_live_percent": 99.6,
+   "detector_end": 0.0791875
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "Why is the fan so loud?",
+   "heard": "Why is the fan so loud?",
+   "kind": "complete",
+   "fired": 0.22025,
+   "detector": 0.07025,
+   "decide_s": [
+    1.027
+   ],
+   "early": 0.1,
+   "fired_live": 0.875,
+   "heard_live": "Why is the fan so loud?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.817
+   ],
+   "read_done_live": 0.86,
+   "load_live_percent": 99.1,
+   "detector_end": -0.02975
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "Email the summary to my manager this afternoon.",
+   "heard": "Email the summary to my manager this afternoon.",
+   "kind": "neutral",
+   "fired": 0.772,
+   "detector": 0.172,
+   "decide_s": [
+    0.968,
+    1.48
+   ],
+   "early": 0.1,
+   "fired_live": 1.211,
+   "heard_live": "Email the summary to my manager this afternoon.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.86,
+    1.021
+   ],
+   "read_done_live": 1.196,
+   "load_live_percent": 99.7,
+   "detector_end": 0.07199999999999998
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "Alright, that looks good.",
+   "heard": "Alright, that looks good.",
+   "kind": "neutral",
+   "fired": 0.7624375,
+   "detector": 0.1624375,
+   "decide_s": [
+    1.147
+   ],
+   "early": 0.1,
+   "fired_live": null,
+   "heard_live": "Alright, that looks good.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    2.578
+   ],
+   "read_done_live": 2.746,
+   "load_live_percent": 70.4,
+   "detector_end": 0.06243750000000001
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "Where did my screenshot go?",
+   "heard": "Where did my screenshot go?",
+   "kind": "complete",
+   "fired": 0.3569375,
+   "detector": 0.1469375,
+   "decide_s": [
+    0.776
+   ],
+   "early": 0.1,
+   "fired_live": 0.967,
+   "heard_live": "Where did my screenshot go?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.777
+   ],
+   "read_done_live": 0.926,
+   "load_live_percent": 52.4,
+   "detector_end": 0.04693749999999999
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "What does this error mean?",
+   "heard": "What does this error mean?",
+   "kind": "complete",
+   "fired": 0.3636875,
+   "detector": 0.2136875,
+   "decide_s": [
+    0.807
+   ],
+   "early": 0.1,
+   "fired_live": 0.744,
+   "heard_live": "What does this error mean?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.518
+   ],
+   "read_done_live": 0.733,
+   "load_live_percent": 86.7,
+   "detector_end": 0.1136875
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "Show me last week's notes.",
+   "heard": "Show me last week's notes.",
+   "kind": "complete",
+   "fired": 0.398625,
+   "detector": 0.188625,
+   "decide_s": [
+    0.772
+   ],
+   "early": 0.1,
+   "fired_live": 0.715,
+   "heard_live": "Show me last week's notes.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.514
+   ],
+   "read_done_live": 0.704,
+   "load_live_percent": 99.5,
+   "detector_end": 0.08862499999999998
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "The cursor keeps jumping around.",
+   "heard": "The cursor keeps jumping around.",
+   "kind": "neutral",
+   "fired": 0.636625,
+   "detector": 0.036625,
+   "decide_s": [
+    1.0
+   ],
+   "early": 0.1,
+   "fired_live": 0.657,
+   "heard_live": "The cursor keeps jumping around.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.574
+   ],
+   "read_done_live": 0.612,
+   "load_live_percent": 99.0,
+   "detector_end": -0.06337500000000001
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "Move this file to the archive.",
+   "heard": "Move this file to the archive.",
+   "kind": "complete",
+   "fired": 0.346,
+   "detector": 0.136,
+   "decide_s": [
+    0.833
+   ],
+   "early": 0.1,
+   "fired_live": 1.053,
+   "heard_live": "Move this file to the archive.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.893
+   ],
+   "read_done_live": 1.031,
+   "load_live_percent": 99.9,
+   "detector_end": 0.036000000000000004
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "I don't know what that setting does.",
+   "heard": "I don't know what that setting does.",
+   "kind": "neutral",
+   "fired": 0.7915,
+   "detector": 0.1915,
+   "decide_s": [
+    1.238
+   ],
+   "early": 0.1,
+   "fired_live": 1.138,
+   "heard_live": "I don't know what that setting does.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.928
+   ],
+   "read_done_live": 1.122,
+   "load_live_percent": 100.0,
+   "detector_end": 0.0915
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "Is there a faster way to do this?",
+   "heard": "Is there a faster way to do this?",
+   "kind": "complete",
+   "fired": 0.397125,
+   "detector": 0.217125,
+   "decide_s": [
+    1.932
+   ],
+   "early": 0.1,
+   "fired_live": 0.468,
+   "heard_live": "Is there a faster way to do this?",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.233
+   ],
+   "read_done_live": 0.451,
+   "load_live_percent": 89.4,
+   "detector_end": 0.117125
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "Scroll down to the bottom.",
+   "heard": "Scroll down to the bottom.",
+   "kind": "complete",
+   "fired": 0.3355,
+   "detector": 0.1555,
+   "decide_s": [
+    0.214
+   ],
+   "early": 0.1,
+   "fired_live": 0.346,
+   "heard_live": "Scroll down to the bottom.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.173
+   ],
+   "read_done_live": 0.33,
+   "load_live_percent": 100.0,
+   "detector_end": 0.055499999999999994
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "Tell me what this chart shows.",
+   "heard": "Tell me what this chart shows.",
+   "kind": "complete",
+   "fired": 0.382375,
+   "detector": 0.172375,
+   "decide_s": [
+    0.213
+   ],
+   "early": 0.1,
+   "fired_live": 0.452,
+   "heard_live": "Tell me what this chart shows.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.247
+   ],
+   "read_done_live": 0.421,
+   "load_live_percent": 100.0,
+   "detector_end": 0.072375
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "It crashed when I pressed save.",
+   "heard": "It crashed when I pressed save.",
+   "kind": "neutral",
+   "fired": 0.67925,
+   "detector": 0.13925,
+   "decide_s": [
+    0.277
+   ],
+   "early": 0.1,
+   "fired_live": 0.751,
+   "heard_live": "It crashed when I pressed save.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.396
+   ],
+   "read_done_live": 0.538,
+   "load_live_percent": 100.0,
+   "detector_end": 0.03925000000000001
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "Which column has the totals?",
+   "heard": "which column has the totals.",
+   "kind": "complete",
+   "fired": 0.39875,
+   "detector": 0.18875,
+   "decide_s": [
+    0.412
+   ],
+   "early": 0.1,
+   "fired_live": 0.534,
+   "heard_live": "which column has the totals.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.354
+   ],
+   "read_done_live": 0.515,
+   "load_live_percent": 100.0,
+   "detector_end": 0.08875
+  },
+  {
+   "label": "finished",
+   "list": "third",
+   "said": "We can stop here.",
+   "heard": "We can stop here.",
+   "kind": "neutral",
+   "fired": 0.755625,
+   "detector": 0.155625,
+   "decide_s": [
+    0.309
+   ],
+   "early": 0.1,
+   "fired_live": 0.799,
+   "heard_live": "We can stop here.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.268
+   ],
+   "read_done_live": 0.455,
+   "load_live_percent": 100.0,
+   "detector_end": 0.05562500000000001
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "I was trying to open the",
+   "heard": "I was trying to open things.",
+   "kind": "neutral",
+   "fired": 0.8245,
+   "detector": 0.1945,
+   "decide_s": [
+    0.358
+   ],
+   "early": 0.1,
+   "fired_live": 0.837,
+   "heard_live": "I was trying to open things.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.334
+   ],
+   "read_done_live": 0.56,
+   "load_live_percent": 100.0,
+   "detector_end": 0.0945
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "Can you send that over to",
+   "heard": "Can you send that over to?",
+   "kind": "unfinished",
+   "fired": 1.692125,
+   "detector": 0.192125,
+   "decide_s": [
+    0.362
+   ],
+   "early": 0.1,
+   "fired_live": 1.706,
+   "heard_live": "Can you send that over to?",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.388
+   ],
+   "read_done_live": 0.581,
+   "load_live_percent": 100.0,
+   "detector_end": 0.09212499999999998
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "Delete the first row and then",
+   "heard": "Delete the first row and then...",
+   "kind": "unfinished",
+   "fired": 1.61225,
+   "detector": 0.11225,
+   "decide_s": [
+    0.392
+   ],
+   "early": 0.1,
+   "fired_live": 1.927,
+   "heard_live": "Delete the first row and then...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.468
+   ],
+   "read_done_live": 0.582,
+   "load_live_percent": 89.0,
+   "detector_end": 0.012249999999999997
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "The thing I noticed is that",
+   "heard": "The thing I noticed is that.",
+   "kind": "unfinished",
+   "fired": 1.6781875,
+   "detector": 0.1781875,
+   "decide_s": [
+    2.594
+   ],
+   "early": 0.1,
+   "fired_live": 1.69,
+   "heard_live": "The thing I noticed is that.",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.2
+   ],
+   "read_done_live": 0.38,
+   "load_live_percent": 88.7,
+   "detector_end": 0.0781875
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "Maybe we could",
+   "heard": "Maybe we could",
+   "kind": "neutral",
+   "fired": 0.7794375,
+   "detector": 0.1794375,
+   "decide_s": [
+    0.139
+   ],
+   "early": 0.1,
+   "fired_live": 0.793,
+   "heard_live": "Maybe we could",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.143
+   ],
+   "read_done_live": 0.323,
+   "load_live_percent": 100.0,
+   "detector_end": 0.0794375
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "Put the file in the folder called",
+   "heard": "Put the file in the folder called",
+   "kind": "complete",
+   "fired": 0.33125,
+   "detector": 0.12125,
+   "decide_s": [
+    0.244
+   ],
+   "early": 0.1,
+   "fired_live": 0.528,
+   "heard_live": "Put the file in the folder called",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.415
+   ],
+   "read_done_live": 0.507,
+   "load_live_percent": 100.0,
+   "detector_end": 0.02124999999999999
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "This one looks right but",
+   "heard": "This one looks right but...",
+   "kind": "unfinished",
+   "fired": 1.67075,
+   "detector": 0.17075,
+   "decide_s": [
+    0.339
+   ],
+   "early": 0.1,
+   "fired_live": 1.684,
+   "heard_live": "This one looks right, but...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.381
+   ],
+   "read_done_live": 0.553,
+   "load_live_percent": 100.0,
+   "detector_end": 0.07075000000000001
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "Change the color to blue and",
+   "heard": "Change the color to blue and",
+   "kind": "unfinished",
+   "fired": 1.6959375,
+   "detector": 0.1959375,
+   "decide_s": [
+    0.357
+   ],
+   "early": 0.1,
+   "fired_live": 1.71,
+   "heard_live": "Change the color to blue and",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.332
+   ],
+   "read_done_live": 0.529,
+   "load_live_percent": 100.0,
+   "detector_end": 0.09593749999999998
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "What I am looking for is",
+   "heard": "What I am looking for is...",
+   "kind": "unfinished",
+   "fired": 1.693125,
+   "detector": 0.193125,
+   "decide_s": [
+    0.342
+   ],
+   "early": 0.1,
+   "fired_live": 1.718,
+   "heard_live": "What I am looking for is...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.35
+   ],
+   "read_done_live": 0.545,
+   "load_live_percent": 99.8,
+   "detector_end": 0.09312499999999999
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "Run the report and tell me whether",
+   "heard": "Run the report and tell me whether.",
+   "kind": "unfinished",
+   "fired": 1.7189375,
+   "detector": 0.2189375,
+   "decide_s": [
+    0.391
+   ],
+   "early": 0.1,
+   "fired_live": 1.714,
+   "heard_live": "Run the report and tell me whether.",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.422
+   ],
+   "read_done_live": 0.613,
+   "load_live_percent": 99.7,
+   "detector_end": 0.1189375
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "Insert a new line just above the",
+   "heard": "Insert a new line just above that.",
+   "kind": "neutral",
+   "fired": 0.784125,
+   "detector": 0.184125,
+   "decide_s": [
+    0.523
+   ],
+   "early": 0.1,
+   "fired_live": null,
+   "heard_live": "Insert a new line just above that.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    4.186
+   ],
+   "read_done_live": 4.379,
+   "load_live_percent": 70.0,
+   "detector_end": 0.084125
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "It keeps failing because",
+   "heard": "It keeps failing because",
+   "kind": "unfinished",
+   "fired": 1.7105,
+   "detector": 0.2105,
+   "decide_s": [
+    1.514
+   ],
+   "early": 0.1,
+   "fired_live": 1.727,
+   "heard_live": "It keeps failing because",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.16
+   ],
+   "read_done_live": 0.372,
+   "load_live_percent": 73.0,
+   "detector_end": 0.11049999999999999
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "Swap the first image with",
+   "heard": "Swap the first image with",
+   "kind": "unfinished",
+   "fired": 1.722,
+   "detector": 0.252,
+   "decide_s": [
+    0.178
+   ],
+   "early": 0.1,
+   "fired_live": 1.732,
+   "heard_live": "Swap the first image with",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.173
+   ],
+   "read_done_live": 0.395,
+   "load_live_percent": 100.0,
+   "detector_end": 0.152
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "So, how do I, um",
+   "heard": "So how do I, um?",
+   "kind": "unfinished",
+   "fired": 1.6438125,
+   "detector": 0.1438125,
+   "decide_s": [
+    0.208
+   ],
+   "early": 0.1,
+   "fired_live": 1.673,
+   "heard_live": "So how do I, um?",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.257
+   ],
+   "read_done_live": 0.402,
+   "load_live_percent": 99.8,
+   "detector_end": 0.043812500000000004
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "Set the reminder for Monday at",
+   "heard": "Set the reminder for Monday at",
+   "kind": "unfinished",
+   "fired": 1.72025,
+   "detector": 0.22025,
+   "decide_s": [
+    0.396
+   ],
+   "early": 0.1,
+   "fired_live": 1.745,
+   "heard_live": "Set the reminder for Monday at",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.364
+   ],
+   "read_done_live": 0.586,
+   "load_live_percent": 100.0,
+   "detector_end": 0.12025
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "Either print it now, or",
+   "heard": "Either print it now or...",
+   "kind": "unfinished",
+   "fired": 1.687125,
+   "detector": 0.187125,
+   "decide_s": [
+    0.44
+   ],
+   "early": 0.1,
+   "fired_live": 1.713,
+   "heard_live": "Either print it now or...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.356
+   ],
+   "read_done_live": 0.546,
+   "load_live_percent": 100.0,
+   "detector_end": 0.08712500000000001
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "I need to finish this before",
+   "heard": "I need to finish this before.",
+   "kind": "neutral",
+   "fired": 0.766125,
+   "detector": 0.166125,
+   "decide_s": [
+    0.403
+   ],
+   "early": 0.1,
+   "fired_live": 0.781,
+   "heard_live": "I need to finish this before.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.392
+   ],
+   "read_done_live": 0.56,
+   "load_live_percent": 99.9,
+   "detector_end": 0.06612499999999999
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "The link is somewhere in my",
+   "heard": "The link is somewhere in mine.",
+   "kind": "neutral",
+   "fired": 0.75875,
+   "detector": 0.15875,
+   "decide_s": [
+    0.385
+   ],
+   "early": 0.1,
+   "fired_live": 0.775,
+   "heard_live": "The link is somewhere in mine.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.413
+   ],
+   "read_done_live": 0.573,
+   "load_live_percent": 99.7,
+   "detector_end": 0.05875
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "Wait, the file was named something like",
+   "heard": "Wait, the file was named something like...",
+   "kind": "unfinished",
+   "fired": 1.5445625,
+   "detector": 0.0745625,
+   "decide_s": [
+    0.597
+   ],
+   "early": 0.1,
+   "fired_live": null,
+   "heard_live": "Wait, the file was named something like...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    4.156
+   ],
+   "read_done_live": 4.241,
+   "load_live_percent": 67.1,
+   "detector_end": -0.025437500000000002
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "Filter the rows by name and also",
+   "heard": "Filter the rows by name and also",
+   "kind": "unfinished",
+   "fired": 1.700125,
+   "detector": 0.200125,
+   "decide_s": [
+    1.439
+   ],
+   "early": 0.1,
+   "fired_live": 1.714,
+   "heard_live": "Filter the rows by name and also",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.212
+   ],
+   "read_done_live": 0.413,
+   "load_live_percent": 90.7,
+   "detector_end": 0.10012499999999999
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "I was going to",
+   "heard": "I was going to",
+   "kind": "unfinished",
+   "fired": 1.67875,
+   "detector": 0.17875,
+   "decide_s": [
+    0.153
+   ],
+   "early": 0.1,
+   "fired_live": 1.693,
+   "heard_live": "I was going to",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.144
+   ],
+   "read_done_live": 0.325,
+   "load_live_percent": 99.9,
+   "detector_end": 0.07874999999999999
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "Can you tell me if the",
+   "heard": "Can you tell me if that...",
+   "kind": "unfinished",
+   "fired": 1.644,
+   "detector": 0.144,
+   "decide_s": [
+    0.233
+   ],
+   "early": 0.1,
+   "fired_live": 1.703,
+   "heard_live": "Can you tell me if that...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.224
+   ],
+   "read_done_live": 0.399,
+   "load_live_percent": 99.7,
+   "detector_end": 0.043999999999999984
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "It starts on the second slide and, uh",
+   "heard": "It starts on the second slide and up.",
+   "kind": "neutral",
+   "fired": 0.824375,
+   "detector": 0.224375,
+   "decide_s": [
+    0.447
+   ],
+   "early": 0.1,
+   "fired_live": 1.738,
+   "heard_live": "It starts on the second slide and uhh...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.434
+   ],
+   "read_done_live": 0.661,
+   "load_live_percent": 100.0,
+   "detector_end": 0.12437499999999999
+  },
+  {
+   "label": "unfinished",
+   "list": "third",
+   "said": "After that we should probably",
+   "heard": "After that, we should probably...",
+   "kind": "unfinished",
+   "fired": 1.699,
+   "detector": 0.199,
+   "decide_s": [
+    0.443
+   ],
+   "early": 0.1,
+   "fired_live": 1.722,
+   "heard_live": "After that, we should probably...",
+   "kind_live": "unfinished",
+   "stale": 0,
+   "live_decide_s": [
+    0.352
+   ],
+   "read_done_live": 0.553,
+   "load_live_percent": 100.0,
+   "detector_end": 0.099
   },
   {
    "label": "added_to",
@@ -1620,25 +3710,45 @@
    "said": "Open the spreadsheet",
    "heard": "Open the spreadsheet.",
    "kind": "complete",
-   "fired": 0.361,
-   "detector": 0.421,
+   "fired": 0.421,
+   "detector": 0.211,
    "decide_s": [
-    0.345
+    0.266
    ],
-   "detector_end": 0.121
+   "early": 0.1,
+   "fired_live": 0.468,
+   "heard_live": "Open the spreadsheet.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.271
+   ],
+   "read_done_live": 0.454,
+   "load_live_percent": 100.0,
+   "detector_end": 0.11099999999999999
   },
   {
    "label": "added_to",
    "list": "first",
    "said": "I need the report",
-   "heard": "I need the report",
+   "heard": "I need the report.",
    "kind": "neutral",
    "fired": 0.7821875,
-   "detector": 0.3921875,
+   "detector": 0.1821875,
    "decide_s": [
-    0.301
+    0.303
    ],
-   "detector_end": 0.09218750000000003
+   "early": 0.1,
+   "fired_live": 0.8,
+   "heard_live": "I need the report.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.285
+   ],
+   "read_done_live": 0.468,
+   "load_live_percent": 99.8,
+   "detector_end": 0.0821875
   },
   {
    "label": "added_to",
@@ -1647,11 +3757,21 @@
    "heard": "Send it to the team.",
    "kind": "neutral",
    "fired": 0.734,
-   "detector": 0.314,
+   "detector": 0.134,
    "decide_s": [
-    0.386
+    0.338
    ],
-   "detector_end": 0.014000000000000012
+   "early": 0.1,
+   "fired_live": 0.749,
+   "heard_live": "Send it to the team.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.321
+   ],
+   "read_done_live": 0.457,
+   "load_live_percent": 99.9,
+   "detector_end": 0.034
   },
   {
    "label": "added_to",
@@ -1660,11 +3780,21 @@
    "heard": "Make the title bold.",
    "kind": "complete",
    "fired": 0.37775,
-   "detector": 0.37775,
+   "detector": 0.16775,
    "decide_s": [
-    0.422
+    0.316
    ],
-   "detector_end": 0.07774999999999999
+   "early": 0.1,
+   "fired_live": null,
+   "heard_live": "Make the title bold.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    4.144
+   ],
+   "read_done_live": 4.319,
+   "load_live_percent": 72.0,
+   "detector_end": 0.06775
   },
   {
    "label": "added_to",
@@ -1673,11 +3803,21 @@
    "heard": "There is an error in line 12.",
    "kind": "neutral",
    "fired": 0.7499375,
-   "detector": 0.3599375,
+   "detector": 0.1499375,
    "decide_s": [
-    0.526
+    1.88
    ],
-   "detector_end": 0.05993750000000003
+   "early": 0.1,
+   "fired_live": 0.761,
+   "heard_live": "There is an error in line 12.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.218
+   ],
+   "read_done_live": 0.37,
+   "load_live_percent": 82.8,
+   "detector_end": 0.049937499999999996
   },
   {
    "label": "added_to",
@@ -1685,12 +3825,22 @@
    "said": "I want to change the background",
    "heard": "I want to change the background.",
    "kind": "neutral",
-   "fired": 0.6671875,
-   "detector": 0.2771875,
+   "fired": 0.6971875,
+   "detector": 0.0971875,
    "decide_s": [
-    0.383
+    0.209
    ],
-   "detector_end": -0.022812500000000013
+   "early": 0.1,
+   "fired_live": 0.682,
+   "heard_live": "I want to change the background.",
+   "kind_live": "neutral",
+   "stale": 0,
+   "live_decide_s": [
+    0.223
+   ],
+   "read_done_live": 0.291,
+   "load_live_percent": 100.0,
+   "detector_end": -0.0028125000000000094
   },
   {
    "label": "added_to",
@@ -1699,70 +3849,103 @@
    "heard": "Search for the invoice.",
    "kind": "complete",
    "fired": 0.371375,
-   "detector": 0.371375,
+   "detector": 0.161375,
    "decide_s": [
-    0.399
+    0.17
    ],
-   "detector_end": 0.07137500000000002
+   "early": 0.1,
+   "fired_live": 0.383,
+   "heard_live": "Search for the invoice.",
+   "kind_live": "complete",
+   "stale": 0,
+   "live_decide_s": [
+    0.166
+   ],
+   "read_done_live": 0.329,
+   "load_live_percent": 100.0,
+   "detector_end": 0.061374999999999985
   }
  ],
  "turns": {
   "buddy": {
-   "finished_in_time": 0.979,
-   "unfinished_held": 0.778,
+   "finished_in_time": 0.986,
+   "unfinished_held": 0.801,
    "held_by_pause": {
-    "0.5": 0.917,
-    "0.8": 0.708,
-    "1.2": 0.708
+    "0.5": 0.944,
+    "0.8": 0.736,
+    "1.2": 0.722
    },
-   "balanced_accuracy": 0.878,
-   "mean_delay_finished_s": 0.589
+   "balanced_accuracy": 0.894,
+   "mean_delay_finished_s": 0.567
+  },
+  "fixed_silence_0.7_with_read": {
+   "finished_in_time": 0.819,
+   "unfinished_held": 0.394,
+   "held_by_pause": {
+    "0.5": 0.986,
+    "0.8": 0.125,
+    "1.2": 0.069
+   },
+   "balanced_accuracy": 0.606,
+   "mean_delay_finished_s": 0.821
+  },
+  "fixed_silence_best_with_read": {
+   "gap_s": 0.85,
+   "finished_in_time": 0.819,
+   "unfinished_held": 0.519,
+   "held_by_pause": {
+    "0.5": 0.986,
+    "0.8": 0.5,
+    "1.2": 0.069
+   },
+   "balanced_accuracy": 0.669,
+   "mean_delay_finished_s": 0.949
   },
   "buddy_with_compute": {
-   "finished_in_time": 0.458,
-   "unfinished_held": 0.868,
+   "finished_in_time": 0.819,
+   "unfinished_held": 0.833,
    "held_by_pause": {
-    "0.5": 1.0,
-    "0.8": 0.854,
-    "1.2": 0.75
+    "0.5": 0.944,
+    "0.8": 0.792,
+    "1.2": 0.764
    },
-   "balanced_accuracy": 0.663,
-   "mean_delay_finished_s": 1.371
+   "balanced_accuracy": 0.826,
+   "mean_delay_finished_s": 0.727
   },
   "fixed_silence_same_delay": {
    "gap_s": 0.5,
    "finished_in_time": 1.0,
-   "unfinished_held": 0.0,
+   "unfinished_held": 0.005,
    "held_by_pause": {
-    "0.5": 0.0,
+    "0.5": 0.014,
     "0.8": 0.0,
     "1.2": 0.0
    },
-   "balanced_accuracy": 0.5,
-   "mean_delay_finished_s": 0.578
+   "balanced_accuracy": 0.502,
+   "mean_delay_finished_s": 0.582
   },
   "fixed_silence_0.7": {
    "finished_in_time": 1.0,
-   "unfinished_held": 0.333,
+   "unfinished_held": 0.329,
    "held_by_pause": {
-    "0.5": 1.0,
+    "0.5": 0.986,
     "0.8": 0.0,
     "1.2": 0.0
    },
-   "balanced_accuracy": 0.667,
-   "mean_delay_finished_s": 0.777
+   "balanced_accuracy": 0.664,
+   "mean_delay_finished_s": 0.784
   },
   "fixed_silence_best": {
    "gap_s": 0.85,
    "finished_in_time": 1.0,
-   "unfinished_held": 0.444,
+   "unfinished_held": 0.472,
    "held_by_pause": {
-    "0.5": 1.0,
-    "0.8": 0.333,
+    "0.5": 0.986,
+    "0.8": 0.431,
     "1.2": 0.0
    },
-   "balanced_accuracy": 0.722,
-   "mean_delay_finished_s": 0.927
+   "balanced_accuracy": 0.736,
+   "mean_delay_finished_s": 0.934
   },
   "added_to_cut_by_pause": {
    "0.5": 0.429,
@@ -1770,28 +3953,28 @@
    "1.2": 1.0
   },
   "counts": {
-   "finished": 48,
-   "unfinished": 48,
+   "finished": 72,
+   "unfinished": 72,
    "added_to": 7
   }
  },
  "decisions": {
   "rules_ms": {
    "n": 6400,
-   "p50": 0.003,
-   "p95": 0.0045,
-   "max": 64.5129,
-   "mean": 0.0135
+   "p50": 0.0029,
+   "p95": 0.0041,
+   "max": 27.9738,
+   "mean": 0.0086
   },
   "stt_and_rules_s": {
-   "n": 103,
-   "p50": 0.551,
-   "p95": 1.343,
-   "max": 12.944,
-   "mean": 0.781
+   "n": 153,
+   "p50": 0.417,
+   "p95": 1.514,
+   "max": 4.102,
+   "mean": 0.592
   },
   "load": {
-   "mean_percent": 87.6,
+   "mean_percent": 89.7,
    "max_percent": 100.0,
    "logical_cpus": 8
   }
@@ -1800,25 +3983,48 @@
   "first": {
    "buddy": {
     "finished_in_time": 1.0,
-    "unfinished_held": 0.764,
+    "unfinished_held": 0.792,
     "held_by_pause": {
      "0.5": 0.958,
-     "0.8": 0.667,
-     "1.2": 0.667
+     "0.8": 0.708,
+     "1.2": 0.708
     },
-    "balanced_accuracy": 0.882,
-    "mean_delay_finished_s": 0.549
+    "balanced_accuracy": 0.896,
+    "mean_delay_finished_s": 0.553
    },
-   "buddy_with_compute": {
-    "finished_in_time": 0.583,
-    "unfinished_held": 0.889,
+   "fixed_silence_0.7_with_read": {
+    "finished_in_time": 0.917,
+    "unfinished_held": 0.417,
     "held_by_pause": {
      "0.5": 1.0,
-     "0.8": 0.917,
+     "0.8": 0.125,
+     "1.2": 0.125
+    },
+    "balanced_accuracy": 0.667,
+    "mean_delay_finished_s": 0.783
+   },
+   "fixed_silence_best_with_read": {
+    "gap_s": 0.85,
+    "finished_in_time": 0.917,
+    "unfinished_held": 0.514,
+    "held_by_pause": {
+     "0.5": 1.0,
+     "0.8": 0.417,
+     "1.2": 0.125
+    },
+    "balanced_accuracy": 0.715,
+    "mean_delay_finished_s": 0.933
+   },
+   "buddy_with_compute": {
+    "finished_in_time": 0.917,
+    "unfinished_held": 0.819,
+    "held_by_pause": {
+     "0.5": 0.958,
+     "0.8": 0.75,
      "1.2": 0.75
     },
-    "balanced_accuracy": 0.736,
-    "mean_delay_finished_s": 1.064
+    "balanced_accuracy": 0.868,
+    "mean_delay_finished_s": 0.648
    },
    "fixed_silence_same_delay": {
     "gap_s": 0.45,
@@ -1830,7 +4036,7 @@
      "1.2": 0.0
     },
     "balanced_accuracy": 0.5,
-    "mean_delay_finished_s": 0.531
+    "mean_delay_finished_s": 0.536
    },
    "fixed_silence_0.7": {
     "finished_in_time": 1.0,
@@ -1841,19 +4047,19 @@
      "1.2": 0.0
     },
     "balanced_accuracy": 0.667,
-    "mean_delay_finished_s": 0.779
+    "mean_delay_finished_s": 0.786
    },
    "fixed_silence_best": {
-    "gap_s": 0.9,
-    "finished_in_time": 0.833,
-    "unfinished_held": 0.625,
+    "gap_s": 0.85,
+    "finished_in_time": 1.0,
+    "unfinished_held": 0.458,
     "held_by_pause": {
      "0.5": 1.0,
-     "0.8": 0.875,
+     "0.8": 0.375,
      "1.2": 0.0
     },
     "balanced_accuracy": 0.729,
-    "mean_delay_finished_s": 0.981
+    "mean_delay_finished_s": 0.936
    },
    "added_to_cut_by_pause": {
     "0.5": 0.0,
@@ -1869,25 +4075,48 @@
   "second": {
    "buddy": {
     "finished_in_time": 0.958,
-    "unfinished_held": 0.792,
+    "unfinished_held": 0.819,
     "held_by_pause": {
-     "0.5": 0.875,
-     "0.8": 0.75,
-     "1.2": 0.75
-    },
-    "balanced_accuracy": 0.875,
-    "mean_delay_finished_s": 0.629
-   },
-   "buddy_with_compute": {
-    "finished_in_time": 0.333,
-    "unfinished_held": 0.847,
-    "held_by_pause": {
-     "0.5": 1.0,
+     "0.5": 0.917,
      "0.8": 0.792,
      "1.2": 0.75
     },
-    "balanced_accuracy": 0.59,
-    "mean_delay_finished_s": 1.678
+    "balanced_accuracy": 0.889,
+    "mean_delay_finished_s": 0.635
+   },
+   "fixed_silence_0.7_with_read": {
+    "finished_in_time": 0.917,
+    "unfinished_held": 0.375,
+    "held_by_pause": {
+     "0.5": 0.958,
+     "0.8": 0.167,
+     "1.2": 0.0
+    },
+    "balanced_accuracy": 0.646,
+    "mean_delay_finished_s": 0.784
+   },
+   "fixed_silence_best_with_read": {
+    "gap_s": 0.85,
+    "finished_in_time": 0.917,
+    "unfinished_held": 0.486,
+    "held_by_pause": {
+     "0.5": 0.958,
+     "0.8": 0.5,
+     "1.2": 0.0
+    },
+    "balanced_accuracy": 0.701,
+    "mean_delay_finished_s": 0.934
+   },
+   "buddy_with_compute": {
+    "finished_in_time": 0.917,
+    "unfinished_held": 0.833,
+    "held_by_pause": {
+     "0.5": 0.917,
+     "0.8": 0.833,
+     "1.2": 0.75
+    },
+    "balanced_accuracy": 0.875,
+    "mean_delay_finished_s": 0.701
    },
    "fixed_silence_same_delay": {
     "gap_s": 0.55,
@@ -1899,7 +4128,99 @@
      "1.2": 0.0
     },
     "balanced_accuracy": 0.562,
-    "mean_delay_finished_s": 0.625
+    "mean_delay_finished_s": 0.631
+   },
+   "fixed_silence_0.7": {
+    "finished_in_time": 1.0,
+    "unfinished_held": 0.319,
+    "held_by_pause": {
+     "0.5": 0.958,
+     "0.8": 0.0,
+     "1.2": 0.0
+    },
+    "balanced_accuracy": 0.66,
+    "mean_delay_finished_s": 0.781
+   },
+   "fixed_silence_best": {
+    "gap_s": 0.85,
+    "finished_in_time": 1.0,
+    "unfinished_held": 0.444,
+    "held_by_pause": {
+     "0.5": 0.958,
+     "0.8": 0.375,
+     "1.2": 0.0
+    },
+    "balanced_accuracy": 0.722,
+    "mean_delay_finished_s": 0.931
+   },
+   "added_to_cut_by_pause": {
+    "0.5": 0.0,
+    "0.8": 0.0,
+    "1.2": 0.0
+   },
+   "counts": {
+    "finished": 24,
+    "unfinished": 24,
+    "added_to": 0
+   }
+  },
+  "third": {
+   "buddy": {
+    "finished_in_time": 1.0,
+    "unfinished_held": 0.792,
+    "held_by_pause": {
+     "0.5": 0.958,
+     "0.8": 0.708,
+     "1.2": 0.708
+    },
+    "balanced_accuracy": 0.896,
+    "mean_delay_finished_s": 0.513
+   },
+   "fixed_silence_0.7_with_read": {
+    "finished_in_time": 0.625,
+    "unfinished_held": 0.389,
+    "held_by_pause": {
+     "0.5": 1.0,
+     "0.8": 0.083,
+     "1.2": 0.083
+    },
+    "balanced_accuracy": 0.507,
+    "mean_delay_finished_s": 0.896
+   },
+   "fixed_silence_best_with_read": {
+    "gap_s": 0.9,
+    "finished_in_time": 0.542,
+    "unfinished_held": 0.667,
+    "held_by_pause": {
+     "0.5": 1.0,
+     "0.8": 0.917,
+     "1.2": 0.083
+    },
+    "balanced_accuracy": 0.604,
+    "mean_delay_finished_s": 1.006
+   },
+   "buddy_with_compute": {
+    "finished_in_time": 0.625,
+    "unfinished_held": 0.847,
+    "held_by_pause": {
+     "0.5": 0.958,
+     "0.8": 0.792,
+     "1.2": 0.792
+    },
+    "balanced_accuracy": 0.736,
+    "mean_delay_finished_s": 0.833
+   },
+   "fixed_silence_same_delay": {
+    "gap_s": 0.45,
+    "finished_in_time": 1.0,
+    "unfinished_held": 0.0,
+    "held_by_pause": {
+     "0.5": 0.0,
+     "0.8": 0.0,
+     "1.2": 0.0
+    },
+    "balanced_accuracy": 0.5,
+    "mean_delay_finished_s": 0.53
    },
    "fixed_silence_0.7": {
     "finished_in_time": 1.0,
@@ -1910,19 +4231,19 @@
      "1.2": 0.0
     },
     "balanced_accuracy": 0.667,
-    "mean_delay_finished_s": 0.775
+    "mean_delay_finished_s": 0.784
    },
    "fixed_silence_best": {
     "gap_s": 0.85,
     "finished_in_time": 1.0,
-    "unfinished_held": 0.458,
+    "unfinished_held": 0.514,
     "held_by_pause": {
      "0.5": 1.0,
-     "0.8": 0.375,
+     "0.8": 0.542,
      "1.2": 0.0
     },
-    "balanced_accuracy": 0.729,
-    "mean_delay_finished_s": 0.925
+    "balanced_accuracy": 0.757,
+    "mean_delay_finished_s": 0.934
    },
    "added_to_cut_by_pause": {
     "0.5": 0.0,
@@ -1935,5 +4256,291 @@
     "added_to": 0
    }
   }
+ },
+ "engine": "whisper-en",
+ "read_ahead": {
+  "early_s": 0.1,
+  "shortest_gap_s": 0.3,
+  "hidden_s": 0.2,
+  "stale_reads": 0,
+  "reads": 153,
+  "live_decisions_s": {
+   "n": 153,
+   "p50": 0.389,
+   "p95": 2.863,
+   "max": 4.661,
+   "mean": 0.653
+  },
+  "extra_wait_finished_s": {
+   "n": 66,
+   "p50": 0.077,
+   "p95": 0.655,
+   "max": 0.72,
+   "mean": 0.167
+  },
+  "finished_live_s": {
+   "n": 66,
+   "p50": 0.744,
+   "p95": 1.081,
+   "max": 1.211,
+   "mean": 0.727
+  },
+  "read_back_finished_s": {
+   "n": 72,
+   "p50": 0.582,
+   "p95": 3.049,
+   "max": 4.817,
+   "mean": 0.89
+  },
+  "priority": "above normal for the whole clip"
+ },
+ "repair": {
+  "n": 7,
+  "rows": [
+   {
+    "said": "Open the spreadsheet | that I had open yesterday",
+    "pause": 0.5,
+    "turns": 2,
+    "first_turn_at": 0.391,
+    "question": "Open the spreadsheet that I had opened yesterday.",
+    "whole": false,
+    "recall": 0.875
+   },
+   {
+    "said": "Open the spreadsheet | that I had open yesterday",
+    "pause": 0.8,
+    "turns": 2,
+    "first_turn_at": 0.391,
+    "question": "Open the spreadsheet that I had opened yesterday.",
+    "whole": false,
+    "recall": 0.875
+   },
+   {
+    "said": "Open the spreadsheet | that I had open yesterday",
+    "pause": 1.2,
+    "turns": 2,
+    "first_turn_at": 0.421,
+    "question": "Open the spreadsheet that I had opened yesterday.",
+    "whole": false,
+    "recall": 0.875
+   },
+   {
+    "said": "I need the report | with the numbers for March",
+    "pause": 0.5,
+    "turns": 1,
+    "first_turn_at": 2.642,
+    "question": "I need the report with the numbers for March.",
+    "whole": true,
+    "recall": 1.0
+   },
+   {
+    "said": "I need the report | with the numbers for March",
+    "pause": 0.8,
+    "turns": 2,
+    "first_turn_at": 0.782,
+    "question": "I need the report with the numbers for March.",
+    "whole": true,
+    "recall": 1.0
+   },
+   {
+    "said": "I need the report | with the numbers for March",
+    "pause": 1.2,
+    "turns": 2,
+    "first_turn_at": 0.782,
+    "question": "I need the report with the numbers for March.",
+    "whole": true,
+    "recall": 1.0
+   },
+   {
+    "said": "Send it to the team | and copy my manager",
+    "pause": 0.5,
+    "turns": 1,
+    "first_turn_at": 2.564,
+    "question": "Send it to the team and copy my manager.",
+    "whole": true,
+    "recall": 1.0
+   },
+   {
+    "said": "Send it to the team | and copy my manager",
+    "pause": 0.8,
+    "turns": 2,
+    "first_turn_at": 0.734,
+    "question": "Send it to the team and copy my manager.",
+    "whole": true,
+    "recall": 1.0
+   },
+   {
+    "said": "Send it to the team | and copy my manager",
+    "pause": 1.2,
+    "turns": 2,
+    "first_turn_at": 0.734,
+    "question": "Send it to the team and copy my manager.",
+    "whole": true,
+    "recall": 1.0
+   },
+   {
+    "said": "Make the title bold | and a little larger",
+    "pause": 0.5,
+    "turns": 2,
+    "first_turn_at": 0.378,
+    "question": "Make the title bold and a little larger.",
+    "whole": true,
+    "recall": 1.0
+   },
+   {
+    "said": "Make the title bold | and a little larger",
+    "pause": 0.8,
+    "turns": 2,
+    "first_turn_at": 0.378,
+    "question": "Make the title bold and a little larger.",
+    "whole": true,
+    "recall": 1.0
+   },
+   {
+    "said": "Make the title bold | and a little larger",
+    "pause": 1.2,
+    "turns": 2,
+    "first_turn_at": 0.378,
+    "question": "Make the title bold and a little larger.",
+    "whole": true,
+    "recall": 1.0
+   },
+   {
+    "said": "There is an error in line twelve | of the second script",
+    "pause": 0.5,
+    "turns": 1,
+    "first_turn_at": 2.34,
+    "question": "There is an error in line 12 of the second script.",
+    "whole": false,
+    "recall": 0.909
+   },
+   {
+    "said": "There is an error in line twelve | of the second script",
+    "pause": 0.8,
+    "turns": 2,
+    "first_turn_at": 0.75,
+    "question": "There is an error in line 12 of the second script.",
+    "whole": false,
+    "recall": 0.909
+   },
+   {
+    "said": "There is an error in line twelve | of the second script",
+    "pause": 1.2,
+    "turns": 2,
+    "first_turn_at": 0.75,
+    "question": "There is an error in line 12 of the second script.",
+    "whole": false,
+    "recall": 0.909
+   },
+   {
+    "said": "I want to change the background | to something lighter",
+    "pause": 0.5,
+    "turns": 2,
+    "first_turn_at": 0.667,
+    "question": "I want to change the background something lighter.",
+    "whole": false,
+    "recall": 0.889
+   },
+   {
+    "said": "I want to change the background | to something lighter",
+    "pause": 0.8,
+    "turns": 2,
+    "first_turn_at": 0.667,
+    "question": "I want to change the background to something lighter.",
+    "whole": true,
+    "recall": 1.0
+   },
+   {
+    "said": "I want to change the background | to something lighter",
+    "pause": 1.2,
+    "turns": 2,
+    "first_turn_at": 0.667,
+    "question": "I want to change the background to something lighter.",
+    "whole": true,
+    "recall": 1.0
+   },
+   {
+    "said": "Search for the invoice | from the new supplier",
+    "pause": 0.5,
+    "turns": 2,
+    "first_turn_at": 0.371,
+    "question": "Search for the invoice from the new supplier.",
+    "whole": true,
+    "recall": 1.0
+   },
+   {
+    "said": "Search for the invoice | from the new supplier",
+    "pause": 0.8,
+    "turns": 2,
+    "first_turn_at": 0.371,
+    "question": "Search for the invoice from the new supplier.",
+    "whole": true,
+    "recall": 1.0
+   },
+   {
+    "said": "Search for the invoice | from the new supplier",
+    "pause": 1.2,
+    "turns": 2,
+    "first_turn_at": 0.371,
+    "question": "Search for the invoice from the new supplier.",
+    "whole": true,
+    "recall": 1.0
+   }
+  ],
+  "by_pause": {
+   "0.5": {
+    "answered_early": 0.571,
+    "repaired": {
+     "n": 4,
+     "whole": 0.5,
+     "recall": 0.941
+    },
+    "held": {
+     "n": 3,
+     "whole": 0.667,
+     "recall": 0.97
+    }
+   },
+   "0.8": {
+    "answered_early": 1.0,
+    "repaired": {
+     "n": 7,
+     "whole": 0.714,
+     "recall": 0.969
+    },
+    "held": {
+     "n": 0,
+     "whole": null,
+     "recall": null
+    }
+   },
+   "1.2": {
+    "answered_early": 1.0,
+    "repaired": {
+     "n": 7,
+     "whole": 0.714,
+     "recall": 0.969
+    },
+    "held": {
+     "n": 0,
+     "whole": null,
+     "recall": null
+    }
+   }
+  },
+  "heard_s": 0.5,
+  "all": {
+   "repaired": {
+    "n": 18,
+    "whole": 0.667,
+    "recall": 0.963
+   },
+   "held": {
+    "n": 3,
+    "whole": 0.667,
+    "recall": 0.97
+   }
+  },
+  "condition": "The session only joins the parts if Buddy has been audible for less than 0.5 s when the speaker goes on; after that it is a new question. How soon Buddy is audible depends on the model that answers and is not measured here."
  }
 }

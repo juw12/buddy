@@ -19,8 +19,10 @@ The numbers are only as good as the corpus: it is small, hand-written by the aut
 speakers are synthetic. HELD_OUT was written after the rules were frozen and was not used to tune them.
 """
 import argparse
+import contextlib
 import hashlib
 import json
+import logging
 import os
 import platform
 import statistics
@@ -101,12 +103,40 @@ HELD_OUT_2_UNFINISHED = [
     "Hold on, it was called something like", "Sort the list by date and also", "I would prefer to",
     "Do you know whether the", "It goes from the first page to, uh", "Then we can maybe",
 ]
+# Third list, round 3: same author, parallel in form to the second list, written without looking at the rules
+# and never read before the run that reports it.
+HELD_OUT_3_FINISHED = [
+    "How do I merge these two cells?", "Close all the other tabs.", "What time is my next meeting?",
+    "Make the font a bit smaller.", "Yes, go ahead.", "No, not that one.", "Can you read that back to me?",
+    "I think the second option is better.", "Turn this list into a table.", "Why is the fan so loud?",
+    "Email the summary to my manager this afternoon.", "Alright, that looks good.",
+    "Where did my screenshot go?", "What does this error mean?", "Show me last week's notes.",
+    "The cursor keeps jumping around.", "Move this file to the archive.", "I don't know what that setting does.",
+    "Is there a faster way to do this?", "Scroll down to the bottom.", "Tell me what this chart shows.",
+    "It crashed when I pressed save.", "Which column has the totals?", "We can stop here.",
+]
+HELD_OUT_3_UNFINISHED = [
+    "I was trying to open the", "Can you send that over to", "Delete the first row and then",
+    "The thing I noticed is that", "Maybe we could", "Put the file in the folder called",
+    "This one looks right but", "Change the color to blue and", "What I am looking for is",
+    "Run the report and tell me whether", "Insert a new line just above the", "It keeps failing because",
+    "Swap the first image with", "So, how do I, um", "Set the reminder for Monday at", "Either print it now, or",
+    "I need to finish this before", "The link is somewhere in my", "Wait, the file was named something like",
+    "Filter the rows by name and also", "I was going to", "Can you tell me if the",
+    "It starts on the second slide and, uh", "After that we should probably",
+]
 LISTS = {"first": "first list (its reads were seen while the rules were revised)",
-         "second": "second list (written after the rules were frozen; never read before this run)"}
+         "second": "second list (written after the rules were frozen; first read in the round 2 run)",
+         "third": "third list (same author, parallel in form to the second; never read before this run)"}
 # Sounds finished, but the speaker adds to it after the pause. No text rule can know; reported on its own.
 HELD_OUT_ADDED_TO = [
     "Open the spreadsheet", "I need the report", "Send it to the team", "Make the title bold",
     "There is an error in line twelve", "I want to change the background", "Search for the invoice",
+]
+# What the speaker adds after the pause, one for each line above (turn repair).
+CONTINUATIONS = [
+    "that I had open yesterday", "with the numbers for March", "and copy my manager", "and a little larger",
+    "of the second script", "to something lighter", "from the new supplier",
 ]
 # Typed text only (no audio): the rules for the two other languages they cover.
 OTHER_LANGUAGES = {
@@ -216,43 +246,175 @@ class Clips:
 
 
 # --- (a) turns ----------------------------------------------------------------------------------------------
-def fire_time(talk, detector, transcribe, speech, rng, gaps=None):
-    """Seconds of silence after `speech` until TurnTaker calls the turn over (None: not within 2.5 s)."""
+
+def fire_time(talk, detector, transcribe, speech, rng, gaps=None, last=False):
+    """Seconds of silence after `speech` until TurnTaker calls the turn over (None: not within 2.5 s).
+
+    `last`: go on to the end and give the last turn. The plain end-pointer needs that: a detector that reports
+    a pause after 0.1 s also reports the short pauses inside a sentence."""
     lead = int(0.5 * RATE)
     audio = np.concatenate([np.zeros(lead, np.float32), speech, np.zeros(int(2.5 * RATE), np.float32)])
     audio = audio + rng.normal(0, 0.0005, len(audio)).astype(np.float32)
     taker = talk.TurnTaker(detector.listen, transcribe, gaps=gaps or talk.GAPS)
     step, end = int(TICK * RATE), lead + len(speech)
+    found = None
     for start in range(0, len(audio), step):
         for event in taker.feed(audio[start:start + step]):
             if event[0] == "turn":
-                return (min(start + step, len(audio)) - end) / RATE, event[1], event[2], list(taker.decisions)
-    return None, taker.text, taker.kind, list(taker.decisions)
+                found = ((min(start + step, len(audio)) - end) / RATE, event[1], event[2], list(taker.decisions))
+                if not last:
+                    return found
+    return found or (None, taker.text, taker.kind, list(taker.decisions))
 
 
-def turns(talk, detector, stt, clips, log, urgent):
-    rng = np.random.default_rng(7)
+def drain(taker, limit=120.0):
+    """Let a read that is still out finish and take its answer in: it must not run into the next clip's timing,
+    and what the reader finished late must not be lost. Gives the events of that last feed()."""
+    deadline = time.perf_counter() + limit
+    while taker.reading and time.perf_counter() < deadline:
+        time.sleep(0.01)
+    return taker.feed(np.zeros(0, np.float32))
+
+
+def fire_live(talk, detector, transcribe, speech, rng, hold=contextlib.nullcontext):
+    """As fire_time, but in real time and with the read on its own thread, the way talk mode runs it.
+
+    Seconds of wall clock from the end of `speech` to the turn (None: not within 2.5 s), what was heard, its
+    kind, the seconds each read took, how many reads came back after the speaker had gone on, and the seconds
+    from the end of `speech` to the moment the last read was back. `hold` wraps the whole clip (talk mode keeps
+    the process above normal priority for the conversation)."""
+    lead = int(0.5 * RATE)
+    audio = np.concatenate([np.zeros(lead, np.float32), speech, np.zeros(int(2.5 * RATE), np.float32)])
+    audio = audio + rng.normal(0, 0.0005, len(audio)).astype(np.float32)
+    back = []
+
+    def stamped(samples):
+        try:
+            return transcribe(samples)
+        finally:
+            back.append(time.perf_counter())
+
+    taker = talk.TurnTaker(detector.listen, stamped, background=True)
+    step, end = int(TICK * RATE), lead + len(speech)
+    fired = heard = kind = None
+    with hold():
+        began = time.perf_counter()
+        for start in range(0, len(audio), step):
+            wait = began + min(start + step, len(audio)) / RATE - time.perf_counter()
+            if wait > 0:
+                time.sleep(wait)
+            for event in taker.feed(audio[start:start + step]):
+                if event[0] == "turn" and fired is None:
+                    fired, heard, kind = time.perf_counter() - began - end / RATE, event[1], event[2]
+            if fired is not None:
+                break
+        late = [event for event in drain(taker) if event[0] == "turn"]
+    if fired is None:                                            # too late for the clip, but what was it?
+        heard, kind = (late[0][1], late[0][2]) if late else (taker.text, taker.kind)
+    taker.close()
+    read_done = back[-1] - began - end / RATE if back else None
+    return fired, heard, kind, list(taker.decisions), taker.stale, read_done
+
+
+def reader(stt, urgent):
     def heard(audio):                                            # as keyit_speech.Speech.transcribe does it:
         with urgent():                                           # above-normal priority while the user waits
             out = stt.decode(audio)
         return out[0] if isinstance(out, tuple) else out
+    return heard
 
-    rows, decisions = [], []
+
+def turns(talk, detector, stt, clips, log, urgent, load=None, hold=contextlib.nullcontext):
+    rng = np.random.default_rng(7)
+    heard = reader(stt, urgent)
+    rows, decisions, live_decisions = [], [], []
     plain = {kind: 0.0 for kind in talk.GAPS}                    # fires as soon as the detector hears the end
     for label, group, texts in (("finished", "first", HELD_OUT_FINISHED),
                                 ("unfinished", "first", HELD_OUT_UNFINISHED),
                                 ("finished", "second", HELD_OUT_2_FINISHED),
                                 ("unfinished", "second", HELD_OUT_2_UNFINISHED),
+                                ("finished", "third", HELD_OUT_3_FINISHED),
+                                ("unfinished", "third", HELD_OUT_3_UNFINISHED),
                                 ("added_to", "first", HELD_OUT_ADDED_TO)):
         for text in texts:
             speech = clips.get(text, USER_VOICE)
             fired, read, kind, took = fire_time(talk, detector, heard, speech, rng)
             decisions += took
-            earliest, *_ = fire_time(talk, detector, lambda audio: "okay then", speech, rng, gaps=plain)
+            mark = load.mark() if load else 0
+            fired_live, read_live, kind_live, took_live, stale, read_done = fire_live(
+                talk, detector, heard, speech, rng, hold)
+            busy = load.since(mark) if load else None
+            live_decisions += took_live
+            earliest, *_ = fire_time(talk, detector, lambda audio: "okay then", speech, rng, gaps=plain, last=True)
             rows.append({"label": label, "list": group, "said": text, "heard": read, "kind": kind, "fired": fired,
-                         "detector": earliest, "decide_s": [round(value, 3) for value in took]})
-            log(f"  {label:10} {kind or '-':10} fired {fired}  heard {read!r}")
-    return rows, decisions
+                         "detector": earliest, "decide_s": [round(value, 3) for value in took],
+                         "early": detector.min_silence,
+                         "fired_live": None if fired_live is None else round(fired_live, 3),
+                         "heard_live": read_live, "kind_live": kind_live, "stale": stale,
+                         "live_decide_s": [round(value, 3) for value in took_live],
+                         "read_done_live": None if read_done is None else round(read_done, 3),
+                         "load_live_percent": busy["mean_percent"] if isinstance(busy, dict) else None})
+            log(f"  {label:10} {kind or '-':10} fired {fired}  live {rows[-1]['fired_live']}  heard {read!r}")
+    return rows, decisions, live_decisions
+
+
+def said(talk, text):
+    return [word.lower() for word in talk.TOKEN.findall(text)]
+
+
+def repair(talk, detector, transcribe, clips, log):
+    """The speaker pauses after something that sounds finished, then adds to it: is Buddy's question whole?
+
+    Audio timeline, as in (a). One turn: Buddy waited. Two or more: it answered early, and the session asks
+    again with the parts joined (keyit_talk.join_turns) - scored against the script."""
+    rng = np.random.default_rng(11)
+    lead, step = int(0.5 * RATE), int(TICK * RATE)
+    rows = []
+    for first, more in zip(HELD_OUT_ADDED_TO, CONTINUATIONS):
+        script = said(talk, f"{first} {more}")
+        one, two = clips.get(first, USER_VOICE), clips.get(more, USER_VOICE)
+        for pause in PAUSES:
+            audio = np.concatenate([np.zeros(lead, np.float32), one, np.zeros(int(pause * RATE), np.float32), two,
+                                    np.zeros(int(2.5 * RATE), np.float32)])
+            audio = audio + rng.normal(0, 0.0005, len(audio)).astype(np.float32)
+            taker = talk.TurnTaker(detector.listen, transcribe)
+            found = []
+            for start in range(0, len(audio), step):
+                at = (min(start + step, len(audio)) - lead - len(one)) / RATE
+                found += [(at, event[1]) for event in taker.feed(audio[start:start + step]) if event[0] == "turn"]
+            question = ""
+            for _, text in found:
+                question = talk.join_turns(question, text) if question else text
+            got = said(talk, question)
+            left, hit = list(got), 0
+            for word in script:
+                if word in left:
+                    left.remove(word)
+                    hit += 1
+            rows.append({"said": f"{first} | {more}", "pause": pause, "turns": len(found),
+                         "first_turn_at": round(found[0][0], 3) if found else None, "question": question,
+                         "whole": got == script, "recall": round(hit / len(script), 3)})
+            log(f"  repair {pause} s  turns {len(found)}  {question!r}")
+
+    def summed(chosen):
+        if not chosen:
+            return {"n": 0, "whole": None, "recall": None}
+        return {"n": len(chosen), "whole": round(sum(row["whole"] for row in chosen) / len(chosen), 3),
+                "recall": round(statistics.fmean(row["recall"] for row in chosen), 3)}
+
+    by_pause = {}
+    for pause in PAUSES:
+        mine = [row for row in rows if row["pause"] == pause]
+        by_pause[str(pause)] = {"answered_early": round(sum(row["turns"] >= 2 for row in mine) / len(mine), 3),
+                                "repaired": summed([row for row in mine if row["turns"] >= 2]),
+                                "held": summed([row for row in mine if row["turns"] == 1])}
+    heard_s = getattr(talk.TalkSession, "HEARD", None)
+    return {"n": len(HELD_OUT_ADDED_TO), "rows": rows, "by_pause": by_pause, "heard_s": heard_s,
+            "all": {"repaired": summed([row for row in rows if row["turns"] >= 2]),
+                    "held": summed([row for row in rows if row["turns"] == 1])},
+            "condition": f"The session only joins the parts if Buddy has been audible for less than {heard_s} s "
+                         "when the speaker goes on; after that it is a new question. How soon Buddy is audible "
+                         "depends on the model that answers and is not measured here."}
 
 
 def score(rows):
@@ -277,21 +439,38 @@ def score(rows):
         return lambda row: None if row["detector"] is None else max(
             row["detector"], np.ceil((row["detector_end"] + gap) / TICK - 1e-9) * TICK)
 
-    for row in rows:                                             # the detector reports an end about 0.3 s late:
-        row["detector_end"] = (row["detector"] or 0.0) - 0.3     # its min silence. Silence is counted from there.
+    for row in rows:                                             # the detector reports an end late, by its min
+        row["detector_end"] = (row["detector"] or 0.0) - row.get("early", 0.3)   # silence: counted from there.
     buddy = measured(lambda row: row["fired"])
 
-    def live(row):                                               # the decision is made inside the loop, so a turn
-        if row["fired"] is None:                                 # cannot end before the speech engine has answered
-            return None
+    def live(row):
+        if "fired_live" in row:                                  # measured: real time, the read on its own thread
+            return row["fired_live"]
+        if row["fired"] is None:                                 # before round 3: the read ran inside the loop, so a
+            return None                                          # turn could not end before the engine had answered
         decided = (row["detector"] or 0.0) + (row["decide_s"][-1] if row["decide_s"] else 0.0)
         return max(row["fired"], decided)
+
+    def with_read(fire):                                         # a fixed pause has to know the words too:
+        def fires(row):                                          # it answers when its pause is over and the
+            pause = fire(row)                                    # same read, as measured, is back
+            if pause is None:
+                return None
+            waited = max(pause, row.get("read_done_live") or 0.0)
+            return waited if waited <= 2.5 else None
+        return fires
 
     grid = {round(gap, 2): measured(fixed(gap)) for gap in np.arange(0.3, 1.65, 0.05)}
     same = min(grid, key=lambda gap: abs(grid[gap]["mean_delay_finished_s"] - buddy["mean_delay_finished_s"]))
     best = max(grid, key=lambda gap: grid[gap]["balanced_accuracy"])
     added = [row for row in rows if row["label"] == "added_to"]
-    return {"buddy": buddy,
+    reads = {}
+    if any(row.get("read_done_live") is not None for row in rows):
+        waiting = {round(gap, 2): measured(with_read(fixed(gap))) for gap in np.arange(0.3, 1.65, 0.05)}
+        top = max(waiting, key=lambda gap: waiting[gap]["balanced_accuracy"])
+        reads = {"fixed_silence_0.7_with_read": waiting[0.7],
+                 "fixed_silence_best_with_read": {"gap_s": top, **waiting[top]}}
+    return {"buddy": buddy, **reads,
             "buddy_with_compute": measured(live),
             "fixed_silence_same_delay": {"gap_s": same, **grid[same]},
             "fixed_silence_0.7": grid[0.7],
@@ -436,19 +615,49 @@ def barge_in(talk, clips, log):
 
 
 # --- (d) the voice on the real output device -------------------------------------------------------------------
+
+class Caught(logging.Handler):
+    """What the voice logs instead of raising (its player thread has nobody to raise to)."""
+
+    def __init__(self):
+        super().__init__(logging.WARNING)
+        self.errors = []
+
+    def emit(self, record):
+        error = record.exc_info[1] if record.exc_info else None
+        self.errors.append(record.getMessage() + (f": {type(error).__name__}: {error}" if error else ""))
+
+
+def output_device():
+    try:
+        import sounddevice
+        device = sounddevice.query_devices(kind="output")
+        return f"{device['name']} ({int(device['default_samplerate'])} Hz)"
+    except Exception as error:
+        return f"none ({type(error).__name__}: {error})"
+
+
 def voice_reaction(voice, log):
     stamps = []
     voice.on_block = lambda samples, rate, at: stamps.append(time.monotonic())
     stops, pauses, resumes = [], [], []
+    caught = Caught()
+    logging.getLogger().addHandler(caught)
+
+    def failed(why):
+        log(f"  voice  not measured: {why}  {caught.errors}")
+        return {"measured": False, "why": why, "error": " / ".join(dict.fromkeys(caught.errors)) or None,
+                "device": output_device()}
+
     try:
         for _ in range(8):
             del stamps[:]
             voice.audio.put((voice.generation, np.zeros(24000 * 4, np.float32), 24000))
             deadline = time.monotonic() + 20
-            while len(stamps) < 12 and time.monotonic() < deadline:
+            while len(stamps) < 12 and time.monotonic() < deadline and not caught.errors:
                 time.sleep(0.005)
             if len(stamps) < 12:
-                return {"measured": False, "why": "the output device did not start"}
+                return failed("the output device did not start")
             asked = time.monotonic()
             voice.pause()
             time.sleep(0.4)
@@ -468,29 +677,34 @@ def voice_reaction(voice, log):
             stops.append(time.monotonic() - asked)
             time.sleep(0.2)
     except Exception as error:
-        return {"measured": False, "why": f"{type(error).__name__}: {error}"}
+        return failed(f"{type(error).__name__}: {error}")
     finally:
         voice.on_block = None
+        logging.getLogger().removeHandler(caught)
     log(f"  voice  pause {spread(pauses)}  stop {spread(stops)}")
-    return {"measured": True, "samples": "silence", "pause_to_silent_s": spread(pauses),
-            "resume_to_sound_s": spread(resumes), "stop_to_idle_s": spread(stops)}
-
-
-# --- report -------------------------------------------------------------------------------------------------
+    return {"measured": True, "samples": "silence", "device": output_device(),
+            "pause_to_silent_s": spread(pauses), "resume_to_sound_s": spread(resumes),
+            "stop_to_idle_s": spread(stops), "rounds": len(stops)}
 def report(result):
     turns_, speed, barge = result.get("turns"), result.get("decisions"), result.get("barge_in")
+    engine, ahead, fix = result.get("engine", "whisper-en"), result.get("read_ahead"), result.get("repair")
     lines = ["# Talk mode bench", "", f"Run {result['when']} on {result['machine']}.", ""]
     if turns_:
-        lines += ["## (a) Turns: finished or not (English, real voice detector + whisper-en on Kokoro speech)", "",
+        lines += [f"## (a) Turns: finished or not (English, real voice detector + {engine} on Kokoro speech)", "",
                   f"{turns_['counts']['finished']} finished and {turns_['counts']['unfinished']} unfinished "
-                  f"utterances in two lists (see the table by list); pauses {PAUSES} s; a finished turn has to be taken within {BUDGET} s of silence. "
-                  "Delays are on the audio timeline; compute time is in (b).", "",
+                  f"utterances in {len(result.get('turns_by_list') or LISTS)} lists (see the table by list); pauses {PAUSES} s; a finished turn has to be taken within {BUDGET} s of silence. "
+                  "Delays are on the audio timeline; compute time is in (b)."
+                  + (" The row with compute is measured in real time: wall clock, the speech engine reading on its "
+                     "own thread while the clip plays, as talk mode runs it." if ahead else ""), "",
                   "| end-pointer | finished taken in time | unfinished not cut | balanced accuracy | mean delay, finished |",
                   "|---|---|---|---|---|"]
         for name, key in (("Buddy (reads the words)", "buddy"),
                           ("Buddy, with compute under this load", "buddy_with_compute"),
                           ("fixed silence, same delay", "fixed_silence_same_delay"),
-                          ("fixed silence 0.7 s", "fixed_silence_0.7"), ("fixed silence, its best gap", "fixed_silence_best")):
+                          ("fixed silence 0.7 s", "fixed_silence_0.7"), ("fixed silence, its best gap", "fixed_silence_best"),
+                          ("fixed silence 0.7 s, then waits for the same read (computed)", "fixed_silence_0.7_with_read"),
+                          ("fixed silence, its best gap, then waits for the same read (computed)",
+                           "fixed_silence_best_with_read")):
             if key not in turns_:
                 continue
             row = turns_[key]
@@ -499,25 +713,54 @@ def report(result):
                          f"{row['balanced_accuracy']:.1%} | {row['mean_delay_finished_s']} s |")
         if result.get("turns_by_list"):
             lines += ["", "| list | finished taken in time | unfinished not cut | balanced accuracy | "
-                      "fixed silence, same delay |", "|---|---|---|---|---|"]
+                      "with compute | fixed silence, same delay | fixed silence, its best gap |",
+                      "|---|---|---|---|---|---|---|"]
             for group, scored in result["turns_by_list"].items():
                 lines.append(f"| {LISTS[group]} | {scored['buddy']['finished_in_time']:.0%} | "
                              f"{scored['buddy']['unfinished_held']:.0%} | {scored['buddy']['balanced_accuracy']:.1%} | "
-                             f"{scored['fixed_silence_same_delay']['balanced_accuracy']:.1%} |")
+                             f"{scored['buddy_with_compute']['balanced_accuracy']:.1%} | "
+                             f"{scored['fixed_silence_same_delay']['balanced_accuracy']:.1%} | "
+                             f"{scored['fixed_silence_best']['balanced_accuracy']:.1%} |")
         shares = lambda by_pause: ", ".join(f"{pause} s pause {share:.0%}" for pause, share in by_pause.items())
         lines += ["", f"Buddy, unfinished not cut, by pause length: {shares(turns_['buddy']['held_by_pause'])}.", "",
                   f"Sounds finished but the speaker adds to it ({turns_['counts']['added_to']} clips, not in the "
                   f"accuracy): answered before the speaker went on, {shares(turns_['added_to_cut_by_pause'])}.", ""]
         lines += ["Rules on typed text (no audio): " + ", ".join(
             f"{name} {row['balanced_accuracy']:.0%} (n={row['n']})" for name, row in result["text_only"].items()) + ".", ""]
+    if fix:
+        share = lambda value: "-" if value is None else f"{value:.0%}"
+        lines += ["## (a2) Turn repair: the speaker adds to something that sounded finished", "",
+                  f"{fix['n']} two-part questions ({engine}); part two starts after the pause. Whole = the question "
+                  "Buddy ends up with has every scripted word in order; word recall = share of the scripted words "
+                  "in it. Audio timeline.", "",
+                  "| pause | answered before part two | then repaired: whole | word recall | held as one turn: whole "
+                  "| word recall |", "|---|---|---|---|---|---|"]
+        for pause, row in fix["by_pause"].items():
+            lines.append(f"| {pause} s | {row['answered_early']:.0%} (n={row['repaired']['n']}) | "
+                         f"{share(row['repaired']['whole'])} | {share(row['repaired']['recall'])} | "
+                         f"{share(row['held']['whole'])} | {share(row['held']['recall'])} |")
+        lines += ["", fix["condition"], ""]
     if speed:
         lines += ["## (b) One decision", "", f"CPU load during the run: {speed['load']}.", "",
                   "| what | p50 | p95 | n |", "|---|---|---|---|",
                   f"| rules alone, given the words (what Jev is given) | {speed['rules_ms']['p50']} ms | "
                   f"{speed['rules_ms']['p95']} ms | {speed['rules_ms']['n']} |"]
         if speed.get("stt_and_rules_s"):
-            lines.append(f"| speech engine (whisper-en) + rules | {speed['stt_and_rules_s']['p50']} s | "
+            lines.append(f"| speech engine ({engine}) + rules | {speed['stt_and_rules_s']['p50']} s | "
                          f"{speed['stt_and_rules_s']['p95']} s | {speed['stt_and_rules_s']['n']} |")
+        if ahead and ahead.get("live_decisions_s"):
+            lines.append(f"| the same in the real-time pass | {ahead['live_decisions_s']['p50']} s | "
+                         f"{ahead['live_decisions_s']['p95']} s | {ahead['live_decisions_s']['n']} |")
+        if ahead:
+            lines += ["", f"Read-ahead: the read starts {ahead['early_s']} s into a pause and the shortest gap is "
+                      f"{ahead['shortest_gap_s']} s, so the first {ahead['hidden_s']} s of a read cost the speaker "
+                      f"nothing. {ahead['stale_reads']} of {ahead['reads']} reads were thrown away because the "
+                      "speaker had gone on."]
+            if ahead.get("finished_live_s"):
+                lines += [f"Finished turns in real time: taken p50 {ahead['finished_live_s']['p50']} s, p95 "
+                          f"{ahead['finished_live_s']['p95']} s after the last sound; that is p50 "
+                          f"{ahead['extra_wait_finished_s']['p50']} s, p95 {ahead['extra_wait_finished_s']['p95']} s "
+                          f"later than on the audio timeline (n={ahead['finished_live_s']['n']})."]
         lines += ["", f"Jev ({JEV['label']}): {JEV['decision_ms']}, {JEV['runs']}, {JEV['price']}.", ""]
     if barge:
         lines += ["## (c) Barge-in (SIMULATED loudspeaker-to-microphone path)", "",
@@ -533,8 +776,23 @@ def report(result):
         lines += ["", f"EchoGate.hear compute per 30 ms tick: p95 {barge['hear_ms']['p95']} ms.", ""]
     if result.get("voice"):
         voice = result["voice"]
-        lines += ["## (d) Voice on the real output device (silent samples)", "",
-                  f"Not measured: {voice.get('why')}." if voice.get("measured") is False else f"{voice}", ""]
+        lines += ["## (d) Voice on the real output device (silent samples)", ""]
+        if voice.get("measured") is False:
+            lines += [f"Not measured: {voice.get('why')}."
+                      + (f" The voice logged: {voice['error']}." if voice.get("error") else "")
+                      + (f" Default output device: {voice['device']}." if voice.get("device") else ""), ""]
+        else:
+            lines += [f"Device: {voice.get('device')}; {voice.get('rounds')} rounds; the samples played were "
+                      f"{voice.get('samples')}, so nothing was audible.", "",
+                      "| what | p50 | p95 | max | mean | n |", "|---|---|---|---|---|---|"]
+            for label, key in (("pause requested to silent", "pause_to_silent_s"),
+                               ("resume requested to samples flowing", "resume_to_sound_s"),
+                               ("stop requested to device idle", "stop_to_idle_s")):
+                spread = voice.get(key)
+                if spread:
+                    lines.append(f"| {label} | {spread['p50']} s | {spread['p95']} s | {spread['max']} s | "
+                                 f"{spread['mean']} s | {spread['n']} |")
+            lines.append("")
     return "\n".join(lines) + "\n"
 
 
@@ -544,6 +802,9 @@ def main():
     parser.add_argument("--out", default=str(BENCH / "results_talk"))
     parser.add_argument("--cache", default=str(BENCH / "results_talk" / "clips"))
     parser.add_argument("--only", default="abcd", help="parts to run, e.g. 'c'")
+    parser.add_argument("--engine", default="whisper-en", help="keyit_speech engine that reads the turns")
+    parser.add_argument("--hold", action="store_true",
+                        help="real-time pass: above-normal priority for the whole clip, not only during a read")
     args = parser.parse_args()
     sys.path.insert(0, args.code)
     import keyit_speech
@@ -562,6 +823,11 @@ def main():
                    "jev": JEV, "text_only": text_only(talk),
                    "gate": {name: getattr(talk.EchoGate, name) for name in ("MARGIN", "BLIND_MARGIN", "NEED", "OUT_OF")},
                    "gaps_s": dict(talk.GAPS)})
+
+    def save():                                                  # after every part: a late failure loses nothing
+        result_path.write_text(json.dumps(result, indent=1, ensure_ascii=False), encoding="utf-8", newline="\n")
+        (out / "talk_turns.md").write_text(report(result), encoding="utf-8", newline="\n")
+
     voice = keyit_voice.NaturalVoice()
     voice.ready.wait(600)
     if voice.failed:
@@ -570,12 +836,28 @@ def main():
     if "a" in args.only or "b" in args.only:
         log("(a) turns")
         for text in (HELD_OUT_FINISHED + HELD_OUT_UNFINISHED + HELD_OUT_2_FINISHED + HELD_OUT_2_UNFINISHED
-                     + HELD_OUT_ADDED_TO):                                            # synthesize before timing
+                     + HELD_OUT_3_FINISHED + HELD_OUT_3_UNFINISHED + HELD_OUT_ADDED_TO
+                     + CONTINUATIONS):                                                # synthesize before timing
             clips.get(text, USER_VOICE)
-        stt = keyit_speech.SherpaSpeech("whisper-en")
+        stt = keyit_speech.SherpaSpeech(args.engine)
         stt.warm_up()
+        detector = keyit_speech.VoiceDetector(min_silence=talk.EARLY)                # as talk mode builds it
+        result["engine"] = args.engine
         mark = load.mark()
-        rows, decisions = turns(talk, keyit_speech.VoiceDetector(), stt, clips, log, keyit_speech.urgent)
+        hold = keyit_speech.urgent if args.hold else contextlib.nullcontext
+        rows, decisions, live_decisions = turns(talk, detector, stt, clips, log, keyit_speech.urgent, load, hold)
+        both = [row for row in rows if row["label"] == "finished" and row["fired"] is not None
+                and row["fired_live"] is not None]
+        result["read_ahead"] = {
+            "early_s": talk.EARLY, "shortest_gap_s": min(talk.GAPS.values()),
+            "hidden_s": round(min(talk.GAPS.values()) - talk.EARLY, 3),
+            "stale_reads": sum(row["stale"] for row in rows), "reads": len(live_decisions),
+            "live_decisions_s": spread(live_decisions) if live_decisions else None,
+            "extra_wait_finished_s": spread([row["fired_live"] - row["fired"] for row in both]) if both else None,
+            "finished_live_s": spread([row["fired_live"] for row in both]) if both else None,
+            "read_back_finished_s": spread([row["read_done_live"] for row in rows if row["label"] == "finished"
+                                            and row["read_done_live"] is not None]),
+            "priority": "above normal for the whole clip" if args.hold else "above normal during a read"}
         result["turn_rows"] = rows
         result["turns"] = score(rows)
         result["turns_by_list"] = {group: score([row for row in rows
@@ -584,15 +866,19 @@ def main():
         result["decisions"] = {"rules_ms": rules_speed(talk), "stt_and_rules_s": spread(decisions),
                                "load": load.since(mark)}
         log(json.dumps(result["turns"], indent=1))
+        save()
+        log("(a2) turn repair")
+        result["repair"] = repair(talk, detector, reader(stt, keyit_speech.urgent), clips, log)
+        save()
     if "c" in args.only:
         log("(c) barge-in")
         result["barge_in"] = barge_in(talk, clips, log)
     if "d" in args.only:
         log("(d) voice")
         result["voice"] = voice_reaction(voice, log)
-    result["synthesis_s_per_clip"] = spread(clips.seconds)
-    result_path.write_text(json.dumps(result, indent=1, ensure_ascii=False), encoding="utf-8", newline="\n")
-    (out / "talk_turns.md").write_text(report(result), encoding="utf-8", newline="\n")
+    if clips.seconds:
+        result["synthesis_s_per_clip"] = spread(clips.seconds)
+    save()
     log(report(result))
 
 

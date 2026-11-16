@@ -1482,7 +1482,7 @@ class Buddy:
             waiting = self._ensure_stt().waiting()
             if waiting:
                 raise RuntimeError(waiting)
-            detector = keyit_speech.VoiceDetector()
+            detector = keyit_speech.VoiceDetector(min_silence=keyit_talk.EARLY)
             detector.listen(1)                               # fails here, not mid-sentence, without the model
             mic = self._mic()
             mic.start()
@@ -1504,7 +1504,7 @@ class Buddy:
             ask=lambda text: self._ask(text, wait=TALK_WAIT), interrupt=self._interrupt, speaker=self.speaker,
             show=lambda state: self.post(self.overlay.listening, self.monitor, cursor_position()),
             look=look, on_end=lambda reason: self._talk_ended(session, reason),
-            idle_seconds=TALK_IDLE_SECONDS)
+            idle_seconds=TALK_IDLE_SECONDS, read_ahead=True, hold=keyit_speech.urgent)
         self.talk = session
         self.chime("buddy_wake")
         self.post(self.overlay.listening, self.monitor, cursor_position())

@@ -460,14 +460,16 @@ class VoiceDetector:
                           # the 20 s of sherpa-onnx, speech without pauses came in stretches of over 25 s,
                           # which Cutter could only cut in the middle of a word.
 
-    def __init__(self, threshold=0.5):
+    def __init__(self, threshold=0.5, min_silence=0.3):
         import sherpa_onnx
 
         self.sherpa = sherpa_onnx
+        self.min_silence = min_silence    # s of quiet before a stretch of speech counts as ended;
+                                          # talk mode asks for less, to start reading sooner
         config = sherpa_onnx.VadModelConfig()
         config.silero_vad.model = str(models_dir() / VAD_FILE)
         config.silero_vad.threshold = threshold
-        config.silero_vad.min_silence_duration = 0.3
+        config.silero_vad.min_silence_duration = min_silence
         config.silero_vad.min_speech_duration = 0.15
         config.silero_vad.max_speech_duration = self.SPLIT
         config.sample_rate = RATE

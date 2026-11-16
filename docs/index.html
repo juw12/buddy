@@ -316,7 +316,7 @@
       <article class="card">
         <span class="tag">talk mode</span>
         <h3>Talk it through, like a call</h3>
-        <p>Press <kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>T</kbd> and just talk, no key to hold. Buddy waits until your sentence sounds finished, answers out loud while the rest is still being written, and stops when you talk over it. The turn-taking runs on your own PC: right on 87.5% of 48 test clips it had never met, against 67% for a fixed pause. Best with a headset.</p>
+        <p>Press <kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>T</kbd> and just talk, no key to hold. Buddy waits until your sentence sounds finished, answers out loud while the rest is still being written, and stops when you talk over it. The turn-taking runs on your own PC: right on 89% of 144 test clips, against 66% for a fixed 0.7 s pause. Best with a headset.</p>
         <a class="mini-link" href="https://github.com/juw12/buddy#talk-mode-vs-jev" target="_blank" rel="noopener">numbers &amp; limits, vs Jev →</a>
       </article>
       <article class="card">
@@ -483,7 +483,7 @@
     <div class="section-head follow" id="vs-jev">
       <p class="kicker">talk mode vs. Jev</p>
       <h2>Talking to it: where Buddy wins, and where it doesn't.</h2>
-      <p>Jev is a cloud model that voice apps use to tell when you've finished speaking. Buddy does that job on your own PC. It's free and private. It is not faster.</p>
+      <p>Jev is a cloud model that voice apps use to tell when you've finished speaking. Buddy does that job on your own PC. It's free and private. Once it has your words it decides faster. Counting the time to hear them, it's still slower.</p>
     </div>
     <div class="table-wrap">
       <table>
@@ -492,15 +492,15 @@
           <tr><td>Where it runs</td><td class="us yes">On your PC, works offline</td><td class="no">The vendor's cloud only</td></tr>
           <tr><td>Price</td><td class="us yes">Free</td><td>$0.042 per million input tokens</td></tr>
           <tr><td>What leaves your PC to decide you're done</td><td class="us yes">Nothing. Your question still goes to the brain you picked</td><td>The transcript of what you said</td></tr>
-          <tr><td>Time to decide, once the words are known</td><td class="us yes">0.005 ms</td><td>About 300 ms</td></tr>
-          <tr><td>Time to decide, speech recognition included</td><td class="us no">Slower. 0.55 s typical, 1.3 s for the slowest 1 in 20, on a busy office laptop</td><td class="yes">70 to 500 ms end to end</td></tr>
-          <tr><td>How often it's right</td><td class="us">87.5% on 48 test clips it had never met. A fixed 0.7 s pause: 67%</td><td class="na">Not compared</td></tr>
+          <tr><td>Time to decide, once the words are known</td><td class="us yes">0.004 ms</td><td>About 300 ms</td></tr>
+          <tr><td>Time to decide, speech recognition included</td><td class="us no">Slower. 0.39 s typical, 2.9 s for the slowest 1 in 20, on a busy office laptop</td><td class="yes">70 to 500 ms end to end</td></tr>
+          <tr><td>How often it's right</td><td class="us">89% on 144 test clips, 90% on the 48 newest. A fixed 0.7 s pause: 66%</td><td class="na">Not compared</td></tr>
           <tr><td>Stops when you talk over it</td><td class="us yes">Yes, within 0.2 s in a simulated room</td><td class="na">Not its job</td></tr>
           <tr><td>Languages</td><td class="us">Rules for English, Indonesian and Chinese. A plain 0.7 s pause for the rest</td><td class="na">Not stated</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="footnote">Jev figures are published by the vendor, not measured by us. Buddy figures are measured on a busy office laptop with a synthetic voice; nobody has been timed at a real microphone yet. Once the wait for speech recognition is counted, a well-chosen fixed pause did better on that laptop (72% against 66%). <a href="https://github.com/juw12/buddy#talk-mode-vs-jev" target="_blank" rel="noopener">Full numbers and limits →</a></p>
+    <p class="footnote">Jev figures are published by the vendor, not measured by us. Buddy figures are measured on a busy office laptop with a synthetic voice; nobody has been timed at a real microphone yet. Once the wait for speech recognition is counted, Buddy was right 83% of the time against 74% for the best fixed pause. That is one run on that laptop, and on the 48 newest clips the fixed pause was still ahead (76% against 74%). <a href="https://github.com/juw12/buddy#talk-mode-vs-jev" target="_blank" rel="noopener">Full numbers and limits →</a></p>
   </section>
 
   <!-- ============ FAQ ============ -->

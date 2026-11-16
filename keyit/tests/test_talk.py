@@ -2,8 +2,10 @@
 
     python -m pytest keyit/tests/test_talk.py -q
 """
+import contextlib
 import sys
 import threading
+import time
 import unittest
 from pathlib import Path
 
@@ -340,6 +342,205 @@ class Conversation:
             self.session.tick()
             self.settle()
         self.speaker.is_speaking = False
+
+
+class ScriptedListening:
+    """Speech at the given seconds; a stretch is reported `late` s after it ended, as a voice detector does."""
+
+    def __init__(self, stretches=(), late=0.1):
+        self.stretches = [(int(start * RATE), int(end * RATE)) for start, end in stretches]
+        self.late = int(late * RATE)
+        self.heard = 0
+        self.reported = 0
+
+    @property
+    def since(self):
+        for start, end in self.stretches[self.reported:]:
+            if start <= self.heard < end + self.late:
+                return start
+        return None
+
+    def hear(self, audio):
+        self.heard += len(audio)
+        found = []
+        while self.reported < len(self.stretches) and self.heard >= self.stretches[self.reported][1] + self.late:
+            found.append(self.stretches[self.reported])
+            self.reported += 1
+        return found
+
+
+class ReadAhead(unittest.TestCase):
+    """The speech engine reads on its own thread, starting before the shortest gap is over."""
+
+    def taker(self, stretches, transcribe, late=0.1):
+        scripts = [ScriptedListening(stretches, late)]
+        taker = talk.TurnTaker(lambda: scripts.pop(0) if scripts else ScriptedListening(), transcribe,
+                               background=True)
+        self.addCleanup(taker.close)
+        return taker
+
+    def settle(self, taker):
+        deadline = time.monotonic() + 5.0
+        while taker.reading and time.monotonic() < deadline:
+            time.sleep(0.002)
+        self.assertFalse(taker.reading)
+
+    def feed(self, taker, seconds, settle=False):
+        """[(seconds fed so far, event)]"""
+        events = []
+        for count in range(1, int(round(seconds / STEP)) + 1):
+            events += [(self.fed + count * STEP, event) for event in taker.feed(np.zeros(int(STEP * RATE), np.float32))]
+            if settle:
+                self.settle(taker)
+        self.fed += int(round(seconds / STEP)) * STEP
+        return events
+
+    def setUp(self):
+        self.fed = 0.0
+
+    def test_feed_does_not_wait_for_the_speech_engine(self):
+        release, asked = threading.Event(), []
+
+        def transcribe(audio):
+            asked.append(len(audio))
+            release.wait(10.0)
+            return "What is on my screen?"
+
+        taker = self.taker([(0.0, 0.99)], transcribe)
+        started = time.monotonic()
+        events = self.feed(taker, 2.4)                          # far past every gap, the read still not back
+        self.assertLess(time.monotonic() - started, 5.0)
+        self.assertEqual([event[0] for _, event in events], ["speech"])
+        self.assertTrue(taker.reading)
+        self.assertTrue(taker.active)
+        release.set()
+        self.settle(taker)
+        events = self.feed(taker, STEP)
+        self.assertEqual([event for _, event in events], [("turn", "What is on my screen?", talk.COMPLETE)])
+        self.assertEqual(len(asked), 1)
+
+    def test_the_turn_ends_at_the_gap_when_the_read_was_early(self):
+        taker = self.taker([(0.0, 0.99)], lambda audio: "What is on my screen?")
+        events = self.feed(taker, 2.0, settle=True)
+        at, turn = events[-1]
+        self.assertEqual(turn, ("turn", "What is on my screen?", talk.COMPLETE))
+        waited = at - 0.99
+        self.assertGreaterEqual(waited, talk.GAPS[talk.COMPLETE] - 1e-6)
+        self.assertLess(waited, talk.GAPS[talk.COMPLETE] + 2 * STEP)
+        self.assertEqual(taker.stale, 0)
+
+    def test_a_read_that_comes_back_after_the_speaker_went_on_is_dropped(self):
+        release, texts = threading.Event(), ["Open the file.", "Open the file and save it."]
+
+        started = threading.Event()
+
+        def transcribe(audio):
+            started.set()
+            release.wait(10.0)
+            return texts.pop(0)
+
+        taker = self.taker([(0.0, 0.99), (1.29, 1.98)], transcribe)
+        events = self.feed(taker, 1.2)
+        self.assertTrue(started.wait(5.0))                      # the first read is out when more is said
+        events += self.feed(taker, 1.2)
+        self.assertEqual([event[0] for _, event in events], ["speech", "speech"])
+        release.set()
+        self.settle(taker)
+        events = self.feed(taker, STEP)
+        self.assertEqual([event for _, event in events], [("turn", "Open the file and save it.", talk.COMPLETE)])
+        self.assertEqual(taker.stale, 1)
+        self.assertEqual(len(taker.decisions), 2)
+
+    def test_an_error_in_the_speech_engine_reaches_feed(self):
+        def transcribe(audio):
+            raise RuntimeError("the speech engine broke")
+
+        taker = self.taker([(0.0, 0.99)], transcribe)
+        with self.assertRaisesRegex(RuntimeError, "speech engine broke"):
+            self.feed(taker, 2.0, settle=True)
+
+    def test_a_session_can_ask_for_it(self):
+        ahead = talk.TalkSession(None, None, ScriptedListening, None, None, None, None, read_ahead=True)
+        plain = talk.TalkSession(None, None, ScriptedListening, None, None, None, None)
+        self.addCleanup(ahead.turns.close)
+        self.assertTrue(ahead.turns.background)
+        self.assertFalse(plain.turns.background)
+        self.assertIsNone(plain.turns.thread)
+        self.assertLess(talk.EARLY, min(talk.GAPS.values()))
+
+    def test_the_reader_thread_is_there_before_the_first_pause(self):
+        taker = self.taker([(0.0, 0.99)], lambda audio: "What is on my screen?")
+        self.assertTrue(taker.thread.is_alive())                # started up front, out of the path of a turn
+        self.assertEqual(taker.decisions, [])
+
+    def test_one_thread_reads_every_pause(self):
+        readers = []
+
+        def transcribe(audio):
+            readers.append(threading.current_thread())
+            return "Open the file."
+
+        scripts = [ScriptedListening([(0.0, 0.99)]), ScriptedListening([(0.0, 0.99)]), ScriptedListening([(0.0, 0.99)])]
+        taker = talk.TurnTaker(lambda: scripts.pop(0) if scripts else ScriptedListening(), transcribe,
+                               background=True)
+        self.addCleanup(taker.close)
+        first = taker.thread
+        turns = [event for _, event in self.feed(taker, 6.0, settle=True) if event[0] == "turn"]
+        self.assertEqual(len(turns), 3)
+        self.assertEqual(len(readers), 3)
+        self.assertEqual(set(readers), {first})
+        self.assertIs(taker.thread, first)
+
+    def test_close_ends_the_reader_thread_and_a_later_pause_starts_one_again(self):
+        taker = self.taker([(0.0, 0.99)], lambda audio: "What is on my screen?")
+        first = taker.thread
+        taker.close()
+        first.join(5.0)
+        self.assertFalse(first.is_alive())
+        self.assertFalse(taker.reading)
+        turns = [event for _, event in self.feed(taker, 2.0, settle=True) if event[0] == "turn"]
+        self.assertEqual(turns, [("turn", "What is on my screen?", talk.COMPLETE)])
+        self.assertIsNot(taker.thread, first)
+
+    def test_a_session_closes_its_reader(self):
+        class Quiet:
+            def stop(self):
+                pass
+
+            def listen(self, callback):
+                pass
+
+        session = talk.TalkSession(Quiet(), None, ScriptedListening, None, None, None, Quiet(), read_ahead=True)
+        reader = session.turns.thread
+        self.assertTrue(reader.is_alive())
+        session.close()
+        reader.join(5.0)
+        self.assertFalse(reader.is_alive())
+
+    def test_a_conversation_holds_its_priority_from_hello_to_goodbye(self):
+        class Quiet:
+            def stop(self):
+                pass
+
+            def listen(self, callback):
+                pass
+
+        order = []
+
+        @contextlib.contextmanager
+        def hold():
+            order.append("held")
+            try:
+                yield
+            finally:
+                order.append("let go")
+
+        session = talk.TalkSession(Quiet(), None, ScriptedListening, None, None, None, Quiet(), hold=hold,
+                                   sleep=lambda seconds: session.stop("goodbye"),
+                                   on_end=lambda reason: order.append(reason))
+        session.tick = lambda: order.append("tick")
+        session.run()
+        self.assertEqual(order, ["held", "tick", "let go", "goodbye"])
 
 
 class Session(unittest.TestCase):

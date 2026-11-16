@@ -15,6 +15,7 @@ No Windows, audio or model imports here: the microphone, the voice detector, the
 Buddy's voice are handed in, so keyit/tests/test_talk.py drives all of it with fakes.
 """
 import collections
+import contextlib
 import logging
 import re
 import threading
@@ -32,6 +33,8 @@ COMPLETE, NEUTRAL, UNFINISHED, EMPTY = "complete", "neutral", "unfinished", "emp
 # The voice detector needs 0.3 s of silence to report a pause at all.
 GAPS = {COMPLETE: 0.3, NEUTRAL: 0.7, UNFINISHED: 1.6}
 FIXED_GAP = GAPS[NEUTRAL]          # what a plain "wait for silence" end-pointer does for every turn
+EARLY = 0.1                        # s of quiet after which talk mode starts to read what was said: the read
+                                   # then runs while the shortest gap is waited out, not after it
 
 HAN_RANGE = "\u3400-\u4dbf\u4e00-\u9fff"
 HAN = re.compile(f"[{HAN_RANGE}]")
@@ -185,14 +188,27 @@ class TurnTaker:
     LONGEST = 45.0         # s after which a turn ends at the next pause, whatever it reads like
     IDLE = 20.0            # s of nothing after which the buffers start afresh
 
-    def __init__(self, new_listening, transcribe, rate=RATE, gaps=GAPS, clock=time.perf_counter):
+    def __init__(self, new_listening, transcribe, rate=RATE, gaps=GAPS, clock=time.perf_counter,
+                 background=False):
         self.new_listening = new_listening
         self.transcribe = transcribe
         self.rate = rate
         self.gaps = gaps
         self.clock = clock
+        self.background = background               # read on a thread: feed() never waits for the speech engine
         self.decisions = []                        # seconds each "is the turn over?" took (speech engine + rules)
+        self.stale = 0                             # reads that came back after the speaker had gone on
+        self.lock = threading.Lock()
+        self.waiting = None                        # the pause to read next; only the latest one is worth reading
+        self.answers = []                          # reads the thread has finished, taken in by the next feed()
+        self.reading = False
+        self.epoch = 0                             # which recording a read belongs to (see reset)
+        self.wake = threading.Condition(self.lock)
+        self.closed = False
+        self.thread = None
         self.reset()
+        if background:
+            self._start()                          # now, not at the first pause: starting a thread can take seconds
 
     def reset(self, start_with=None):
         self.listening = self.new_listening()
@@ -203,6 +219,9 @@ class TurnTaker:
         self.text = ""
         self.kind = None
         self.talking = False
+        self.epoch += 1
+        with self.lock:
+            self.waiting = None
         return self.feed(start_with) if start_with is not None and len(start_with) else []
 
     @property
@@ -227,6 +246,7 @@ class TurnTaker:
             self.last = ended[-1][1]
             if not going:
                 self._read()
+        self._collect()
         if self.first is not None and not going and self.kind is not None:
             silence = (self.samples - self.last) / self.rate
             too_long = (self.samples - self.first) / self.rate > self.LONGEST
@@ -241,10 +261,71 @@ class TurnTaker:
         """A pause: what has been said so far, and does it sound finished?"""
         pad = int(self.PAD * self.rate)
         audio = np.concatenate(self.chunks)[max(0, self.first - pad):self.last + pad]
+        stamp = (self.epoch, self.last)
+        if not self.background:
+            self._take(stamp, *self._decide(audio))
+            return
+        self.kind = None                           # not known again until this pause has been read
+        with self.lock:
+            self.waiting = (stamp, audio)
+            self.reading = True
+            self.wake.notify()
+        self._start()
+
+    def _decide(self, audio):
         started = self.clock()
         text = str(self.transcribe(audio) or "").strip()
-        kind = completeness(text)
-        self.decisions.append(self.clock() - started)
+        return text, completeness(text), self.clock() - started
+
+    def _start(self):
+        """The one reader thread, kept for as long as this TurnTaker is in use."""
+        with self.lock:
+            self.closed = False
+            if self.thread is None:
+                self.thread = threading.Thread(target=self._reader, name="buddy-talk-read", daemon=True)
+                self.thread.start()
+
+    def close(self):
+        """Let the reader thread go. A read that is out is left to finish; nothing takes its answer."""
+        with self.lock:
+            self.closed = True
+            self.waiting = None
+            self.wake.notify_all()
+
+    def _reader(self):
+        """One read at a time, always of the latest pause; sleeps between pauses, ends at close()."""
+        while True:
+            with self.lock:
+                while self.waiting is None and not self.closed:
+                    self.reading = False
+                    self.wake.wait()
+                if self.closed:
+                    self.reading = False
+                    self.thread = None
+                    return
+                job, self.waiting = self.waiting, None
+            stamp, audio = job
+            try:
+                answer = (stamp, *self._decide(audio), None)
+            except Exception as error:             # raised again by feed(), where the session deals with it
+                answer = (stamp, "", EMPTY, 0.0, error)
+            with self.lock:
+                self.answers.append(answer)
+
+    def _collect(self):
+        """Take in what the reader thread has finished since the last feed()."""
+        with self.lock:
+            answers, self.answers = self.answers, []
+        for stamp, text, kind, took, error in answers:
+            if error is not None:
+                raise error
+            self._take(stamp, text, kind, took)
+
+    def _take(self, stamp, text, kind, took):
+        self.decisions.append(took)
+        if stamp != (self.epoch, self.last):       # the speaker went on meanwhile: a newer read is on its way
+            self.stale += 1
+            return
         if kind == EMPTY:                          # a cough, a door: not a turn
             self.first = self.last = self.kind = None
             self.text = ""
@@ -379,6 +460,7 @@ class TalkSession:
     ask            text -> None; blocks while Buddy thinks and queues its answer on the speaker
     interrupt      stop the answer that is being thought or spoken
     speaker        speaking() pause() resume() listen(callback) reference() and `.recent` texts
+    hold           -> context manager entered for the whole conversation (keyit_speech.urgent)
     """
 
     TICK = 0.03
@@ -388,7 +470,8 @@ class TalkSession:
 
     def __init__(self, mic, to16k, new_listening, transcribe, ask, interrupt, speaker,
                  show=lambda state: None, look=lambda: None, on_end=lambda reason: None,
-                 idle_seconds=60.0, clock=time.monotonic, sleep=time.sleep):
+                 idle_seconds=60.0, clock=time.monotonic, sleep=time.sleep, read_ahead=False,
+                 hold=contextlib.nullcontext):
         self.mic = mic
         self.to16k = to16k
         self.ask = ask
@@ -400,7 +483,8 @@ class TalkSession:
         self.idle_seconds = idle_seconds
         self.clock = clock
         self.sleep = sleep
-        self.turns = TurnTaker(new_listening, transcribe)
+        self.hold = hold                           # context manager held for the whole conversation
+        self.turns = TurnTaker(new_listening, transcribe, background=read_ahead)
         self.gate = EchoGate()
         self.stopped = threading.Event()
         self.reason = None
@@ -426,9 +510,12 @@ class TalkSession:
 
     def run(self):
         try:
-            while not self.stopped.is_set():
-                self.tick()
-                self.sleep(self.TICK)
+            # Raising the priority only around each read left the listening loop itself queueing behind
+            # a busy processor (bench/README.md, "Talk mode"): hold it from hello to goodbye.
+            with self.hold():
+                while not self.stopped.is_set():
+                    self.tick()
+                    self.sleep(self.TICK)
         except Exception:
             logging.exception("Talk mode stopped")
             self.stop("error")
@@ -441,6 +528,7 @@ class TalkSession:
         except Exception:
             pass
         self.speaker.listen(None)
+        self.turns.close()
         if self.paused_at is not None:
             self.speaker.resume()
         decisions = sorted(self.turns.decisions)
