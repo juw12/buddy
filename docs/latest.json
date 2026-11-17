@@ -1,22 +1,21 @@
 {
-  "version": "1.7.0",
+  "version": "1.8.0",
   "date": "2026-11-17",
   "notes": [
-    "Windows: your other AI agents now show up as pointers. When Claude Code, Codex or OpenCode works on your PC, Buddy shows each agent and each sub-agent as its own pointer, with its own name and colour and a bubble that says what it is doing: \"explorer: Reading README.md\". There is nothing to set up.",
-    "The pointers wait in a column at the right side of the screen and fly to the window an agent's file is open in. A pointer hops at every new step, says \"done\" when its agent finishes, and leaves by itself. After 10 seconds without news only the name stays. At most 8 are shown.",
-    "A bubble only shows the name of a file and the name of a program. Command lines, search words and file contents are never shown. Buddy only reads the agents' own history files on your PC; it sends nothing anywhere and never tells an agent what to do.",
-    "Any other tool can join: Buddy.exe --crew \"name: what it is doing\", then --crew \"name: done\". Names, colours and icons can be fixed in the settings file (README, \"Crew\").",
-    "Hand a question to an agent: type @opencode ..., @claude ... or @codex ... in the ask box (tap Ctrl+Alt+Space). Buddy opens that agent's own window with your words typed in, and the agent uses the model you set there.",
-    "Buddy's own speech bubble is drawn once instead of on every frame, so a bubble on screen costs much less CPU.",
-    "How it was checked: 335 automatic tests; on one PC with up to six live OpenCode sessions at once, in the built app. Three resting pointers cost about 1 % of one CPU core.",
-    "Known limits: Claude Code and Codex are tested against recorded samples of their files, not against a live session, so they may show less than OpenCode does. @claude and @codex were not tried on a PC that has them. When several agents have the same name they are numbered, and the numbers can change as agents come and go (the colours stay)."
+    "Windows: the crew now has Buddy's own shape. Every other AI agent on screen is a pointer in the shape you picked in Settings, Look. Its colour and its name tell it from Buddy, and when you change Buddy's shape the crew follows.",
+    "Buddy asks first. It looks for OpenCode, Claude Code and Codex on your PC and asks before it shows any of them. 1.7.0 showed them without asking, so after this update Buddy asks once.",
+    "Agents window: Settings, Buddy (AI), Agents. Tick the agents to show, scan again, or add your own AI.",
+    "Your own AI: give it a name, a colour and the command that starts it. Then \"@name question\" in the ask box starts it and shows its pointer until the program ends.",
+    "Team names: a tool that starts sessions in another agent can give each session its own name on the pointer (README, \"Crew\"). The OpenBot bridge uses this.",
+    "Fixed: a colour you picked for one agent is no longer handed to another agent.",
+    "Not checked: Claude Code and Codex with a live session (recorded samples only), and a real third-party AI product as your own AI (a stand-in program was used)."
   ],
-  "page": "https://github.com/juw12/buddy/releases/tag/v1.7.0",
+  "page": "https://github.com/juw12/buddy/releases/tag/v1.8.0",
   "windows": {
-    "version": "1.7.0",
-    "url": "https://github.com/juw12/buddy/releases/download/v1.7.0/Buddy-win64.zip",
-    "size": 181181800,
-    "sha256": "d33678e709fc5c891802913870dce3533dbb615408b5465fbbafee05c7536e68"
+    "version": "1.8.0",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.8.0/Buddy-win64.zip",
+    "size": 181187455,
+    "sha256": "1297c0cb3b08767d103a6514432ca8aa66ae43955629d1bb0f61e830062e5651"
   },
   "mac": {
     "version": "1.6.0",
