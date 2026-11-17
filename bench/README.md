@@ -592,8 +592,11 @@ took 11 s each here; `--hold` keeps above-normal priority for each clip, as the 
     python bench\talk_stalls.py --cache <folder for clips> --live --reads 30 --variants live,plain,two-thread,one-thread
 
 ## Thinking fast and slow
-`fast_slow.py` checks System 1 ([keyit/keyit_minds.py](../keyit/keyit_minds.py)): when may it act without the brain, and
+Two benches check System 1 ([keyit/keyit_minds.py](../keyit/keyit_minds.py)): when may it act without the brain, and
 is its confidence honest? The numbers in the main README ("Thinking fast and slow: Buddy vs Jev") come from here.
+`fast_slow.py` is the bench of Buddy 1.5.0, whose System 1 counted its confidence by hand; its tables below are for
+that version. Since 1.6.0 the confidence is trained on simulated use, and `fast_calibration.py` checks it:
+[Trained and calibrated by simulation](#trained-and-calibrated-by-simulation).
 
     python bench/fast_slow.py --out bench/results_fast --real 5 --brain 2
 
@@ -648,6 +651,103 @@ phrase, and nobody said "no"):
 | keys (a shortcut) | 0.90 | 8 |
 | close | 0.95 | 18 |
 
-These come from the formula `(right + 1) / (seen + 2)`, not from data: habit confidence is not validated.
-`keyit/tests/test_minds.py` covers the rules, habits and feedback; with the "no" feedback broken on purpose, 4 of its
-23 tests fail.
+These come from the formula `(right + 1) / (seen + 2)`, not from data. In simulated use the habit confidence turned out
+cautious rather than calibrated (next section).
+
+### Trained and calibrated by simulation
+Since Buddy 1.6.0, how sure System 1 is of a reading comes from a small trained model, `keyit/minds_model.json`
+(57 weights, 40 wordings). Real use would take months to give enough examples with a known right answer, so the
+examples are simulated, and the result is checked on requests the simulator did not write.
+
+    python bench/simulate.py --requests 5 --seed 1                              # look at a few simulated requests
+    python bench/minds_train.py                                                 # train, calibrate, write the model
+    python bench/minds_train.py --check                                         # the model file is what training gives
+    python bench/fast_calibration.py                                            # rehearsal, no held-out data
+    python bench/fast_calibration.py --final --out bench/results_calibration    # the held-out sets, scored once
+
+| Step | Data | Size |
+|---|---|---|
+| Train | `simulate.py`: a program writes a wish, the windows that are open, a wording and now and then a typing slip. The right answer is known because the request was written from the wish | 30,000 requests, 15,736 readings, 14,862 of them right |
+| Train | `data/sim_users.json`, split "train": people played by Llama 4 Scout, who were given a person, the open windows and a wish, and never saw Buddy's rules ([sim_users.py](sim_users.py)) | 636 requests, 116 readings, all right |
+| Calibrate (Platt scaling) | The same file, split "calibration": two other people played by the same model | 517 requests, 92 readings, 91 right |
+| Test, once | Split "test": four other people played by a different model, Mistral Small 3.1; Microsoft's Voice Access command list; the held-out list of 1.5.0; CLINC150 `test` and `oos_test` (Larson et al. 2019, CC BY 3.0, fetched by the script, not kept in git); 100 simulated requests said by two Kokoro voices and heard by whisper-en ([sim_speech.py](sim_speech.py)) | 6,202 requests |
+
+A "reading" is a request System 1 could read as one of its commands. Both sources of training data count the same in
+total, so one language-model reading weighs about as much as 135 program-written ones. That share (0.5) was picked by
+leaving one simulated person out at a time, on the training and calibration people only: log loss 0.0611 at a share
+of 0.1, 0.0592 at 0.25, 0.0566 at 0.5.
+
+Results, scored once on 17 Nov 2026 after the model was frozen: [results_calibration/fast_calibration.md](results_calibration/fast_calibration.md),
+raw rows in [results_calibration/fast_calibration.json](results_calibration/fast_calibration.json). "1.5.0" is the same
+code with no model file.
+
+| Held-out set | Requests | One-step commands | Done at once and right (1.5.0 -> trained) | Wrong fast (1.5.0 -> trained) | 95% bound on the wrong share | Readings right | ECE |
+|---|---|---|---|---|---|---|---|
+| Simulated users (Mistral Small 3.1, four people) | 364 | 191 | 23 -> 42 | 0 -> 0 | 6.7% | 45 of 46 | 0.036 |
+| Voice Access command list | 44 | 38 | 29 -> 31 | 0 -> 0 | 9.2% | 32 of 32 | 0.025 |
+| Held-out list of 1.5.0 | 94 | 49 | 43 -> 40 | 0 -> 0 | 7.2% | 47 of 47 | 0.075 |
+| CLINC150, test + oos_test | 5,500 | 0 | 0 -> 0 | 0 -> 0 | no fast action | none | none |
+| Simulated speech, voice af_heart | 100 | 75 | 14 -> 43 | 0 -> 0 | 6.7% | 49 of 53 | 0.051 |
+| Simulated speech, voice am_michael | 100 | 75 | 14 -> 45 | 0 -> 0 | 6.4% | 51 of 55 | 0.050 |
+| In the simulator (a seed not trained on) | 20,000 | 12,957 | 2,783 -> 9,302 | 183 -> 90 | 1.1% | 9,956 of 10,511 | 0.027 |
+
+The first four sets together: 114 fast actions, none wrong, so under 2.6% with 95% confidence. With the speech sets:
+202, none wrong, under 1.5%; but the speech sets are the same 100 simulator requests said twice, so they are not
+independent of each other or of the simulator's wording.
+
+Reliability over the six held-out sets together (233 readings, 224 right, ECE 0.028):
+
+| Stated confidence | Readings | Stated (mean) | Right | Overconfident by |
+|---|---|---|---|---|
+| 0.5 to 0.6 | 12 | 0.546 | 0.500 | +0.046 |
+| 0.6 to 0.7 | 7 | 0.687 | 0.571 | +0.116 |
+| 0.7 to 0.8 | 2 | 0.718 | 1.000 | -0.283 |
+| 0.8 to 0.9 | 9 | 0.876 | 1.000 | -0.124 |
+| 0.9 to 1.0 | 203 | 0.983 | 1.000 | -0.017 |
+
+Every action was as right as its bar among the readings that passed it: switch to 26 of 26, minimize 42 of 42, maximize
+37 of 37, open 58 of 58, close 39 of 39. One decision took 0.016 ms (median) and 0.039 ms (p95) over the 6,202 requests.
+
+What these numbers do not show:
+- Nearly all of it is simulated. The "users" are language models playing people, and the speech is a synthetic voice in
+  a silent room heard by the recognizer. No real person's requests and no real microphone are in any set.
+- 203 of the 233 readings are in the top bin, so the 0.028 says little about the middle. The two bins that overclaim
+  have 12 and 7 readings. Our gate (no bin with 30 or more readings overconfident by more than 0.05) passes because no
+  such bin exists, and 0.028 is close to the limit of 0.03 we set beforehand.
+- In the simulator itself the middle is overconfident: by 0.43 between 0.7 and 0.8 (248 readings) and by 0.09 between
+  0.8 and 0.9 (444). The two simulators disagree about "open settings" and about opening an app that is already open:
+  the program assumes the person often means something else, the language-model people nearly always mean the app.
+  The trained confidence sits between the two. Most of these readings are under the bars and go to the brain, but
+  "go to settings" (0.88) is acted on and the program counts it wrong.
+- On the held-out list of 1.5.0 the trained mind does 40 commands where 1.5.0 did 43. It gained "close this app",
+  "maximize this window please" and "could you minimize excel", and lost "launch notepad", "open edge", "open microsoft
+  edge", "launch excel", "open outlook" and "open explorer": those apps are open in that list's windows, and the
+  trained mind is 0.55 to 0.69 sure of opening an app that is already open, under the 0.85 bar.
+- On the simulated users System 1 did 42 of 191 one-step commands. It stood down on the others mostly for "nothing I
+  know by heart" (49), "I can't tell which window" (41), "I don't know that app by heart" (17) and "two steps" (16).
+- The polite words ("can you", "please") come off before reading and get no weight of their own: with weights for them
+  the rehearsal log loss was 0.0619, without 0.0611.
+
+Habits in simulated use (200 simulated people, 250 requests each, a dozen phrases of their own; the brain does a phrase
+until its habit is sure enough for System 1):
+
+| Brain wrong | Person means something else | Says "no" when wrong | Fast by habit | Wrong fast, per 1,000 requests | Habit confidence stated | Habit right | ECE |
+|---|---|---|---|---|---|---|---|
+| 0% | 0% | always | 37,402 of 50,000 | 0 | 0.905 | 1.000 | 0.095 |
+| 5% | 2% | always | 33,757 | 13.2 | 0.862 | 0.956 | 0.100 |
+| 5% | 2% | half the time | 33,324 | 13.2 | 0.851 | 0.934 | 0.095 |
+| 10% | 10% | half the time | 23,485 | 45.9 | 0.730 | 0.771 | 0.093 |
+| 5% | 2% | never | 33,266 | 13.3 | 0.844 | 0.914 | 0.089 |
+
+The habit confidence states about 0.09 less than it delivers in every world: it is cautious, not calibrated. The wrong
+fast actions come almost entirely from the person meaning something else this time, which a count cannot see; saying
+"no" barely changes how many there are, it changes how soon the habit is dropped.
+
+`keyit/tests/test_minds.py` covers the rules, the trained model, habits and feedback. It retrains the model and
+compares it with the shipped file, checks that Buddy behaves as 1.5.0 when the file is missing or broken, and breaks
+the "no" feedback in four ways on purpose to see that each one is caught.
+
+One check in the installed app (Buddy 1.5.0, 17 Nov 2026): `Buddy.exe --ask "minimize python"` at a moment with no
+keyboard or mouse use, on a window the check had opened. Buddy's log: `Fast (window, sure 0.96) in 0.005s`; Windows
+reported the window minimized. One command, typed, before 1.6.0 was installed: nobody has spoken one at a real
+microphone yet.

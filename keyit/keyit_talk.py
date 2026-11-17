@@ -487,6 +487,7 @@ class TalkSession:
     interrupt      stop the answer that is being thought or spoken
     speaker        speaking() pause() resume() listen(callback) reference() and `.recent` texts
     hold           -> context manager entered for the whole conversation (keyit_speech.urgent)
+    corrected      text -> None; the user cut Buddy short with "no", "stop", "wait" (nothing is asked)
     """
 
     TICK = 0.03
@@ -497,7 +498,7 @@ class TalkSession:
     def __init__(self, mic, to16k, new_listening, transcribe, ask, interrupt, speaker,
                  show=lambda state: None, look=lambda: None, on_end=lambda reason: None,
                  idle_seconds=60.0, clock=time.monotonic, sleep=time.sleep, read_ahead=False,
-                 hold=contextlib.nullcontext):
+                 hold=contextlib.nullcontext, corrected=lambda text: None):
         self.mic = mic
         self.to16k = to16k
         self.ask = ask
@@ -510,6 +511,7 @@ class TalkSession:
         self.clock = clock
         self.sleep = sleep
         self.hold = hold                           # context manager held for the whole conversation
+        self.corrected = corrected
         self.turns = TurnTaker(new_listening, transcribe, background=read_ahead)
         self.gate = EchoGate()
         self.stopped = threading.Event()
@@ -628,6 +630,7 @@ class TalkSession:
             self.interrupt()
             self.stats["interrupted"] += 1
             if kind == INTERRUPT:
+                self.corrected(text)
                 return
             text = self._whole(text)
         self._ask(text)
@@ -679,6 +682,8 @@ class TalkSession:
                 self.stop("goodbye")
             elif kind == SPEECH:
                 self._ask(self._whole(text))
+            elif kind == INTERRUPT:
+                self.corrected(text)
             return
 
     def _resume(self):

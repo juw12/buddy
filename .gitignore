@@ -24,3 +24,6 @@ bench/models/
 bench/set_*/
 bench/wav/
 bench/real/
+
+# fast-mind calibration: CLINC150 (CC BY 3.0) is fetched by bench/fast_calibration.py, not kept here
+bench/data/clinc150_data_full.json

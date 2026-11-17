@@ -643,6 +643,27 @@ class Session(unittest.TestCase):
         self.assertEqual(talking.interrupts, 0)
         self.assertEqual(len(talking.asked), 1)
 
+    def test_a_no_over_buddy_is_handed_on_and_nothing_is_asked(self):
+        for said, handed in (("No.", ["No."]), ("Stop.", ["Stop."]), ("Yeah.", [])):
+            talking = self.start_answer([said])
+            heard = []
+            talking.session.corrected = heard.append
+            talking.buddy_speaks(6.0, user=(3.0, voice(0.5, 5, level=0.08)))
+            talking.hear(quiet(1.0))
+            self.assertEqual(heard, handed, said)
+            self.assertEqual(len(talking.asked), 1, said)
+            self.assertEqual(talking.interrupts, len(handed), said)
+
+    def test_a_no_while_buddy_is_still_thinking_is_handed_on_too(self):
+        talking = Conversation(["What is this?", "No."], thinks=True)
+        heard = []
+        talking.session.corrected = heard.append
+        talking.hear(np.concatenate([voice(1.0, 2), quiet(0.6)]))
+        self.assertEqual(talking.asked, ["What is this?"])
+        talking.hear(np.concatenate([voice(0.5, 3), quiet(1.2)]))
+        self.assertEqual(heard, ["No."])
+        self.assertEqual((talking.asked, talking.interrupts), (["What is this?"], 1))
+
     def test_buddy_never_interrupts_itself(self):
         for leak in (0.02, 0.2, 0.8, 2.0):
             for reports in (True, False):

@@ -1487,6 +1487,13 @@ class Buddy:
         self.speaker.stop()
         self._stop_look_ahead()
 
+    def _corrected(self, text):
+        """Talk mode: the user cut Buddy short. A "no" then counts against the fast action it was telling
+        about, exactly as a typed "no" would; "stop" and "wait" only stop the voice."""
+        minds = getattr(self, "minds", None)
+        if minds is not None and keyit_minds.CORRECTIONS.match(text.strip()):
+            minds.heard(text)
+
     def cancel(self):
         self.generation += 1                   # the same three steps as _interrupt, kept in line: callers
         self.speaker.stop()                    # and tests hand cancel() objects that are not a whole Buddy
@@ -1552,7 +1559,7 @@ class Buddy:
             ask=lambda text: self._ask(text, wait=TALK_WAIT), interrupt=self._interrupt, speaker=self.speaker,
             show=lambda state: self.post(self.overlay.listening, self.monitor, cursor_position()),
             look=look, on_end=lambda reason: self._talk_ended(session, reason),
-            idle_seconds=TALK_IDLE_SECONDS, read_ahead=True, hold=keyit_speech.urgent)
+            idle_seconds=TALK_IDLE_SECONDS, read_ahead=True, hold=keyit_speech.urgent, corrected=self._corrected)
         self.talk = session
         self.chime("buddy_wake")
         self.post(self.overlay.listening, self.monitor, cursor_position())

@@ -1,0 +1,8971 @@
+{
+ "seed": 20261119,
+ "voices": [
+  "am_michael",
+  "af_heart"
+ ],
+ "engine": "whisper-en",
+ "seconds": 391.3,
+ "rows": [
+  {
+   "voice": "am_michael",
+   "said": "Put away file explorer",
+   "text": "Put away file explorer.",
+   "windows": [
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Budget 2026.xlsx - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "notes.txt - Notepad",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "File Explorer"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Would you open up linkedin.com?",
+   "text": "Would you open up LinkedIn com?",
+   "windows": [
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "linkedin.com"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Can you open discord for me?",
+   "text": "Can you open this court for me?",
+   "windows": [
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "Gmail - Google Chrome",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "discord"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "close zoom after it saves real quick.",
+   "text": "Close Zoom after it saves real quick.",
+   "windows": [
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "notes.txt - Notepad",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "later"
+  },
+  {
+   "voice": "am_michael",
+   "said": "buddy, open chrome",
+   "text": "Buddy open chrome.",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "News - Microsoft Edge",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "Google Chrome"
+   ],
+   "kind": "open what is open"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Maximize this",
+   "text": "maximize this",
+   "windows": [
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "Calculator"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "minimize all windows",
+   "text": "minimize all windows",
+   "windows": [
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "everything"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Go ahead and run the powerpoint app",
+   "text": "Go ahead and run the PowerPoint app.",
+   "windows": [
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "powerpoint"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "go to inbox",
+   "text": "Go to inbox.",
+   "windows": [
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "inside an app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Ok minimize the calculator app",
+   "text": "OK minimize the calculator app.",
+   "windows": [
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "Calculator"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Maximize this.",
+   "text": "maximize this.",
+   "windows": [
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "Settings"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Open paint now",
+   "text": "Open Paint Now",
+   "windows": [
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "mspaint"
+   ],
+   "kind": "open what is open"
+  },
+  {
+   "voice": "am_michael",
+   "said": "could you minimize microsoft teams please?",
+   "text": "Could you minimize Microsoft Teams, please?",
+   "windows": [
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "Microsoft Teams"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "open weather.com",
+   "text": "Open weather calm",
+   "windows": [
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 7,
+     "pid": 7,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "weather.com"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Can you jump to microsoft teams pls?",
+   "text": "Can you jump to Microsoft Teams PLS?",
+   "windows": [
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "Microsoft Teams"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Can you open settings for me?",
+   "text": "Can you open settings for me?",
+   "windows": [
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Budget 2026.xlsx - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "settings"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Um maximize this window",
+   "text": "a maximize this window.",
+   "windows": [
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "News - Microsoft Edge",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "Calculator"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "open terminal please",
+   "text": "Open terminal please.",
+   "windows": [
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "terminal"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Open python.org",
+   "text": "Open Python org",
+   "windows": [
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "python.org"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Close outlook.",
+   "text": "close outlook",
+   "windows": [
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Inbox - Outlook",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "close",
+    "Outlook"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "close this window please",
+   "text": "Close this window, please.",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "close",
+    "zoom"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "hey buddy can you open terminal",
+   "text": "Hey buddy can you open terminal?",
+   "windows": [
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "terminal"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "close the browser after it saves",
+   "text": "Close the browser after it saves.",
+   "windows": [
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Review.pptx - PowerPoint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "later"
+  },
+  {
+   "voice": "am_michael",
+   "said": "i want to open edge settings",
+   "text": "I want to open edge settings.",
+   "windows": [
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Review.pptx - PowerPoint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "News - Microsoft Edge",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "app settings"
+  },
+  {
+   "voice": "am_michael",
+   "said": "new document.",
+   "text": "New document.",
+   "windows": [
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "start a thing"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Could you open docs.python.org",
+   "text": "Could you open Doc's Python org?",
+   "windows": [
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "docs.python.org"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Open stackoverflow.com.",
+   "text": "Open Stack Overflow Con",
+   "windows": [
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Inbox - Outlook",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "stackoverflow.com"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "am_michael",
+   "said": "I'd like to open snipping tool for me",
+   "text": "I'd like to open snipping tool for me.",
+   "windows": [
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Review.pptx - PowerPoint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "snipping tool"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "how do i close this",
+   "text": "How do I close this?",
+   "windows": [
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "how to"
+  },
+  {
+   "voice": "am_michael",
+   "said": "just minimize calculator window",
+   "text": "Just minimize Calculator window.",
+   "windows": [
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "Calculator"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "could you open up notepad app?",
+   "text": "Could you open up Notepad app?",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "notepad"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "open photoshop",
+   "text": "Open Photoshop.",
+   "windows": [
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "photoshop"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Can you how to minimize a window?",
+   "text": "Can you how to minimize a window?",
+   "windows": [
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "how to"
+  },
+  {
+   "voice": "am_michael",
+   "said": "open outlook.",
+   "text": "Open Outlook",
+   "windows": [
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "outlook"
+   ],
+   "kind": "open what is open"
+  },
+  {
+   "voice": "am_michael",
+   "said": "run powerpoint",
+   "text": "Run PowerPoint",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "PowerPoint"
+   ],
+   "kind": "open what is open"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Open slack please",
+   "text": "Open Slack, please.",
+   "windows": [
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "slack"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Tell me how to close excel.",
+   "text": "Tell me how to close Excel.",
+   "windows": [
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "how to"
+  },
+  {
+   "voice": "am_michael",
+   "said": "I need to load the task manager now",
+   "text": "I need to load the task manager now.",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "task manager"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "How can i open settings",
+   "text": "How can I open settings?",
+   "windows": [
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Inbox - Outlook",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "how to"
+  },
+  {
+   "voice": "am_michael",
+   "said": "switch to outlook window real quick",
+   "text": "Switch to Outlook window real quick.",
+   "windows": [
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "Outlook"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Could you show desktop please",
+   "text": "Could you show desktop please?",
+   "windows": [],
+   "expected": null,
+   "kind": "everything"
+  },
+  {
+   "voice": "am_michael",
+   "said": "I want to hide spotify",
+   "text": "I want to hide Spotify.",
+   "windows": [
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "spotify"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Would you start up zoom",
+   "text": "Would you start up Zoom?",
+   "windows": [
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "zoom"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "I need to launch google.com",
+   "text": "I need to launch Google com.",
+   "windows": [
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "News - Microsoft Edge",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "google.com"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Start up huggingface.co real quick",
+   "text": "startup hugging face, go real quick.",
+   "windows": [
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "notes.txt - Notepad",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "huggingface.co"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "am_michael",
+   "said": "close the tab",
+   "text": "Close the tab.",
+   "windows": [
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "close tab"
+  },
+  {
+   "voice": "am_michael",
+   "said": "keep settings open",
+   "text": "Keep settings open.",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "do not"
+  },
+  {
+   "voice": "am_michael",
+   "said": "minimize this window",
+   "text": "Minimize this window.",
+   "windows": [
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "Microsoft Edge"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "can you how to minimize a window",
+   "text": "Can you how to minimize a window?",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "how to"
+  },
+  {
+   "voice": "am_michael",
+   "said": "can you switch to the next tab now",
+   "text": "Can you switch to the next tab now?",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "inside an app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "can you open the project folder please?",
+   "text": "Can you open the project folder please?",
+   "windows": [
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Budget 2026.xlsx - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "open file"
+  },
+  {
+   "voice": "am_michael",
+   "said": "get rid of window",
+   "text": "Get rid of window.",
+   "windows": [
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "close",
+    "spotify"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "open the powerpoint for me",
+   "text": "Open the PowerPoint for me.",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "powerpoint"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "would you minimize settings now?",
+   "text": "Would you minimize settings now?",
+   "windows": [
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "Settings"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Make teams full screen",
+   "text": "Make teams full screen.",
+   "windows": [
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "Microsoft Teams"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "can you launch onenote for me",
+   "text": "Can you launch OneNote for me?",
+   "windows": [],
+   "expected": [
+    "open",
+    "onenote"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Close this window",
+   "text": "Close this window.",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Budget 2026.xlsx - Excel",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "close",
+    "zoom"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "I need to maximize spotify",
+   "text": "I need to maximize Spotify.",
+   "windows": [
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "spotify"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "open zoom",
+   "text": "Open Zoom",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "zoom"
+   ],
+   "kind": "open what is open"
+  },
+  {
+   "voice": "am_michael",
+   "said": "open file explorer please.",
+   "text": "Open File Explorer, please.",
+   "windows": [
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Review.pptx - PowerPoint",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Inbox - Outlook",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "File Explorer"
+   ],
+   "kind": "open what is open"
+  },
+  {
+   "voice": "am_michael",
+   "said": "open teams.",
+   "text": "Open Teams",
+   "windows": [
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "teams"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Just maximize microsoft teams please",
+   "text": "Just maximize Microsoft Teams, please.",
+   "windows": [
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Review.pptx - PowerPoint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "Microsoft Teams"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "i'd like to minimize microsoft teams.",
+   "text": "I'd like to minimize Microsoft Teams.",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "Microsoft Teams"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Start weather.com for me",
+   "text": "Start weather calm for me.",
+   "windows": [
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "weather.com"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "am_michael",
+   "said": "hey, close the tab.",
+   "text": "Hey close the tab.",
+   "windows": [
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "close tab"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Can you load outlook?",
+   "text": "Can you load Outlook?",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "Untitled - Notepad",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "outlook"
+   ],
+   "kind": "open what is open"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Minimize this",
+   "text": "Minimize this.",
+   "windows": [
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "PowerPoint"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Maximize the zoom please.",
+   "text": "Maximize the Zoom please.",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "notes.txt - Notepad",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "zoom"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Minimize this",
+   "text": "Minimize this.",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "zoom"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "hey buddy i want to switch to outlook window",
+   "text": "Hey buddy, I want to switch to Outlook window.",
+   "windows": [
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "Outlook"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Um make the spotify app fullscreen",
+   "text": "I'll make the Spotify app full screen.",
+   "windows": [
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "spotify"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Can you please minimise it?",
+   "text": "Can you please minimize it?",
+   "windows": [
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "News - Microsoft Edge",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Budget 2026.xlsx - Excel",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "Microsoft Edge"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "open the microsoft edge",
+   "text": "Open the Microsoft Edge.",
+   "windows": [
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "microsoft edge"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "please launch excel",
+   "text": "Please launch Excel.",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "News - Microsoft Edge",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "excel"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "i'd like to launch the edge",
+   "text": "I'd like to launch the edge.",
+   "windows": [
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "edge"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "would you make word fullscreen please",
+   "text": "Would you make word full screen please?",
+   "windows": [
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "Word"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "shut word and launch task manager",
+   "text": "Shut word and launch task manager.",
+   "windows": [
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "News - Microsoft Edge",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Inbox - Outlook",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "two steps"
+  },
+  {
+   "voice": "am_michael",
+   "said": "open onenote, close calculator",
+   "text": "Open OneNote, close calculator.",
+   "windows": [
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "two steps"
+  },
+  {
+   "voice": "am_michael",
+   "said": "I'd like to minimize everything",
+   "text": "I'd like to minimize everything.",
+   "windows": [
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "everything"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Please open the terminal",
+   "text": "Please open the terminal.",
+   "windows": [
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "terminal"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "i need to open command prompt please",
+   "text": "I need to open command prompt please.",
+   "windows": [
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "command prompt"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Just open word",
+   "text": "Just open word.",
+   "windows": [
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "word"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "am_michael",
+   "said": "How can i open excel",
+   "text": "How can I open Excel?",
+   "windows": [
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "how to"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Switch over to file explorer.",
+   "text": "Switch over to File Explorer.",
+   "windows": [
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "File Explorer"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "hey, hide this",
+   "text": "Hey, hide this.",
+   "windows": [
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "Settings"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "close the document",
+   "text": "Close the document.",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "close file"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Close slack",
+   "text": "Close slack.",
+   "windows": [
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "close",
+    "slack"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Enlarge this",
+   "text": "and large this.",
+   "windows": [
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Budget 2026.xlsx - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "VS Code"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Minimise this window",
+   "text": "Minimize this window.",
+   "windows": [
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "notes.txt - Notepad",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "mspaint"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Switch to snipping tool",
+   "text": "Switch to snipping tool.",
+   "windows": [
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "Untitled - Notepad",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "not open"
+  },
+  {
+   "voice": "am_michael",
+   "said": "go ahead and close this",
+   "text": "go ahead and close this.",
+   "windows": [
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Review.pptx - PowerPoint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "close",
+    "mspaint"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Close the tab thanks",
+   "text": "Close the tab, thanks.",
+   "windows": [
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "close tab"
+  },
+  {
+   "voice": "am_michael",
+   "said": "switch to teams now",
+   "text": "Switch to Teams now.",
+   "windows": [
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 7,
+     "pid": 7,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "Microsoft Teams"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Please maximize chrome.",
+   "text": "Please maximize Chrome.",
+   "windows": [
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "Gmail - Google Chrome",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "Google Chrome"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "close the settings window",
+   "text": "Close the settings window.",
+   "windows": [
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "notes.txt - Notepad",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "close",
+    "Settings"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Can you close chrome?",
+   "text": "Can you close Chrome?",
+   "windows": [
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "Gmail - Google Chrome",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "News - Microsoft Edge",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "close",
+    "Google Chrome"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "open powerpoint settings for me",
+   "text": "Open PowerPoint settings for me.",
+   "windows": [
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Review.pptx - PowerPoint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "app settings"
+  },
+  {
+   "voice": "am_michael",
+   "said": "open maps.google.com.",
+   "text": "Open Maps Google com",
+   "windows": [
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "maps.google.com"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "am_michael",
+   "said": "maximize window",
+   "text": "Maximize window",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "zoom"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "am_michael",
+   "said": "Can you open stackoverflow.com please.",
+   "text": "Can you open Stack Overflow? Calm, please.",
+   "windows": [
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "stackoverflow.com"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Put away file explorer",
+   "text": "Put away File Explorer.",
+   "windows": [
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Budget 2026.xlsx - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "notes.txt - Notepad",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "File Explorer"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Would you open up linkedin.com?",
+   "text": "Would you open up LinkedIn Calm?",
+   "windows": [
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "linkedin.com"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Can you open discord for me?",
+   "text": "Can you open Discord for me?",
+   "windows": [
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "Gmail - Google Chrome",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "discord"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "close zoom after it saves real quick.",
+   "text": "Close Zoom after it saves real quick.",
+   "windows": [
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "notes.txt - Notepad",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "later"
+  },
+  {
+   "voice": "af_heart",
+   "said": "buddy, open chrome",
+   "text": "Buddy open chrome.",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "News - Microsoft Edge",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "Google Chrome"
+   ],
+   "kind": "open what is open"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Maximize this",
+   "text": "Maximize this.",
+   "windows": [
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "Calculator"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "minimize all windows",
+   "text": "minimize all windows.",
+   "windows": [
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "everything"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Go ahead and run the powerpoint app",
+   "text": "Go ahead and run the PowerPoint app.",
+   "windows": [
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "powerpoint"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "go to inbox",
+   "text": "Go to inbox.",
+   "windows": [
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "inside an app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Ok minimize the calculator app",
+   "text": "OK minimize the calculator app.",
+   "windows": [
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "Calculator"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Maximize this.",
+   "text": "Maximize this.",
+   "windows": [
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "Settings"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Open paint now",
+   "text": "Open paint now.",
+   "windows": [
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "mspaint"
+   ],
+   "kind": "open what is open"
+  },
+  {
+   "voice": "af_heart",
+   "said": "could you minimize microsoft teams please?",
+   "text": "Could you minimize Microsoft Teams, please?",
+   "windows": [
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "Microsoft Teams"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "open weather.com",
+   "text": "Open weather, calm.",
+   "windows": [
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 7,
+     "pid": 7,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "weather.com"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Can you jump to microsoft teams pls?",
+   "text": "Can you jump to Microsoft Teams PLS? (buzzer buzz",
+   "windows": [
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "Microsoft Teams"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Can you open settings for me?",
+   "text": "Can you open settings for me?",
+   "windows": [
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Budget 2026.xlsx - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "settings"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Um maximize this window",
+   "text": "I'm maximized this window.",
+   "windows": [
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "News - Microsoft Edge",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "Calculator"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "open terminal please",
+   "text": "Open terminal please.",
+   "windows": [
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "terminal"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Open python.org",
+   "text": "Open Python org",
+   "windows": [
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "python.org"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Close outlook.",
+   "text": "Close Outlook",
+   "windows": [
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Inbox - Outlook",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "close",
+    "Outlook"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "close this window please",
+   "text": "Close this window, please.",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "close",
+    "zoom"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "hey buddy can you open terminal",
+   "text": "Hey buddy, can you open terminal?",
+   "windows": [
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "terminal"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "close the browser after it saves",
+   "text": "Close the browser after it saves.",
+   "windows": [
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Review.pptx - PowerPoint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "later"
+  },
+  {
+   "voice": "af_heart",
+   "said": "i want to open edge settings",
+   "text": "I want to open edge settings.",
+   "windows": [
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Review.pptx - PowerPoint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "News - Microsoft Edge",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "app settings"
+  },
+  {
+   "voice": "af_heart",
+   "said": "new document.",
+   "text": "New documents.",
+   "windows": [
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "start a thing"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Could you open docs.python.org",
+   "text": "Could you open Docs? Python org.",
+   "windows": [
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "docs.python.org"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Open stackoverflow.com.",
+   "text": "Open Stack Overflow Calm.",
+   "windows": [
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Inbox - Outlook",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "stackoverflow.com"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "af_heart",
+   "said": "I'd like to open snipping tool for me",
+   "text": "I'd like to open Snipping Tool for me.",
+   "windows": [
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Review.pptx - PowerPoint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "snipping tool"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "how do i close this",
+   "text": "How do I close this?",
+   "windows": [
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "how to"
+  },
+  {
+   "voice": "af_heart",
+   "said": "just minimize calculator window",
+   "text": "Just minimize Calculator window.",
+   "windows": [
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "Calculator"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "could you open up notepad app?",
+   "text": "Could you open up Notetet app?",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "notepad"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "open photoshop",
+   "text": "Open Photoshop.",
+   "windows": [
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "photoshop"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Can you how to minimize a window?",
+   "text": "Can you how to minimize a window?",
+   "windows": [
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "how to"
+  },
+  {
+   "voice": "af_heart",
+   "said": "open outlook.",
+   "text": "Open Outlook.",
+   "windows": [
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "outlook"
+   ],
+   "kind": "open what is open"
+  },
+  {
+   "voice": "af_heart",
+   "said": "run powerpoint",
+   "text": "run powerpoint",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "PowerPoint"
+   ],
+   "kind": "open what is open"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Open slack please",
+   "text": "Open Slack, please.",
+   "windows": [
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "slack"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Tell me how to close excel.",
+   "text": "Tell me how to close Excel.",
+   "windows": [
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "how to"
+  },
+  {
+   "voice": "af_heart",
+   "said": "I need to load the task manager now",
+   "text": "I need to load the task manager now.",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "task manager"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "How can i open settings",
+   "text": "How can I open settings?",
+   "windows": [
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Inbox - Outlook",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "how to"
+  },
+  {
+   "voice": "af_heart",
+   "said": "switch to outlook window real quick",
+   "text": "Switch to Outlook window real quick.",
+   "windows": [
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "Outlook"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Could you show desktop please",
+   "text": "Could you show desktop please?",
+   "windows": [],
+   "expected": null,
+   "kind": "everything"
+  },
+  {
+   "voice": "af_heart",
+   "said": "I want to hide spotify",
+   "text": "I want to hide Spotify.",
+   "windows": [
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "spotify"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Would you start up zoom",
+   "text": "Would you start up Zoom?",
+   "windows": [
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "zoom"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "I need to launch google.com",
+   "text": "I need to launch Google, COM.",
+   "windows": [
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "News - Microsoft Edge",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "google.com"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Start up huggingface.co real quick",
+   "text": "Start a pugging face, go real quick.",
+   "windows": [
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "notes.txt - Notepad",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "huggingface.co"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "af_heart",
+   "said": "close the tab",
+   "text": "Close the tab.",
+   "windows": [
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "close tab"
+  },
+  {
+   "voice": "af_heart",
+   "said": "keep settings open",
+   "text": "Keep settings open.",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "do not"
+  },
+  {
+   "voice": "af_heart",
+   "said": "minimize this window",
+   "text": "Minimize this window.",
+   "windows": [
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "Microsoft Edge"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "can you how to minimize a window",
+   "text": "Can you how to minimize a window?",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "how to"
+  },
+  {
+   "voice": "af_heart",
+   "said": "can you switch to the next tab now",
+   "text": "Can you switch to the next tab now?",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "inside an app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "can you open the project folder please?",
+   "text": "Can you open the project folder please?",
+   "windows": [
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Budget 2026.xlsx - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "open file"
+  },
+  {
+   "voice": "af_heart",
+   "said": "get rid of window",
+   "text": "Get rid of window.",
+   "windows": [
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "close",
+    "spotify"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "open the powerpoint for me",
+   "text": "Open the PowerPoint for me.",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "powerpoint"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "would you minimize settings now?",
+   "text": "Would you minimize settings now?",
+   "windows": [
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "Settings"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Make teams full screen",
+   "text": "Make teams full screen.",
+   "windows": [
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "Microsoft Teams"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "can you launch onenote for me",
+   "text": "Can you launch one note for me?",
+   "windows": [],
+   "expected": [
+    "open",
+    "onenote"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Close this window",
+   "text": "Close this window.",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Budget 2026.xlsx - Excel",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "close",
+    "zoom"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "I need to maximize spotify",
+   "text": "I need to maximize Spotify.",
+   "windows": [
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "spotify"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "open zoom",
+   "text": "Open Zoom.",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "zoom"
+   ],
+   "kind": "open what is open"
+  },
+  {
+   "voice": "af_heart",
+   "said": "open file explorer please.",
+   "text": "Open File Explorer, please.",
+   "windows": [
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Review.pptx - PowerPoint",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Inbox - Outlook",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "File Explorer"
+   ],
+   "kind": "open what is open"
+  },
+  {
+   "voice": "af_heart",
+   "said": "open teams.",
+   "text": "Open teams.",
+   "windows": [
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "teams"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Just maximize microsoft teams please",
+   "text": "Just maximize Microsoft Teams, please.",
+   "windows": [
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Review.pptx - PowerPoint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "Microsoft Teams"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "i'd like to minimize microsoft teams.",
+   "text": "I'd like to minimize Microsoft Teams.",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "Microsoft Teams"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Start weather.com for me",
+   "text": "Start with her calm for me.",
+   "windows": [
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "weather.com"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "af_heart",
+   "said": "hey, close the tab.",
+   "text": "Hey close the tab.",
+   "windows": [
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "close tab"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Can you load outlook?",
+   "text": "Can you load Outlook?",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "Untitled - Notepad",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "outlook"
+   ],
+   "kind": "open what is open"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Minimize this",
+   "text": "minimize this.",
+   "windows": [
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "PowerPoint"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Maximize the zoom please.",
+   "text": "Maximize the zoom please.",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "notes.txt - Notepad",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "zoom"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Minimize this",
+   "text": "minimize this.",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "zoom"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "hey buddy i want to switch to outlook window",
+   "text": "Hey buddy, I want to switch to Outlook window.",
+   "windows": [
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "Outlook"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Um make the spotify app fullscreen",
+   "text": "I'll make the Spotify app full screen.",
+   "windows": [
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Premium",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "spotify"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Can you please minimise it?",
+   "text": "Can you please minimize it?",
+   "windows": [
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "News - Microsoft Edge",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Budget 2026.xlsx - Excel",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "Microsoft Edge"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "open the microsoft edge",
+   "text": "Open the Microsoft Edge.",
+   "windows": [
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "microsoft edge"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "please launch excel",
+   "text": "Please launch Excel.",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "News - Microsoft Edge",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "excel"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "i'd like to launch the edge",
+   "text": "I'd like to launch the edge",
+   "windows": [
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "edge"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "would you make word fullscreen please",
+   "text": "Would you make word full screen please?",
+   "windows": [
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "Slack",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "Word"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "shut word and launch task manager",
+   "text": "Shut word and launch task manager.",
+   "windows": [
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "News - Microsoft Edge",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Inbox - Outlook",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "two steps"
+  },
+  {
+   "voice": "af_heart",
+   "said": "open onenote, close calculator",
+   "text": "Open one note, close calculator.",
+   "windows": [
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "two steps"
+  },
+  {
+   "voice": "af_heart",
+   "said": "I'd like to minimize everything",
+   "text": "I'd like to minimize everything.",
+   "windows": [
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "everything"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Please open the terminal",
+   "text": "Please open the terminal.",
+   "windows": [
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "terminal"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "i need to open command prompt please",
+   "text": "I need to open command prompt please.",
+   "windows": [
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "command prompt"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Just open word",
+   "text": "Just open word.",
+   "windows": [
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "spotify",
+     "process": "spotify",
+     "title": "Spotify Free",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "word"
+   ],
+   "kind": "open app"
+  },
+  {
+   "voice": "af_heart",
+   "said": "How can i open excel",
+   "text": "How can I open Excel?",
+   "windows": [
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Minutes.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Meeting",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Book1 - Excel",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "how to"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Switch over to file explorer.",
+   "text": "Switch over to File Explorer.",
+   "windows": [
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "File Explorer"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "hey, hide this",
+   "text": "Hey, hide this.",
+   "windows": [
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "Settings"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "close the document",
+   "text": "Close the document.",
+   "windows": [
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "close file"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Close slack",
+   "text": "Close Slack",
+   "windows": [
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "SRM Portal - Microsoft Edge",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "todo.txt - Notepad",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "close",
+    "slack"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Enlarge this",
+   "text": "and large this.",
+   "windows": [
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "Budget 2026.xlsx - Excel",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "VS Code"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Minimise this window",
+   "text": "Minimize this window.",
+   "windows": [
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "notes.txt - Notepad",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "minimize",
+    "mspaint"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Switch to snipping tool",
+   "text": "Switch to snipping tool.",
+   "windows": [
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "YouTube - Google Chrome",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Chat | Microsoft Teams",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "Untitled - Notepad",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "not open"
+  },
+  {
+   "voice": "af_heart",
+   "said": "go ahead and close this",
+   "text": "Go ahead and close this.",
+   "windows": [
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Review.pptx - PowerPoint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "close",
+    "mspaint"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Close the tab thanks",
+   "text": "Close the tab, thanks.",
+   "windows": [
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "close tab"
+  },
+  {
+   "voice": "af_heart",
+   "said": "switch to teams now",
+   "text": "Switch to teams now.",
+   "windows": [
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "README.md - Visual Studio Code",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Teams",
+     "process": "ms-teams",
+     "title": "Calendar | Microsoft Teams",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Downloads - File Explorer",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Document1 - Word",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "File Explorer",
+     "process": "explorer",
+     "title": "Documents - File Explorer",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 6,
+     "pid": 6,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Outlook",
+     "process": "outlook",
+     "title": "Calendar - Outlook",
+     "hwnd": 7,
+     "pid": 7,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "focus",
+    "Microsoft Teams"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Please maximize chrome.",
+   "text": "Please maximize Chrome.",
+   "windows": [
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "Gmail - Google Chrome",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "Google Chrome"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "close the settings window",
+   "text": "Close the settings window.",
+   "windows": [
+    {
+     "app": "Settings",
+     "process": "applicationframehost",
+     "title": "Settings",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Notepad",
+     "process": "notepad",
+     "title": "notes.txt - Notepad",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "close",
+    "Settings"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Can you close chrome?",
+   "text": "Can you close Chrome?",
+   "windows": [
+    {
+     "app": "Google Chrome",
+     "process": "chrome",
+     "title": "Gmail - Google Chrome",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "Untitled - Paint",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Presentation1 - PowerPoint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Calculator",
+     "process": "applicationframehost",
+     "title": "Calculator",
+     "hwnd": 4,
+     "pid": 4,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Microsoft Edge",
+     "process": "msedge",
+     "title": "News - Microsoft Edge",
+     "hwnd": 5,
+     "pid": 5,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "close",
+    "Google Chrome"
+   ],
+   "kind": "named window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "open powerpoint settings for me",
+   "text": "Open PowerPoint settings for me.",
+   "windows": [
+    {
+     "app": "PowerPoint",
+     "process": "powerpnt",
+     "title": "Review.pptx - PowerPoint",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": null,
+   "kind": "app settings"
+  },
+  {
+   "voice": "af_heart",
+   "said": "open maps.google.com.",
+   "text": "Open Maps Google com.",
+   "windows": [
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "maps.google.com"
+   ],
+   "kind": "open site"
+  },
+  {
+   "voice": "af_heart",
+   "said": "maximize window",
+   "text": "Maximize window",
+   "windows": [
+    {
+     "app": "zoom",
+     "process": "zoom",
+     "title": "Zoom Workplace",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "Word",
+     "process": "winword",
+     "title": "Report.docx - Word",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "slack",
+     "process": "slack",
+     "title": "general - Slack",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "maximize",
+    "zoom"
+   ],
+   "kind": "this window"
+  },
+  {
+   "voice": "af_heart",
+   "said": "Can you open stackoverflow.com please.",
+   "text": "Can you open stack overflow? Calm, please.",
+   "windows": [
+    {
+     "app": "Excel",
+     "process": "excel",
+     "title": "BOM_rev3.xlsx - Excel",
+     "hwnd": 1,
+     "pid": 1,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "VS Code",
+     "process": "code",
+     "title": "main.py - Visual Studio Code",
+     "hwnd": 2,
+     "pid": 2,
+     "class": "",
+     "minimized": false
+    },
+    {
+     "app": "mspaint",
+     "process": "mspaint",
+     "title": "sketch.png - Paint",
+     "hwnd": 3,
+     "pid": 3,
+     "class": "",
+     "minimized": false
+    }
+   ],
+   "expected": [
+    "open",
+    "stackoverflow.com"
+   ],
+   "kind": "open site"
+  }
+ ]
+}
