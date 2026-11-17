@@ -60,6 +60,7 @@ ALT_CODES = {56, 3640}
 M_CODE = 50
 SPACE_CODE = 57
 D_CODE = 32                  # Ctrl+Alt+D: Buddy dictation (hold = talk, tap = hands-free)
+T_CODE = 20                     # Ctrl+Alt+T: Buddy talk mode
 ESCAPE_CODE = 1
 VK_MENU_MASK = 0xE8           # unassigned virtual key: tapped so a lone Alt release can't open a menu
 LETTER_CODES = list(range(16, 26)) + list(range(30, 39)) + list(range(44, 51))
@@ -497,6 +498,20 @@ class KeyboardHook:
             if msg in (WM_KEYUP, WM_SYSKEYUP) and dictating:
                 self.dictate_active = False
                 threading.Thread(target=self.buddy.dictate_release, daemon=True).start()
+                self.listener.suppress_event()
+        # Buddy talk mode: Ctrl+Alt+T starts or ends a conversation. T is swallowed, but only with the
+        # modifiers down, so a missed key-up can never eat a plain T.
+        if code == T_CODE and self.buddy is not None and getattr(self.buddy, "talk_enabled", lambda: False)():
+            talk_key_down = getattr(self, "talk_key_down", False)
+            if msg in (WM_KEYDOWN, WM_SYSKEYDOWN):
+                self.talk_key_down = bool(modifiers_down)
+                if modifiers_down:
+                    if not talk_key_down:                        # not the keyboard's auto-repeat
+                        threading.Thread(target=tap_menu_mask_key, daemon=True).start()
+                        threading.Thread(target=self.buddy.talk_toggle, daemon=True).start()
+                    self.listener.suppress_event()
+            elif talk_key_down:
+                self.talk_key_down = False
                 self.listener.suppress_event()
         if code == ESCAPE_CODE and self.buddy is not None and msg in (WM_KEYDOWN, WM_SYSKEYDOWN):
             threading.Thread(target=self.buddy.cancel, daemon=True).start()

@@ -185,6 +185,10 @@ class NaturalVoice:
         self.zh_g2p = None                     # misaki Chinese G2P, loaded on first Chinese text
         self.failed = None
         self.ready = threading.Event()
+        self.on_block = None                   # talk mode: on_block(samples, rate, play_time) before each write
+        self.paused = False
+        self.making = False
+        self.playing = False
         threading.Thread(target=self._make_loop, name="buddy-voice-make", daemon=True).start()
         threading.Thread(target=self._play_loop, name="buddy-voice-play", daemon=True).start()
 
@@ -195,6 +199,7 @@ class NaturalVoice:
 
     def stop(self):
         self.generation += 1
+        self.paused = False
         for pending in (self.texts, self.audio):
             while True:
                 try:
@@ -204,6 +209,17 @@ class NaturalVoice:
 
     def set_voice(self, voice):
         self.voice = voice
+
+    def pause(self):
+        """Hold your breath (talk mode: the user started to speak). resume() carries on mid-sentence."""
+        self.paused = True
+
+    def resume(self):
+        self.paused = False
+
+    def busy(self):
+        """True while there is speech queued, being made or playing."""
+        return self.making or self.playing or not self.texts.empty() or not self.audio.empty()
 
     def _speak(self, text):
         """Audio for one piece, in the language its script needs."""
@@ -259,6 +275,7 @@ class NaturalVoice:
             generation, text = self.texts.get()
             if self.failed or generation != self.generation:
                 continue
+            self.making = True
             while len(text) < 30:                  # "Sure!" alone: wait a moment for the next sentence
                 try:
                     more_generation, more = self.texts.get(timeout=0.8)
@@ -273,9 +290,11 @@ class NaturalVoice:
                 logging.debug("Voice: %.1fs audio in %.1fs", len(samples) / rate, took)
             except Exception:
                 logging.exception("Natural voice failed on %r", text[:60])
+                self.making = False
                 continue
             if generation == self.generation:
                 self.audio.put((generation, samples, rate))
+            self.making = False
 
     def _play_loop(self):
         import sounddevice
@@ -284,13 +303,37 @@ class NaturalVoice:
             generation, samples, rate = self.audio.get()
             if generation != self.generation:
                 continue
+            self.playing = True
             try:
                 with sounddevice.OutputStream(samplerate=rate, channels=1, dtype="float32") as stream:
-                    block = rate // 10                                   # 0.1 s: stop() reacts this fast
-                    for start in range(0, len(samples), block):
-                        if generation != self.generation:
-                            stream.abort()
-                            break
-                        stream.write(samples[start:start + block].astype("float32").reshape(-1, 1))
+                    self._play(stream, generation, samples, rate)
             except Exception:
                 logging.exception("Could not play the natural voice")
+            finally:
+                self.playing = False
+
+    def _play(self, stream, generation, samples, rate):
+        block = rate // 20                         # 0.05 s: stop() and pause() react this fast
+        written_until = 0.0                        # when the last block written will have been played
+        start = 0
+        while start < len(samples):
+            if generation != self.generation:
+                stream.abort()
+                return
+            if self.paused:
+                stream.abort()                     # drop what is buffered: silence now, not in 0.1 s
+                while self.paused and generation == self.generation:
+                    time.sleep(0.02)
+                if generation != self.generation:
+                    return
+                start = max(0, start - int(float(stream.latency) * rate))   # say the dropped part again
+                stream.start()
+                continue
+            piece = samples[start:start + block].astype("float32")
+            listener = self.on_block
+            if listener is not None:
+                written_until = max(time.monotonic(), written_until)
+                listener(piece, rate, written_until + float(stream.latency))
+                written_until += len(piece) / rate
+            stream.write(piece.reshape(-1, 1))
+            start += block

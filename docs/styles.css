@@ -649,3 +649,6 @@ section[id] { scroll-margin-top: 76px; }
   .film-tag { display: none; }
   .film-len { display: none; }
 }
+
+/* A second comparison inside one section */
+.section-head.follow { margin-top: 72px; }

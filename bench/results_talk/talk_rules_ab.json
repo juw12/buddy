@@ -1,0 +1,510 @@
+{
+ "results": "bench/results_talk/talk_turns.json",
+ "old_revision": "b0e364a",
+ "clips": 192,
+ "new_is": "the fire times measured in the run (audio timeline)",
+ "old_is": "derived from the run's fire times; ranges are worst to best where a time is known to one 30 ms tick only",
+ "old_time_from": {
+  "measured": 172,
+  "exact": 5,
+  "one tick": 15,
+  "formula": 0
+ },
+ "new_rules_give_the_run_s_kind": [
+  192,
+  192
+ ],
+ "old_gaps": {
+  "complete": 0.3,
+  "neutral": 0.7,
+  "unfinished": 1.6
+ },
+ "new_gaps": {
+  "complete": 0.3,
+  "neutral": 0.7,
+  "leaning": 0.9,
+  "unfinished": 1.6
+ },
+ "lists": {
+  "first": {
+   "old": {
+    "finished_in_time": [
+     [
+      24,
+      24
+     ],
+     24
+    ],
+    "unfinished_held": [
+     [
+      57,
+      57
+     ],
+     72
+    ],
+    "mean_delay_finished_s": [
+     0.553,
+     0.553
+    ],
+    "balanced_accuracy": [
+     0.896,
+     0.896
+    ]
+   },
+   "new": {
+    "finished_in_time": [
+     24,
+     24
+    ],
+    "unfinished_held": [
+     66,
+     72
+    ],
+    "mean_delay_finished_s": 0.553,
+    "balanced_accuracy": 0.958
+   }
+  },
+  "fourth": {
+   "old": {
+    "finished_in_time": [
+     [
+      23,
+      23
+     ],
+     24
+    ],
+    "unfinished_held": [
+     [
+      54,
+      54
+     ],
+     72
+    ],
+    "mean_delay_finished_s": [
+     0.562,
+     0.566
+    ],
+    "balanced_accuracy": [
+     0.854,
+     0.854
+    ]
+   },
+   "new": {
+    "finished_in_time": [
+     23,
+     24
+    ],
+    "unfinished_held": [
+     61,
+     72
+    ],
+    "mean_delay_finished_s": 0.551,
+    "balanced_accuracy": 0.903
+   }
+  },
+  "second": {
+   "old": {
+    "finished_in_time": [
+     [
+      23,
+      23
+     ],
+     24
+    ],
+    "unfinished_held": [
+     [
+      59,
+      59
+     ],
+     72
+    ],
+    "mean_delay_finished_s": [
+     0.635,
+     0.635
+    ],
+    "balanced_accuracy": [
+     0.889,
+     0.889
+    ]
+   },
+   "new": {
+    "finished_in_time": [
+     23,
+     24
+    ],
+    "unfinished_held": [
+     64,
+     72
+    ],
+    "mean_delay_finished_s": 0.635,
+    "balanced_accuracy": 0.924
+   }
+  },
+  "third": {
+   "old": {
+    "finished_in_time": [
+     [
+      24,
+      24
+     ],
+     24
+    ],
+    "unfinished_held": [
+     [
+      57,
+      57
+     ],
+     72
+    ],
+    "mean_delay_finished_s": [
+     0.513,
+     0.513
+    ],
+    "balanced_accuracy": [
+     0.896,
+     0.896
+    ]
+   },
+   "new": {
+    "finished_in_time": [
+     24,
+     24
+    ],
+    "unfinished_held": [
+     62,
+     72
+    ],
+    "mean_delay_finished_s": 0.513,
+    "balanced_accuracy": 0.931
+   }
+  },
+  "all": {
+   "old": {
+    "finished_in_time": [
+     [
+      94,
+      94
+     ],
+     96
+    ],
+    "unfinished_held": [
+     [
+      227,
+      227
+     ],
+     288
+    ],
+    "mean_delay_finished_s": [
+     0.566,
+     0.567
+    ],
+    "balanced_accuracy": [
+     0.884,
+     0.884
+    ]
+   },
+   "new": {
+    "finished_in_time": [
+     94,
+     96
+    ],
+    "unfinished_held": [
+     253,
+     288
+    ],
+    "mean_delay_finished_s": 0.563,
+    "balanced_accuracy": 0.929
+   }
+  }
+ },
+ "changed": [
+  {
+   "list": "first",
+   "label": "unfinished",
+   "heard": "I want to open they",
+   "old": [
+    "neutral",
+    0.7886,
+    0.7886,
+    "held 1 of 3 pauses"
+   ],
+   "new": [
+    "unfinished",
+    1.688625,
+    "held 3 of 3 pauses"
+   ],
+   "sure": true,
+   "old_time_is": "exact"
+  },
+  {
+   "list": "first",
+   "label": "unfinished",
+   "heard": "I was thinking we could.",
+   "old": [
+    "neutral",
+    0.7625,
+    0.7925,
+    "held 1 of 3 pauses"
+   ],
+   "new": [
+    "leaning",
+    0.9725,
+    "held 2 of 3 pauses"
+   ],
+   "sure": true,
+   "old_time_is": "one tick"
+  },
+  {
+   "list": "first",
+   "label": "unfinished",
+   "heard": "Move this file into the folder called.",
+   "old": [
+    "complete",
+    0.2708,
+    0.3008,
+    "held 0 of 3 pauses"
+   ],
+   "new": [
+    "unfinished",
+    1.5908125,
+    "held 3 of 3 pauses"
+   ],
+   "sure": true,
+   "old_time_is": "one tick"
+  },
+  {
+   "list": "first",
+   "label": "unfinished",
+   "heard": "We need to finish this before.",
+   "old": [
+    "neutral",
+    0.7706,
+    0.8006,
+    "held 1 of 3 pauses"
+   ],
+   "new": [
+    "leaning",
+    0.980625,
+    "held 2 of 3 pauses"
+   ],
+   "sure": true,
+   "old_time_is": "one tick"
+  },
+  {
+   "list": "first",
+   "label": "unfinished",
+   "heard": "I would rather",
+   "old": [
+    "neutral",
+    0.7669,
+    0.7669,
+    "held 1 of 3 pauses"
+   ],
+   "new": [
+    "unfinished",
+    1.666875,
+    "held 3 of 3 pauses"
+   ],
+   "sure": true,
+   "old_time_is": "exact"
+  },
+  {
+   "list": "second",
+   "label": "unfinished",
+   "heard": "I guess we should.",
+   "old": [
+    "neutral",
+    0.7721,
+    0.8021,
+    "held 1 of 3 pauses"
+   ],
+   "new": [
+    "leaning",
+    0.982125,
+    "held 2 of 3 pauses"
+   ],
+   "sure": true,
+   "old_time_is": "one tick"
+  },
+  {
+   "list": "second",
+   "label": "unfinished",
+   "heard": "Save a copy in the folder named.",
+   "old": [
+    "complete",
+    0.3559,
+    0.3859,
+    "held 0 of 3 pauses"
+   ],
+   "new": [
+    "unfinished",
+    1.675875,
+    "held 3 of 3 pauses"
+   ],
+   "sure": true,
+   "old_time_is": "one tick"
+  },
+  {
+   "list": "second",
+   "label": "unfinished",
+   "heard": "I have to submit this before.",
+   "old": [
+    "neutral",
+    0.7466,
+    0.7766,
+    "held 1 of 3 pauses"
+   ],
+   "new": [
+    "leaning",
+    0.956625,
+    "held 2 of 3 pauses"
+   ],
+   "sure": true,
+   "old_time_is": "one tick"
+  },
+  {
+   "list": "third",
+   "label": "unfinished",
+   "heard": "Maybe we could",
+   "old": [
+    "neutral",
+    0.7494,
+    0.7794,
+    "held 1 of 3 pauses"
+   ],
+   "new": [
+    "leaning",
+    0.9594375,
+    "held 2 of 3 pauses"
+   ],
+   "sure": true,
+   "old_time_is": "one tick"
+  },
+  {
+   "list": "third",
+   "label": "unfinished",
+   "heard": "Put the file in the folder called",
+   "old": [
+    "complete",
+    0.3013,
+    0.3313,
+    "held 0 of 3 pauses"
+   ],
+   "new": [
+    "unfinished",
+    1.62125,
+    "held 3 of 3 pauses"
+   ],
+   "sure": true,
+   "old_time_is": "one tick"
+  },
+  {
+   "list": "third",
+   "label": "unfinished",
+   "heard": "I need to finish this before.",
+   "old": [
+    "neutral",
+    0.7661,
+    0.7961,
+    "held 1 of 3 pauses"
+   ],
+   "new": [
+    "leaning",
+    0.976125,
+    "held 2 of 3 pauses"
+   ],
+   "sure": true,
+   "old_time_is": "one tick"
+  },
+  {
+   "list": "fourth",
+   "label": "finished",
+   "heard": "I have seen this era before.",
+   "old": [
+    "neutral",
+    0.7946,
+    0.8246,
+    "in time"
+   ],
+   "new": [
+    "leaning",
+    1.004625,
+    "late"
+   ],
+   "sure": true,
+   "old_time_is": "one tick"
+  },
+  {
+   "list": "fourth",
+   "label": "finished",
+   "heard": "How far along are we?",
+   "old": [
+    "unfinished",
+    1.6955,
+    1.6955,
+    "late"
+   ],
+   "new": [
+    "neutral",
+    0.7955,
+    "in time"
+   ],
+   "sure": true,
+   "old_time_is": "exact"
+  },
+  {
+   "list": "fourth",
+   "label": "unfinished",
+   "heard": "Open the document in the folder called.",
+   "old": [
+    "complete",
+    0.2763,
+    0.3062,
+    "held 0 of 3 pauses"
+   ],
+   "new": [
+    "unfinished",
+    1.59625,
+    "held 3 of 3 pauses"
+   ],
+   "sure": true,
+   "old_time_is": "one tick"
+  },
+  {
+   "list": "fourth",
+   "label": "unfinished",
+   "heard": "Add a comment right under they.",
+   "old": [
+    "neutral",
+    0.7918,
+    0.7918,
+    "held 1 of 3 pauses"
+   ],
+   "new": [
+    "unfinished",
+    1.69175,
+    "held 3 of 3 pauses"
+   ],
+   "sure": true,
+   "old_time_is": "exact"
+  },
+  {
+   "list": "fourth",
+   "label": "unfinished",
+   "heard": "I think I would rather",
+   "old": [
+    "neutral",
+    0.7663,
+    0.7663,
+    "held 1 of 3 pauses"
+   ],
+   "new": [
+    "unfinished",
+    1.6663125,
+    "held 3 of 3 pauses"
+   ],
+   "sure": true,
+   "old_time_is": "exact"
+  }
+ ]
+}

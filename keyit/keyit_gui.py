@@ -566,7 +566,7 @@ class KeyItApp:
     def _build_voice_input(self, tab):
         import keyit_speech
 
-        box = ttk.LabelFrame(tab, text=" Hold Ctrl+Alt+Space to ask, Ctrl+Alt+D to type by voice ")
+        box = ttk.LabelFrame(tab, text=" Hold Ctrl+Alt+Space to ask, Ctrl+Alt+D to type by voice, Ctrl+Alt+T to talk ")
         box.grid(row=0, column=0, sticky="ew")
         box.columnconfigure(1, weight=1)
         self.voice_status = ttk.Label(tab, foreground="#777", wraplength=self.HELP_WIDTH, justify="left")
@@ -611,8 +611,17 @@ class KeyItApp:
                                  "French. In other languages only the filler words are dropped.",
                          column=0, padx=(26, 6))
 
+        self.talk_var = tk.BooleanVar(value=self.settings.get("talk_mode", True))
+        ttk.Checkbutton(box, text="Ctrl+Alt+T starts a conversation: just talk, interrupt me any time, "
+                                  'say "goodbye" to end',
+                        variable=self.talk_var, command=self._on_voice_input_changed).grid(
+            row=8, column=0, columnspan=3, sticky="w", padx=6, pady=(4, 0))
+        self._voice_hint(box, 10, "Best with a headset. On loudspeakers I may not hear you over my own voice: "
+                                 "speak up, or press Esc.",
+                         column=0, padx=(26, 6))
+
         buttons = ttk.Frame(box)
-        buttons.grid(row=8, column=0, columnspan=3, sticky="w", padx=6, pady=(4, 6))
+        buttons.grid(row=11, column=0, columnspan=3, sticky="w", padx=6, pady=(4, 6))
         ttk.Button(buttons, text="My words\u2026", command=self._edit_my_words).pack(side="left")
         ttk.Button(buttons, text="Type last dictation again", command=self._type_last_dictation).pack(
             side="left", padx=(6, 0))
@@ -635,7 +644,8 @@ class KeyItApp:
         mic = "" if self.mic_box.get() == "Windows default" else self.mic_box.get()
         changed_engine = (choice, language) != (self.settings.get("speech_model"), self.settings.get("speech_language"))
         self.settings.update(speech_model=choice, speech_language=language, mic_device=mic,
-                             dictation=self.dictation_var.get(), voice_cleanup=self.cleanup_var.get())
+                             dictation=self.dictation_var.get(), voice_cleanup=self.cleanup_var.get(),
+                             talk_mode=self.talk_var.get())
         core.save_settings(self.settings)
         self._show_language_note()
         if changed_engine:

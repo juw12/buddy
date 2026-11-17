@@ -1,0 +1,166 @@
+{
+ "when": "2026-11-16 17:14",
+ "readings_per_step": 5,
+ "wrong": 0,
+ "cases": [
+  {
+   "case": "conversation",
+   "exit_code": 0,
+   "watched_pid": 94248,
+   "launcher_pid": 69656,
+   "steps": [
+    {
+     "step": "before",
+     "seen": [
+      "normal"
+     ],
+     "readings": 5,
+     "expected": "normal",
+     "ok": true
+    },
+    {
+     "step": "talking",
+     "seen": [
+      "above normal"
+     ],
+     "readings": 5,
+     "expected": "above normal",
+     "ok": true
+    },
+    {
+     "step": "talking, a read is running",
+     "seen": [
+      "above normal"
+     ],
+     "readings": 5,
+     "expected": "above normal",
+     "ok": true
+    },
+    {
+     "step": "talking, the read is back",
+     "seen": [
+      "above normal"
+     ],
+     "readings": 5,
+     "expected": "above normal",
+     "ok": true
+    },
+    {
+     "step": "ended",
+     "seen": [
+      "normal"
+     ],
+     "readings": 5,
+     "expected": "normal",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "case": "read first",
+   "exit_code": 0,
+   "watched_pid": 56128,
+   "launcher_pid": 34048,
+   "steps": [
+    {
+     "step": "before",
+     "seen": [
+      "normal"
+     ],
+     "readings": 5,
+     "expected": "normal",
+     "ok": true
+    },
+    {
+     "step": "a read is running",
+     "seen": [
+      "above normal"
+     ],
+     "readings": 5,
+     "expected": "above normal",
+     "ok": true
+    },
+    {
+     "step": "talking, the read still running",
+     "seen": [
+      "above normal"
+     ],
+     "readings": 5,
+     "expected": "above normal",
+     "ok": true
+    },
+    {
+     "step": "talking, the read is back",
+     "seen": [
+      "above normal"
+     ],
+     "readings": 5,
+     "expected": "above normal",
+     "ok": true
+    },
+    {
+     "step": "ended",
+     "seen": [
+      "normal"
+     ],
+     "readings": 5,
+     "expected": "normal",
+     "ok": true
+    }
+   ]
+  },
+  {
+   "case": "chosen",
+   "exit_code": 0,
+   "watched_pid": 36700,
+   "launcher_pid": 45004,
+   "steps": [
+    {
+     "step": "before",
+     "seen": [
+      "below normal"
+     ],
+     "readings": 5,
+     "expected": "below normal",
+     "ok": true
+    },
+    {
+     "step": "talking",
+     "seen": [
+      "below normal"
+     ],
+     "readings": 5,
+     "expected": "below normal",
+     "ok": true
+    },
+    {
+     "step": "talking, a read is running",
+     "seen": [
+      "below normal"
+     ],
+     "readings": 5,
+     "expected": "below normal",
+     "ok": true
+    },
+    {
+     "step": "talking, the read is back",
+     "seen": [
+      "below normal"
+     ],
+     "readings": 5,
+     "expected": "below normal",
+     "ok": true
+    },
+    {
+     "step": "ended",
+     "seen": [
+      "below normal"
+     ],
+     "readings": 5,
+     "expected": "below normal",
+     "ok": true
+    }
+   ]
+  }
+ ]
+}
