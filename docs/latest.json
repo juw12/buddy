@@ -1,25 +1,27 @@
 {
-  "version": "1.4.0",
+  "version": "1.5.0",
   "date": "2026-11-17",
   "notes": [
-    "Windows: talk mode. Press Ctrl+Alt+T, or pick \"Talk with Buddy\" in the tray menu, and have a spoken conversation without holding a key. Press it again to stop.",
-    "Buddy decides you have finished from your words, not only from a pause. On 192 test clips it was right about 89 to 93 % of the time, against 73 % for a fixed pause. The clips are computer-made voices we built ourselves, not recordings of real people.",
-    "You can interrupt Buddy while it is speaking: start talking and it stops and listens.",
-    "Known limits: on a busy laptop Buddy can take more than a second to notice you have finished (our 0.3 second target is not met yet). There is no echo cancelling, so use a headset in talk mode, or Buddy may hear its own voice.",
+    "Windows: simple one-step commands are now done at once, without waiting for the brain. \"Minimize excel\", \"switch to outlook\", \"open notepad\" and \"open google.com\" no longer take a screenshot and a few seconds of thinking. In 15 real window actions on our test laptop this took 0.014 seconds (the slowest 0.092), where the free brain needed about 3.4 seconds just to reply.",
+    "Anything less plain is still thought over first: a question, two steps (\"and\", \"then\"), a \"don't\", an \"if\", \"all\" or \"every\", \"could you\" or \"maybe\", more than 8 words, highlighted text, or a window Buddy cannot pin down (two Notepads, or an app that is not open).",
+    "The more a mistake would cost, the surer Buddy has to be before it acts alone. That is why \"close this\" still goes to the brain.",
+    "Buddy picks up habits: when the brain does the same single step for the same short phrase again and again, Buddy starts doing it at once. Say or type \"no\", \"not that\", \"wrong\" or \"undo\" within 30 seconds and it counts against what Buddy just did, so the brain is asked again next time. Habits stay on your PC.",
+    "On 94 test requests the rules had never met, Buddy did 43 of the 49 one-step commands at once and none of them wrongly. Known limits: both test lists are typed English written by the same person who wrote the rules, 44 fast answers with no mistake still allows an error rate of up to about 7 %, a \"no\" said while Buddy is speaking in talk mode is not counted, and the habit numbers are not yet checked against real use.",
+    "To switch it off: Settings, Voice input, untick \"Do simple commands at once\".",
     "Mac: no changes in this version, only the version number."
   ],
-  "page": "https://github.com/juw12/buddy/releases/tag/v1.4.0",
+  "page": "https://github.com/juw12/buddy/releases/tag/v1.5.0",
   "windows": {
-    "version": "1.4.0",
-    "url": "https://github.com/juw12/buddy/releases/download/v1.4.0/Buddy-win64.zip",
-    "size": 181154090,
-    "sha256": "74b1763c3e0ef881f12b222380393e611cc3e2791f2c6e7c7466dd279e81a382"
+    "version": "1.5.0",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.5.0/Buddy-win64.zip",
+    "size": 181163379,
+    "sha256": "c76b897bc05957a41a328fc53bb9e69b0ce8059f7ee80fa62ec4b096244882fb"
   },
   "mac": {
-    "version": "1.4.0",
-    "url": "https://github.com/juw12/buddy/releases/download/v1.4.0/Buddy-mac.zip",
-    "size": 17588522,
-    "sha256": "b67742e2a5a4fd6e323c3f1c40e2ddd56ef30fba90ef7666661ae6ba2c7ef335"
+    "version": "1.5.0",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.5.0/Buddy-mac.zip",
+    "size": 17586651,
+    "sha256": "7aa18245d170faddd738b48500f39918ed290336c1b5bf95ec6a148aa82b5975"
   },
   "ios": {
     "version": "1.1.0",
