@@ -590,3 +590,64 @@ took 11 s each here; `--hold` keeps above-normal priority for each clip, as the 
     python bench\talk_priority.py --out bench\results_talk\talk_priority.json
     python bench\talk_stalls.py --cache <folder for clips> --reads 200
     python bench\talk_stalls.py --cache <folder for clips> --live --reads 30 --variants live,plain,two-thread,one-thread
+
+## Thinking fast and slow
+`fast_slow.py` checks System 1 ([keyit/keyit_minds.py](../keyit/keyit_minds.py)): when may it act without the brain, and
+is its confidence honest? The numbers in the main README ("Thinking fast and slow: Buddy vs Jev") come from here.
+
+    python bench/fast_slow.py --out bench/results_fast --real 5 --brain 2
+
+Two lists of typed requests, each labelled with what a careful assistant would do at once without looking at the
+screen, or "think first". System 1's confidences (`PRIORS`) are counted on the first list. The second was written before
+the first run, was scored once, and no rule was changed after it. Both are English text by the author of the rules: they
+are parallel forms, not a sample of real requests. Latest run: 89% CPU load on the office laptop. Raw rows:
+[results_fast/fast_slow.json](results_fast/fast_slow.json).
+
+| | First list (rules counted on it) | Held-out list |
+|---|---|---|
+| Requests | 96 | 94 |
+| One-step commands | 53 | 49 |
+| Must think first | 43 | 45 |
+| Done by System 1 | 48 | 43 |
+| Wrong fast actions | 0 | 0 |
+| One-step commands done fast | 48 of 53 | 43 of 49 |
+| Calibration error (ECE) | 0.067 | 0.061 |
+
+| Rule | What it reads | Stated confidence | Right on the held-out list | Stated minus observed |
+|---|---|---|---|---|
+| window | close / minimize / maximize / switch to an open window named by its app | 0.958 | 22 of 22 | -0.042 |
+| app | open an app Buddy knows | 0.938 | 14 of 14 | -0.062 |
+| site | open a web address | 0.900 | 4 of 4 | -0.100 |
+| this | the window in front ("minimize this") | 0.875 | 4 of 4 | -0.125 |
+
+No rule claimed more than it delivered, so the whole calibration error is caution. It proves little: none wrong in 44
+readings still allows a true error rate of up to 6.6% (95% bound), and 12.7% for the 22 window readings alone.
+
+Left to the brain although one step, on the held-out list: "close this app" (0.875 is under the 0.95 bar for closing),
+"close the current window" and "maximize this window please" (System 1 could not tell which window), "could you
+minimize excel" (a doubt), "copy this" and "type best regards" (not System 1's job).
+
+| | Measured |
+|---|---|
+| One decision (38,000 decisions over both lists) | 0.011 ms median, 0.023 ms p95, 2.1 ms slowest |
+| Listing the open windows | 2.4 ms median |
+| Words to done, System 1: 15 real actions (minimize, maximize, switch to) on a window the bench opened, each checked by asking Windows | 0.014 s median, 0.092 s slowest, 15 of 15 done |
+| The same kind of command through the free cloud brain: 12 asks with Buddy's prompt and a drawn screenshot, timed to the end of the reply | 3.35 s median, 2.93 to 4.19 s, 0 errors |
+| Same action as System 1 would take, in those 12 replies | 10 of 12 (twice the brain opened File Explorer instead of switching to the open one) |
+
+The System 1 time runs from the words to the action returning; speech and the on-screen bubble are not in it. The brain
+time has no screenshot capture and no action in it, and the Smart and Local brains were not timed.
+
+How much practice a habit needs before System 1 does it alone (the brain did the same single step for the same short
+phrase, and nobody said "no"):
+
+| Action | Bar | Times |
+|---|---|---|
+| switch to, minimize, maximize | 0.80 | 3 |
+| open | 0.85 | 5 |
+| keys (a shortcut) | 0.90 | 8 |
+| close | 0.95 | 18 |
+
+These come from the formula `(right + 1) / (seen + 2)`, not from data: habit confidence is not validated.
+`keyit/tests/test_minds.py` covers the rules, habits and feedback; with the "no" feedback broken on purpose, 4 of its
+23 tests fail.
