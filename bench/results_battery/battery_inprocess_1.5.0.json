@@ -1,0 +1,149 @@
+{
+ "how": "inprocess",
+ "buddy_version": "1.5.0",
+ "trained_system_1": false,
+ "at": "2026-11-17 15:52:55",
+ "commands_planned": 19,
+ "commands_sent": 11,
+ "done_by_system_1_and_checked": 11,
+ "skipped": [
+  {
+   "said": "can you minimize python",
+   "why": "System 1 would hand this to the brain (a doubt)"
+  },
+  {
+   "said": "bring up python",
+   "why": "System 1 would hand this to the brain (nothing I know by heart)"
+  },
+  {
+   "said": "make python full screen",
+   "why": "System 1 would hand this to the brain (nothing I know by heart)"
+  },
+  {
+   "said": "put python away",
+   "why": "System 1 would hand this to the brain (nothing I know by heart)"
+  },
+  {
+   "said": "go back to python",
+   "why": "System 1 would hand this to the brain (nothing I know by heart)"
+  },
+  {
+   "said": "hide python",
+   "why": "System 1 would hand this to the brain (nothing I know by heart)"
+  },
+  {
+   "said": "could you switch to python?",
+   "why": "System 1 would hand this to the brain (a doubt)"
+  },
+  {
+   "said": "enlarge python",
+   "why": "System 1 would hand this to the brain (nothing I know by heart)"
+  }
+ ],
+ "seconds_by_buddy_median": 0.0107,
+ "seconds_by_buddy_max": 0.2016,
+ "wall_median_s": 0.011,
+ "wall_max_s": 0.202,
+ "note": "seconds_by_buddy is think_fast(): from the words to the action returning.",
+ "rows": [
+  {
+   "said": "minimize python",
+   "wanted": "minimize",
+   "confidence": 0.958,
+   "done_by_system_1": true,
+   "think_fast_s": 0.0441,
+   "window_really_changed": true,
+   "wall_s": 0.044
+  },
+  {
+   "said": "switch to python",
+   "wanted": "focus",
+   "confidence": 0.958,
+   "done_by_system_1": true,
+   "think_fast_s": 0.0269,
+   "window_really_changed": true,
+   "wall_s": 0.027
+  },
+  {
+   "said": "maximize python",
+   "wanted": "maximize",
+   "confidence": 0.96,
+   "done_by_system_1": true,
+   "think_fast_s": 0.007,
+   "window_really_changed": true,
+   "wall_s": 0.007
+  },
+  {
+   "said": "minimize python",
+   "wanted": "minimize",
+   "confidence": 0.962,
+   "done_by_system_1": true,
+   "think_fast_s": 0.0103,
+   "window_really_changed": true,
+   "wall_s": 0.01
+  },
+  {
+   "said": "switch to python",
+   "wanted": "focus",
+   "confidence": 0.963,
+   "done_by_system_1": true,
+   "think_fast_s": 0.013,
+   "window_really_changed": true,
+   "wall_s": 0.013
+  },
+  {
+   "said": "maximize python",
+   "wanted": "maximize",
+   "confidence": 0.964,
+   "done_by_system_1": true,
+   "think_fast_s": 0.0074,
+   "window_really_changed": true,
+   "wall_s": 0.007
+  },
+  {
+   "said": "minimize python",
+   "wanted": "minimize",
+   "confidence": 0.966,
+   "done_by_system_1": true,
+   "think_fast_s": 0.0084,
+   "window_really_changed": true,
+   "wall_s": 0.008
+  },
+  {
+   "said": "switch to python",
+   "wanted": "focus",
+   "confidence": 0.967,
+   "done_by_system_1": true,
+   "think_fast_s": 0.0183,
+   "window_really_changed": true,
+   "wall_s": 0.018
+  },
+  {
+   "said": "maximize python",
+   "wanted": "maximize",
+   "confidence": 0.968,
+   "done_by_system_1": true,
+   "think_fast_s": 0.0107,
+   "window_really_changed": true,
+   "wall_s": 0.011
+  },
+  {
+   "said": "maximize python please",
+   "wanted": "maximize",
+   "confidence": 0.969,
+   "done_by_system_1": true,
+   "think_fast_s": 0.0085,
+   "window_really_changed": true,
+   "wall_s": 0.009
+  },
+  {
+   "said": "close python",
+   "wanted": "close",
+   "confidence": 0.97,
+   "done_by_system_1": true,
+   "think_fast_s": 0.2016,
+   "window_really_changed": true,
+   "wall_s": 0.202
+  }
+ ]
+}

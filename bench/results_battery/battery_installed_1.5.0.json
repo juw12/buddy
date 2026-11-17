@@ -1,0 +1,116 @@
+{
+ "mode": "--installed",
+ "buddy_version": "1.5.0",
+ "at": "2026-11-17 15:50:18",
+ "commands_sent": 10,
+ "done_by_system_1_and_checked": 10,
+ "skipped": [],
+ "seconds_by_buddy_median": 0.006500000000000001,
+ "seconds_by_buddy_max": 0.204,
+ "wall_median_s": 0.892,
+ "wall_max_s": 1.305,
+ "note": "seconds_by_buddy is Buddy's own log line: from the question arriving to the action returning. wall_s also has the start of the Buddy.exe --ask helper and this script's polling in it.",
+ "rows": [
+  {
+   "said": "minimize python",
+   "wanted": "minimize",
+   "confidence": 0.958,
+   "window_really_changed": true,
+   "wall_s": 1.157,
+   "done_by_system_1": true,
+   "buddy_log_s": 0.005,
+   "buddy_log": "Fast (window, sure 0.96) in 0.005s: 'minimize python' -> Minimized python \"Buddy bench window\"."
+  },
+  {
+   "said": "switch to python",
+   "wanted": "focus",
+   "confidence": 0.958,
+   "window_really_changed": true,
+   "wall_s": 0.889,
+   "done_by_system_1": true,
+   "buddy_log_s": 0.019,
+   "buddy_log": "Fast (window, sure 0.96) in 0.019s: 'switch to python' -> Switched to python \"Buddy bench window\"."
+  },
+  {
+   "said": "maximize python",
+   "wanted": "maximize",
+   "confidence": 0.958,
+   "window_really_changed": true,
+   "wall_s": 0.886,
+   "done_by_system_1": true,
+   "buddy_log_s": 0.008,
+   "buddy_log": "Fast (window, sure 0.96) in 0.008s: 'maximize python' -> Maximized python \"Buddy bench window\"."
+  },
+  {
+   "said": "minimize python",
+   "wanted": "minimize",
+   "confidence": 0.958,
+   "window_really_changed": true,
+   "wall_s": 0.92,
+   "done_by_system_1": true,
+   "buddy_log_s": 0.005,
+   "buddy_log": "Fast (window, sure 0.96) in 0.005s: 'minimize python' -> Minimized python \"Buddy bench window\"."
+  },
+  {
+   "said": "switch to python",
+   "wanted": "focus",
+   "confidence": 0.958,
+   "window_really_changed": true,
+   "wall_s": 0.855,
+   "done_by_system_1": true,
+   "buddy_log_s": 0.017,
+   "buddy_log": "Fast (window, sure 0.97) in 0.017s: 'switch to python' -> Switched to python \"Buddy bench window\"."
+  },
+  {
+   "said": "maximize python",
+   "wanted": "maximize",
+   "confidence": 0.958,
+   "window_really_changed": true,
+   "wall_s": 0.818,
+   "done_by_system_1": true,
+   "buddy_log_s": 0.006,
+   "buddy_log": "Fast (window, sure 0.97) in 0.006s: 'maximize python' -> Maximized python \"Buddy bench window\"."
+  },
+  {
+   "said": "minimize python",
+   "wanted": "minimize",
+   "confidence": 0.958,
+   "window_really_changed": true,
+   "wall_s": 0.893,
+   "done_by_system_1": true,
+   "buddy_log_s": 0.007,
+   "buddy_log": "Fast (window, sure 0.97) in 0.007s: 'minimize python' -> Minimized python \"Buddy bench window\"."
+  },
+  {
+   "said": "switch to python",
+   "wanted": "focus",
+   "confidence": 0.958,
+   "window_really_changed": true,
+   "wall_s": 0.899,
+   "done_by_system_1": true,
+   "buddy_log_s": 0.006,
+   "buddy_log": "Fast (window, sure 0.97) in 0.006s: 'switch to python' -> Switched to python \"Buddy bench window\"."
+  },
+  {
+   "said": "maximize python",
+   "wanted": "maximize",
+   "confidence": 0.958,
+   "window_really_changed": true,
+   "wall_s": 0.891,
+   "done_by_system_1": true,
+   "buddy_log_s": 0.004,
+   "buddy_log": "Fast (window, sure 0.97) in 0.004s: 'maximize python' -> Maximized python \"Buddy bench window\"."
+  },
+  {
+   "said": "close python",
+   "wanted": "close",
+   "confidence": 0.958,
+   "window_really_changed": true,
+   "wall_s": 1.305,
+   "done_by_system_1": true,
+   "buddy_log_s": 0.204,
+   "buddy_log": "Fast (window, sure 0.97) in 0.204s: 'close python' -> Closed python \"Buddy bench window\"."
+  }
+ ],
+ "made_by": "the first copy of bench/battery.py, before the app folder became an argument: the same commands, checks and timing; it sent only the three old wordings (three rounds) and the close"
+}

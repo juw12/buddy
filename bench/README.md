@@ -747,7 +747,33 @@ fast actions come almost entirely from the person meaning something else this ti
 compares it with the shipped file, checks that Buddy behaves as 1.5.0 when the file is missing or broken, and breaks
 the "no" feedback in four ways on purpose to see that each one is caught.
 
-One check in the installed app (Buddy 1.5.0, 17 Nov 2026): `Buddy.exe --ask "minimize python"` at a moment with no
-keyboard or mouse use, on a window the check had opened. Buddy's log: `Fast (window, sure 0.96) in 0.005s`; Windows
-reported the window minimized. One command, typed, before 1.6.0 was installed: nobody has spoken one at a real
-microphone yet.
+#### Real window actions with the built and the installed app
+
+    python bench/battery.py                                          # the code inside dist/Buddy, in this process
+    python bench/battery.py --app "C:/path/to/Buddy"                 # the code inside another Buddy folder
+    python bench/battery.py --app "C:/path/to/Buddy" --through-app   # the Buddy running there, by Buddy.exe --ask
+
+`bench/battery.py` opens a small window of its own and gives 19 typed commands about it: minimize, switch to and
+maximize three times over, nine other wordings ("hide ...", "bring up ...", "make ... full screen", "could you switch
+to ...?"), then close. Before each command it puts the window in a state the command has to change, and afterwards it
+asks Windows whether it did. A command is only sent when the app's own System 1 code says it will act at once;
+anything else would go to the brain, which takes a screenshot, so it is skipped and listed. It waits for 25 s without
+keyboard or mouse use first. Results: [results_battery](results_battery), 17 Nov 2026.
+
+| What ran | Done at once and confirmed by Windows | Handed to the brain (not sent) | Words to done |
+|---|---|---|---|
+| Code inside the built Buddy 1.6.0, in the bench's process | 19 of 19 | 0 | 0.009 s median, 0.202 s slowest (close) |
+| Code inside Buddy 1.5.0, in the bench's process | 11 of 19 | 8 | 0.011 s median, 0.202 s slowest (close) |
+| The running, installed Buddy 1.5.0, by `Buddy.exe --ask` (three old wordings three times, then close) | 10 of 10 | not tried | 0.007 s median, 0.204 s slowest (close), by Buddy's own log; 0.89 s median with the start of the `--ask` helper |
+
+What this does and does not show:
+
+- The files that ship in 1.6.0 (code and `minds_model.json`) act on a real window, and wordings 1.5.0 did not know
+  are done at once.
+- The 19 wordings were picked by the bench's author, nine of them after the training. They are not a sample of what
+  people say, so 19 of 19 is not a coverage figure. The held-out sets above are (42 of 191 for the simulated users).
+- Closing takes 0.2 s because Buddy waits to see the window go.
+- The installed row is Buddy 1.5.0: the installed app updates itself in its own time and was not forced. **Buddy
+  1.6.0 has not been checked installed and running.** That row was made by the first copy of this bench, before the
+  app folder became an argument.
+- Every command was typed. Nobody has spoken one to the installed app at a real microphone yet.
