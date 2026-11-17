@@ -1,24 +1,25 @@
 {
-  "version": "1.3.2",
-  "date": "2026-11-11",
+  "version": "1.4.0",
+  "date": "2026-11-17",
   "notes": [
-    "Buddy for Mac is no longer English-only. Menu bar, Voice language: hold-to-talk listens in Indonesian, Chinese (Taiwan or Mainland), Cantonese, Japanese, Korean, Malay, Thai, Vietnamese, Hindi, German, French, Spanish, Portuguese or English.",
-    "On the Mac, Buddy answers in the language you asked in and reads the answer with a Mac voice for that language. On a test Mac, Apple's older language detector read Indonesian as Turkish; Buddy now uses the newer recogniser and your voice language as a hint.",
-    "On the Mac, menu items a non-English answer puts on the screen's top edge now snap to the matching text on screen, the Mac form of the 1.3.1 Windows fix.",
-    "Windows: the Focus tab's summary uses the whole width of the tab and says 1/5 stars instead of 1 stars."
+    "Windows: talk mode. Press Ctrl+Alt+T, or pick \"Talk with Buddy\" in the tray menu, and have a spoken conversation without holding a key. Press it again to stop.",
+    "Buddy decides you have finished from your words, not only from a pause. On 192 test clips it was right about 89 to 93 % of the time, against 73 % for a fixed pause. The clips are computer-made voices we built ourselves, not recordings of real people.",
+    "You can interrupt Buddy while it is speaking: start talking and it stops and listens.",
+    "Known limits: on a busy laptop Buddy can take more than a second to notice you have finished (our 0.3 second target is not met yet). There is no echo cancelling, so use a headset in talk mode, or Buddy may hear its own voice.",
+    "Mac: no changes in this version, only the version number."
   ],
-  "page": "https://github.com/juw12/buddy/releases/tag/v1.3.2",
+  "page": "https://github.com/juw12/buddy/releases/tag/v1.4.0",
   "windows": {
-    "version": "1.3.2",
-    "url": "https://github.com/juw12/buddy/releases/download/v1.3.2/Buddy-win64.zip",
-    "size": 179233859,
-    "sha256": "44c5c76ccced8702a94f3992be7e2d251ed2d3046ff0c642d0f36d9205525f73"
+    "version": "1.4.0",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.4.0/Buddy-win64.zip",
+    "size": 181154090,
+    "sha256": "74b1763c3e0ef881f12b222380393e611cc3e2791f2c6e7c7466dd279e81a382"
   },
   "mac": {
-    "version": "1.3.2",
-    "url": "https://github.com/juw12/buddy/releases/download/v1.3.2/Buddy-mac.zip",
-    "size": 17586778,
-    "sha256": "d697f273016df11e6f392237a3abc7f443b91135e4311f117a200a99e0380ac1"
+    "version": "1.4.0",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.4.0/Buddy-mac.zip",
+    "size": 17588522,
+    "sha256": "b67742e2a5a4fd6e323c3f1c40e2ddd56ef30fba90ef7666661ae6ba2c7ef335"
   },
   "ios": {
     "version": "1.1.0",
