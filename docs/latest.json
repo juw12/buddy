@@ -1,27 +1,28 @@
 {
-  "version": "1.5.0",
+  "version": "1.6.0",
   "date": "2026-11-17",
   "notes": [
-    "Windows: simple one-step commands are now done at once, without waiting for the brain. \"Minimize excel\", \"switch to outlook\", \"open notepad\" and \"open google.com\" no longer take a screenshot and a few seconds of thinking. In 15 real window actions on our test laptop this took 0.014 seconds (the slowest 0.092), where the free brain needed about 3.4 seconds just to reply.",
-    "Anything less plain is still thought over first: a question, two steps (\"and\", \"then\"), a \"don't\", an \"if\", \"all\" or \"every\", \"could you\" or \"maybe\", more than 8 words, highlighted text, or a window Buddy cannot pin down (two Notepads, or an app that is not open).",
-    "The more a mistake would cost, the surer Buddy has to be before it acts alone. That is why \"close this\" still goes to the brain.",
-    "Buddy picks up habits: when the brain does the same single step for the same short phrase again and again, Buddy starts doing it at once. Say or type \"no\", \"not that\", \"wrong\" or \"undo\" within 30 seconds and it counts against what Buddy just did, so the brain is asked again next time. Habits stay on your PC.",
-    "On 94 test requests the rules had never met, Buddy did 43 of the 49 one-step commands at once and none of them wrongly. Known limits: both test lists are typed English written by the same person who wrote the rules, 44 fast answers with no mistake still allows an error rate of up to about 7 %, a \"no\" said while Buddy is speaking in talk mode is not counted, and the habit numbers are not yet checked against real use.",
+    "Windows: Buddy's quick mind has been to school. It practised on 30,000 simulated requests where the right answer was known, plus several hundred written by a language model playing different people, and learned how sure it can be of each kind of command. Before, that was a hand count from about 50 examples.",
+    "It now understands more ways of saying a simple command, 40 in all: \"quit outlook\", \"bring up excel\", \"make notepad full screen\", \"put notepad away\". Polite words no longer send a plain command to the slow brain: \"can you close notepad\" and \"minimize excel please\" are done at once.",
+    "It is more careful in two places. If you say \"open edge\" while Edge is already open, Buddy cannot know whether you want that window or a new one, so the brain decides. \"It\" and \"that\" (\"close it\") always go to the brain. \"Close this\" still does too.",
+    "Saying \"no\" over Buddy's reply in talk mode now counts against what Buddy just did at once, the same as typing it. \"Stop\" and \"wait\" only stop the voice.",
+    "How it was checked: on requests the simulator did not write (simulated users played by a second language model, Microsoft's Voice Access command list, our older test list and 5,500 requests written for other assistants), Buddy acted at once 114 times and never wrongly. When it said it was 98% sure, it was right every time; over all 233 readings its stated confidence was off by 0.028 on average.",
+    "Known limits: nearly all of this is simulated. No real person's requests and no real microphone have been measured yet. \"Never wrong in 114\" still allows an error rate of up to 2.6%. Buddy did only 42 of the simulated users' 191 one-step commands at once; the brain got the rest. On our older test list it does 40 of 49 at once, three fewer than 1.5.0, because of the \"already open\" caution. After you say \"no\" to a quick window action, closing a window by name goes back to the brain for a long time.",
     "To switch it off: Settings, Voice input, untick \"Do simple commands at once\".",
     "Mac: no changes in this version, only the version number."
   ],
-  "page": "https://github.com/juw12/buddy/releases/tag/v1.5.0",
+  "page": "https://github.com/juw12/buddy/releases/tag/v1.6.0",
   "windows": {
-    "version": "1.5.0",
-    "url": "https://github.com/juw12/buddy/releases/download/v1.5.0/Buddy-win64.zip",
-    "size": 181163379,
-    "sha256": "c76b897bc05957a41a328fc53bb9e69b0ce8059f7ee80fa62ec4b096244882fb"
+    "version": "1.6.0",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.6.0/Buddy-win64.zip",
+    "size": 181162837,
+    "sha256": "4d840557b757962deed72ba05143ac886be2b5da249a1b0f055ba617ea0442a8"
   },
   "mac": {
-    "version": "1.5.0",
-    "url": "https://github.com/juw12/buddy/releases/download/v1.5.0/Buddy-mac.zip",
-    "size": 17586651,
-    "sha256": "7aa18245d170faddd738b48500f39918ed290336c1b5bf95ec6a148aa82b5975"
+    "version": "1.6.0",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.6.0/Buddy-mac.zip",
+    "size": 17586564,
+    "sha256": "3968efd612a7d480d0db0f691cac788f443642c5fa7b3f6e2f1b94df150c66e7"
   },
   "ios": {
     "version": "1.1.0",
