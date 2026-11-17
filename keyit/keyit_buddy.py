@@ -38,6 +38,7 @@ import buddy_overlay
 import keyit_actions
 import keyit_core as core
 import keyit_gpu
+import keyit_minds
 import keyit_script
 import keyit_speech
 import keyit_talk
@@ -52,6 +53,7 @@ DEFAULTS = {
     "speech_model": "auto",           # Voice input -> Speech model: one of keyit_speech.CHOICES
     "dictation": True,                # Ctrl+Alt+D types what you say into the app in front
     "talk_mode": True,                # Ctrl+Alt+T starts a spoken conversation (keyit_talk)
+    "fast_thinking": True,            # routine one-step commands are done at once, without the brain (keyit_minds)
     "voice_cleanup": True,            # drop um/uh, apply spoken corrections ("no wait")
     "my_words": "",                   # Voice input -> My words: spellings + spoken shortcuts (keyit_words)
     "mic_device": "",                 # Voice input -> Microphone: "" = the Windows default
@@ -1002,6 +1004,51 @@ class ConfirmBox:
             self.on_answer(value)
 
 
+def think_fast(buddy, question, selection=""):
+    """System 1 (keyit_minds): a routine one-step command is done at once, with no screenshot and no brain.
+    True when it was done. False hands the question to System 2, the rest of Buddy._ask_locked."""
+    minds = getattr(buddy, "minds", None)
+    if minds is None:
+        return False
+    minds.heard(question)                                 # "no" right after an action counts against it
+    if not buddy.settings.get("fast_thinking", True):
+        return False
+    started = time.perf_counter()
+    try:
+        windows = keyit_actions.list_windows()
+    except Exception:
+        logging.debug("Could not list windows", exc_info=True)
+        return False
+    decision = minds.decide(question, windows, selection)
+    if decision.mind != keyit_minds.FAST:
+        logging.info("Thinking it over (%s): %r", decision.why, question)
+        return False
+    buddy._stop_look_ahead()
+    buddy.windows = windows
+    action, argument = decision.action
+    try:
+        if decision.window is not None:                   # exactly the window System 1 meant, no second guess
+            result = keyit_actions.run(action, "this", [decision.window], confirm=buddy.confirm)
+        else:
+            result = keyit_actions.run(action, argument, windows, confirm=buddy.confirm, question=question)
+    except Exception as error:
+        logging.exception("Buddy action %s failed", action)
+        result = f"I couldn't {action} that: {error}"
+    minds.acted(decision)
+    took = time.perf_counter() - started
+    buddy.history += [{"role": "user", "content": question}, {"role": "assistant", "content": result}]
+    buddy.last_reply = {"question": question, "reply": result, "spoken": result, "points": [],
+                        "actions": [decision.action], "action_results": [result], "mind": keyit_minds.FAST}
+    buddy.last_timing = {"first_token_s": took, "total_s": took, "points": 0}
+    buddy.on_status(f"Done in {took:.2f}s without the brain: {result}")
+    logging.info("Fast (%s, sure %.2f) in %.3fs: %r -> %s", decision.why, decision.confidence, took, question, result)
+    if buddy.settings["buddy_speak"]:
+        buddy.speaker.say(result)
+    buddy.post(buddy.overlay.say, result)
+    buddy.post(buddy.overlay.hide_later, 6000)
+    return True
+
+
 class Buddy:
     """Push-to-talk flow. Call press()/release() from the hook; ask_text() from the GUI."""
 
@@ -1037,6 +1084,7 @@ class Buddy:
         self.maas_failed_until = 0.0          # after an off-PC brain failure: local brain until this time
         self.local_missing = False            # "auto" and no local brain works here: use the free cloud brain
         self.windows = []                     # open windows when the question started (for actions)
+        self.minds = keyit_minds.Minds(str(core.USER_DIR / "habits.json"))   # System 1: fast, and what it learned
         threading.Thread(target=self._prepare, daemon=True).start()
 
     # -- setup
@@ -1769,6 +1817,8 @@ class Buddy:
         return prompt
 
     def _ask_locked(self, question, generation, selection=""):
+        if think_fast(self, question, selection):
+            return
         started = time.perf_counter()
         look = self._take_look_ahead()
         if look is not None:
@@ -1864,6 +1914,9 @@ class Buddy:
                            "actions": actions}
         if actions:
             self._do_actions(actions, targets, spoken, generation, question)
+            minds = getattr(self, "minds", None)
+            if minds is not None:
+                minds.learn(question, actions)        # practice: a routine step can become a habit
         elif screen_points:
             self.post(self.overlay.tour, screen_points, spoken)
         else:

@@ -620,8 +620,14 @@ class KeyItApp:
                                  "speak up, or press Esc.",
                          column=0, padx=(26, 6))
 
+        self.fast_var = tk.BooleanVar(value=self.settings.get("fast_thinking", True))
+        ttk.Checkbutton(box, text="Do simple commands at once (close, minimize, switch to, open an app), "
+                                  "without asking the brain",
+                        variable=self.fast_var, command=self._on_voice_input_changed).grid(
+            row=11, column=0, columnspan=3, sticky="w", padx=6, pady=(4, 0))
+
         buttons = ttk.Frame(box)
-        buttons.grid(row=11, column=0, columnspan=3, sticky="w", padx=6, pady=(4, 6))
+        buttons.grid(row=12, column=0, columnspan=3, sticky="w", padx=6, pady=(4, 6))
         ttk.Button(buttons, text="My words\u2026", command=self._edit_my_words).pack(side="left")
         ttk.Button(buttons, text="Type last dictation again", command=self._type_last_dictation).pack(
             side="left", padx=(6, 0))
@@ -645,7 +651,7 @@ class KeyItApp:
         changed_engine = (choice, language) != (self.settings.get("speech_model"), self.settings.get("speech_language"))
         self.settings.update(speech_model=choice, speech_language=language, mic_device=mic,
                              dictation=self.dictation_var.get(), voice_cleanup=self.cleanup_var.get(),
-                             talk_mode=self.talk_var.get())
+                             talk_mode=self.talk_var.get(), fast_thinking=self.fast_var.get())
         core.save_settings(self.settings)
         self._show_language_note()
         if changed_engine:

@@ -1,0 +1,3228 @@
+{
+ "cpu_load_percent": 89.3,
+ "priors": {
+  "window": [
+   22,
+   22
+  ],
+  "this": [
+   6,
+   6
+  ],
+  "app": [
+   14,
+   14
+  ],
+  "site": [
+   8,
+   8
+  ]
+ },
+ "priors_match_dev": true,
+ "dev": {
+  "requests": 96,
+  "one_step_commands": 53,
+  "must_think": 43,
+  "done_fast": 48,
+  "wrong_fast": 0,
+  "one_step_done_fast": 48,
+  "missed": [
+   "close this",
+   "close this window",
+   "can you close notepad",
+   "save it",
+   "type hello"
+  ],
+  "rules": {
+   "app": {
+    "stated": 0.938,
+    "right": 14,
+    "seen": 14,
+    "observed": 1.0,
+    "overconfident_by": -0.062
+   },
+   "site": {
+    "stated": 0.9,
+    "right": 8,
+    "seen": 8,
+    "observed": 1.0,
+    "overconfident_by": -0.1
+   },
+   "this": {
+    "stated": 0.875,
+    "right": 6,
+    "seen": 6,
+    "observed": 1.0,
+    "overconfident_by": -0.125
+   },
+   "window": {
+    "stated": 0.958,
+    "right": 22,
+    "seen": 22,
+    "observed": 1.0,
+    "overconfident_by": -0.042
+   }
+  },
+  "ece": 0.0668
+ },
+ "test": {
+  "requests": 94,
+  "one_step_commands": 49,
+  "must_think": 45,
+  "done_fast": 43,
+  "wrong_fast": 0,
+  "one_step_done_fast": 43,
+  "missed": [
+   "close this app",
+   "close the current window",
+   "maximize this window please",
+   "could you minimize excel",
+   "copy this",
+   "type best regards"
+  ],
+  "rules": {
+   "app": {
+    "stated": 0.938,
+    "right": 14,
+    "seen": 14,
+    "observed": 1.0,
+    "overconfident_by": -0.062
+   },
+   "site": {
+    "stated": 0.9,
+    "right": 4,
+    "seen": 4,
+    "observed": 1.0,
+    "overconfident_by": -0.1
+   },
+   "this": {
+    "stated": 0.875,
+    "right": 4,
+    "seen": 4,
+    "observed": 1.0,
+    "overconfident_by": -0.125
+   },
+   "window": {
+    "stated": 0.958,
+    "right": 22,
+    "seen": 22,
+    "observed": 1.0,
+    "overconfident_by": -0.042
+   }
+  },
+  "ece": 0.0612
+ },
+ "decision_time": {
+  "decisions": 38000,
+  "median_ms": 0.0106,
+  "p95_ms": 0.0233,
+  "max_ms": 2.0936
+ },
+ "practice_needed": {
+  "focus": {
+   "bar": 0.8,
+   "times": 3
+  },
+  "minimize": {
+   "bar": 0.8,
+   "times": 3
+  },
+  "maximize": {
+   "bar": 0.8,
+   "times": 3
+  },
+  "open": {
+   "bar": 0.85,
+   "times": 5
+  },
+  "keys": {
+   "bar": 0.9,
+   "times": 8
+  },
+  "close": {
+   "bar": 0.95,
+   "times": 18
+  }
+ },
+ "real": {
+  "rows": [
+   {
+    "said": "minimize python",
+    "done_by_system_1": true,
+    "seconds": 0.092,
+    "window_really_changed": true,
+    "status": "Done in 0.09s without the brain: Minimized python \"Buddy bench window\"."
+   },
+   {
+    "said": "maximize python",
+    "done_by_system_1": true,
+    "seconds": 0.048,
+    "window_really_changed": true,
+    "status": "Done in 0.05s without the brain: Maximized python \"Buddy bench window\"."
+   },
+   {
+    "said": "switch to python",
+    "done_by_system_1": true,
+    "seconds": 0.0074,
+    "window_really_changed": true,
+    "status": "Done in 0.01s without the brain: Switched to python \"Buddy bench window\"."
+   },
+   {
+    "said": "minimize python",
+    "done_by_system_1": true,
+    "seconds": 0.0157,
+    "window_really_changed": true,
+    "status": "Done in 0.02s without the brain: Minimized python \"Buddy bench window\"."
+   },
+   {
+    "said": "maximize python",
+    "done_by_system_1": true,
+    "seconds": 0.0265,
+    "window_really_changed": true,
+    "status": "Done in 0.03s without the brain: Maximized python \"Buddy bench window\"."
+   },
+   {
+    "said": "switch to python",
+    "done_by_system_1": true,
+    "seconds": 0.0056,
+    "window_really_changed": true,
+    "status": "Done in 0.01s without the brain: Switched to python \"Buddy bench window\"."
+   },
+   {
+    "said": "minimize python",
+    "done_by_system_1": true,
+    "seconds": 0.0145,
+    "window_really_changed": true,
+    "status": "Done in 0.01s without the brain: Minimized python \"Buddy bench window\"."
+   },
+   {
+    "said": "maximize python",
+    "done_by_system_1": true,
+    "seconds": 0.0141,
+    "window_really_changed": true,
+    "status": "Done in 0.01s without the brain: Maximized python \"Buddy bench window\"."
+   },
+   {
+    "said": "switch to python",
+    "done_by_system_1": true,
+    "seconds": 0.0047,
+    "window_really_changed": true,
+    "status": "Done in 0.00s without the brain: Switched to python \"Buddy bench window\"."
+   },
+   {
+    "said": "minimize python",
+    "done_by_system_1": true,
+    "seconds": 0.0092,
+    "window_really_changed": true,
+    "status": "Done in 0.01s without the brain: Minimized python \"Buddy bench window\"."
+   },
+   {
+    "said": "maximize python",
+    "done_by_system_1": true,
+    "seconds": 0.0164,
+    "window_really_changed": true,
+    "status": "Done in 0.02s without the brain: Maximized python \"Buddy bench window\"."
+   },
+   {
+    "said": "switch to python",
+    "done_by_system_1": true,
+    "seconds": 0.0075,
+    "window_really_changed": true,
+    "status": "Done in 0.01s without the brain: Switched to python \"Buddy bench window\"."
+   },
+   {
+    "said": "minimize python",
+    "done_by_system_1": true,
+    "seconds": 0.0071,
+    "window_really_changed": true,
+    "status": "Done in 0.01s without the brain: Minimized python \"Buddy bench window\"."
+   },
+   {
+    "said": "maximize python",
+    "done_by_system_1": true,
+    "seconds": 0.0179,
+    "window_really_changed": true,
+    "status": "Done in 0.02s without the brain: Maximized python \"Buddy bench window\"."
+   },
+   {
+    "said": "switch to python",
+    "done_by_system_1": true,
+    "seconds": 0.0018,
+    "window_really_changed": true,
+    "status": "Done in 0.00s without the brain: Switched to python \"Buddy bench window\"."
+   }
+  ],
+  "median_s": 0.0141,
+  "max_s": 0.092,
+  "all_done": true,
+  "list_windows_median_ms": 2.393,
+  "note": "from the words to the action returning; speech and the on-screen bubble are not in it"
+ },
+ "brain": {
+  "brain": "free cloud brain (https://buddy-brain.juwenmondial.workers.dev/v1/chat/completions)",
+  "rows": [
+   {
+    "said": "close outlook",
+    "seconds": 4.19,
+    "reply": "Closing Outlook. [DO:close:Inbox - Outlook]",
+    "error": "",
+    "same_action": true
+   },
+   {
+    "said": "minimize excel",
+    "seconds": 3.189,
+    "reply": "Minimizing Excel. [DO:minimize:BOM_rev3.xlsx]",
+    "error": "",
+    "same_action": true
+   },
+   {
+    "said": "switch to notepad",
+    "seconds": 3.714,
+    "reply": "Switching to Notepad. [DO:focus:Untitled - Notepad]",
+    "error": "",
+    "same_action": true
+   },
+   {
+    "said": "open paint",
+    "seconds": 2.996,
+    "reply": "Opening Paint. [DO:open:mspaint]",
+    "error": "",
+    "same_action": true
+   },
+   {
+    "said": "maximize outlook",
+    "seconds": 3.731,
+    "reply": "Maximizing Outlook. [DO:maximize:Inbox - Outlook]",
+    "error": "",
+    "same_action": true
+   },
+   {
+    "said": "go to file explorer",
+    "seconds": 3.916,
+    "reply": "I'm opening File Explorer. [DO:open:Downloads]",
+    "error": "",
+    "same_action": false
+   },
+   {
+    "said": "close outlook",
+    "seconds": 3.084,
+    "reply": "Closing Outlook. [DO:close:Inbox - Outlook]",
+    "error": "",
+    "same_action": true
+   },
+   {
+    "said": "minimize excel",
+    "seconds": 3.312,
+    "reply": "Minimizing Excel. [DO:minimize:BOM_rev3.xlsx]",
+    "error": "",
+    "same_action": true
+   },
+   {
+    "said": "switch to notepad",
+    "seconds": 4.1,
+    "reply": "Switching to Notepad. [DO:focus:Untitled - Notepad]",
+    "error": "",
+    "same_action": true
+   },
+   {
+    "said": "open paint",
+    "seconds": 2.932,
+    "reply": "Opening Paint. [DO:open:mspaint]",
+    "error": "",
+    "same_action": true
+   },
+   {
+    "said": "maximize outlook",
+    "seconds": 3.232,
+    "reply": "Maximizing Outlook. [DO:maximize:Outlook]",
+    "error": "",
+    "same_action": true
+   },
+   {
+    "said": "go to file explorer",
+    "seconds": 3.395,
+    "reply": "I'm opening File Explorer. [DO:open:File Explorer]",
+    "error": "",
+    "same_action": false
+   }
+  ],
+  "median_s": 3.3535,
+  "min_s": 2.932,
+  "max_s": 4.19,
+  "errors": 0
+ },
+ "rows": {
+  "dev": [
+   {
+    "text": "close notepad",
+    "expected": [
+     "close",
+     "Notepad"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "close",
+     "Notepad"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "Close Notepad.",
+    "expected": [
+     "close",
+     "Notepad"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "close",
+     "Notepad"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "please close outlook",
+    "expected": [
+     "close",
+     "Outlook"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "close",
+     "Outlook"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close the notepad window",
+    "expected": [
+     "close",
+     "Notepad"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "close",
+     "Notepad"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "quit excel",
+    "expected": [
+     "close",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "close",
+     "Excel"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "exit outlook",
+    "expected": [
+     "close",
+     "Outlook"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "close",
+     "Outlook"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "minimize outlook",
+    "expected": [
+     "minimize",
+     "Outlook"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "minimize",
+     "Outlook"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "minimise excel",
+    "expected": [
+     "minimize",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "minimize",
+     "Excel"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "Minimize Notepad.",
+    "expected": [
+     "minimize",
+     "Notepad"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "minimize",
+     "Notepad"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "maximize notepad",
+    "expected": [
+     "maximize",
+     "Notepad"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "maximize",
+     "Notepad"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "maximize the excel window",
+    "expected": [
+     "maximize",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "maximize",
+     "Excel"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "switch to outlook",
+    "expected": [
+     "focus",
+     "Outlook"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "focus",
+     "Outlook"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "go to excel",
+    "expected": [
+     "focus",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "focus",
+     "Excel"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "switch to notepad",
+    "expected": [
+     "focus",
+     "Notepad"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "focus",
+     "Notepad"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "switch to file explorer",
+    "expected": [
+     "focus",
+     "File Explorer"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "focus",
+     "File Explorer"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close file explorer",
+    "expected": [
+     "close",
+     "File Explorer"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "close",
+     "File Explorer"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "minimize explorer",
+    "expected": [
+     "minimize",
+     "File Explorer"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "minimize",
+     "File Explorer"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "switch to edge",
+    "expected": [
+     "focus",
+     "Microsoft Edge"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "focus",
+     "Microsoft Edge"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "maximize microsoft edge",
+    "expected": [
+     "maximize",
+     "Microsoft Edge"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "maximize",
+     "Microsoft Edge"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close edge",
+    "expected": [
+     "close",
+     "Microsoft Edge"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "close",
+     "Microsoft Edge"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "go to the notepad window",
+    "expected": [
+     "focus",
+     "Notepad"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "focus",
+     "Notepad"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "please minimize notepad",
+    "expected": [
+     "minimize",
+     "Notepad"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "minimize",
+     "Notepad"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "minimize this",
+    "expected": [
+     "minimize",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "this",
+    "rule": "this",
+    "did": [
+     "minimize",
+     "Excel"
+    ],
+    "confidence": 0.875,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "maximize this window",
+    "expected": [
+     "maximize",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "this",
+    "rule": "this",
+    "did": [
+     "maximize",
+     "Excel"
+    ],
+    "confidence": 0.875,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close this",
+    "expected": [
+     "close",
+     "Excel"
+    ],
+    "mind": "slow",
+    "why": "not sure enough to close alone (0.88 < 0.95)",
+    "rule": "this",
+    "did": [
+     "close",
+     "Excel"
+    ],
+    "confidence": 0.875,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": true
+   },
+   {
+    "text": "minimize this window",
+    "expected": [
+     "minimize",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "this",
+    "rule": "this",
+    "did": [
+     "minimize",
+     "Excel"
+    ],
+    "confidence": 0.875,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close this window",
+    "expected": [
+     "close",
+     "Excel"
+    ],
+    "mind": "slow",
+    "why": "not sure enough to close alone (0.88 < 0.95)",
+    "rule": "this",
+    "did": [
+     "close",
+     "Excel"
+    ],
+    "confidence": 0.875,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": true
+   },
+   {
+    "text": "maximize this",
+    "expected": [
+     "maximize",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "this",
+    "rule": "this",
+    "did": [
+     "maximize",
+     "Excel"
+    ],
+    "confidence": 0.875,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open notepad",
+    "expected": [
+     "open",
+     "notepad"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "notepad"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open calculator",
+    "expected": [
+     "open",
+     "calculator"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "calculator"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "launch paint",
+    "expected": [
+     "open",
+     "paint"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "paint"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "start task manager",
+    "expected": [
+     "open",
+     "task manager"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "task manager"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open chrome",
+    "expected": [
+     "open",
+     "chrome"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "chrome"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "Open Excel.",
+    "expected": [
+     "open",
+     "excel"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "excel"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open word",
+    "expected": [
+     "open",
+     "word"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "word"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open powerpoint",
+    "expected": [
+     "open",
+     "powerpoint"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "powerpoint"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "launch file explorer",
+    "expected": [
+     "open",
+     "file explorer"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "file explorer"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open settings",
+    "expected": [
+     "open",
+     "settings"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "settings"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "start outlook",
+    "expected": [
+     "open",
+     "outlook"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "outlook"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open terminal",
+    "expected": [
+     "open",
+     "terminal"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "terminal"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "please open teams",
+    "expected": [
+     "open",
+     "teams"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "teams"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open control panel",
+    "expected": [
+     "open",
+     "control panel"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "control panel"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open google.com",
+    "expected": [
+     "open",
+     "google.com"
+    ],
+    "mind": "fast",
+    "why": "site",
+    "rule": "site",
+    "did": [
+     "open",
+     "google.com"
+    ],
+    "confidence": 0.9,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open github.com",
+    "expected": [
+     "open",
+     "github.com"
+    ],
+    "mind": "fast",
+    "why": "site",
+    "rule": "site",
+    "did": [
+     "open",
+     "github.com"
+    ],
+    "confidence": 0.9,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open www.wikipedia.org",
+    "expected": [
+     "open",
+     "www.wikipedia.org"
+    ],
+    "mind": "fast",
+    "why": "site",
+    "rule": "site",
+    "did": [
+     "open",
+     "www.wikipedia.org"
+    ],
+    "confidence": 0.9,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "launch youtube.com",
+    "expected": [
+     "open",
+     "youtube.com"
+    ],
+    "mind": "fast",
+    "why": "site",
+    "rule": "site",
+    "did": [
+     "open",
+     "youtube.com"
+    ],
+    "confidence": 0.9,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open outlook.com",
+    "expected": [
+     "open",
+     "outlook.com"
+    ],
+    "mind": "fast",
+    "why": "site",
+    "rule": "site",
+    "did": [
+     "open",
+     "outlook.com"
+    ],
+    "confidence": 0.9,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open python.org",
+    "expected": [
+     "open",
+     "python.org"
+    ],
+    "mind": "fast",
+    "why": "site",
+    "rule": "site",
+    "did": [
+     "open",
+     "python.org"
+    ],
+    "confidence": 0.9,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "start maps.google.com",
+    "expected": [
+     "open",
+     "maps.google.com"
+    ],
+    "mind": "fast",
+    "why": "site",
+    "rule": "site",
+    "did": [
+     "open",
+     "maps.google.com"
+    ],
+    "confidence": 0.9,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open example.net",
+    "expected": [
+     "open",
+     "example.net"
+    ],
+    "mind": "fast",
+    "why": "site",
+    "rule": "site",
+    "did": [
+     "open",
+     "example.net"
+    ],
+    "confidence": 0.9,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open readme.md",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open report.docx",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "how do I close notepad",
+    "expected": null,
+    "mind": "slow",
+    "why": "a question",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "what does this button do",
+    "expected": null,
+    "mind": "slow",
+    "why": "a question",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close notepad and open excel",
+    "expected": null,
+    "mind": "slow",
+    "why": "two steps",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open notepad then type hello",
+    "expected": null,
+    "mind": "slow",
+    "why": "two steps",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "don't close notepad",
+    "expected": null,
+    "mind": "slow",
+    "why": "a negation",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close notepad if it's saved",
+    "expected": null,
+    "mind": "slow",
+    "why": "a condition",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close everything",
+    "expected": null,
+    "mind": "slow",
+    "why": "more than one thing",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "minimize all windows",
+    "expected": null,
+    "mind": "slow",
+    "why": "more than one thing",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close the popup",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close it",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close that",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close this tab",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open the file I was working on",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open my email",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open sesame",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "start over",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "start recording",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "go to sleep",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "go to the next page",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "switch to teams",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close word",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close notepad plus plus",
+    "expected": null,
+    "mind": "slow",
+    "why": "two steps",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "exit full screen",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "quit talking",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "can you close notepad",
+    "expected": [
+     "close",
+     "Notepad"
+    ],
+    "mind": "slow",
+    "why": "a doubt",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": true
+   },
+   {
+    "text": "close excel?",
+    "expected": null,
+    "mind": "slow",
+    "why": "a doubt",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open a new tab",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open the downloads folder",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close the other window",
+    "expected": null,
+    "mind": "slow",
+    "why": "more than one thing",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "maybe close outlook",
+    "expected": null,
+    "mind": "slow",
+    "why": "a doubt",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close outlook later",
+    "expected": null,
+    "mind": "slow",
+    "why": "a condition",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "where is the save button",
+    "expected": null,
+    "mind": "slow",
+    "why": "a question",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "save it",
+    "expected": [
+     "keys",
+     "ctrl+s"
+    ],
+    "mind": "slow",
+    "why": "nothing I know by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": true
+   },
+   {
+    "text": "click insert",
+    "expected": null,
+    "mind": "slow",
+    "why": "nothing I know by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "type hello",
+    "expected": [
+     "type",
+     "hello"
+    ],
+    "mind": "slow",
+    "why": "nothing I know by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": true
+   },
+   {
+    "text": "explain this error",
+    "expected": null,
+    "mind": "slow",
+    "why": "a question",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open notepad or wordpad",
+    "expected": null,
+    "mind": "slow",
+    "why": "more than one thing",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "minimize",
+    "expected": null,
+    "mind": "slow",
+    "why": "nothing I know by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close",
+    "expected": null,
+    "mind": "slow",
+    "why": "nothing I know by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open excel file bom",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "switch to the other one",
+    "expected": null,
+    "mind": "slow",
+    "why": "more than one thing",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close both excel windows",
+    "expected": null,
+    "mind": "slow",
+    "why": "more than one thing",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "is notepad open",
+    "expected": null,
+    "mind": "slow",
+    "why": "a question",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "tell me how to open settings",
+    "expected": null,
+    "mind": "slow",
+    "why": "a question",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   }
+  ],
+  "test": [
+   {
+    "text": "close outlook",
+    "expected": [
+     "close",
+     "Outlook"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "close",
+     "Outlook"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "Close Excel.",
+    "expected": [
+     "close",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "close",
+     "Excel"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "please close notepad",
+    "expected": [
+     "close",
+     "Notepad"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "close",
+     "Notepad"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "quit notepad",
+    "expected": [
+     "close",
+     "Notepad"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "close",
+     "Notepad"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "exit excel",
+    "expected": [
+     "close",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "close",
+     "Excel"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close the outlook window",
+    "expected": [
+     "close",
+     "Outlook"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "close",
+     "Outlook"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "minimize excel",
+    "expected": [
+     "minimize",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "minimize",
+     "Excel"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "minimise notepad",
+    "expected": [
+     "minimize",
+     "Notepad"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "minimize",
+     "Notepad"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "please minimize outlook",
+    "expected": [
+     "minimize",
+     "Outlook"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "minimize",
+     "Outlook"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "minimize the excel window",
+    "expected": [
+     "minimize",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "minimize",
+     "Excel"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "maximize outlook",
+    "expected": [
+     "maximize",
+     "Outlook"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "maximize",
+     "Outlook"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "maximise excel",
+    "expected": [
+     "maximize",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "maximize",
+     "Excel"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "maximize edge",
+    "expected": [
+     "maximize",
+     "Microsoft Edge"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "maximize",
+     "Microsoft Edge"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "switch to excel",
+    "expected": [
+     "focus",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "focus",
+     "Excel"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "go to notepad",
+    "expected": [
+     "focus",
+     "Notepad"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "focus",
+     "Notepad"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "go to outlook",
+    "expected": [
+     "focus",
+     "Outlook"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "focus",
+     "Outlook"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "switch to microsoft edge",
+    "expected": [
+     "focus",
+     "Microsoft Edge"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "focus",
+     "Microsoft Edge"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "switch to the excel window",
+    "expected": [
+     "focus",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "focus",
+     "Excel"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "go to file explorer",
+    "expected": [
+     "focus",
+     "File Explorer"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "focus",
+     "File Explorer"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "quit edge",
+    "expected": [
+     "close",
+     "Microsoft Edge"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "close",
+     "Microsoft Edge"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "maximize file explorer",
+    "expected": [
+     "maximize",
+     "File Explorer"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "maximize",
+     "File Explorer"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close explorer",
+    "expected": [
+     "close",
+     "File Explorer"
+    ],
+    "mind": "fast",
+    "why": "window",
+    "rule": "window",
+    "did": [
+     "close",
+     "File Explorer"
+    ],
+    "confidence": 0.9583,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "maximise this",
+    "expected": [
+     "maximize",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "this",
+    "rule": "this",
+    "did": [
+     "maximize",
+     "Excel"
+    ],
+    "confidence": 0.875,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "minimize this app",
+    "expected": [
+     "minimize",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "this",
+    "rule": "this",
+    "did": [
+     "minimize",
+     "Excel"
+    ],
+    "confidence": 0.875,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close this app",
+    "expected": [
+     "close",
+     "Excel"
+    ],
+    "mind": "slow",
+    "why": "not sure enough to close alone (0.88 < 0.95)",
+    "rule": "this",
+    "did": [
+     "close",
+     "Excel"
+    ],
+    "confidence": 0.875,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": true
+   },
+   {
+    "text": "minimise this window",
+    "expected": [
+     "minimize",
+     "Excel"
+    ],
+    "mind": "fast",
+    "why": "this",
+    "rule": "this",
+    "did": [
+     "minimize",
+     "Excel"
+    ],
+    "confidence": 0.875,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close the current window",
+    "expected": [
+     "close",
+     "Excel"
+    ],
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": true
+   },
+   {
+    "text": "maximize this window please",
+    "expected": [
+     "maximize",
+     "Excel"
+    ],
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": true
+   },
+   {
+    "text": "open paint",
+    "expected": [
+     "open",
+     "paint"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "paint"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "launch notepad",
+    "expected": [
+     "open",
+     "notepad"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "notepad"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "start calculator",
+    "expected": [
+     "open",
+     "calculator"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "calculator"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open edge",
+    "expected": [
+     "open",
+     "edge"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "edge"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open microsoft edge",
+    "expected": [
+     "open",
+     "microsoft edge"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "microsoft edge"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "launch excel",
+    "expected": [
+     "open",
+     "excel"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "excel"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open outlook",
+    "expected": [
+     "open",
+     "outlook"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "outlook"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "start word",
+    "expected": [
+     "open",
+     "word"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "word"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open task manager",
+    "expected": [
+     "open",
+     "task manager"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "task manager"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "launch chrome",
+    "expected": [
+     "open",
+     "chrome"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "chrome"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open command prompt",
+    "expected": [
+     "open",
+     "command prompt"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "command prompt"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open snipping tool",
+    "expected": [
+     "open",
+     "snipping tool"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "snipping tool"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "start teams",
+    "expected": [
+     "open",
+     "teams"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "teams"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open explorer",
+    "expected": [
+     "open",
+     "explorer"
+    ],
+    "mind": "fast",
+    "why": "app",
+    "rule": "app",
+    "did": [
+     "open",
+     "explorer"
+    ],
+    "confidence": 0.9375,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open bing.com",
+    "expected": [
+     "open",
+     "bing.com"
+    ],
+    "mind": "fast",
+    "why": "site",
+    "rule": "site",
+    "did": [
+     "open",
+     "bing.com"
+    ],
+    "confidence": 0.9,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open www.github.com",
+    "expected": [
+     "open",
+     "www.github.com"
+    ],
+    "mind": "fast",
+    "why": "site",
+    "rule": "site",
+    "did": [
+     "open",
+     "www.github.com"
+    ],
+    "confidence": 0.9,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "launch openai.com",
+    "expected": [
+     "open",
+     "openai.com"
+    ],
+    "mind": "fast",
+    "why": "site",
+    "rule": "site",
+    "did": [
+     "open",
+     "openai.com"
+    ],
+    "confidence": 0.9,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open docs.python.org",
+    "expected": [
+     "open",
+     "docs.python.org"
+    ],
+    "mind": "fast",
+    "why": "site",
+    "rule": "site",
+    "did": [
+     "open",
+     "docs.python.org"
+    ],
+    "confidence": 0.9,
+    "read_right": true,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "how do I minimize this",
+    "expected": null,
+    "mind": "slow",
+    "why": "a question",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "what is this window for",
+    "expected": null,
+    "mind": "slow",
+    "why": "a question",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "minimize outlook and close excel",
+    "expected": null,
+    "mind": "slow",
+    "why": "two steps",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close excel then open it again",
+    "expected": null,
+    "mind": "slow",
+    "why": "two steps",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "do not close outlook",
+    "expected": null,
+    "mind": "slow",
+    "why": "a negation",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "never minimize excel",
+    "expected": null,
+    "mind": "slow",
+    "why": "a negation",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close outlook when the mail is sent",
+    "expected": null,
+    "mind": "slow",
+    "why": "a condition",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close all windows",
+    "expected": null,
+    "mind": "slow",
+    "why": "more than one thing",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "minimize everything",
+    "expected": null,
+    "mind": "slow",
+    "why": "more than one thing",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close the dialog",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "minimize it",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "maximize that",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close this file",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open the report from yesterday",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open my calendar",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open up",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "start again",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "start the test",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "go to bed",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "go to the last slide",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "switch to chrome",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close powerpoint",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close outlook express",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "exit presentation mode",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "quit complaining",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "could you minimize excel",
+    "expected": [
+     "minimize",
+     "Excel"
+    ],
+    "mind": "slow",
+    "why": "a doubt",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": true
+   },
+   {
+    "text": "minimize outlook?",
+    "expected": null,
+    "mind": "slow",
+    "why": "a doubt",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open a blank document",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open the bom folder",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close every other window",
+    "expected": null,
+    "mind": "slow",
+    "why": "more than one thing",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "should I close outlook",
+    "expected": null,
+    "mind": "slow",
+    "why": "a doubt",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close excel after saving",
+    "expected": null,
+    "mind": "slow",
+    "why": "a condition",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "where do I click to save",
+    "expected": null,
+    "mind": "slow",
+    "why": "a question",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "copy this",
+    "expected": [
+     "keys",
+     "ctrl+c"
+    ],
+    "mind": "slow",
+    "why": "nothing I know by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": true
+   },
+   {
+    "text": "click send",
+    "expected": null,
+    "mind": "slow",
+    "why": "nothing I know by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "type best regards",
+    "expected": [
+     "type",
+     "best regards"
+    ],
+    "mind": "slow",
+    "why": "nothing I know by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": true
+   },
+   {
+    "text": "summarize this page",
+    "expected": null,
+    "mind": "slow",
+    "why": "nothing I know by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open paint or photos",
+    "expected": null,
+    "mind": "slow",
+    "why": "more than one thing",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "maximize",
+    "expected": null,
+    "mind": "slow",
+    "why": "nothing I know by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "quit",
+    "expected": null,
+    "mind": "slow",
+    "why": "nothing I know by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "open notepad file notes",
+    "expected": null,
+    "mind": "slow",
+    "why": "I don't know that app by heart",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "switch to the previous one",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close both notepads",
+    "expected": null,
+    "mind": "slow",
+    "why": "more than one thing",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "are there any unread mails",
+    "expected": null,
+    "mind": "slow",
+    "why": "a question",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "show me how to open task manager",
+    "expected": null,
+    "mind": "slow",
+    "why": "a question",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "close notepad",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "switch to notepad",
+    "expected": null,
+    "mind": "slow",
+    "why": "I can't tell which window",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   },
+   {
+    "text": "minimize this",
+    "expected": null,
+    "mind": "slow",
+    "why": "no window open",
+    "rule": "",
+    "did": null,
+    "confidence": 0.0,
+    "read_right": false,
+    "wrong_fast": false,
+    "missed": false
+   }
+  ]
+ }
+}

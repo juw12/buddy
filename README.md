@@ -64,7 +64,7 @@ while you were still talking takes about 5 s. The GPU server stops after 30 min 
 If the GPU path isn't available, Buddy uses Ollama on the CPU. You can untick *Use GPU (fast)* in
 Settings to always use the CPU.
 
-**Doing things:** ask Buddy to do something and it does it. For example: "close the file explorer", "close this", "minimize Outlook", "open notepad", "open google.com", "click Insert", "type hello", or "save it" (Ctrl+S). It only acts on requests; "how do I…" questions just get an answer and an arrow. If a window is frozen, Buddy asks before force-closing it. Frozen File Explorer windows are fixed by restarting Explorer, so the taskbar blinks once. Risky shortcuts like Alt+F4 also ask first.
+**Doing things:** ask Buddy to do something and it does it. For example: "close the file explorer", "close this", "minimize Outlook", "open notepad", "open google.com", "click Insert", "type hello", or "save it" (Ctrl+S). It only acts on requests; "how do I…" questions just get an answer and an arrow. If a window is frozen, Buddy asks before force-closing it. Frozen File Explorer windows are fixed by restarting Explorer, so the taskbar blinks once. Risky shortcuts like Alt+F4 also ask first. Simple one-step commands ("minimize excel", "switch to outlook", "open notepad") are done at once, without asking the brain; anything less plain is thought over first: [Thinking fast and slow](#thinking-fast-and-slow-buddy-vs-jev).
 
 Buddy only does what *your words* ask for. "Close notepad" can only close Notepad, never another window. It clicks only when you say click, press or select. It never clicks a window's own close or minimize buttons. If you name an app that isn't open, it refuses instead of typing into another window. Everything Buddy does is written to `app\pips\logs\widget.log`.
 
@@ -158,6 +158,80 @@ Where Buddy does **not** beat Jev, and what was not shown:
   device was idle 0.2 s (median) after a stop, with one stop that took 3.3 s. The interruption and sound-device figures
   are from the round before and were not measured again this round.
 
+## Thinking fast and slow: Buddy vs Jev
+Daniel Kahneman's *Thinking, Fast and Slow* describes two ways of deciding: System 1 is quick and automatic, System 2
+is slow and careful, and System 2 is called in when System 1 has no ready answer. Jev (TypeSafe AI) calls itself a
+"System One model": a cloud model that returns a typed answer with a probability, so that your code can "decide when to
+act and when to escalate to a person or a reasoning model" ([their docs](https://docs.typesafe.ai/concepts/system-one),
+read 17 Nov 2026). Jev is the fast half. The slow half, the handoff and the thresholds are yours to build.
+
+Buddy now has both halves and the handoff between them, on your PC ([keyit/keyit_minds.py](keyit/keyit_minds.py)):
+
+- **System 1** does a routine one-step command at once, with no screenshot and no brain: close, minimize, maximize or
+  switch to an open window you name by its app, or open an app or website it knows. Before, even "minimize excel" waited
+  for the brain.
+- **Strain hands over to System 2** (the brain that looks at your screen): a question, two steps ("and", "then"), a
+  "don't", an "if", "all" or "every", a "could you" or "maybe", more than 8 words, highlighted text, or a window
+  System 1 cannot pin down (two Notepads, or an app that is not open).
+- **The bar rises with what a mistake would cost.** System 1 must be 0.80 sure to switch, minimize or maximize, 0.85 to
+  open, 0.90 to press keys and 0.95 to close. That is why "close this" still goes to the brain: the rule behind it is
+  only 0.875 sure.
+- **Practice makes a habit.** When the brain does the same single step for the same short phrase again and again, System 1
+  takes it over: after 3 times for switch, minimize and maximize, 5 for open, 8 for a shortcut ("next tab") and 18 for
+  close. Typing, clicking, risky shortcuts and targets the brain read off the screen never become habits.
+- **"No" teaches it.** Say or type "no", "not that", "wrong" or "undo" within 30 seconds of a fast action and it counts
+  against the rule or habit that fired, so it drops below its bar and the brain is asked again.
+
+Jev could not be run here (vendor cloud, paid, and the office data rules), so **its column is what the vendor
+publishes, not something we measured**. Buddy's column is measured with [bench/fast_slow.py](bench/fast_slow.py) on the
+office laptop at 89% CPU load. Full tables: [bench/README.md](bench/README.md#thinking-fast-and-slow).
+
+| Kahneman's idea | Jev (published by the vendor, not measured here) | Buddy (measured here) |
+|---|---|---|
+| System 1: a quick, automatic answer | **Much broader:** a trained model that answers any question you define (one of a list, a score, yes or no, a box in an image), from text and images | Hand-written rules for five kinds of one-step command, in English, plus the habits it picks up |
+| System 2: slow and careful | Not included. You bring the reasoning model | Built in: the brain that looks at your screen (Free, Smart or Local) |
+| System 2 is called when System 1 is under strain | You write the routing from its probabilities | Built in: the strain signs above, and a confidence bar |
+| A loss weighs more than a gain | Thresholds are yours to pick | Built in: 0.80 to switch, 0.95 to close |
+| An honest confidence | **Stronger:** trained to be calibrated, measured across groups of predictions | A count, `(right + 1) / (seen + 2)`. On the held-out list no rule claimed more than it delivered, but that is 44 readings |
+| Skill comes from practice with feedback | Not described on the page we read; the vendor trains the model | Habits from what the brain did for you, and "no" counts against them. Kept on your PC |
+| Time for one decision | 70 to 500 ms, about 300 ms | 0.011 ms median, 0.023 ms p95 |
+| From the words to done | Not its job | 0.014 s median, 0.092 s slowest, in 15 real window actions. The free brain took 3.35 s (2.93 to 4.19 s) just to reply to the same kind of command |
+| Where it runs, price | Vendor cloud, $0.042 per million input tokens | On your PC, free, nothing is sent |
+
+Measured on two lists of typed requests. System 1's confidences were counted on the first (96 requests) and the second
+(94 requests) was written before the first run and only scored, once; no rule was changed after it.
+
+| | First list (rules counted on it) | Held-out list |
+|---|---|---|
+| Requests (one-step commands / must think first) | 96 (53 / 43) | 94 (49 / 45) |
+| One-step commands System 1 did itself | 48 of 53 | 43 of 49 |
+| Wrong fast actions | 0 | 0 |
+| Requests that needed thought and got a fast action | 0 of 43 | 0 of 45 |
+
+Where Buddy does **not** beat Jev, and what was not shown:
+- Jev is a general model: any question, any domain, images too. Buddy's System 1 knows five kinds of desktop command
+  in English. It is not a model and cannot be pointed at another job.
+- Both lists are typed text by the person who wrote the rules, so they are parallel forms, not a sample of what people
+  really say. Nothing here was measured with a microphone, in the installed app, or on other people's requests.
+- "0 wrong" on the held-out list is 44 readings. With none wrong in 44, the true error rate can still be as high as
+  6.6% (95% bound), and for the 22 readings of the rule that closes windows, 12.7%. The list is too short to
+  prove the 0.95 that closing asks for.
+- Confidence for a habit starts from nothing and is not validated: it is a rule of thumb for how much practice to ask for.
+- A fast action counts as right when you do not object within 30 seconds, so silence is taken as agreement. A "no"
+  said while Buddy is still speaking in talk mode is not counted.
+- 6 of the 49 held-out one-step commands still went to the brain: "close this app", "close the current window",
+  "maximize this window please", "could you minimize excel", "copy this" and "type best regards". The first is
+  held back by the 0.95 bar, the next two because System 1 could not tell which window was meant (its wording
+  rules are narrow, and were left as they are after this run), the fourth by "could you", and the last two because
+  shortcuts and typing are not System 1's job.
+- The brain's 3.35 s is the free cloud brain's reply to a drawn screenshot (12 asks). Taking the real screenshot and
+  doing the action are not in it, and the Smart brain (about 1 to 2 s) was not timed. In 2 of the 12 asks the brain
+  chose to open File Explorer where System 1 switches to the open one.
+- Clicking and typing always go to the brain: they need the screen.
+
+To switch it off: *Voice input -> Do simple commands at once*. To make Buddy forget its habits, delete
+`%APPDATA%\Buddy\habits.json`; it holds counts under a scrambled form of each phrase, never the words you said.
+
 ## Buddy Island
 Buddy lives in your screen's notch, so it is always one move away, on every device:
 
@@ -202,6 +276,7 @@ itself.
   `Buddy\app\pips\data` and `Buddy\app\pips\config.json`.
 - Autostart (pet menu: Autostart, or the "Start with Windows" setting) adds `Buddy.lnk` to your Startup folder.
   It doesn't change a standalone `Pips.lnk`.
+- What Buddy learned to do at once is stored in `%APPDATA%\Buddy\habits.json`: counts under a scrambled form of each phrase, never the words. Delete the file to make Buddy forget.
 - Sound and AI settings are stored in `%APPDATA%\Buddy`. You can override this with the `KEYIT_HOME` environment variable.
 
 ## Notes

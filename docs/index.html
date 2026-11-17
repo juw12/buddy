@@ -288,8 +288,9 @@
       <article class="card c-wide c-dark" data-say="i'm basically a very polite intern">
         <span class="tag">hands</span>
         <h3>Really does things</h3>
-        <p>Open apps and websites, close, minimize and switch windows, click buttons, type text and press shortcuts. You ask, Buddy acts.</p>
+        <p>Open apps and websites, close, minimize and switch windows, click buttons, type text and press shortcuts. You ask, Buddy acts. Simple commands like “minimize Excel” happen at once, without waiting for the brain; anything less plain is thought over first.</p>
         <div class="verbs"><span>open</span><span>close</span><span>minimize</span><span>focus</span><span>click</span><span>type</span><span>keys</span></div>
+        <a class="mini-link" href="#fast-slow">thinking fast and slow, vs Jev →</a>
       </article>
       <article class="card">
         <span class="tag">eyes</span>
@@ -501,6 +502,29 @@
       </table>
     </div>
     <p class="footnote">Jev figures are published by the vendor, not measured by us. Buddy figures are measured on a busy office laptop with a synthetic voice; nobody has been timed at a real microphone yet. Once the wait for speech recognition is counted, Buddy was right 90% and 89% of the time in two runs against 73% for the best fixed pause, and ahead on each of the four clip lists. About 1 finished sentence in 10 was not answered within a second, mostly because the laptop's firmware slowed its processor for a few seconds. Our own 300 ms target is still missed. <a href="https://github.com/juw12/buddy#talk-mode-vs-jev" target="_blank" rel="noopener">Full numbers and limits →</a></p>
+
+    <div class="section-head follow" id="fast-slow">
+      <p class="kicker">thinking fast and slow vs. Jev</p>
+      <h2>Two minds: a quick one, a careful one, and knowing which to use.</h2>
+      <p>Daniel Kahneman's book describes a fast, automatic System 1 and a slow, careful System 2. Jev is a cloud “System One model”: the fast half, for any job you define. Buddy now has both halves on your PC, for one job. It does simple commands at once and thinks over the rest.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th></th><th class="us"><img src="assets/buddy.png" alt=""> Buddy</th><th>Jev</th></tr></thead>
+        <tbody>
+          <tr><td>Fast mind (System 1)</td><td class="us no">Hand-written rules for five kinds of one-step command, in English: close, minimize, maximize, switch to, open</td><td class="yes">A trained model for any question you define, from text and images</td></tr>
+          <tr><td>Slow mind (System 2)</td><td class="us yes">Built in: the brain that looks at your screen</td><td class="no">Not included. You bring the reasoning model</td></tr>
+          <tr><td>Knowing when to think it over</td><td class="us yes">Built in: a question, two steps, a “don't”, an “if”, or a window it can't pin down goes to the slow mind</td><td>You write the routing from its probabilities</td></tr>
+          <tr><td>More care when more is at stake</td><td class="us yes">Built in: 80% sure is enough to switch windows, closing one needs 95%</td><td>Thresholds are yours to pick</td></tr>
+          <tr><td>Honest confidence</td><td class="us no">A simple count. No rule overclaimed on our held-out list, but that is only 44 readings</td><td class="yes">Trained to be calibrated, across groups of predictions</td></tr>
+          <tr><td>Learns from you</td><td class="us yes">What the brain keeps doing for a phrase becomes a habit. “No” counts against it. Stays on your PC</td><td class="na">Not described on the page we read</td></tr>
+          <tr><td>Time for one decision</td><td class="us yes">0.02 ms</td><td>70 to 500 ms</td></tr>
+          <tr><td>From your words to done</td><td class="us yes">0.014 s typical in 15 real window actions. The free brain needed 3.4 s just to reply</td><td class="na">Not its job</td></tr>
+          <tr><td>Where it runs, price</td><td class="us yes">On your PC, free, nothing is sent</td><td>The vendor's cloud, $0.042 per million input tokens</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="footnote">What Jev does is from the vendor's docs (docs.typesafe.ai, read 17 Nov 2026) and its time and price are the published figures; none of it was measured by us. Buddy figures are measured on a busy office laptop with typed requests written by the rules' author: 94 held-out requests, 43 of the 49 one-step commands done at once, 0 wrong fast actions. Nothing was measured with a microphone or on other people's requests, and clicking and typing always go to the slow mind. <a href="https://github.com/juw12/buddy#thinking-fast-and-slow-buddy-vs-jev" target="_blank" rel="noopener">Full numbers and limits →</a></p>
   </section>
 
   <!-- ============ FAQ ============ -->
