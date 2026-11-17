@@ -36,6 +36,7 @@ NAME_CHARS = 24
 SAY_CHARS = 48
 DONE_LINGER_S = 6.0                   # "done" stays this long, then the pointer leaves
 SILENT_LEAVE_S = 150.0                # no news for this long: the agent stopped or was closed
+QUIET_S = 10.0                        # no news for this long: only the name stays, so a waiting crew is small
 COLORS_REMEMBERED = 200               # agents whose colour is kept for when they come back
 _HEX_COLOR = re.compile(r"#[0-9a-fA-F]{6}")
 
@@ -375,7 +376,7 @@ class Crew:
                     self._dismiss(member)
             if now < self._hidden_until:
                 return
-            self._name_everyone()
+            self._name_everyone(now)
             members = list(self._members.values())
         for member in members:
             target = self._desktop.spot(member.slot, member.point, member.file, member.window, member.team)
@@ -447,8 +448,9 @@ class Crew:
         self._spare.append(member.pointer)
         self._members.pop(member.key, None)
 
-    def _name_everyone(self):
-        """Bubble text per member; two agents with one name are told apart by where they work, then by number."""
+    def _name_everyone(self, now):
+        """Bubble text per member; two agents with one name are told apart by where they work, then by number.
+        What it is doing is shown for QUIET_S after its last news, then only the name."""
         by_name = {}
         for member in sorted(self._members.values(), key=lambda member: member.slot):
             by_name.setdefault(member.agent.lower(), []).append(member)
@@ -459,4 +461,5 @@ class Crew:
                 if len(same) > 1:
                     unique_place = member.where and places.count(member.where) == 1
                     name = f"{name} ({member.where})" if unique_place else f"{name} {index + 1}"
-                member.label = f"{name}: {member.say}" if member.say else name
+                quiet = member.state == "working" and now - member.changed > QUIET_S
+                member.label = f"{name}: {member.say}" if member.say and not quiet else name

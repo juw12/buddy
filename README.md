@@ -284,7 +284,7 @@ A team of agents (an orchestrator and its sub-agents) shows as one pointer each.
   …). Two agents with the same name are told apart by the folder they work in.
 - **Where the pointers are:** they wait in a column at the right side of the screen. When the file an agent
   works on (or its team's app) is in the title of the window on top, its pointer flies there. It hops at every
-  new step, says `done ✓` when the agent finishes and leaves 6 seconds later, or after 150 seconds without
+  new step; after 10 seconds without news only its name stays, so a waiting crew takes little room. It says `done ✓` when the agent finishes and leaves 6 seconds later, or after 150 seconds without
   news. At most 8 pointers are shown.
 - **What a bubble may show:** the name of the file and the name of the program, nothing else. The rest of a
   command line, search words and file contents are never shown, because they can hold passwords and your

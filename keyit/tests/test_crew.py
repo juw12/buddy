@@ -125,6 +125,21 @@ class CrewTests(CrewCase):
                          [("show", "explorer: Reading README.md", (1000, 100), True, (1900, 100))])
         self.assertEqual(self.pointers[0].style, (buddy_crew.CREW_COLORS[0], buddy_crew.CREW_ICON))
 
+    def test_after_a_quiet_while_only_the_name_stays_and_news_brings_the_words_back(self):
+        self.post("explorer", "Reading README.md")
+        self.clock.now += buddy_crew.QUIET_S + 1
+        self.crew.tick()
+        self.assertEqual(self.pointers[0].calls[-1], ("show", "explorer", (1000, 100), False, None))
+        self.post("explorer", "Editing notes.md")
+        self.assertEqual(self.pointers[0].calls[-1], ("show", "explorer: Editing notes.md", (1000, 100), True, None))
+
+    def test_done_keeps_its_words_until_the_pointer_leaves(self):
+        self.post("explorer", "Reading README.md")
+        self.post("explorer", state="done", say="")
+        self.clock.now += buddy_crew.DONE_LINGER_S - 1
+        self.crew.tick()
+        self.assertEqual(self.pointers[0].text, "explorer: done \u2713")
+
     def test_nothing_new_means_nothing_is_redrawn(self):
         self.post("explorer", "Reading README.md")
         self.post("explorer", "Reading README.md")
