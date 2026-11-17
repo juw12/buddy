@@ -207,7 +207,7 @@ bookkeeping data. Buddy's column is measured with [bench/fast_calibration.py](be
 | An honest confidence | The vendor says it is trained to be calibrated, but "has published no reliability diagram, no expected calibration error, no Brier score" (third party). The third party measured it: calibration error (ECE) 0.082 on 54 bookkeeping items, all 54 right; 0.011 on 28 easy VAT items; 0.615 on 10 expense claims, where 7 wrong answers came back 0.83 to 0.95 sure | ECE 0.028 on 233 held-out readings, 224 right, with the [reliability table](bench/results_calibration/fast_calibration.md) published. A different and much narrower task, and both samples are small: not a like-for-like win |
 | Skill comes from practice with feedback | The vendor trains the model; nothing is learned from your use | Simulated practice with known answers before it ships; then habits from what the brain did for you, and "no" counts against them, typed or spoken. Kept on your PC |
 | Time for one decision | 70 to 500 ms (vendor); 258 to 297 ms median, 640 ms at p99 (third party) | 0.016 ms median, 0.039 ms p95 |
-| From the words to done | Not its job | 0.014 s median, 0.092 s slowest, in 15 real window actions (measured for 1.5.0). The free brain took 3.35 s (2.93 to 4.19 s) just to reply to the same kind of command |
+| From the words to done | Not its job | 0.009 s median, 0.202 s slowest (closing a window), in 19 real window actions by the code inside the built 1.6.0. The free brain took 3.35 s (2.93 to 4.19 s) just to reply to the same kind of command (measured for 1.5.0) |
 | Where it runs, price | Vendor cloud, $0.042 per million input tokens | On your PC, free, nothing is sent |
 
 The trained System 1 against the hand-counted System 1 of Buddy 1.5.0, on sets that were not used to write the rules,
@@ -254,8 +254,16 @@ Where Buddy does **not** beat Jev, and what was not shown:
 - After one "no" to a fast window action, closing a window by name stays with the brain until about 155 more fast
   window actions have passed without a "no". That is cautious on purpose, and slow to forgive.
 - Simulated speech is a synthetic voice in a silent room. Nobody has spoken a command to the installed app at a real
-  microphone. In the installed app (1.5.0) one typed command was checked: `Buddy.exe --ask "minimize python"`
-  minimized a window the check had opened, by System 1, in 0.005 s by Buddy's own log.
+  microphone.
+- Typed commands were checked for real on a window the bench had opened ([bench/battery.py](bench/battery.py)), and
+  Windows was asked each time whether the window had changed. The code inside the built 1.6.0 did 19 of 19 at once.
+  The code of 1.5.0 did 11 of the same 19 and would have sent the other 8 to the brain ("hide ...", "bring up ...",
+  "could you switch to ...?"). The 19 wordings were picked by the bench's author, 9 of them after the training, so
+  this shows that the shipped files work, not how often people's own wordings are caught: for that see the table
+  above (42 of 191).
+- Through the running, installed app (`Buddy.exe --ask`) 10 of 10 typed commands were done by System 1, in 0.007 s
+  median and 0.204 s at most by Buddy's own log. That app was still 1.5.0. Buddy 1.6.0 has not been checked
+  installed and running.
 - A fast action counts as right when you do not object within 30 seconds, so silence is taken as agreement.
 - The brain's 3.35 s is the free cloud brain's reply to a drawn screenshot (12 asks, measured for 1.5.0). Taking the
   real screenshot and doing the action are not in it, and the Smart brain (about 1 to 2 s) was not timed.
