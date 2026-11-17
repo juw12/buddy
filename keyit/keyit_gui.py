@@ -434,6 +434,13 @@ class KeyItApp:
                         variable=self.island_var, command=self._on_island_toggled).grid(
             row=6, column=0, columnspan=3, sticky="w", pady=(8, 0))
 
+        if self.host is not None and hasattr(self.host, "set_crew"):
+            self.crew_var = tk.BooleanVar(value=self.settings.get("crew_enabled", True))
+            ttk.Checkbutton(tab, text="Show my other AI agents as extra pointers, each with its own name and "
+                                      "colour (Claude Code, Codex, OpenCode)",
+                            variable=self.crew_var, command=self._on_crew_toggled).grid(
+                row=7, column=0, columnspan=3, sticky="w", pady=(8, 0))
+
         self._build_voice_input(voice_tab)
         self._build_look_row(tab, row=8)
 
@@ -770,7 +777,14 @@ class KeyItApp:
         buddy_module.set_accent(self.settings["buddy_color"])
         if self.buddy:
             self.buddy.overlay.set_style(self.settings["buddy_color"], self.settings["buddy_icon"])
+        if getattr(self.host, "crew", None) is not None:
+            self.host.crew.avoid_color = self.settings["buddy_color"]     # the crew never looks like Buddy
         self._show_look()
+
+    def _on_crew_toggled(self):
+        self.settings["crew_enabled"] = self.crew_var.get()
+        core.save_settings(self.settings)
+        self.host.set_crew(self.settings["crew_enabled"])
 
     def _on_cursor_always_toggled(self):
         self.settings["buddy_cursor_always"] = self.cursor_always_var.get()
@@ -818,6 +832,7 @@ class KeyItApp:
                 context_provider=self.host.buddy_context if self.host else None,
                 sound=self.player.play_effect,
             )
+            self.buddy.crew = getattr(self.host, "crew", None)
         self.hook.buddy = self.buddy
         self.buddy.overlay.set_always_on(self.settings["buddy_cursor_always"])
         self.buddy.set_island(self.settings.get("buddy_island", True), on_menu=self._open_settings_from_island)

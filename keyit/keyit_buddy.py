@@ -42,6 +42,7 @@ import keyit_minds
 import keyit_script
 import keyit_speech
 import keyit_talk
+import keyit_agents
 import keyit_targets
 import keyit_words
 
@@ -65,6 +66,9 @@ DEFAULTS = {
     "buddy_color": buddy_overlay.DEFAULT_COLOR,   # Settings -> Look: colour of the pointer and bubbles
     "buddy_icon": buddy_overlay.DEFAULT_ICON,     # Settings -> Look: arrow, pointer, plane, dot, star, heart, face
     "buddy_island": True,             # Buddy Island: a notch at the top of the screen (click = type, hold = talk)
+    "crew_enabled": True,             # other AI agents working on this PC get their own pointers (buddy_crew)
+    "crew_looks": {},                 # {"explorer": {"color": "#22c55e", "icon": "star"}}; also "team/agent"
+    "agent_folder": "",               # where "@opencode ..." starts the agent; "" = your home folder
     "buddy_engine": "auto",           # "free": Buddy's free cloud brain; "maas": company MAAS (smart, off-PC);
                                       # "auto": GPU when possible, else Ollama, else the free cloud brain;
                                       # "cpu": always Ollama
@@ -1052,6 +1056,8 @@ def think_fast(buddy, question, selection=""):
 class Buddy:
     """Push-to-talk flow. Call press()/release() from the hook; ask_text() from the GUI."""
 
+    crew = None                               # buddy_crew.Crew when hosted: its pointers hide for screenshots
+
     def __init__(self, settings, root, post, on_status=None, overlay=None, context_provider=None, sound=None):
         self.settings = buddy_settings(settings)
         self.root = root
@@ -1595,7 +1601,7 @@ class Buddy:
     def _look_ahead(self, look):
         try:
             cleared = threading.Event()
-            self.post(lambda: (self.overlay.clear_for_screenshot(), cleared.set()))
+            self.post(lambda: (self._clear_for_screenshot(), cleared.set()))
             cleared.wait(1.0)
             time.sleep(0.05)
             look["png"], _ = capture_monitor(look["monitor"], self.settings["screenshot_max_side"])
@@ -1757,9 +1763,42 @@ class Buddy:
             return
         self._ask(question)
 
+    def _clear_for_screenshot(self):
+        """Nothing of Buddy may be in the picture it looks at: not its own pointer, not the crew's."""
+        self.overlay.clear_for_screenshot()
+        if self.crew is not None:
+            self.crew.clear_for_screenshot()
+
+    def _hand_to_agent(self, question, cursor):
+        """'@opencode tidy the notes folder': open that agent with the question typed in. True when it was one."""
+        call = keyit_agents.parse(question)
+        if call is None:
+            return False
+        name, prompt = call
+        try:
+            folder = keyit_agents.launch(name, prompt, self.settings.get("agent_folder"))
+            logging.info("Handed a question to %s in %s", keyit_agents.label(name), folder)
+            text = f"Handed to {keyit_agents.label(name)}. It works in {folder.name or folder}."
+        except keyit_agents.NotInstalled:
+            text = f"{keyit_agents.label(name)} isn't installed on this PC, so I can't hand that over."
+        except OSError:
+            logging.exception("Could not start %s", name)
+            text = f"I couldn't start {keyit_agents.label(name)}."
+
+        def tell():
+            self.overlay.attach(self.monitor)
+            self.overlay.position = self.overlay.local(*cursor)
+            self.overlay.say(text)
+            self.overlay.hide_later(7000)
+
+        self.post(tell)
+        return True
+
     def ask_text(self, question, monitor=None, selection=""):
         self.monitor = monitor or monitor_under_cursor()
         cursor = cursor_position()
+        if self._hand_to_agent(question, cursor):
+            return
 
         def start():
             self.overlay.attach(self.monitor)
@@ -1837,7 +1876,7 @@ class Buddy:
         else:
             # Remove the buddy from the screen before taking the screenshot
             done = threading.Event()
-            self.post(lambda: (self.overlay.clear_for_screenshot(), done.set()))
+            self.post(lambda: (self._clear_for_screenshot(), done.set()))
             done.wait(1.0)
             time.sleep(0.05)
             png, _ = capture_monitor(self.monitor, self.settings["screenshot_max_side"])
