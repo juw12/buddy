@@ -11,7 +11,8 @@ crew_sources.py; this file turns them into pointers.
 One event is a dict (see README, "Crew"):
     {"agent": "explorer", "team": "OpenCode", "say": "Reading README.md", "state": "working",
      "file": "README.md", "id": "any-stable-key", "color": "#22c55e", "icon": "star", "x": 800, "y": 400}
-Only "agent" is needed.
+Only "agent" is needed. With "rename": true the event only gives the agent with that id another name and
+team: an orchestrator uses it to label the sessions it starts in another agent.
 """
 
 import ctypes
@@ -27,9 +28,10 @@ from buddy_overlay import BuddyOverlay
 
 logger = logging.getLogger(__name__)
 
-# Colours handed out in this order; the user's own Buddy colour is skipped so the crew never looks like Buddy
+# Colours handed out in this order. The crew has Buddy's own shape, so the user's own Buddy colour is skipped:
+# the colour and the name are what tells a crew pointer from Buddy
 CREW_COLORS = ("#3b82f6", "#22c55e", "#ec4899", "#8b5cf6", "#14b8a6", "#ef4444", "#facc15", "#ff8424")
-CREW_ICON = "pointer"
+CREW_ICON = buddy_overlay.DEFAULT_ICON     # Buddy's own arrow, unless Settings -> Look says otherwise
 STATES = ("working", "done", "leave")
 MAX_MEMBERS = 8                       # more pointers than this is noise, not information
 NAME_CHARS = 24
@@ -38,6 +40,7 @@ DONE_LINGER_S = 6.0                   # "done" stays this long, then the pointer
 SILENT_LEAVE_S = 150.0                # no news for this long: the agent stopped or was closed
 QUIET_S = 10.0                        # no news for this long: only the name stays, so a waiting crew is small
 COLORS_REMEMBERED = 200               # agents whose colour is kept for when they come back
+NAMES_REMEMBERED = 500                # ids that were given another name with "rename"
 _HEX_COLOR = re.compile(r"#[0-9a-fA-F]{6}")
 
 
@@ -73,6 +76,7 @@ def normalize_event(event):
         "window": _one_line(event.get("window"), 80),
         "color": valid_color(event.get("color")),
         "icon": event.get("icon") if event.get("icon") in buddy_overlay.ICONS.values() else None,
+        "rename": event.get("rename") is True,
         "point": None,
     }
     try:
@@ -299,7 +303,7 @@ class Member:
         self.window = ""
         self.point = None
         self.color = CREW_COLORS[0]
-        self.icon = CREW_ICON
+        self.icon = None                 # its own icon (settings or event); None = the same as Buddy's
         self.style = None                # (colour, icon) the pointer has now
         self.changed = now               # last event
         self.label = ""
@@ -312,7 +316,7 @@ class Crew:
     """Keeps one pointer per working agent. post() from any thread; tick() from one thread, a few times a second."""
 
     def __init__(self, pointer_factory=CrewPointer, desktop=None, clock=time.monotonic, looks=None,
-                 avoid_color=None):
+                 avoid_color=None, icon=None):
         self._pointer_factory = pointer_factory
         self._desktop = desktop or Desktop()
         self._clock = clock
@@ -321,9 +325,11 @@ class Crew:
         self._members = {}                # key -> Member
         self._spare = []                  # pointers of members that left (their windows are reused)
         self._colors = {}                 # key -> colour it had, so an agent that comes back looks the same
+        self._names = {}                  # key -> (agent, team) given by a "rename" event
         self._hidden_until = 0.0
         self.looks = dict(looks or {})    # "explorer" or "opencode/explorer" -> {"color": ..., "icon": ...}
         self.avoid_color = (avoid_color or "").lower()
+        self.icon = icon if icon in buddy_overlay.ICONS.values() else CREW_ICON   # Buddy's icon: the crew's too
 
     # -- from any thread
     def post(self, event):
@@ -380,9 +386,10 @@ class Crew:
             members = list(self._members.values())
         for member in members:
             target = self._desktop.spot(member.slot, member.point, member.file, member.window, member.team)
-            if member.style != (member.color, member.icon):
-                member.style = (member.color, member.icon)
-                member.pointer.set_style(member.color, member.icon)
+            style = (member.color, member.icon or self.icon)
+            if member.style != style:
+                member.style = style
+                member.pointer.set_style(*style)
             if member.hop or member.shown != (member.label, target):
                 enter_from = None if member.entered else self._desktop.entrance(member.slot)
                 member.pointer.show(member.label, target, hop=member.hop, enter_from=enter_from)
@@ -390,20 +397,23 @@ class Crew:
 
     def _apply(self, event, now):
         member = self._members.get(event["key"])
+        if event["rename"]:                       # only a name: nobody joins, hops or wakes up for it
+            if len(self._names) >= NAMES_REMEMBERED:
+                self._names = {key: name for key, name in self._names.items() if key in self._members}
+            self._names[event["key"]] = (event["agent"], event["team"])
+            if member is not None:
+                member.agent, member.team = event["agent"], event["team"]
+                self._look(member, event)
+            return
         if member is None:
             if event["state"] != "working":
                 return                            # someone we never showed is done: nothing to show
             member = self._join(event["key"], now)
             if member is None:
                 return
-        member.agent, member.team = event["agent"], event["team"]
+        member.agent, member.team = self._names.get(member.key) or (event["agent"], event["team"])
         member.where = event["where"] or member.where
-        look = self.looks.get(f"{member.team}/{member.agent}".lower()) or self.looks.get(member.agent.lower()) or {}
-        member.color = event["color"] or valid_color(look.get("color")) or member.color
-        if look.get("icon") in buddy_overlay.ICONS.values():
-            member.icon = look["icon"]
-        member.icon = event["icon"] or member.icon
-        self._colors[member.key] = member.color
+        self._look(member, event)
         if event["state"] == "working":
             if event["say"] and event["say"] != member.say:
                 member.hop = True
@@ -414,6 +424,15 @@ class Crew:
             member.point = None
         member.state = event["state"]
         member.changed = now
+
+    def _look(self, member, event):
+        """Colour and icon: what the event says, else what the settings say for this name, else what it had."""
+        look = self.looks.get(f"{member.team}/{member.agent}".lower()) or self.looks.get(member.agent.lower()) or {}
+        member.color = event["color"] or valid_color(look.get("color")) or member.color
+        if look.get("icon") in buddy_overlay.ICONS.values():
+            member.icon = look["icon"]
+        member.icon = event["icon"] or member.icon
+        self._colors[member.key] = member.color
 
     def _join(self, key, now):
         if len(self._members) >= MAX_MEMBERS:
@@ -437,7 +456,9 @@ class Crew:
             self._colors = {other: member.color for other, member in self._members.items()}
         kept = {color for other, color in self._colors.items() if other != key}
         choices = [color for color in CREW_COLORS if color != self.avoid_color]
-        for taken in (used | kept, used):
+        # a colour the settings give to one agent (your own AI, crew_looks) is that agent's, while others are free
+        picked = {valid_color(look.get("color")) for look in self.looks.values() if isinstance(look, dict)}
+        for taken in (used | kept | picked, used | picked, used):
             for color in choices:
                 if color not in taken:
                     return color

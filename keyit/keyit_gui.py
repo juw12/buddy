@@ -436,10 +436,13 @@ class KeyItApp:
 
         if self.host is not None and hasattr(self.host, "set_crew"):
             self.crew_var = tk.BooleanVar(value=self.settings.get("crew_enabled", True))
-            ttk.Checkbutton(tab, text="Show my other AI agents as extra pointers, each with its own name and "
-                                      "colour (Claude Code, Codex, OpenCode)",
-                            variable=self.crew_var, command=self._on_crew_toggled).grid(
-                row=7, column=0, columnspan=3, sticky="w", pady=(8, 0))
+            crew_row = ttk.Frame(tab)
+            crew_row.grid(row=7, column=0, columnspan=3, sticky="w", pady=(8, 0))
+            ttk.Checkbutton(crew_row, text="Show my other AI agents as extra pointers, each with its own name "
+                                           "and colour",
+                            variable=self.crew_var, command=self._on_crew_toggled).pack(side="left")
+            ttk.Button(crew_row, text="Agents\u2026", width=9, command=self.open_agents).pack(
+                side="left", padx=(8, 0))
 
         self._build_voice_input(voice_tab)
         self._build_look_row(tab, row=8)
@@ -778,13 +781,34 @@ class KeyItApp:
         if self.buddy:
             self.buddy.overlay.set_style(self.settings["buddy_color"], self.settings["buddy_icon"])
         if getattr(self.host, "crew", None) is not None:
-            self.host.crew.avoid_color = self.settings["buddy_color"]     # the crew never looks like Buddy
+            self.host.crew.avoid_color = self.settings["buddy_color"]     # the crew has Buddy's shape,
+            self.host.crew.icon = self.settings["buddy_icon"]             # never Buddy's colour
         self._show_look()
 
     def _on_crew_toggled(self):
         self.settings["crew_enabled"] = self.crew_var.get()
         core.save_settings(self.settings)
         self.host.set_crew(self.settings["crew_enabled"])
+
+    def open_agents(self, offer=False):
+        """The list of AI agents the crew shows. `offer`: Buddy found one it never asked about, and asks now."""
+        import crew_dialog
+        import keyit_agents
+
+        open_now = getattr(self, "_agents_dialog", None)
+        if open_now is not None and open_now.window.winfo_exists():
+            open_now.window.lift()
+            return
+
+        def saved(crew_agents, crew_custom):
+            self.settings["crew_agents"] = crew_agents
+            self.settings["crew_custom"] = crew_custom
+            core.save_settings(self.settings)
+            if getattr(self.host, "crew", None) is not None:
+                self.host.crew.looks = keyit_agents.looks(self.settings)
+            self.host.set_crew(self.settings.get("crew_enabled", True))    # watch the agents that are ticked now
+
+        self._agents_dialog = crew_dialog.AgentsDialog(self.root, self.settings, saved, offer=offer)
 
     def _on_cursor_always_toggled(self):
         self.settings["buddy_cursor_always"] = self.cursor_always_var.get()

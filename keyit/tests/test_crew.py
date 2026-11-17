@@ -781,6 +781,274 @@ class CrewLineTests(FilesCase):
         self.assertEqual(pointers[0].text, "drafter: done \u2713")
 
 
+class CrewLookTests(CrewCase):
+    """The crew has Buddy's own shape (Settings -> Look); colour and name tell a crew pointer from Buddy."""
+
+    def test_the_crew_has_buddys_icon_unless_told_otherwise(self):
+        self.assertEqual(buddy_crew.CREW_ICON, buddy_crew.buddy_overlay.DEFAULT_ICON)
+        self.assertEqual(self.crew.icon, buddy_crew.CREW_ICON)
+        crew = self.make_crew(icon="star")
+        self.post("explorer", crew=crew)
+        self.assertEqual(self.pointers[-1].style, (buddy_crew.CREW_COLORS[0], "star"))
+        self.assertEqual(self.make_crew(icon="rocket").icon, buddy_crew.CREW_ICON)
+
+    def test_when_buddy_changes_shape_the_crew_on_screen_follows(self):
+        self.post("explorer")
+        self.post("painter", icon="heart")
+        self.crew.icon = "star"
+        self.crew.tick()
+        self.assertEqual(self.pointers[0].style, (buddy_crew.CREW_COLORS[0], "star"))
+        self.assertEqual(self.pointers[1].style[1], "heart")          # an icon of its own stays
+
+    def test_a_colour_picked_for_one_agent_is_not_handed_to_another(self):
+        crew = self.make_crew(looks={"mybot": {"color": buddy_crew.CREW_COLORS[1]}, "broken": "red"})
+        self.post("work", crew=crew)
+        self.post("orchestrator", crew=crew)
+        self.post("MyBot", crew=crew)
+        colors = [member[4] for member in crew.members()]
+        self.assertEqual(colors, [buddy_crew.CREW_COLORS[0], buddy_crew.CREW_COLORS[2], buddy_crew.CREW_COLORS[1]])
+
+
+class RenameTests(CrewCase):
+    """{"id": ..., "agent": ..., "team": ..., "rename": true}: an orchestrator names the sessions it started."""
+
+    def test_normalize_knows_a_rename_only_when_it_is_true(self):
+        self.assertTrue(normalize_event({"agent": "a", "rename": True})["rename"])
+        for other in (False, None, "true", 1):
+            self.assertFalse(normalize_event({"agent": "a", "rename": other})["rename"])
+        self.assertFalse(normalize_event({"agent": "a"})["rename"])
+
+    def test_a_rename_alone_shows_nobody(self):
+        self.post("finance-expert", "", id="opencode:ses_1", team="OpenBot", rename=True)
+        self.assertEqual(self.crew.members(), [])
+        self.assertEqual(self.pointers, [])
+
+    def test_the_name_given_before_the_agent_works_is_the_one_shown(self):
+        self.post("finance-expert", "", id="opencode:ses_1", team="OpenBot", rename=True)
+        self.post("work", "Reading budget.xlsx", id="opencode:ses_1", team="OpenCode")
+        self.assertEqual(self.crew.members()[0][:2], ("finance-expert", "OpenBot"))
+        self.assertEqual(self.pointers[0].text, "finance-expert: Reading budget.xlsx")
+
+    def test_an_agent_on_screen_is_renamed_without_a_hop_and_keeps_the_name(self):
+        self.post("work", "Reading budget.xlsx", id="opencode:ses_1", team="OpenCode")
+        color = self.crew.members()[0][4]
+        self.post("finance-expert", "", id="opencode:ses_1", team="OpenBot", rename=True)
+        self.assertEqual(self.pointers[0].calls[-1],
+                         ("show", "finance-expert: Reading budget.xlsx", (1000, 100), False, None))
+        self.assertEqual(self.crew.members()[0], ("finance-expert", "OpenBot", "working", "Reading budget.xlsx", color))
+        self.post("work", "Editing budget.xlsx", id="opencode:ses_1", team="OpenCode")
+        self.assertEqual(self.pointers[0].text, "finance-expert: Editing budget.xlsx")
+
+    def test_a_rename_does_not_keep_a_silent_agent_on_screen(self):
+        self.post("work", id="opencode:ses_1")
+        self.clock.now += buddy_crew.SILENT_LEAVE_S - 1
+        self.post("finance-expert", "", id="opencode:ses_1", rename=True)
+        self.clock.now += 2
+        self.crew.tick()
+        self.assertEqual(self.crew.members(), [])
+
+    def test_the_look_set_for_the_new_name_is_used(self):
+        crew = self.make_crew(looks={"openbot/finance-expert": {"color": "#112233"}})
+        self.post("work", crew=crew, id="opencode:ses_1", team="OpenCode")
+        self.post("finance-expert", "", crew=crew, id="opencode:ses_1", team="OpenBot", rename=True)
+        self.assertEqual(crew.members()[0][4], "#112233")
+
+    def test_only_so_many_names_are_remembered(self):
+        self.post("work", id="opencode:ses_0")
+        for number in range(buddy_crew.NAMES_REMEMBERED + 5):
+            self.crew.post({"agent": f"bot{number}", "id": f"opencode:ses_{number}", "rename": True})
+        self.crew.tick()
+        self.assertLessEqual(len(self.crew._names), buddy_crew.NAMES_REMEMBERED)
+        self.assertEqual(self.crew.members()[0][0], "bot0")           # the one on screen keeps its name
+
+
+class AgentScanTests(FilesCase):
+    """Buddy looks for the agents it knows and shows one only after the user said yes (keyit_agents)."""
+
+    def setUp(self):
+        super().setUp()
+        import keyit_agents
+        self.agents = keyit_agents
+
+    def scan(self, programs=()):
+        return self.agents.scan(self.root, {name: rf"C:\Apps\{name}.exe" for name in programs}.get)
+
+    def test_nothing_is_found_on_an_empty_pc(self):
+        found = self.scan()
+        self.assertEqual([agent["id"] for agent in found], ["opencode", "claude", "codex"])
+        self.assertEqual([agent["name"] for agent in found], ["OpenCode", "Claude Code", "Codex"])
+        self.assertFalse(any(agent["found"] or agent["program"] or agent["history"] for agent in found))
+
+    def test_an_agent_is_found_by_its_program_or_by_its_history(self):
+        (self.root / ".claude" / "projects").mkdir(parents=True)
+        found = {agent["id"]: agent for agent in self.scan(["opencode"])}
+        self.assertEqual((found["opencode"]["program"], found["opencode"]["history"], found["opencode"]["found"]),
+                         (True, False, True))
+        self.assertEqual((found["claude"]["program"], found["claude"]["history"], found["claude"]["found"]),
+                         (False, True, True))
+        self.assertFalse(found["codex"]["found"])
+
+    def test_the_history_places(self):
+        places = self.agents.history_places(self.root)
+        self.assertEqual(places["opencode"], self.root / ".local" / "share" / "opencode" / "opencode.db")
+        self.assertEqual(places["claude"], self.root / ".claude" / "projects")
+        self.assertEqual(places["codex"], self.root / ".codex" / "sessions")
+        with mock.patch.dict(os.environ, {"XDG_DATA_HOME": str(self.root / "data")}):
+            self.assertEqual(self.agents.history_places()["opencode"],
+                             self.root / "data" / "opencode" / "opencode.db")
+            self.assertEqual(self.agents.history_places(self.root)["opencode"], places["opencode"])
+
+    def test_nobody_is_shown_before_a_yes(self):
+        self.assertEqual(self.agents.enabled({}), set())
+        self.assertEqual(self.agents.enabled({"crew_agents": {"opencode": True, "codex": False, "other": True}}),
+                         {"opencode"})
+        for broken in (None, [], "opencode", 3):
+            self.assertEqual(self.agents.answers({"crew_agents": broken}), {})
+
+    def test_buddy_asks_once_about_each_agent_it_finds(self):
+        found = self.scan(["opencode", "codex"])
+        self.assertEqual([agent["id"] for agent in self.agents.unasked(found, {})], ["opencode", "codex"])
+        settings = {"crew_agents": {"opencode": False}}
+        self.assertEqual([agent["id"] for agent in self.agents.unasked(found, settings)], ["codex"])
+        settings = {"crew_agents": self.agents.with_answers(settings, found, {"codex": True})}
+        self.assertEqual(settings["crew_agents"], {"opencode": False, "codex": True})
+        self.assertEqual(self.agents.unasked(found, settings), [])
+        self.assertEqual(self.agents.unasked(self.scan(["opencode", "codex", "claude"]), settings)[0]["id"], "claude")
+
+    def test_no_thanks_keeps_earlier_answers_and_says_no_to_the_new_ones(self):
+        settings = {"crew_agents": {"opencode": True}}
+        found = self.scan(["opencode", "codex"])
+        declined = self.agents.with_answers(settings, found, self.agents.answers(settings))
+        self.assertEqual(declined, {"opencode": True, "codex": False})
+
+    def test_an_agent_that_is_not_here_stays_unasked_unless_ticked(self):
+        found = self.scan(["opencode"])
+        self.assertEqual(self.agents.with_answers({}, found, {"opencode": True}), {"opencode": True})
+        self.assertEqual(self.agents.with_answers({}, found, {"opencode": True, "claude": True}),
+                         {"opencode": True, "claude": True})
+
+    def test_only_the_agents_with_a_yes_are_watched(self):
+        names = lambda enabled: [type(source).__name__ for source in  # noqa: E731
+                                 crew_sources.default_sources(self.root, enabled)]
+        self.assertEqual(names(set()), ["InboxSource"])
+        self.assertEqual(names({"opencode"}), ["InboxSource", "OpenCodeSource"])
+        self.assertEqual(names({"codex", "claude"}), ["InboxSource", "TranscriptSource", "TranscriptSource"])
+        self.assertEqual(len(crew_sources.CrewWatcher(Crew(pointer_factory=FakePointer), enabled=set()).sources), 1)
+
+
+class OwnAiTests(unittest.TestCase):
+    """An AI the user added: a name, the command that starts it, a colour."""
+
+    def setUp(self):
+        import keyit_agents
+        self.agents = keyit_agents
+        self.which = {"mybot": r"C:\Tools\mybot.exe", "npmbot": r"C:\npm\npmbot.cmd"}.get
+
+    def test_a_usable_entry_is_cleaned_and_the_rest_is_dropped(self):
+        clean = self.agents.clean_custom
+        self.assertEqual(clean({"name": " MyBot ", "command": "mybot   ask {prompt}", "color": "#22C55E"}),
+                         {"name": "MyBot", "command": "mybot ask {prompt}", "color": "#22c55e"})
+        self.assertEqual(clean({"name": "reporter"}), {"name": "reporter", "command": "", "color": ""})
+        self.assertEqual(clean({"name": "x", "color": "green"})["color"], "")
+        for bad in (None, "mybot", {}, {"name": ""}, {"name": "two words"}, {"name": "9lives"},
+                    {"name": "OpenCode"}, {"name": "claude"}, {"name": "a" * 25}):
+            with self.subTest(bad=bad):
+                self.assertIsNone(clean(bad))
+
+    def test_the_saved_list_is_read_once_per_name_and_bounded(self):
+        settings = {"crew_custom": [{"name": "MyBot", "command": "mybot"}, {"name": "mybot"}, "junk",
+                                    {"name": "Second", "color": "#112233"}]}
+        custom = self.agents.custom_agents(settings)
+        self.assertEqual(list(custom), ["mybot", "second"])
+        self.assertEqual(custom["mybot"]["command"], "mybot")
+        many = {"crew_custom": [{"name": f"bot{number}"} for number in range(40)]}
+        self.assertEqual(len(self.agents.custom_agents(many)), self.agents.MAX_CUSTOM)
+        for broken in (None, {}, "mybot"):
+            self.assertEqual(self.agents.custom_agents({"crew_custom": broken}), {})
+
+    def test_its_colour_is_a_look_and_crew_looks_wins(self):
+        settings = {"crew_custom": [{"name": "MyBot", "color": "#112233"}, {"name": "Plain"}],
+                    "crew_looks": {"MyBot": {"color": "#445566", "icon": "star"}, "explorer": {"icon": "heart"},
+                                   "broken": "red"}}
+        self.assertEqual(self.agents.custom_looks(settings), {"mybot": {"color": "#112233"}})
+        self.assertEqual(self.agents.looks(settings),
+                         {"mybot": {"color": "#445566", "icon": "star"}, "explorer": {"icon": "heart"}})
+        self.assertEqual(self.agents.looks({}), {})
+
+    def test_the_question_goes_where_the_mark_is_or_at_the_end(self):
+        command = self.agents.custom_command
+        self.assertEqual(command("mybot ask {prompt} --fast", "tidy the notes", self.which),
+                         [r"C:\Tools\mybot.exe", "ask", "tidy the notes", "--fast"])
+        self.assertEqual(command('mybot ask "{prompt}"', "tidy the notes", self.which),
+                         [r"C:\Tools\mybot.exe", "ask", "tidy the notes"])
+        self.assertEqual(command("mybot --ask={prompt}", "tidy", self.which), [r"C:\Tools\mybot.exe", "--ask=tidy"])
+        self.assertEqual(command("mybot ask", "tidy the notes", self.which),
+                         [r"C:\Tools\mybot.exe", "ask", "tidy the notes"])
+
+    def test_the_question_is_one_argument_whatever_is_in_it(self):
+        nasty = 'tidy "notes" & del /q * | echo %PATH%'
+        self.assertEqual(self.agents.custom_command("mybot {prompt}", nasty, self.which),
+                         [r"C:\Tools\mybot.exe", nasty])
+        through_cmd = self.agents.custom_command("npmbot {prompt}", nasty, self.which)
+        self.assertEqual(through_cmd, [r"C:\npm\npmbot.cmd", "tidy notes del /q * echo PATH"])
+
+    def test_a_program_path_with_spaces_and_a_missing_program(self):
+        with tempfile.TemporaryDirectory() as folder:
+            program = Path(folder) / "my tools" / "bot.exe"
+            program.parent.mkdir()
+            program.write_bytes(b"")
+            self.assertEqual(self.agents.custom_command(f'"{program}" ask {{prompt}}', "tidy", {}.get),
+                             [str(program), "ask", "tidy"])
+        for missing in ("", "   ", "nosuchbot ask {prompt}", '"unclosed ask'):
+            with self.subTest(missing=missing), self.assertRaises(self.agents.NotInstalled):
+                self.agents.custom_command(missing, "tidy", {}.get)
+
+    def test_it_is_called_like_the_others(self):
+        custom = self.agents.custom_agents({"crew_custom": [{"name": "MyBot", "command": "mybot ask {prompt}"},
+                                                            {"name": "reporter"}]})
+        self.assertEqual(self.agents.parse("@MyBot tidy the notes", custom), ("mybot", "tidy the notes"))
+        self.assertIsNone(self.agents.parse("@mybot tidy the notes"))
+        self.assertEqual(self.agents.parse("@opencode tidy", custom), ("opencode", "tidy"))
+        self.assertEqual(self.agents.label("mybot", custom), "MyBot")
+        self.assertEqual(self.agents.command("mybot", "tidy", self.which, custom),
+                         [r"C:\Tools\mybot.exe", "ask", "tidy"])
+        with self.assertRaises(self.agents.NotInstalled):
+            self.agents.command("reporter", "tidy", self.which, custom)      # it has no command: it only reports
+        started = []
+
+        def start(command, cwd, creationflags):
+            started.append(command)
+            return "the process"
+        folder, process = self.agents.launch("mybot", "tidy", "", self.which, start, custom)
+        self.assertEqual((folder, process), (Path.home(), "the process"))
+        self.assertEqual(started, [[r"C:\Tools\mybot.exe", "ask", "tidy"]])
+
+    def test_its_pointer_says_started_and_done_when_the_program_ends(self):
+        import threading
+
+        class Process:
+            pid = 4242
+
+            def __init__(self):
+                self.ended = threading.Event()
+
+            def wait(self):
+                self.ended.wait(5)
+
+        posted, done = [], threading.Event()
+
+        def post(event):
+            posted.append(event)
+            if event.get("state") == "done":
+                done.set()
+        process = Process()
+        self.agents.report(process, {"name": "MyBot"}, post)
+        self.assertEqual(posted, [{"agent": "MyBot", "team": "My AI", "id": "custom:mybot:4242", "say": "Started"}])
+        process.ended.set()
+        self.assertTrue(done.wait(5))
+        self.assertEqual(posted[-1], {"agent": "MyBot", "team": "My AI", "id": "custom:mybot:4242", "state": "done"})
+
+
 class HandOverTests(unittest.TestCase):
     """'@opencode tidy the notes folder' typed to Buddy opens that agent with the question (keyit_agents)."""
 
@@ -819,10 +1087,10 @@ class HandOverTests(unittest.TestCase):
             started.append((command, cwd))
         which = {"opencode": r"C:\Apps\opencode.exe"}.get
         with tempfile.TemporaryDirectory() as folder:
-            self.assertEqual(self.agents.launch("opencode", "tidy", folder, which, start), Path(folder))
+            self.assertEqual(self.agents.launch("opencode", "tidy", folder, which, start), (Path(folder), None))
             self.assertEqual(started[-1], ([r"C:\Apps\opencode.exe", "--prompt", "tidy"], folder))
         for missing in ("", None, r"Z:\no\such\folder"):
-            self.assertEqual(self.agents.launch("opencode", "tidy", missing, which, start), Path.home())
+            self.assertEqual(self.agents.launch("opencode", "tidy", missing, which, start)[0], Path.home())
         with self.assertRaises(self.agents.NotInstalled):
             self.agents.launch("claude", "tidy", "", which, start)
         self.assertEqual(len(started), 4)
@@ -835,9 +1103,9 @@ class HandOverTests(unittest.TestCase):
 
     def test_buddy_says_where_the_question_went(self):
         buddy = self.buddy()
-        with mock.patch.object(self.agents, "launch", return_value=Path(r"C:\Users\me")) as launch:
+        with mock.patch.object(self.agents, "launch", return_value=(Path(r"C:\Users\me"), None)) as launch:
             self.assertTrue(self.buddy_module.Buddy._hand_to_agent(buddy, "@opencode tidy the notes", (5, 5)))
-        launch.assert_called_once_with("opencode", "tidy the notes", "")
+        launch.assert_called_once_with("opencode", "tidy the notes", "", custom={})
         buddy.overlay.say.assert_called_once_with("Handed to OpenCode. It works in me.")
         buddy.overlay.hide_later.assert_called_once()
 
@@ -847,6 +1115,26 @@ class HandOverTests(unittest.TestCase):
             self.assertTrue(self.buddy_module.Buddy._hand_to_agent(buddy, "@codex tidy the notes", (5, 5)))
         buddy.overlay.say.assert_called_once_with(
             "Codex isn't installed on this PC, so I can't hand that over.")
+
+    def test_buddy_starts_your_own_ai_and_shows_it_in_the_crew(self):
+        buddy = self.buddy()
+        buddy.settings["crew_custom"] = [{"name": "MyBot", "command": "mybot ask {prompt}"}]
+        buddy.crew = mock.Mock()
+        process = mock.Mock(pid=77)
+        with mock.patch.object(self.agents, "launch", return_value=(Path(r"C:\Users\me"), process)) as launch, \
+                mock.patch.object(self.agents, "report") as report:
+            self.assertTrue(self.buddy_module.Buddy._hand_to_agent(buddy, "@mybot tidy the notes", (5, 5)))
+        custom = self.agents.custom_agents(buddy.settings)
+        launch.assert_called_once_with("mybot", "tidy the notes", "", custom=custom)
+        report.assert_called_once_with(process, custom["mybot"], buddy.crew.post)
+        buddy.overlay.say.assert_called_once_with("Handed to MyBot. It works in me.")
+
+    def test_buddy_says_so_when_your_own_ai_cannot_be_started(self):
+        buddy = self.buddy()
+        buddy.settings["crew_custom"] = [{"name": "MyBot", "command": "nosuchbot {prompt}"}]
+        self.assertTrue(self.buddy_module.Buddy._hand_to_agent(buddy, "@mybot tidy the notes", (5, 5)))
+        buddy.overlay.say.assert_called_once_with("I can't start MyBot: its command is missing or not on this PC.")
+        self.assertTrue(self.buddy_module.Buddy._hand_to_agent(buddy, "@mybot tidy the notes", (5, 5)))
 
     def test_any_other_question_goes_to_buddys_own_brain(self):
         buddy = self.buddy()

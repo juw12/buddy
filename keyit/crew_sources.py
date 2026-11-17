@@ -1,6 +1,7 @@
 """Where Buddy's crew hears what AI agents are doing on this PC. Everything is read-only and stays on the PC.
 
-* the inbox: a file any tool can append one JSON line to (`Buddy.exe --crew "{...}"` does it for you);
+* the inbox: a file any tool can append one JSON line to (`Buddy.exe --crew "{...}"` does it for you).
+  It is always read; the three agents below only after the user said yes to them (keyit_agents.enabled);
 * Claude Code: its session files under ~/.claude/projects (sub-agents have their own files);
 * Codex: its rollout files under ~/.codex/sessions;
 * OpenCode: its database ~/.local/share/opencode/opencode.db (a sub-agent is a child session).
@@ -23,6 +24,7 @@ import urllib.parse
 from pathlib import Path
 
 import buddy_crew
+import keyit_agents
 import keyit_core
 
 logger = logging.getLogger(__name__)
@@ -380,9 +382,7 @@ def codex_events(record, context, path=""):
 
 # --------------------------------------------------------------------------- OpenCode
 def opencode_database(home=None):
-    data_home = os.environ.get("XDG_DATA_HOME") if home is None else None
-    base = Path(data_home) if data_home else Path(home or Path.home()) / ".local" / "share"
-    return base / "opencode" / "opencode.db"
+    return keyit_agents.history_places(home)["opencode"]
 
 
 class OpenCodeSource:
@@ -521,16 +521,16 @@ class OpenCodeSource:
 
 
 # --------------------------------------------------------------------------- the thread that feeds the crew
-def default_sources(home=None):
-    home = Path(home) if home else None
-    claude_root = str((home or Path.home()) / ".claude" / "projects")
-    codex_root = str((home or Path.home()) / ".codex" / "sessions")
-    return [
-        InboxSource(),
-        TranscriptSource(lambda: claude_files(claude_root), claude_events),
-        TranscriptSource(lambda: codex_files(codex_root), codex_events),
-        OpenCodeSource(opencode_database(home)),
-    ]
+def default_sources(home=None, enabled=None):
+    """The inbox, and one source for each agent in `enabled` (None: every agent Buddy knows)."""
+    places = keyit_agents.history_places(home)
+    claude_root, codex_root = str(places["claude"]), str(places["codex"])
+    makers = {
+        "claude": lambda: TranscriptSource(lambda: claude_files(claude_root), claude_events),
+        "codex": lambda: TranscriptSource(lambda: codex_files(codex_root), codex_events),
+        "opencode": lambda: OpenCodeSource(places["opencode"]),
+    }
+    return [InboxSource()] + [make() for name, make in makers.items() if enabled is None or name in enabled]
 
 
 class CrewWatcher:
@@ -538,9 +538,9 @@ class CrewWatcher:
 
     TICK_S = 0.25
 
-    def __init__(self, crew, sources=None):
+    def __init__(self, crew, sources=None, enabled=None):
         self.crew = crew
-        self.sources = default_sources() if sources is None else sources
+        self.sources = default_sources(enabled=enabled) if sources is None else sources
         self._stop = threading.Event()
         self._thread = None
 

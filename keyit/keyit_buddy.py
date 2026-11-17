@@ -68,6 +68,8 @@ DEFAULTS = {
     "buddy_island": True,             # Buddy Island: a notch at the top of the screen (click = type, hold = talk)
     "crew_enabled": True,             # other AI agents working on this PC get their own pointers (buddy_crew)
     "crew_looks": {},                 # {"explorer": {"color": "#22c55e", "icon": "star"}}; also "team/agent"
+    "crew_agents": {},                # {"opencode": true}: the agents you said yes or no to (keyit_agents)
+    "crew_custom": [],                # your own AIs: [{"name": "mybot", "command": "mybot ask {prompt}", "color": "#22c55e"}]
     "agent_folder": "",               # where "@opencode ..." starts the agent; "" = your home folder
     "buddy_engine": "auto",           # "free": Buddy's free cloud brain; "maas": company MAAS (smart, off-PC);
                                       # "auto": GPU when possible, else Ollama, else the free cloud brain;
@@ -1771,19 +1773,25 @@ class Buddy:
 
     def _hand_to_agent(self, question, cursor):
         """'@opencode tidy the notes folder': open that agent with the question typed in. True when it was one."""
-        call = keyit_agents.parse(question)
+        custom = keyit_agents.custom_agents(self.settings)       # the user's own AIs are called the same way
+        call = keyit_agents.parse(question, custom)
         if call is None:
             return False
         name, prompt = call
+        shown = keyit_agents.label(name, custom)
         try:
-            folder = keyit_agents.launch(name, prompt, self.settings.get("agent_folder"))
-            logging.info("Handed a question to %s in %s", keyit_agents.label(name), folder)
-            text = f"Handed to {keyit_agents.label(name)}. It works in {folder.name or folder}."
+            folder, process = keyit_agents.launch(name, prompt, self.settings.get("agent_folder"), custom=custom)
+            logging.info("Handed a question to %s in %s", shown, folder)
+            text = f"Handed to {shown}. It works in {folder.name or folder}."
+            crew = getattr(self, "crew", None)
+            if name in custom and crew is not None and self.settings.get("crew_enabled", True):
+                keyit_agents.report(process, custom[name], crew.post)
         except keyit_agents.NotInstalled:
-            text = f"{keyit_agents.label(name)} isn't installed on this PC, so I can't hand that over."
+            text = (f"I can't start {shown}: its command is missing or not on this PC." if name in custom
+                    else f"{shown} isn't installed on this PC, so I can't hand that over.")
         except OSError:
             logging.exception("Could not start %s", name)
-            text = f"I couldn't start {keyit_agents.label(name)}."
+            text = f"I couldn't start {shown}."
 
         def tell():
             self.overlay.attach(self.monitor)
