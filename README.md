@@ -276,12 +276,27 @@ To switch it off: *Voice input -> Do simple commands at once*. To make Buddy for
 ## Crew: your other AI agents as pointers
 When an AI agent works on this PC, Buddy shows it as one more pointer on screen, with its own name and colour
 and a bubble that says what it is doing right now: `explorer: Reading README.md`, `fixer: Running pytest`.
-A team of agents (an orchestrator and its sub-agents) shows as one pointer each. There is nothing to set up.
+A team of agents (an orchestrator and its sub-agents) shows as one pointer each. Every crew pointer has
+Buddy's own shape (the one you picked in Settings → Look); its colour and its name tell it from Buddy.
 
-- **Seen by themselves:** Claude Code (`~/.claude/projects`), Codex (`~/.codex/sessions`) and OpenCode
+- **Buddy asks first:** a few seconds after it starts, Buddy looks for the agents it knows (OpenCode, Claude
+  Code, Codex: is the program on PATH, or has it worked on this PC?) and asks *"I found AI agents on this PC.
+  Shall I show them next to me?"*. Nothing is shown before you say yes, and Buddy asks once per agent: again
+  only when another agent turns up. Change your answer at any time in Settings → *Buddy (AI)* → *Agents…*,
+  where *Scan again* looks once more. Your answers are `crew_agents` in `%APPDATA%\Buddy\settings.json`,
+  for example `{"crew_agents": {"opencode": true, "codex": false}}`. (1.7.0 showed every agent without
+  asking; after the update to 1.8.0 Buddy asks once.)
+- **What it reads:** Claude Code (`~/.claude/projects`), Codex (`~/.codex/sessions`) and OpenCode
   (`~/.local/share/opencode/opencode.db`). Buddy only reads these files; it never writes to them and never
   tells an agent what to do. The name is the one the agent has in your own setup (`orchestrator`, `explorer`,
   …). Two agents with the same name are told apart by the folder they work in.
+- **Your own AI:** *Agents…* → *Add my own AI…* takes a name, a colour and the command that starts it, for
+  example `mybot.exe ask {prompt}` (your question goes where `{prompt}` is, or at the end; it is handed over
+  as one argument and never through a shell). After that `@mybot tidy the notes` in the ask box starts it in
+  its own window and shows a pointer in your colour, from *Started* until the program ends. Buddy cannot
+  read what such a program does; to say more, the program runs `Buddy.exe --crew "mybot: Reading the docs"`.
+  Leave the command empty for an AI that is started some other way and only reports. They are saved as
+  `crew_custom` in `settings.json`; at most 12.
 - **Where the pointers are:** they wait in a column at the right side of the screen. When the file an agent
   works on (or its team's app) is in the title of the window on top, its pointer flies there. It hops at every
   new step; after 10 seconds without news only its name stays, so a waiting crew takes little room. It says `done ✓` when the agent finishes and leaves 6 seconds later, or after 150 seconds without
@@ -296,11 +311,19 @@ A team of agents (an orchestrator and its sub-agents) shows as one pointer each.
   "window": "Excel", "where": "project-a", "id": "any-stable-key", "color": "#22c55e", "icon": "star",
   "x": 800, "y": 400}`. `state` is `working`, `done` or `leave`; `window` is a piece of a window title to fly
   to; `x`/`y` is an exact screen point; `icon` is `arrow`, `pointer`, `plane`, `dot`, `star`, `heart` or `face`.
-- **Names and colours:** colours are handed out by themselves, never your own Buddy colour, and an agent that
-  comes back gets its old colour. To fix a look, add `crew_looks` to `%APPDATA%\Buddy\settings.json`:
+- **Names and colours:** colours are handed out by themselves, never your own Buddy colour and never a colour
+  you picked for one agent, and an agent that comes back gets its old colour. To fix a look, add `crew_looks`
+  to `%APPDATA%\Buddy\settings.json`:
   `{"crew_looks": {"explorer": {"color": "#22c55e", "icon": "star"}, "opencode/fixer": {"color": "#ef4444"}}}`.
-- **Hand a question to an agent:** type `@opencode tidy the notes folder`, `@claude …` or `@codex …` in the
-  ask box (tap Ctrl+Alt+Space) or `Buddy.exe --ask "@opencode …"`. Buddy opens that agent's own window with
+  An agent without an icon of its own has Buddy's.
+- **A team gives its own names:** a tool that starts sessions in another agent (an orchestrator, a bot with a
+  team of roles) can give each session its name with one line: `{"id": "opencode:<session id>",
+  "agent": "finance-expert", "team": "OpenBot", "rename": true}`. Such a line shows nobody; it only changes
+  the name and team on the pointer Buddy shows for that session, from then on. The ids Buddy uses are
+  `opencode:<session id>`, `claude:<session id>` (a Claude sub-agent: `claude:<session id>:<agent id>`) and
+  `codex:<name of the rollout file without .jsonl>`.
+- **Hand a question to an agent:** type `@opencode tidy the notes folder`, `@claude …`, `@codex …` or
+  `@<your own AI> …` in the ask box (tap Ctrl+Alt+Space) or `Buddy.exe --ask "@opencode …"`. Buddy opens that agent's own window with
   your words typed in. The agent uses the model and the rules you set there and asks its own "may I?"
   questions; Buddy's own brain stays the small one for quick answers. It starts in your home folder, or in the
   folder you put in `agent_folder` in `settings.json`.
@@ -309,7 +332,9 @@ A team of agents (an orchestrator and its sub-agents) shows as one pointer each.
 Checked on a real screen with OpenCode (four live sessions at once) and with lines sent by
 `--crew`: three resting pointers cost about 1 % of one CPU core, and watching with nobody on screen 0.2 %.
 Claude Code, Codex and the newer OpenCode database layout are tested against recorded samples only, not
-against a live session. Windows only for now.
+against a live session. The question Buddy asks, the *Agents…* window, a rename line and the pointers in
+Buddy's shape were checked on a real screen; your own AI was checked with the tests and a stand-in program,
+not with a real AI product. Windows only for now.
 
 ## Buddy Island
 Buddy lives in your screen's notch, so it is always one move away, on every device:

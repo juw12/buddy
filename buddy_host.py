@@ -36,6 +36,7 @@ os.environ.setdefault("KEYIT_HOME", str(Path(os.environ.get("APPDATA", Path.home
 import app as pips_app  # noqa: E402  (Pips main module)
 import buddy_crew  # noqa: E402
 import crew_sources  # noqa: E402
+import keyit_agents  # noqa: E402
 import keyit_buddy  # noqa: E402
 import keyit_core  # noqa: E402
 import keyit_gui  # noqa: E402
@@ -43,8 +44,9 @@ import buddy_home  # noqa: E402
 import buddy_updater  # noqa: E402
 
 BUDDY_NAME = "Buddy"
-BUDDY_VERSION = "1.7.0"
+BUDDY_VERSION = "1.8.0"
 CONTEXT_REFRESH_MS = 60_000
+OFFER_AGENTS_MS = 9_000                     # after the hello: ask about the AI agents found on this PC
 UPDATE_FIRST_CHECK_MS = 60_000              # first update check a minute after start...
 UPDATE_EVERY_MS = 3 * 3600 * 1000           # ...then every 3 hours
 UPDATE_IDLE_S = 90                          # a ready update installs after 90 s without keyboard/mouse use
@@ -559,8 +561,10 @@ class BuddyApp:
         self.hook = keyit_core.KeyboardHook(self.player)
         self.hook.start()
         # Feature: the crew - a pointer for every other AI agent working on this PC
-        self.crew = buddy_crew.Crew(looks=self.settings.get("crew_looks"),
-                                    avoid_color=self.settings.get("buddy_color"))
+        # in Buddy's own shape (Settings -> Look), each in another colour than Buddy
+        self.crew = buddy_crew.Crew(looks=keyit_agents.looks(self.settings),
+                                    avoid_color=self.settings.get("buddy_color"),
+                                    icon=self.settings.get("buddy_icon"))
         self.crew_watcher = None
         self.window = keyit_gui.KeyItApp(self.player, self.hook, start_hidden=True, host=self.host)
         if not selftest:
@@ -575,6 +579,7 @@ class BuddyApp:
                 self.root.after(1000, self._poll_instance)
             self.root.after(1500, self.tabs.check_ai)
             self.root.after(4000, self._first_run)
+            self.root.after(OFFER_AGENTS_MS, self._offer_agents)
             self.root.after(6000, self._announce_update_result)
             self.root.after(UPDATE_FIRST_CHECK_MS, self._update_tick)
         self.root.after(30_000, self._periodic_refresh)
@@ -586,13 +591,30 @@ class BuddyApp:
         self.window.post(function, *args)
 
     def set_crew(self, enabled):
-        """Start or stop watching what other AI agents do (Settings -> AI helper)."""
+        """Start or stop watching what other AI agents do (Settings -> AI helper). Only the agents the user
+        said yes to are watched; what a tool posts with --crew is always shown."""
         if self.crew_watcher is not None:
             self.crew_watcher.stop()                   # also takes the crew's pointers off the screen
             self.crew_watcher = None
         if enabled:
-            self.crew_watcher = crew_sources.CrewWatcher(self.crew)
+            watched = keyit_agents.enabled(self.settings)
+            self.crew_watcher = crew_sources.CrewWatcher(self.crew, enabled=watched)
             self.crew_watcher.start()
+            logger.info("Crew watches: %s", ", ".join(sorted(watched)) or "no agent yet (only --crew)")
+
+    def _offer_agents(self):
+        """Once per agent: Buddy found an AI agent on this PC and asks whether to show it. Nothing is shown
+        before the user said yes."""
+        if self._quitting or not self.settings.get("crew_enabled", True):
+            return
+        try:
+            new = keyit_agents.unasked(keyit_agents.scan(), self.settings)
+        except Exception:
+            logger.exception("Could not look for AI agents")
+            return
+        if new:
+            logger.info("Found AI agents to ask about: %s", ", ".join(agent["name"] for agent in new))
+            self.window.open_agents(offer=True)
 
     def refresh(self):
         if self.tabs is not None and not self._quitting:
@@ -1164,6 +1186,12 @@ def main(argv=None):
             uia, automation = keyit_buddy._uia()               # selection reading for the ask box
             assert automation.GetRootElement(), "UI Automation unavailable"
             logger.info("UI Automation ready for highlighted-text questions")
+            agents = keyit_agents.scan()                       # the agents Buddy would ask about
+            assert [agent["id"] for agent in agents] == ["opencode", "claude", "codex"], agents
+            logger.info("AI agents on this PC: %s", ", ".join(a["name"] for a in agents if a["found"]) or "none")
+            own_icon = buddy_crew.buddy_overlay.normalize_icon(app.settings.get("buddy_icon"))
+            assert app.crew.icon == own_icon, (app.crew.icon, own_icon)     # the crew has Buddy's shape
+            import crew_dialog  # noqa: F401                  # the window that asks
             watcher = crew_sources.CrewWatcher(app.crew)       # the crew: every source can be read
             watcher.step()
             assert [type(source).__name__ for source in watcher.sources] == \
