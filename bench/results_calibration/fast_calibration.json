@@ -1,0 +1,8459 @@
+{
+ "scored_at": "2026-11-17 15:16",
+ "final": true,
+ "model_sha256": "a25000d89af5f45ab5058cca5f0117c6900217588a55cbe18d3a2d23b3739765",
+ "voice_access_source": "https://support.microsoft.com/en-us/accessibility/windows/voice-access/voice-access-command-list",
+ "sets": {
+  "users": {
+   "about": "simulated users written by Mistral Small 3.1 (four people)",
+   "trained": {
+    "requests": 364,
+    "one_step_commands": 191,
+    "done_fast": 43,
+    "wrong_fast": 0,
+    "wrong_fast_upper_95": 0.0673,
+    "commands_done_fast": 42,
+    "readings": 46,
+    "readings_right": 45,
+    "ece": 0.0356,
+    "wrong_fast_rows": []
+   },
+   "1.5.0": {
+    "requests": 364,
+    "one_step_commands": 191,
+    "done_fast": 24,
+    "wrong_fast": 0,
+    "wrong_fast_upper_95": 0.1173,
+    "commands_done_fast": 23,
+    "readings": 25,
+    "readings_right": 25,
+    "ece": 0.0607,
+    "wrong_fast_rows": []
+   }
+  },
+  "vendor": {
+   "about": "Windows Voice Access command list, app and window commands",
+   "trained": {
+    "requests": 44,
+    "one_step_commands": 38,
+    "done_fast": 31,
+    "wrong_fast": 0,
+    "wrong_fast_upper_95": 0.0921,
+    "commands_done_fast": 31,
+    "readings": 32,
+    "readings_right": 32,
+    "ece": 0.025,
+    "wrong_fast_rows": []
+   },
+   "1.5.0": {
+    "requests": 44,
+    "one_step_commands": 38,
+    "done_fast": 29,
+    "wrong_fast": 0,
+    "wrong_fast_upper_95": 0.0981,
+    "commands_done_fast": 29,
+    "readings": 29,
+    "readings_right": 29,
+    "ece": 0.0474,
+    "wrong_fast_rows": []
+   }
+  },
+  "old test": {
+   "about": "the TEST list of Buddy 1.5.0",
+   "trained": {
+    "requests": 94,
+    "one_step_commands": 49,
+    "done_fast": 40,
+    "wrong_fast": 0,
+    "wrong_fast_upper_95": 0.0722,
+    "commands_done_fast": 40,
+    "readings": 47,
+    "readings_right": 47,
+    "ece": 0.0745,
+    "wrong_fast_rows": []
+   },
+   "1.5.0": {
+    "requests": 94,
+    "one_step_commands": 49,
+    "done_fast": 43,
+    "wrong_fast": 0,
+    "wrong_fast_upper_95": 0.0673,
+    "commands_done_fast": 43,
+    "readings": 44,
+    "readings_right": 44,
+    "ece": 0.0612,
+    "wrong_fast_rows": []
+   }
+  },
+  "CLINC150": {
+   "about": "requests for other assistants, test + oos_test",
+   "trained": {
+    "requests": 5500,
+    "one_step_commands": 0,
+    "done_fast": 0,
+    "wrong_fast": 0,
+    "wrong_fast_upper_95": null,
+    "commands_done_fast": 0,
+    "readings": 0,
+    "readings_right": 0,
+    "ece": null,
+    "wrong_fast_rows": []
+   },
+   "1.5.0": {
+    "requests": 5500,
+    "one_step_commands": 0,
+    "done_fast": 0,
+    "wrong_fast": 0,
+    "wrong_fast_upper_95": null,
+    "commands_done_fast": 0,
+    "readings": 0,
+    "readings_right": 0,
+    "ece": null,
+    "wrong_fast_rows": []
+   }
+  },
+  "speech (af_heart)": {
+   "about": "simulated requests said by Kokoro, heard by whisper-en",
+   "trained": {
+    "requests": 100,
+    "one_step_commands": 75,
+    "done_fast": 43,
+    "wrong_fast": 0,
+    "wrong_fast_upper_95": 0.0673,
+    "commands_done_fast": 43,
+    "readings": 53,
+    "readings_right": 49,
+    "ece": 0.0511,
+    "wrong_fast_rows": []
+   },
+   "1.5.0": {
+    "requests": 100,
+    "one_step_commands": 75,
+    "done_fast": 14,
+    "wrong_fast": 0,
+    "wrong_fast_upper_95": 0.1926,
+    "commands_done_fast": 14,
+    "readings": 15,
+    "readings_right": 15,
+    "ece": 0.0847,
+    "wrong_fast_rows": []
+   }
+  },
+  "speech (am_michael)": {
+   "about": "simulated requests said by Kokoro, heard by whisper-en",
+   "trained": {
+    "requests": 100,
+    "one_step_commands": 75,
+    "done_fast": 45,
+    "wrong_fast": 0,
+    "wrong_fast_upper_95": 0.0644,
+    "commands_done_fast": 45,
+    "readings": 55,
+    "readings_right": 51,
+    "ece": 0.0497,
+    "wrong_fast_rows": []
+   },
+   "1.5.0": {
+    "requests": 100,
+    "one_step_commands": 75,
+    "done_fast": 14,
+    "wrong_fast": 0,
+    "wrong_fast_upper_95": 0.1926,
+    "commands_done_fast": 14,
+    "readings": 15,
+    "readings_right": 15,
+    "ece": 0.0847,
+    "wrong_fast_rows": []
+   }
+  }
+ },
+ "in_simulator": {
+  "grammar (test seed)": {
+   "about": "bench/simulate.py with a seed that was not trained on: in-simulator",
+   "trained": {
+    "requests": 20000,
+    "one_step_commands": 12957,
+    "done_fast": 9392,
+    "wrong_fast": 90,
+    "wrong_fast_upper_95": 0.0114,
+    "commands_done_fast": 9302,
+    "readings": 10511,
+    "readings_right": 9956,
+    "ece": 0.0266,
+    "wrong_fast_rows": [
+     {
+      "text": "go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "close edge please",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Microsoft Edge"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "could you go to settings",
+      "said": null,
+      "kind": "inside an app",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "would you go to settings?",
+      "said": null,
+      "kind": "inside an app",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "just open goolge.com",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "google.com"
+      ],
+      "did": [
+       "open",
+       "goolge.com"
+      ],
+      "confidence": 0.9641
+     },
+     {
+      "text": "go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "go to settings",
+      "said": null,
+      "kind": "inside an app",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "can you launch ogogle.com?",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "google.com"
+      ],
+      "did": [
+       "open",
+       "ogogle.com"
+      ],
+      "confidence": 0.9803
+     },
+     {
+      "text": "Please close microsoft teams please.",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Microsoft Teams"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "can you open aazon.com?",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "amazon.com"
+      ],
+      "did": [
+       "open",
+       "aazon.com"
+      ],
+      "confidence": 0.9641
+     },
+     {
+      "text": "Open pthon.org",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "python.org"
+      ],
+      "did": [
+       "open",
+       "pthon.org"
+      ],
+      "confidence": 0.9641
+     },
+     {
+      "text": "can you close file explorer",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "File Explorer"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "open liknedin.com now.",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "linkedin.com"
+      ],
+      "did": [
+       "open",
+       "liknedin.com"
+      ],
+      "confidence": 0.9641
+     },
+     {
+      "text": "Please show settings for me",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.945
+     },
+     {
+      "text": "close slack",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "slack"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "Go to settings.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "Go ahead and close excel",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Excel"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "start dosc.python.org please",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "docs.python.org"
+      ],
+      "did": [
+       "open",
+       "dosc.python.org"
+      ],
+      "confidence": 0.9874
+     },
+     {
+      "text": "show settings.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.945
+     },
+     {
+      "text": "Show settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.945
+     },
+     {
+      "text": "Could you close word now?",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Word"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "go to settings please.",
+      "said": null,
+      "kind": "inside an app",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "Let's show settings for me.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.945
+     },
+     {
+      "text": "close chrome",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Google Chrome"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "close excel now",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Excel"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "could you go to settings.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "hey, close google chrome please",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Google Chrome"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "would you close excel?",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Excel"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "close spotify.",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "spotify"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "Go to www.microsoft.om",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "www.microsoft.com"
+      ],
+      "did": [
+       "open",
+       "www.microsoft.om"
+      ],
+      "confidence": 0.9378
+     },
+     {
+      "text": "go to settings please.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "Fire up gitub.com please",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "github.com"
+      ],
+      "did": [
+       "open",
+       "gitub.com"
+      ],
+      "confidence": 0.9819
+     },
+     {
+      "text": "Um go to settings for me",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "close spotify",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "spotify"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "Can you close excel",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Excel"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "can you close microsoft edge?",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Microsoft Edge"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "Go to eample.net",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "example.net"
+      ],
+      "did": [
+       "open",
+       "eample.net"
+      ],
+      "confidence": 0.9378
+     },
+     {
+      "text": "close spotify.",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "spotify"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "Show settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.945
+     },
+     {
+      "text": "close vs code",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "VS Code"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "Go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "I need to open masp.google.com please",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "maps.google.com"
+      ],
+      "did": [
+       "open",
+       "masp.google.com"
+      ],
+      "confidence": 0.9641
+     },
+     {
+      "text": "Can you show settings?",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.945
+     },
+     {
+      "text": "launch maps.googel.com",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "maps.google.com"
+      ],
+      "did": [
+       "open",
+       "maps.googel.com"
+      ],
+      "confidence": 0.9803
+     },
+     {
+      "text": "could you go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "Close zoom.",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "zoom"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "Go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "open ptyhon.org",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "python.org"
+      ],
+      "did": [
+       "open",
+       "ptyhon.org"
+      ],
+      "confidence": 0.9641
+     },
+     {
+      "text": "go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "open mpas.google.com",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "maps.google.com"
+      ],
+      "did": [
+       "open",
+       "mpas.google.com"
+      ],
+      "confidence": 0.9641
+     },
+     {
+      "text": "Show settings now.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.945
+     },
+     {
+      "text": "fire up eather.com",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "weather.com"
+      ],
+      "did": [
+       "open",
+       "eather.com"
+      ],
+      "confidence": 0.9819
+     },
+     {
+      "text": "I'd like to close calculator",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Calculator"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "Hey buddy open stackoverfolw.com for me",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "stackoverflow.com"
+      ],
+      "did": [
+       "open",
+       "stackoverfolw.com"
+      ],
+      "confidence": 0.9641
+     },
+     {
+      "text": "show settings.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.945
+     },
+     {
+      "text": "Hey buddy close paint please",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "mspaint"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "open gogle.com",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "google.com"
+      ],
+      "did": [
+       "open",
+       "gogle.com"
+      ],
+      "confidence": 0.9641
+     },
+     {
+      "text": "Open wikipdeia.org",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "wikipedia.org"
+      ],
+      "did": [
+       "open",
+       "wikipdeia.org"
+      ],
+      "confidence": 0.9641
+     },
+     {
+      "text": "Could you show settings please",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.945
+     },
+     {
+      "text": "I need to close spotify please",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "spotify"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "Open odcs.python.org",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "docs.python.org"
+      ],
+      "did": [
+       "open",
+       "odcs.python.org"
+      ],
+      "confidence": 0.9641
+     },
+     {
+      "text": "Start stackoveflow.com.",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "stackoverflow.com"
+      ],
+      "did": [
+       "open",
+       "stackoveflow.com"
+      ],
+      "confidence": 0.9874
+     },
+     {
+      "text": "go to settings for me",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "i need to close zoom",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "zoom"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "Can you close paint?",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "mspaint"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "can you go to settings?",
+      "said": null,
+      "kind": "inside an app",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "can you load youube.com",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "youtube.com"
+      ],
+      "did": [
+       "open",
+       "youube.com"
+      ],
+      "confidence": 0.9804
+     },
+     {
+      "text": "Could you show settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.945
+     },
+     {
+      "text": "please close chrome now",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Google Chrome"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "Go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "Can you start stakcoverflow.com",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "stackoverflow.com"
+      ],
+      "did": [
+       "open",
+       "stakcoverflow.com"
+      ],
+      "confidence": 0.9874
+     },
+     {
+      "text": "Um show settings please",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.945
+     },
+     {
+      "text": "can you go to settings for me",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "close outlook",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Outlook"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "close notepad",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Notepad"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "Please go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "show settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.945
+     },
+     {
+      "text": "Could you close notepad.",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Notepad"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "close zoom",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "zoom"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "Hey buddy show settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.945
+     },
+     {
+      "text": "Go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "Close notepad",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Notepad"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "close microsoft edge please",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Microsoft Edge"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "close powerpoint.",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "PowerPoint"
+      ],
+      "confidence": 0.9554
+     },
+     {
+      "text": "go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "Go to settings",
+      "said": null,
+      "kind": "inside an app",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.8845
+     },
+     {
+      "text": "Open xeample.net.",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "example.net"
+      ],
+      "did": [
+       "open",
+       "xeample.net"
+      ],
+      "confidence": 0.9641
+     },
+     {
+      "text": "start gituhb.com for me",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "github.com"
+      ],
+      "did": [
+       "open",
+       "gituhb.com"
+      ],
+      "confidence": 0.9874
+     }
+    ]
+   },
+   "1.5.0": {
+    "requests": 20000,
+    "one_step_commands": 12957,
+    "done_fast": 2966,
+    "wrong_fast": 183,
+    "wrong_fast_upper_95": 0.0695,
+    "commands_done_fast": 2783,
+    "readings": 3185,
+    "readings_right": 2953,
+    "ece": 0.0174,
+    "wrong_fast_rows": [
+     {
+      "text": "go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "launch outlook",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Outlook"
+      ],
+      "did": [
+       "open",
+       "outlook"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings.",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Settings"
+      ],
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "close edge please",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Microsoft Edge"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "start paint",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "mspaint"
+      ],
+      "did": [
+       "open",
+       "paint"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "go to settings",
+      "said": null,
+      "kind": "inside an app",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "Launch chrome",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Google Chrome"
+      ],
+      "did": [
+       "open",
+       "chrome"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Please close microsoft teams please.",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Microsoft Teams"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open word",
+      "said": null,
+      "kind": "named window",
+      "expected": [
+       "focus",
+       "Word"
+      ],
+      "did": [
+       "open",
+       "word"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open calculator",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Calculator"
+      ],
+      "did": [
+       "open",
+       "calculator"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Start file explorer",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "File Explorer"
+      ],
+      "did": [
+       "open",
+       "file explorer"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open pthon.org",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "python.org"
+      ],
+      "did": [
+       "open",
+       "pthon.org"
+      ],
+      "confidence": 0.9
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "close slack",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "slack"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "Open powerpoint",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "PowerPoint"
+      ],
+      "did": [
+       "open",
+       "powerpoint"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Go to settings.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "open notepad.",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Notepad"
+      ],
+      "did": [
+       "open",
+       "notepad"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Please open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open word",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Word"
+      ],
+      "did": [
+       "open",
+       "word"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open paint.",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "mspaint"
+      ],
+      "did": [
+       "open",
+       "paint"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open teams",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Microsoft Teams"
+      ],
+      "did": [
+       "open",
+       "teams"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open chrome",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Google Chrome"
+      ],
+      "did": [
+       "open",
+       "chrome"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open notepad",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Notepad"
+      ],
+      "did": [
+       "open",
+       "notepad"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Please open settings",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Settings"
+      ],
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "start chrome",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Google Chrome"
+      ],
+      "did": [
+       "open",
+       "chrome"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "go to settings please.",
+      "said": null,
+      "kind": "inside an app",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "open explorer",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "File Explorer"
+      ],
+      "did": [
+       "open",
+       "explorer"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open file explorer",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "File Explorer"
+      ],
+      "did": [
+       "open",
+       "file explorer"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "launch word",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Word"
+      ],
+      "did": [
+       "open",
+       "word"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Launch settings",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Settings"
+      ],
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "close chrome",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Google Chrome"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "close excel now",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Excel"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "open calculator.",
+      "said": null,
+      "kind": "named window",
+      "expected": [
+       "focus",
+       "Calculator"
+      ],
+      "did": [
+       "open",
+       "calculator"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "please open settings.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "start notepad",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Notepad"
+      ],
+      "did": [
+       "open",
+       "notepad"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open word",
+      "said": null,
+      "kind": "named window",
+      "expected": [
+       "focus",
+       "Word"
+      ],
+      "did": [
+       "open",
+       "word"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Start powerpoint.",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "PowerPoint"
+      ],
+      "did": [
+       "open",
+       "powerpoint"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "launch word",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Word"
+      ],
+      "did": [
+       "open",
+       "word"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open notepad",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Notepad"
+      ],
+      "did": [
+       "open",
+       "notepad"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "launch chrome",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Google Chrome"
+      ],
+      "did": [
+       "open",
+       "chrome"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "close spotify.",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "spotify"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "Launch teams.",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Microsoft Teams"
+      ],
+      "did": [
+       "open",
+       "teams"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open file explorer.",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "File Explorer"
+      ],
+      "did": [
+       "open",
+       "file explorer"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open word",
+      "said": null,
+      "kind": "named window",
+      "expected": [
+       "focus",
+       "Word"
+      ],
+      "did": [
+       "open",
+       "word"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Start notepad",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Notepad"
+      ],
+      "did": [
+       "open",
+       "notepad"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open paint",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "mspaint"
+      ],
+      "did": [
+       "open",
+       "paint"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Settings"
+      ],
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "go to settings please.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "open paint",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "mspaint"
+      ],
+      "did": [
+       "open",
+       "paint"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open notepad",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Notepad"
+      ],
+      "did": [
+       "open",
+       "notepad"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open file explorer",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "File Explorer"
+      ],
+      "did": [
+       "open",
+       "file explorer"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "please open notepad",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Notepad"
+      ],
+      "did": [
+       "open",
+       "notepad"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "close spotify",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "spotify"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "please open excel",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Excel"
+      ],
+      "did": [
+       "open",
+       "excel"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open paint",
+      "said": null,
+      "kind": "named window",
+      "expected": [
+       "focus",
+       "mspaint"
+      ],
+      "did": [
+       "open",
+       "paint"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open excel",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Excel"
+      ],
+      "did": [
+       "open",
+       "excel"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "close spotify.",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "spotify"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "Please open word",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Word"
+      ],
+      "did": [
+       "open",
+       "word"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "close vs code",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "VS Code"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "Go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "open settings.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open calculator",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Calculator"
+      ],
+      "did": [
+       "open",
+       "calculator"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Launch paint",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "mspaint"
+      ],
+      "did": [
+       "open",
+       "paint"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "start excel",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Excel"
+      ],
+      "did": [
+       "open",
+       "excel"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "launch maps.googel.com",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "maps.google.com"
+      ],
+      "did": [
+       "open",
+       "maps.googel.com"
+      ],
+      "confidence": 0.9
+     },
+     {
+      "text": "Open file explorer",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "File Explorer"
+      ],
+      "did": [
+       "open",
+       "file explorer"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "start notepad",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Notepad"
+      ],
+      "did": [
+       "open",
+       "notepad"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Please open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "start outlook",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Outlook"
+      ],
+      "did": [
+       "open",
+       "outlook"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Start outlook",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Outlook"
+      ],
+      "did": [
+       "open",
+       "outlook"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Close zoom.",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "zoom"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "Go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "open settings.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open paint",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "mspaint"
+      ],
+      "did": [
+       "open",
+       "paint"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Start paint",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "mspaint"
+      ],
+      "did": [
+       "open",
+       "paint"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open notepad.",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Notepad"
+      ],
+      "did": [
+       "open",
+       "notepad"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open ptyhon.org",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "python.org"
+      ],
+      "did": [
+       "open",
+       "ptyhon.org"
+      ],
+      "confidence": 0.9
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Settings"
+      ],
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open word",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Word"
+      ],
+      "did": [
+       "open",
+       "word"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "start excel",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Excel"
+      ],
+      "did": [
+       "open",
+       "excel"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open mpas.google.com",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "maps.google.com"
+      ],
+      "did": [
+       "open",
+       "mpas.google.com"
+      ],
+      "confidence": 0.9
+     },
+     {
+      "text": "open settings.",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Start teams",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Microsoft Teams"
+      ],
+      "did": [
+       "open",
+       "teams"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open gogle.com",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "google.com"
+      ],
+      "did": [
+       "open",
+       "gogle.com"
+      ],
+      "confidence": 0.9
+     },
+     {
+      "text": "Open wikipdeia.org",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "wikipedia.org"
+      ],
+      "did": [
+       "open",
+       "wikipdeia.org"
+      ],
+      "confidence": 0.9
+     },
+     {
+      "text": "Open odcs.python.org",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "docs.python.org"
+      ],
+      "did": [
+       "open",
+       "odcs.python.org"
+      ],
+      "confidence": 0.9
+     },
+     {
+      "text": "Start stackoveflow.com.",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "stackoverflow.com"
+      ],
+      "did": [
+       "open",
+       "stackoveflow.com"
+      ],
+      "confidence": 0.9
+     },
+     {
+      "text": "open edge.",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Microsoft Edge"
+      ],
+      "did": [
+       "open",
+       "edge"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open file explorer",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "File Explorer"
+      ],
+      "did": [
+       "open",
+       "file explorer"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Please open powerpoint",
+      "said": null,
+      "kind": "named window",
+      "expected": [
+       "focus",
+       "PowerPoint"
+      ],
+      "did": [
+       "open",
+       "powerpoint"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open powerpoint",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "PowerPoint"
+      ],
+      "did": [
+       "open",
+       "powerpoint"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "start notepad",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Notepad"
+      ],
+      "did": [
+       "open",
+       "notepad"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open teams",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Microsoft Teams"
+      ],
+      "did": [
+       "open",
+       "teams"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Settings"
+      ],
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "please close chrome now",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Google Chrome"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open outlook",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Outlook"
+      ],
+      "did": [
+       "open",
+       "outlook"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Start powerpoint.",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "PowerPoint"
+      ],
+      "did": [
+       "open",
+       "powerpoint"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open powerpoint",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "PowerPoint"
+      ],
+      "did": [
+       "open",
+       "powerpoint"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "please open calculator",
+      "said": null,
+      "kind": "named window",
+      "expected": [
+       "focus",
+       "Calculator"
+      ],
+      "did": [
+       "open",
+       "calculator"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "start powerpoint.",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "PowerPoint"
+      ],
+      "did": [
+       "open",
+       "powerpoint"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "start notepad",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Notepad"
+      ],
+      "did": [
+       "open",
+       "notepad"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open outlook",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Outlook"
+      ],
+      "did": [
+       "open",
+       "outlook"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings.",
+      "said": null,
+      "kind": "named window",
+      "expected": [
+       "focus",
+       "Settings"
+      ],
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open teams",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Microsoft Teams"
+      ],
+      "did": [
+       "open",
+       "teams"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Please open teams",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Microsoft Teams"
+      ],
+      "did": [
+       "open",
+       "teams"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open word.",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Word"
+      ],
+      "did": [
+       "open",
+       "word"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "close outlook",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Outlook"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "close notepad",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Notepad"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "open calculator",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Calculator"
+      ],
+      "did": [
+       "open",
+       "calculator"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Please go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "close zoom",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "zoom"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open file explorer",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "File Explorer"
+      ],
+      "did": [
+       "open",
+       "file explorer"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open word",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Word"
+      ],
+      "did": [
+       "open",
+       "word"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "named window",
+      "expected": [
+       "focus",
+       "Settings"
+      ],
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open teams",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Microsoft Teams"
+      ],
+      "did": [
+       "open",
+       "teams"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open calculator.",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Calculator"
+      ],
+      "did": [
+       "open",
+       "calculator"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open word",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Word"
+      ],
+      "did": [
+       "open",
+       "word"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Open notepad",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Notepad"
+      ],
+      "did": [
+       "open",
+       "notepad"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "Close notepad",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Notepad"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "Start settings",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Settings"
+      ],
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "close microsoft edge please",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "Microsoft Edge"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "start powerpoint.",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "PowerPoint"
+      ],
+      "did": [
+       "open",
+       "powerpoint"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "close powerpoint.",
+      "said": null,
+      "kind": "close file",
+      "expected": null,
+      "did": [
+       "close",
+       "PowerPoint"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "Please open excel",
+      "said": null,
+      "kind": "open what is open",
+      "expected": [
+       "focus",
+       "Excel"
+      ],
+      "did": [
+       "open",
+       "excel"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "go to settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "Go to settings",
+      "said": null,
+      "kind": "inside an app",
+      "expected": null,
+      "did": [
+       "focus",
+       "Settings"
+      ],
+      "confidence": 0.9583
+     },
+     {
+      "text": "Open xeample.net.",
+      "said": null,
+      "kind": "open site",
+      "expected": [
+       "open",
+       "example.net"
+      ],
+      "did": [
+       "open",
+       "xeample.net"
+      ],
+      "confidence": 0.9
+     },
+     {
+      "text": "Open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     },
+     {
+      "text": "open settings",
+      "said": null,
+      "kind": "app settings",
+      "expected": null,
+      "did": [
+       "open",
+       "settings"
+      ],
+      "confidence": 0.9375
+     }
+    ]
+   }
+  }
+ },
+ "gates": {
+  "held_out_together": {
+   "readings": 233,
+   "readings_right": 224,
+   "ece": 0.0279,
+   "bins": [
+    {
+     "bin": "0.5-0.6",
+     "readings": 12,
+     "stated": 0.5459,
+     "right": 0.5,
+     "overconfident_by": 0.0459
+    },
+    {
+     "bin": "0.6-0.7",
+     "readings": 7,
+     "stated": 0.687,
+     "right": 0.5714,
+     "overconfident_by": 0.1156
+    },
+    {
+     "bin": "0.7-0.8",
+     "readings": 2,
+     "stated": 0.7175,
+     "right": 1.0,
+     "overconfident_by": -0.2825
+    },
+    {
+     "bin": "0.8-0.9",
+     "readings": 9,
+     "stated": 0.8759,
+     "right": 1.0,
+     "overconfident_by": -0.1241
+    },
+    {
+     "bin": "0.9-1.0",
+     "readings": 203,
+     "stated": 0.9829,
+     "right": 1.0,
+     "overconfident_by": -0.0171
+    }
+   ],
+   "by_action": {
+    "focus": {
+     "bar": 0.8,
+     "passed": 26,
+     "right": 26,
+     "share_right": 1.0,
+     "meets_bar": true
+    },
+    "minimize": {
+     "bar": 0.8,
+     "passed": 42,
+     "right": 42,
+     "share_right": 1.0,
+     "meets_bar": true
+    },
+    "maximize": {
+     "bar": 0.8,
+     "passed": 37,
+     "right": 37,
+     "share_right": 1.0,
+     "meets_bar": true
+    },
+    "open": {
+     "bar": 0.85,
+     "passed": 58,
+     "right": 58,
+     "share_right": 1.0,
+     "meets_bar": true
+    },
+    "close": {
+     "bar": 0.95,
+     "passed": 39,
+     "right": 39,
+     "share_right": 1.0,
+     "meets_bar": true
+    }
+   },
+   "commands_done_fast": {
+    "trained": 201,
+    "1.5.0": 123
+   },
+   "decision_time": {
+    "decisions": 6202,
+    "median_ms": 0.0162,
+    "p95_ms": 0.0392,
+    "max_ms": 8.8711
+   }
+  },
+  "G2 no more wrong fast than 1.5.0 on any set": true,
+  "G2 old test list still 0 wrong fast": true,
+  "G3 ECE <= 0.03": true,
+  "G3 no big bin overconfident by more than 0.05": true,
+  "G4 every action as right as its bar": true,
+  "G5 more commands done fast than 1.5.0": true,
+  "G6 a decision under 1 ms at p95": true,
+  "in_simulator": true
+ },
+ "habits": [
+  {
+   "brain_error": 0.0,
+   "means_something_else": 0.0,
+   "says_no_when_wrong": 1.0,
+   "people": 200,
+   "requests": 50000,
+   "done_by_brain": 12598,
+   "done_fast_by_habit": 37402,
+   "wrong_fast": 0,
+   "wrong_fast_per_1000_requests": 0.0,
+   "wrong_share_of_fast": 0.0,
+   "habit_readings": 47600,
+   "stated_mean": 0.9051,
+   "right_share": 1.0,
+   "ece": 0.0949,
+   "bins": [
+    {
+     "bin": "0.6-0.7",
+     "readings": 2398,
+     "stated": 0.6667,
+     "right": 1.0,
+     "overconfident_by": -0.3333
+    },
+    {
+     "bin": "0.7-0.8",
+     "readings": 2388,
+     "stated": 0.75,
+     "right": 1.0,
+     "overconfident_by": -0.25
+    },
+    {
+     "bin": "0.8-0.9",
+     "readings": 10831,
+     "stated": 0.8488,
+     "right": 1.0,
+     "overconfident_by": -0.1512
+    },
+    {
+     "bin": "0.9-1.0",
+     "readings": 31983,
+     "stated": 0.9536,
+     "right": 1.0,
+     "overconfident_by": -0.0464
+    }
+   ]
+  },
+  {
+   "brain_error": 0.05,
+   "means_something_else": 0.02,
+   "says_no_when_wrong": 1.0,
+   "people": 200,
+   "requests": 50000,
+   "done_by_brain": 16243,
+   "done_fast_by_habit": 33757,
+   "wrong_fast": 662,
+   "wrong_fast_per_1000_requests": 13.24,
+   "wrong_share_of_fast": 0.0196,
+   "habit_readings": 47491,
+   "stated_mean": 0.862,
+   "right_share": 0.9563,
+   "ece": 0.0998,
+   "bins": [
+    {
+     "bin": "0.0-0.1",
+     "readings": 472,
+     "stated": 0.0556,
+     "right": 0.0085,
+     "overconfident_by": 0.0472
+    },
+    {
+     "bin": "0.1-0.2",
+     "readings": 296,
+     "stated": 0.1412,
+     "right": 0.0068,
+     "overconfident_by": 0.1344
+    },
+    {
+     "bin": "0.2-0.3",
+     "readings": 191,
+     "stated": 0.2398,
+     "right": 0.0209,
+     "overconfident_by": 0.2189
+    },
+    {
+     "bin": "0.3-0.4",
+     "readings": 56,
+     "stated": 0.3332,
+     "right": 0.0,
+     "overconfident_by": 0.3332
+    },
+    {
+     "bin": "0.4-0.5",
+     "readings": 63,
+     "stated": 0.4031,
+     "right": 0.2381,
+     "overconfident_by": 0.165
+    },
+    {
+     "bin": "0.5-0.6",
+     "readings": 335,
+     "stated": 0.5141,
+     "right": 0.8358,
+     "overconfident_by": -0.3217
+    },
+    {
+     "bin": "0.6-0.7",
+     "readings": 3262,
+     "stated": 0.6594,
+     "right": 0.966,
+     "overconfident_by": -0.3066
+    },
+    {
+     "bin": "0.7-0.8",
+     "readings": 4065,
+     "stated": 0.7494,
+     "right": 0.9803,
+     "overconfident_by": -0.2309
+    },
+    {
+     "bin": "0.8-0.9",
+     "readings": 12776,
+     "stated": 0.8486,
+     "right": 0.9785,
+     "overconfident_by": -0.1299
+    },
+    {
+     "bin": "0.9-1.0",
+     "readings": 25975,
+     "stated": 0.9459,
+     "right": 0.9806,
+     "overconfident_by": -0.0347
+    }
+   ]
+  },
+  {
+   "brain_error": 0.05,
+   "means_something_else": 0.02,
+   "says_no_when_wrong": 0.5,
+   "people": 200,
+   "requests": 50000,
+   "done_by_brain": 16676,
+   "done_fast_by_habit": 33324,
+   "wrong_fast": 662,
+   "wrong_fast_per_1000_requests": 13.24,
+   "wrong_share_of_fast": 0.0199,
+   "habit_readings": 47542,
+   "stated_mean": 0.8509,
+   "right_share": 0.9337,
+   "ece": 0.0948,
+   "bins": [
+    {
+     "bin": "0.0-0.1",
+     "readings": 882,
+     "stated": 0.0611,
+     "right": 0.0079,
+     "overconfident_by": 0.0532
+    },
+    {
+     "bin": "0.1-0.2",
+     "readings": 578,
+     "stated": 0.1396,
+     "right": 0.0069,
+     "overconfident_by": 0.1327
+    },
+    {
+     "bin": "0.2-0.3",
+     "readings": 363,
+     "stated": 0.2413,
+     "right": 0.0055,
+     "overconfident_by": 0.2358
+    },
+    {
+     "bin": "0.3-0.4",
+     "readings": 124,
+     "stated": 0.3339,
+     "right": 0.0081,
+     "overconfident_by": 0.3258
+    },
+    {
+     "bin": "0.4-0.5",
+     "readings": 119,
+     "stated": 0.4029,
+     "right": 0.0924,
+     "overconfident_by": 0.3104
+    },
+    {
+     "bin": "0.5-0.6",
+     "readings": 361,
+     "stated": 0.5107,
+     "right": 0.6953,
+     "overconfident_by": -0.1846
+    },
+    {
+     "bin": "0.6-0.7",
+     "readings": 3226,
+     "stated": 0.6595,
+     "right": 0.947,
+     "overconfident_by": -0.2875
+    },
+    {
+     "bin": "0.7-0.8",
+     "readings": 3669,
+     "stated": 0.7487,
+     "right": 0.9815,
+     "overconfident_by": -0.2327
+    },
+    {
+     "bin": "0.8-0.9",
+     "readings": 11972,
+     "stated": 0.8485,
+     "right": 0.9786,
+     "overconfident_by": -0.1301
+    },
+    {
+     "bin": "0.9-1.0",
+     "readings": 26248,
+     "stated": 0.9496,
+     "right": 0.9806,
+     "overconfident_by": -0.031
+    }
+   ]
+  },
+  {
+   "brain_error": 0.1,
+   "means_something_else": 0.1,
+   "says_no_when_wrong": 0.5,
+   "people": 200,
+   "requests": 50000,
+   "done_by_brain": 26515,
+   "done_fast_by_habit": 23485,
+   "wrong_fast": 2295,
+   "wrong_fast_per_1000_requests": 45.9,
+   "wrong_share_of_fast": 0.0977,
+   "habit_readings": 47466,
+   "stated_mean": 0.7301,
+   "right_share": 0.7706,
+   "ece": 0.0928,
+   "bins": [
+    {
+     "bin": "0.0-0.1",
+     "readings": 2098,
+     "stated": 0.0701,
+     "right": 0.0305,
+     "overconfident_by": 0.0396
+    },
+    {
+     "bin": "0.1-0.2",
+     "readings": 2188,
+     "stated": 0.1398,
+     "right": 0.0283,
+     "overconfident_by": 0.1115
+    },
+    {
+     "bin": "0.2-0.3",
+     "readings": 1221,
+     "stated": 0.2404,
+     "right": 0.0328,
+     "overconfident_by": 0.2076
+    },
+    {
+     "bin": "0.3-0.4",
+     "readings": 533,
+     "stated": 0.3351,
+     "right": 0.0919,
+     "overconfident_by": 0.2432
+    },
+    {
+     "bin": "0.4-0.5",
+     "readings": 524,
+     "stated": 0.4105,
+     "right": 0.2805,
+     "overconfident_by": 0.13
+    },
+    {
+     "bin": "0.5-0.6",
+     "readings": 1618,
+     "stated": 0.523,
+     "right": 0.7009,
+     "overconfident_by": -0.1779
+    },
+    {
+     "bin": "0.6-0.7",
+     "readings": 5986,
+     "stated": 0.6542,
+     "right": 0.8525,
+     "overconfident_by": -0.1983
+    },
+    {
+     "bin": "0.7-0.8",
+     "readings": 7089,
+     "stated": 0.7451,
+     "right": 0.896,
+     "overconfident_by": -0.1509
+    },
+    {
+     "bin": "0.8-0.9",
+     "readings": 11815,
+     "stated": 0.8495,
+     "right": 0.902,
+     "overconfident_by": -0.0525
+    },
+    {
+     "bin": "0.9-1.0",
+     "readings": 14394,
+     "stated": 0.9332,
+     "right": 0.9011,
+     "overconfident_by": 0.0321
+    }
+   ]
+  },
+  {
+   "brain_error": 0.05,
+   "means_something_else": 0.02,
+   "says_no_when_wrong": 0.0,
+   "people": 200,
+   "requests": 50000,
+   "done_by_brain": 16734,
+   "done_fast_by_habit": 33266,
+   "wrong_fast": 665,
+   "wrong_fast_per_1000_requests": 13.3,
+   "wrong_share_of_fast": 0.02,
+   "habit_readings": 47600,
+   "stated_mean": 0.8438,
+   "right_share": 0.9136,
+   "ece": 0.0887,
+   "bins": [
+    {
+     "bin": "0.0-0.1",
+     "readings": 1042,
+     "stated": 0.0648,
+     "right": 0.0077,
+     "overconfident_by": 0.0571
+    },
+    {
+     "bin": "0.1-0.2",
+     "readings": 920,
+     "stated": 0.14,
+     "right": 0.0043,
+     "overconfident_by": 0.1357
+    },
+    {
+     "bin": "0.2-0.3",
+     "readings": 574,
+     "stated": 0.241,
+     "right": 0.0087,
+     "overconfident_by": 0.2323
+    },
+    {
+     "bin": "0.3-0.4",
+     "readings": 220,
+     "stated": 0.3339,
+     "right": 0.0091,
+     "overconfident_by": 0.3248
+    },
+    {
+     "bin": "0.4-0.5",
+     "readings": 173,
+     "stated": 0.4037,
+     "right": 0.0578,
+     "overconfident_by": 0.3459
+    },
+    {
+     "bin": "0.5-0.6",
+     "readings": 355,
+     "stated": 0.5063,
+     "right": 0.5239,
+     "overconfident_by": -0.0176
+    },
+    {
+     "bin": "0.6-0.7",
+     "readings": 3092,
+     "stated": 0.6602,
+     "right": 0.9305,
+     "overconfident_by": -0.2703
+    },
+    {
+     "bin": "0.7-0.8",
+     "readings": 3327,
+     "stated": 0.7488,
+     "right": 0.9775,
+     "overconfident_by": -0.2287
+    },
+    {
+     "bin": "0.8-0.9",
+     "readings": 11003,
+     "stated": 0.848,
+     "right": 0.9793,
+     "overconfident_by": -0.1313
+    },
+    {
+     "bin": "0.9-1.0",
+     "readings": 26894,
+     "stated": 0.9535,
+     "right": 0.9805,
+     "overconfident_by": -0.0269
+    }
+   ]
+  }
+ ],
+ "in_simulator_reliability": {
+  "ece": 0.0266,
+  "bins": [
+   {
+    "bin": "0.0-0.1",
+    "readings": 44,
+    "stated": 0.0776,
+    "right": 0.3409,
+    "overconfident_by": -0.2633
+   },
+   {
+    "bin": "0.1-0.2",
+    "readings": 31,
+    "stated": 0.1309,
+    "right": 0.1613,
+    "overconfident_by": -0.0304
+   },
+   {
+    "bin": "0.5-0.6",
+    "readings": 191,
+    "stated": 0.5459,
+    "right": 0.4712,
+    "overconfident_by": 0.0747
+   },
+   {
+    "bin": "0.6-0.7",
+    "readings": 101,
+    "stated": 0.6864,
+    "right": 0.5149,
+    "overconfident_by": 0.1715
+   },
+   {
+    "bin": "0.7-0.8",
+    "readings": 248,
+    "stated": 0.75,
+    "right": 0.3226,
+    "overconfident_by": 0.4274
+   },
+   {
+    "bin": "0.8-0.9",
+    "readings": 444,
+    "stated": 0.8672,
+    "right": 0.7748,
+    "overconfident_by": 0.0924
+   },
+   {
+    "bin": "0.9-1.0",
+    "readings": 9452,
+    "stated": 0.982,
+    "right": 0.9913,
+    "overconfident_by": -0.0093
+   }
+  ]
+ },
+ "users_rows": [
+  {
+   "text": "open open ai on browser",
+   "kind": "open site",
+   "expected": [
+    "open",
+    "openai.com"
+   ],
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "can you go to open ai?",
+   "kind": "open site",
+   "expected": [
+    "open",
+    "openai.com"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Launch open ai website",
+   "kind": "open site",
+   "expected": [
+    "open",
+    "openai.com"
+   ],
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "close the thing with news in it",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "Microsoft Edge"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "get rid of the browser with news",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "Microsoft Edge"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "stop the squares that have news",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "Microsoft Edge"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "make the thing with the video call big",
+   "kind": "maximize window",
+   "expected": [
+    "maximize",
+    "zoom"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "show the whole video meeting thing on the screen",
+   "kind": "maximize window",
+   "expected": [
+    "maximize",
+    "zoom"
+   ],
+   "mind": "slow",
+   "why": "a long request",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "go full size on the thing with zoom in the title",
+   "kind": "maximize window",
+   "expected": [
+    "maximize",
+    "zoom"
+   ],
+   "mind": "slow",
+   "why": "a long request",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "quit the thing that does math and start firefox  .",
+   "kind": "two steps",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "close the math calculator and open firefox",
+   "kind": "two steps",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "get rid of the calculator and launch firefox",
+   "kind": "two steps",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "close the window that just popped up in the calculator",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "a long request",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "dismiss that box that just appeared in the calculator",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "a long request",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "get rid of that pop up in the thing that does math",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "a long request",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "How do I change settings in the calculator?",
+   "kind": "app settings",
+   "expected": null,
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Open the menu in the calculator",
+   "kind": "app settings",
+   "expected": null,
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Show me the calculator options",
+   "kind": "app settings",
+   "expected": null,
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "open my folders",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "file explorer"
+   ],
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I want to see my files please",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "file explorer"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "can you show files and things on my computer?",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "file explorer"
+   ],
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "get rid of that group chat thing",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "slack"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "can you shut the slack thing for me",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "slack"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "close that messenger window",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "slack"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "open that search engine thing",
+   "kind": "open site",
+   "expected": [
+    "open",
+    "google.com"
+   ],
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I want to go to google",
+   "kind": "open site",
+   "expected": [
+    "open",
+    "google.com"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "the google website, please",
+   "kind": "open site",
+   "expected": [
+    "open",
+    "google.com"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "show me new stuff in notes",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "can you take me to another page on notes",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "switch to a different notes thing",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I want to change notes settings",
+   "kind": "app settings",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "show me the notes options",
+   "kind": "app settings",
+   "expected": null,
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "can you find the settings on notes",
+   "kind": "app settings",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "make sure the counting thing stays open",
+   "kind": "do not",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "do not shut the calculator, ok",
+   "kind": "do not",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "leave that numbers app open please",
+   "kind": "do not",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Can you shut down the music thing?",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "spotify"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Get rid of that Spotify window, please.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "spotify"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Can you shrink that big window with all the files?",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "File Explorer"
+   ],
+   "mind": "slow",
+   "why": "more than one thing",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Minimize the big window with all my stuff in it.",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "File Explorer"
+   ],
+   "mind": "slow",
+   "why": "more than one thing",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Make that file window smaller so not in the way.",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "File Explorer"
+   ],
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Can you open that other window with text that I was in?",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Notepad"
+   ],
+   "mind": "slow",
+   "why": "more than one thing",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Show me that other window on top that has notes in it.",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Notepad"
+   ],
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Bring up that writing thing on top of the others.",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Notepad"
+   ],
+   "mind": "slow",
+   "why": "more than one thing",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Can you get me the settings in that big file window?",
+   "kind": "app settings",
+   "expected": null,
+   "mind": "slow",
+   "why": "a long request",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Open the options inside that big list of files.",
+   "kind": "app settings",
+   "expected": null,
+   "mind": "slow",
+   "why": "a long request",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I want the settings page inside where I see all my files.",
+   "kind": "app settings",
+   "expected": null,
+   "mind": "slow",
+   "why": "more than one thing",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Don't close the music thing, please.",
+   "kind": "do not",
+   "expected": null,
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Make sure the music doesn't disappear if you do stuff.",
+   "kind": "do not",
+   "expected": null,
+   "mind": "slow",
+   "why": "a condition",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Keep the song place open no matter what.",
+   "kind": "do not",
+   "expected": null,
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Can you get me to the next page in the file stuff?",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "a long request",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Open the next thing inside the big file folder.",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "a long request",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Can you go inside that file folder into another place.",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I want to type on a blank page.",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "notepad"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I want to write something.",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "notepad"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Can you show me a new place to write?",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "notepad"
+   ],
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Go away Paint.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "mspaint"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close the one with colors.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "mspaint"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I dont want that drawing thing anymore.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "mspaint"
+   ],
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Can you make this bigger?",
+   "kind": "maximize this",
+   "expected": [
+    "maximize",
+    "mspaint"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I want more room to work.",
+   "kind": "maximize this",
+   "expected": [
+    "maximize",
+    "mspaint"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Make this take the whole screen.",
+   "kind": "maximize this",
+   "expected": [
+    "maximize",
+    "mspaint"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Do not delete the colors.",
+   "kind": "do not",
+   "expected": null,
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Don't close the one with RGB and all that.",
+   "kind": "do not",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Don't close the picture one.",
+   "kind": "do not",
+   "expected": null,
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Just the address not the whole internet thing.",
+   "kind": "close tab",
+   "expected": null,
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Kill the page I am on, not the thing with all the tabs.",
+   "kind": "close tab",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Get rid of this page I am on, but not Chrome.",
+   "kind": "close tab",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Start a countdown.",
+   "kind": "start a thing",
+   "expected": null,
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I want to speak into this thing and record it.",
+   "kind": "start a thing",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I need a new word thing.",
+   "kind": "start a thing",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Open StackOverflow.",
+   "kind": "open site",
+   "expected": [
+    "open",
+    "stackoverflow.com"
+   ],
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Bring up the website StackOverflow.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "File Explorer"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Go to the StackOverflow website and open it.",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Word"
+   ],
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close that Documents list down.",
+   "kind": "open site",
+   "expected": [
+    "open",
+    "stackoverflow.com"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Cancel that Documents thing on my screen.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "File Explorer"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Shut down that Documents window.",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Word"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Open the menu in the spreadsheet thing.",
+   "kind": "open site",
+   "expected": [
+    "open",
+    "stackoverflow.com"
+   ],
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Launch the details window in the numbers worksheet.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "File Explorer"
+   ],
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Access the settings in my Excel.",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Word"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close down this one web page.",
+   "kind": "open site",
+   "expected": [
+    "open",
+    "stackoverflow.com"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Remove this browser page but not the whole thing.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "File Explorer"
+   ],
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Get rid of this one tab but leave the rest.",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Word"
+   ],
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close the spreadsheet file but not the spreadsheet program.",
+   "kind": "open site",
+   "expected": [
+    "open",
+    "stackoverflow.com"
+   ],
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Shut down the document in my numbers program, leave the program open.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "File Explorer"
+   ],
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close the stuff in Excel but keep Excel open.",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Word"
+   ],
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "do the settings thing in front",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Settings"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "bring up that settings window",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Settings"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "go to the Settings window",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Settings"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "focus",
+    "Settings"
+   ],
+   "confidence": 0.9198,
+   "right": true
+  },
+  {
+   "text": "open Firefox thingy",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "firefox"
+   ],
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "want to start Firefox do that",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "firefox"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "hey open that Firefox browser",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "firefox"
+   ],
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "make the Calculator big",
+   "kind": "maximize window",
+   "expected": [
+    "maximize",
+    "Calculator"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "can you make Calculator full screen?",
+   "kind": "maximize window",
+   "expected": [
+    "maximize",
+    "Calculator"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "maximize",
+    "Calculator"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "fill the whole page with Calculator",
+   "kind": "maximize window",
+   "expected": [
+    "maximize",
+    "Calculator"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "go ahead and close Edge but only when it is done saving",
+   "kind": "later",
+   "expected": null,
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "can you quit that browser when it's ready?",
+   "kind": "later",
+   "expected": null,
+   "mind": "slow",
+   "why": "a condition",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Edge should close down but after it's saved",
+   "kind": "later",
+   "expected": null,
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I want to have that video chat meeting thing",
+   "kind": "not open",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "open that Zoom thing we use",
+   "kind": "not open",
+   "expected": null,
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "it's Zoom time, get it ready",
+   "kind": "not open",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "can you get rid of that thing over Edge?",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "the thing that popped up on Edge, remove it",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "stop that notification in Edge",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Can you toss this window down for me?     .OK?         .Let's stash this one for later",
+   "kind": "minimize this",
+   "expected": [
+    "minimize",
+    "Microsoft Edge"
+   ],
+   "mind": "slow",
+   "why": "a condition",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Could you go full screen on this please?     Just make this fullscreen, would you?     OK - so fill the screen with this",
+   "kind": "maximize this",
+   "expected": [
+    "maximize",
+    "Microsoft Edge"
+   ],
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "You can shut down this window, if you like.    Could you close this one for me please?   Don't need this, ok? Close it please?",
+   "kind": "close this",
+   "expected": [
+    "close",
+    "Microsoft Edge"
+   ],
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close Edge when it's done with the save, OK?     Edge, when it's done saving, just close it.    Edge, once saved, shut it down",
+   "kind": "later",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Go to the next page, would you?   Let's see the next tab, OK?   Hm - what's in the other folder?",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "First Edge, close, OK? and then WhatsApp, open.    OK -?  kill Edge and start WhatsApp  Shut down Edge and bring up WhatsApp?",
+   "kind": "two steps",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "1| Got that PowerPoint open and annoying me. Can you stick it away without closing it?",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "PowerPoint"
+   ],
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "2| Let me get some tunes on. Can I see YouTube?",
+   "kind": "open site",
+   "expected": [
+    "open",
+    "youtube.com"
+   ],
+   "mind": "slow",
+   "why": "a doubt",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "3| I need to start working on some docs. Let's get Word up and running for me",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "word"
+   ],
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "4|Ah, Zoom's being a bit weird. Can you help me access its settings?",
+   "kind": "app settings",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "5|I want to start a 10-minute timer please.",
+   "kind": "start a thing",
+   "expected": null,
+   "mind": "slow",
+   "why": "a long request",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "6|Thanks for working with me today. Off with the first zoom, but please save what I was doing first.",
+   "kind": "later",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Open up File Explorer, will you",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "file explorer"
+   ],
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Come on, open File Explorer",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "file explorer"
+   ],
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Let's get File Explorer on the screen",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "file explorer"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Maximize Settings, mate",
+   "kind": "maximize window",
+   "expected": [
+    "maximize",
+    "Settings"
+   ],
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Make Settings full screen",
+   "kind": "maximize window",
+   "expected": [
+    "maximize",
+    "Settings"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "maximize",
+    "Settings"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "Stretch Settings to fit the screen",
+   "kind": "maximize window",
+   "expected": [
+    "maximize",
+    "Settings"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Bring those settings to the front",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Settings"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Settings window up top now",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Settings"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Put Settings on top of everything",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Settings"
+   ],
+   "mind": "slow",
+   "why": "more than one thing",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Hide everything!",
+   "kind": "everything",
+   "expected": null,
+   "mind": "slow",
+   "why": "more than one thing",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Minimize all windows",
+   "kind": "everything",
+   "expected": null,
+   "mind": "slow",
+   "why": "more than one thing",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Clear my workspace, please.",
+   "kind": "start a thing",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Start a 15-minute timer",
+   "kind": "start a thing",
+   "expected": null,
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I need a fresh Word document",
+   "kind": "start a thing",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Let's start a recording session",
+   "kind": "start a thing",
+   "expected": null,
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Keep my sketch open, don't touch it",
+   "kind": "do not",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Don't close Paint",
+   "kind": "do not",
+   "expected": null,
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Keep the sketch window open, please",
+   "kind": "do not",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Hey could you open the Python website docs?",
+   "kind": "open site",
+   "expected": [
+    "open",
+    "docs.python.org"
+   ],
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Can you tuck Slack away, but keep it running?",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "slack"
+   ],
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Make that notepad go fullscreen, will you?                                                                               |",
+   "kind": "maximize window",
+   "expected": [
+    "maximize",
+    "Notepad"
+   ],
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I need to change some settings, can open it up for me?",
+   "kind": "app settings",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Go ahead and close settings, but make sure everything's saved first",
+   "kind": "later",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "How do I open a website manually?",
+   "kind": "how to",
+   "expected": null,
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "close off Spotify for me, would you?",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "spotify"
+   ],
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "can you shut Spotify down for me?",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "spotify"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "get rid of Spotify for me.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "spotify"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "close",
+    "spotify"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "can you minimize Spotify?",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "spotify"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "minimize",
+    "spotify"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "tuck Spotify out of the way?",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "spotify"
+   ],
+   "mind": "slow",
+   "why": "a doubt",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "can you minimize that Spotify window for me?",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "spotify"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "hello? Settings up here, please.",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Settings"
+   ],
+   "mind": "slow",
+   "why": "a doubt",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "bring Settings to the front.",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Settings"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "focus",
+    "Settings"
+   ],
+   "confidence": 0.9916,
+   "right": true
+  },
+  {
+   "text": "you know what? Send Settings forward please.",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Settings"
+   ],
+   "mind": "slow",
+   "why": "a doubt",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "can you just dismiss the Calculator pop-up?",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "shut that Calculator thing away.",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "get rid of that Calculator notification.",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Calculator out, Task Manager in?",
+   "kind": "two steps",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "can you close off Calculator and start up the Task Manager?",
+   "kind": "two steps",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "can you close calculator and boot up the task manager for me?",
+   "kind": "not open",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "open up task manager and close that calculator.",
+   "kind": "not open",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "let's go check out Steam.",
+   "kind": "not open",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "switch me over to Steam.",
+   "kind": "not open",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "take me to Steam.",
+   "kind": "not open",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Get me back to Teams",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Microsoft Teams"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Bring Teams to the front",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Microsoft Teams"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "focus",
+    "Microsoft Teams"
+   ],
+   "confidence": 0.9891,
+   "right": true
+  },
+  {
+   "text": "I want to work in Teams",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Microsoft Teams"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Minimize Teams for now",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "Microsoft Teams"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "minimize",
+    "Microsoft Teams"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "Stick Teams out of the way",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "Microsoft Teams"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Can you tuck Teams away just now?",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "Microsoft Teams"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Maximize this window",
+   "kind": "maximize this",
+   "expected": [
+    "maximize",
+    "Word"
+   ],
+   "mind": "fast",
+   "why": "this",
+   "did": [
+    "maximize",
+    "Word"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "Open this up to full screen",
+   "kind": "maximize this",
+   "expected": [
+    "maximize",
+    "Word"
+   ],
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I want this to be full screen",
+   "kind": "maximize this",
+   "expected": [
+    "maximize",
+    "Word"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close this document",
+   "kind": "close file",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Dump this Word file",
+   "kind": "close file",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I don't want this one anymore",
+   "kind": "close file",
+   "expected": null,
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Next page",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Need to get to the other tab",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "more than one thing",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Change to the other folder",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "more than one thing",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "How do I do full screen?",
+   "kind": "how to",
+   "expected": null,
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Tell me how to maximize",
+   "kind": "how to",
+   "expected": null,
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "What's the command for full screen?",
+   "kind": "how to",
+   "expected": null,
+   "mind": "slow",
+   "why": "a doubt",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Fullscreen Chrome.",
+   "kind": "maximize window",
+   "expected": [
+    "maximize",
+    "Google Chrome"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Maximize Chrome.",
+   "kind": "maximize window",
+   "expected": [
+    "maximize",
+    "Google Chrome"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "maximize",
+    "Google Chrome"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "Make Chrome full screen.",
+   "kind": "maximize window",
+   "expected": [
+    "maximize",
+    "Google Chrome"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "maximize",
+    "Google Chrome"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "Close the active window.",
+   "kind": "close this",
+   "expected": [
+    "close",
+    "spotify"
+   ],
+   "mind": "slow",
+   "why": "not sure enough to close alone (0.92 < 0.95)",
+   "did": [
+    "close",
+    "spotify"
+   ],
+   "confidence": 0.9237,
+   "right": true
+  },
+  {
+   "text": "Shut down the window I'm in.",
+   "kind": "close this",
+   "expected": [
+    "close",
+    "spotify"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close the window I'm using.",
+   "kind": "close this",
+   "expected": [
+    "close",
+    "spotify"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Open Zoom.",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "zoom"
+   ],
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Start the Zoom app.",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "zoom"
+   ],
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Launch Zoom.",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "zoom"
+   ],
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close Spotify. Open Command Prompt.",
+   "kind": "two steps",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Shut Spotify. Start Command Prompt.",
+   "kind": "two steps",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close Spotify and open Command Prompt.",
+   "kind": "two steps",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Open the last photo I saved.",
+   "kind": "open file",
+   "expected": null,
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Show me the photo I just saved.",
+   "kind": "open file",
+   "expected": null,
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Open the picture I saved a moment ago.",
+   "kind": "open file",
+   "expected": null,
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Minimize everything.",
+   "kind": "everything",
+   "expected": null,
+   "mind": "slow",
+   "why": "more than one thing",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close all windows.",
+   "kind": "everything",
+   "expected": null,
+   "mind": "slow",
+   "why": "more than one thing",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Get everything off the screen.",
+   "kind": "everything",
+   "expected": null,
+   "mind": "slow",
+   "why": "more than one thing",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "mini zoom",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "zoom"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "zoom out of the way",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "zoom"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "minimize zoom window",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "zoom"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "minimize",
+    "zoom"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "launch task manager",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "task manager"
+   ],
+   "mind": "fast",
+   "why": "app",
+   "did": [
+    "open",
+    "task manager"
+   ],
+   "confidence": 0.9853,
+   "right": true
+  },
+  {
+   "text": "start task manager",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "task manager"
+   ],
+   "mind": "fast",
+   "why": "app",
+   "did": [
+    "open",
+    "task manager"
+   ],
+   "confidence": 0.9906,
+   "right": true
+  },
+  {
+   "text": "open task manager",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "task manager"
+   ],
+   "mind": "fast",
+   "why": "app",
+   "did": [
+    "open",
+    "task manager"
+   ],
+   "confidence": 0.9732,
+   "right": true
+  },
+  {
+   "text": "close zoom",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "zoom"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "close",
+    "zoom"
+   ],
+   "confidence": 0.9554,
+   "right": true
+  },
+  {
+   "text": "zoom quit",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "zoom"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "end zoom meeting",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "zoom"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "show resume",
+   "kind": "open file",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "display resume",
+   "kind": "open file",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "open my resume",
+   "kind": "open file",
+   "expected": null,
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "dismiss zoom pop-up",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "close zoom notification",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "hide zoom message",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "zoom settings",
+   "kind": "app settings",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "open zoom options",
+   "kind": "app settings",
+   "expected": null,
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "show zoom menu",
+   "kind": "app settings",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Make the Edge window full screen.",
+   "kind": "maximize window",
+   "expected": [
+    "maximize",
+    "Microsoft Edge"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "maximize",
+    "Microsoft Edge"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "Maximize the Edge browser.",
+   "kind": "maximize window",
+   "expected": [
+    "maximize",
+    "Microsoft Edge"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Full screen the SRM Portal window.",
+   "kind": "maximize window",
+   "expected": [
+    "maximize",
+    "Microsoft Edge"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Shut Teams down",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "Microsoft Teams"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Get rid of the Teams window",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "Microsoft Teams"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "close",
+    "Microsoft Teams"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "Close the Microsoft Teams window",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "Microsoft Teams"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "close",
+    "Microsoft Teams"
+   ],
+   "confidence": 0.9698,
+   "right": true
+  },
+  {
+   "text": "Minimize the File Explorer window.",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "File Explorer"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "minimize",
+    "File Explorer"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "Send the Downloads window to the taskbar.",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "File Explorer"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Hide File Explorer.",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "File Explorer"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "minimize",
+    "File Explorer"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "Close Visual Studio Code and start Spotify.",
+   "kind": "two steps",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Start Spotify and close Visual Studio Code",
+   "kind": "two steps",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "End the VS Code app and begin Spotify.",
+   "kind": "two steps",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close this tab.",
+   "kind": "close tab",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close the Edge tab.",
+   "kind": "close tab",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "End the current browser tab.",
+   "kind": "close tab",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Forward in VS Code",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Move on in Visual Studio Code.",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Next page in VS Code.",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close Review.pptx.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "PowerPoint"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Get rid of that PowerPoint.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "PowerPoint"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close PowerPoint.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "PowerPoint"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "close",
+    "PowerPoint"
+   ],
+   "confidence": 0.9554,
+   "right": true
+  },
+  {
+   "text": "Close Edge.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "Microsoft Edge"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "close",
+    "Microsoft Edge"
+   ],
+   "confidence": 0.9554,
+   "right": true
+  },
+  {
+   "text": "Close that news page.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "Microsoft Edge"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "End the Edge window.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "Microsoft Edge"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Open Calculator.",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "calculator"
+   ],
+   "mind": "fast",
+   "why": "app",
+   "did": [
+    "open",
+    "calculator"
+   ],
+   "confidence": 0.9732,
+   "right": true
+  },
+  {
+   "text": "Start the Calculator.",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "calculator"
+   ],
+   "mind": "fast",
+   "why": "app",
+   "did": [
+    "open",
+    "calculator"
+   ],
+   "confidence": 0.9937,
+   "right": true
+  },
+  {
+   "text": "Run Calculator.",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "calculator"
+   ],
+   "mind": "fast",
+   "why": "app",
+   "did": [
+    "open",
+    "calculator"
+   ],
+   "confidence": 0.9843,
+   "right": true
+  },
+  {
+   "text": "How do I maximize my screen?",
+   "kind": "how to",
+   "expected": null,
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "What's the shortcut for full screen?",
+   "kind": "how to",
+   "expected": null,
+   "mind": "slow",
+   "why": "a doubt",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "How do I maximize my window?",
+   "kind": "how to",
+   "expected": null,
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Get rid of that VS Code notice.",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Hide this VS Code popup.",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close that box in code.",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Next tab in code.",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Next folder in VS Code.",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Switch readme to something else.",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "more than one thing",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Maximize this window.",
+   "kind": "maximize this",
+   "expected": [
+    "maximize",
+    "Outlook"
+   ],
+   "mind": "fast",
+   "why": "this",
+   "did": [
+    "maximize",
+    "Outlook"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "Open Snipping Tool.",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "snipping tool"
+   ],
+   "mind": "fast",
+   "why": "app",
+   "did": [
+    "open",
+    "snipping tool"
+   ],
+   "confidence": 0.9732,
+   "right": true
+  },
+  {
+   "text": "Navigate to Wikipedia.",
+   "kind": "open site",
+   "expected": [
+    "open",
+    "wikipedia.org"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Show me my downloads.",
+   "kind": "open file",
+   "expected": null,
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Clear my screen.",
+   "kind": "everything",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close current tab.",
+   "kind": "close tab",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Minimize Slack",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "slack"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "minimize",
+    "slack"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "Send Slack to background",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "slack"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I'll be back, minimize Slack",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "slack"
+   ],
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Open Task Manager",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "task manager"
+   ],
+   "mind": "fast",
+   "why": "app",
+   "did": [
+    "open",
+    "task manager"
+   ],
+   "confidence": 0.9732,
+   "right": true
+  },
+  {
+   "text": "Bring up Task Manager",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "task manager"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I need the Task Manager",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "task manager"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Start Edge",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "edge"
+   ],
+   "mind": "fast",
+   "why": "app",
+   "did": [
+    "open",
+    "edge"
+   ],
+   "confidence": 0.9906,
+   "right": true
+  },
+  {
+   "text": "Open Edge browser",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "edge"
+   ],
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Bring up Microsoft Edge",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "edge"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "How do I open files?",
+   "kind": "how to",
+   "expected": null,
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Open a file instructions",
+   "kind": "how to",
+   "expected": null,
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I want to open files myself, how?",
+   "kind": "how to",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close current document",
+   "kind": "close file",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close this document in Slack",
+   "kind": "close file",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Get rid of the open document",
+   "kind": "close file",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Project folder, open",
+   "kind": "open file",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Need the project folder",
+   "kind": "open file",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Open project folder",
+   "kind": "open file",
+   "expected": null,
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "hey, open up Paint",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "mspaint"
+   ],
+   "mind": "slow",
+   "why": "not sure enough to open alone (0.70 < 0.85)",
+   "did": [
+    "open",
+    "paint"
+   ],
+   "confidence": 0.6969,
+   "right": false
+  },
+  {
+   "text": "bring Paint here",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "mspaint"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Paint window go front",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "mspaint"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "bring up Outlook",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Outlook"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "focus",
+    "Outlook"
+   ],
+   "confidence": 0.9917,
+   "right": true
+  },
+  {
+   "text": "can I have Outlook front and center?",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Outlook"
+   ],
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "push Outlook to the front",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Outlook"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "need a new Photoshop app",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "photoshop"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "start Photoshop please",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "photoshop"
+   ],
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "launch Photoshop for me",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "photoshop"
+   ],
+   "mind": "slow",
+   "why": "I don't know that app by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "don't do it, I do it: set to full screen",
+   "kind": "how to",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "how can I maximize a window myself?",
+   "kind": "how to",
+   "expected": null,
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "tell me how to maximize a page myself",
+   "kind": "how to",
+   "expected": null,
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "shut that VS Code document I'm not using",
+   "kind": "close file",
+   "expected": null,
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "close the VS Code file, leave the rest",
+   "kind": "close file",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "kill this VS Code tab open",
+   "kind": "close file",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "move on in VS Code",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "go to the next tab in VS Code",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "switch to a new folder in code",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Just push this one out of the way",
+   "kind": "minimize this",
+   "expected": [
+    "minimize",
+    "Excel"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Minimize whatever I'm in.",
+   "kind": "minimize this",
+   "expected": [
+    "minimize",
+    "Excel"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I want this one gone for now",
+   "kind": "minimize this",
+   "expected": [
+    "minimize",
+    "Excel"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Get WhatsApp started up.",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "whatsapp"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Okay, where's WhatsApp?",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "whatsapp"
+   ],
+   "mind": "slow",
+   "why": "a doubt",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Can you pull up WhatsApp?",
+   "kind": "open app",
+   "expected": [
+    "open",
+    "whatsapp"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close that spreadsheet.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "Excel"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "kill the excel thing.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "Excel"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Get Excel off my screen.",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "Excel"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Next page in Word, leave the typing to me.",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I want to tab over in Word.",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Move me over to my other Word docs",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "more than one thing",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Don't touch settings, just don't.",
+   "kind": "do not",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Keep the settings window open.",
+   "kind": "do not",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Leave settings alone.",
+   "kind": "do not",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "something just popped up in Word, get rid.",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Yeah, dismiss that thing in Word.",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Whatever that notification in Word is, just disappear it.",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "full screen the window I'm using",
+   "kind": "maximize this",
+   "expected": [
+    "maximize",
+    "Microsoft Teams"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "maximize window",
+   "kind": "maximize this",
+   "expected": [
+    "maximize",
+    "Microsoft Teams"
+   ],
+   "mind": "fast",
+   "why": "this",
+   "did": [
+    "maximize",
+    "Microsoft Teams"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "make this one full screen",
+   "kind": "maximize this",
+   "expected": [
+    "maximize",
+    "Microsoft Teams"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "close the calculator",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "Calculator"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "close",
+    "Calculator"
+   ],
+   "confidence": 0.9698,
+   "right": true
+  },
+  {
+   "text": "close calculator window",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "Calculator"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "close",
+    "Calculator"
+   ],
+   "confidence": 0.9698,
+   "right": true
+  },
+  {
+   "text": "get rid of the calculator",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "Calculator"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "close",
+    "Calculator"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "bring up Gmail",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Google Chrome"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "bring Chrome to the front",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Google Chrome"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "focus",
+    "Google Chrome"
+   ],
+   "confidence": 0.9916,
+   "right": true
+  },
+  {
+   "text": "switch to my email",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "Google Chrome"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "open Task Manager",
+   "kind": "not open",
+   "expected": null,
+   "mind": "fast",
+   "why": "app",
+   "did": [
+    "open",
+    "task manager"
+   ],
+   "confidence": 0.9732,
+   "right": true
+  },
+  {
+   "text": "show me Task Manager",
+   "kind": "not open",
+   "expected": null,
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I need the Task Manager",
+   "kind": "not open",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "shut the Teams chat, do not close Teams",
+   "kind": "close file",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "close the Chat in Teams",
+   "kind": "close file",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "quit Teams save first",
+   "kind": "later",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "close Microsoft Teams, but wait to save",
+   "kind": "later",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "shut down Teams, make sure to save first",
+   "kind": "later",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Spotify up, quick!",
+   "kind": "switch window",
+   "expected": [
+    "focus",
+    "spotify"
+   ],
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Can you minimize Outlook?",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "Outlook"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "minimize",
+    "Outlook"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "Outlook to the background",
+   "kind": "maximize this",
+   "expected": [
+    "maximize",
+    "slack"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Make this window full screen",
+   "kind": "maximize this",
+   "expected": [
+    "maximize",
+    "slack"
+   ],
+   "mind": "fast",
+   "why": "this",
+   "did": [
+    "maximize",
+    "slack"
+   ],
+   "confidence": 0.995,
+   "right": true
+  },
+  {
+   "text": "Full screen the window I'm using",
+   "kind": "maximize this",
+   "expected": [
+    "maximize",
+    "slack"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close this tab, leave the browser open",
+   "kind": "close tab",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Next page  in Spotify",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Skip the ad in Spotify",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "New window in Spotify, can you cane it for me?",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Get that Word thing out of my face.",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "Word"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Minimize this Word thing would you?",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "Word"
+   ],
+   "mind": "slow",
+   "why": "a doubt",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Move Word out of the way please.",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "Word"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Go to example dot net.",
+   "kind": "open site",
+   "expected": [
+    "open",
+    "example.net"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Open  example.net",
+   "kind": "open site",
+   "expected": [
+    "open",
+    "example.net"
+   ],
+   "mind": "fast",
+   "why": "site",
+   "did": [
+    "open",
+    "example.net"
+   ],
+   "confidence": 0.9641,
+   "right": true
+  },
+  {
+   "text": "Get to example.net if you would",
+   "kind": "open site",
+   "expected": [
+    "open",
+    "example.net"
+   ],
+   "mind": "slow",
+   "why": "a condition",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close this.",
+   "kind": "close this",
+   "expected": [
+    "close",
+    "Word"
+   ],
+   "mind": "slow",
+   "why": "not sure enough to close alone (0.86 < 0.95)",
+   "did": [
+    "close",
+    "Word"
+   ],
+   "confidence": 0.8588,
+   "right": true
+  },
+  {
+   "text": "End this thing I'm on.",
+   "kind": "close this",
+   "expected": [
+    "close",
+    "Word"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Can you shut this down for me?",
+   "kind": "close this",
+   "expected": [
+    "close",
+    "Word"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close the one I'm on but leave the browser up.",
+   "kind": "close tab",
+   "expected": null,
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Just close this tab please.",
+   "kind": "close tab",
+   "expected": null,
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Only close current tab.",
+   "kind": "close tab",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Next in Paint.",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Got to another page in Paint.",
+   "kind": "inside an app",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Can you make sure Paint saves before closing?",
+   "kind": "later",
+   "expected": null,
+   "mind": "slow",
+   "why": "a condition",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Paint can close as soon as it's saved.",
+   "kind": "later",
+   "expected": null,
+   "mind": "slow",
+   "why": "a doubt",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Save and close Paint.",
+   "kind": "later",
+   "expected": null,
+   "mind": "slow",
+   "why": "two steps",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Minimize that calc stuff",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "Calculator"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close calculator window",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "Calculator"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "close",
+    "Calculator"
+   ],
+   "confidence": 0.9698,
+   "right": true
+  },
+  {
+   "text": "Stick that zoom thing out of the way",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "zoom"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I said minimize that zoom thing",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "zoom"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Shut down that zoom meeting",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "zoom"
+   ],
+   "mind": "slow",
+   "why": "I can't tell which window",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Close zoom window",
+   "kind": "close window",
+   "expected": [
+    "close",
+    "zoom"
+   ],
+   "mind": "fast",
+   "why": "window",
+   "did": [
+    "close",
+    "zoom"
+   ],
+   "confidence": 0.9698,
+   "right": true
+  },
+  {
+   "text": "Dismiss that stupid calculator message",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "No thanks I don't want to see whatever that is",
+   "kind": "close dialog",
+   "expected": null,
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "Thats not what I asked for",
+   "kind": "not open",
+   "expected": null,
+   "mind": "slow",
+   "why": "a negation",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "what about edge? I want edge?",
+   "kind": "not open",
+   "expected": null,
+   "mind": "slow",
+   "why": "a question",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "need to change some settings in that calculator",
+   "kind": "app settings",
+   "expected": null,
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  },
+  {
+   "text": "I need the calculator settings",
+   "kind": "minimize window",
+   "expected": [
+    "minimize",
+    "zoom"
+   ],
+   "mind": "slow",
+   "why": "nothing I know by heart",
+   "did": null,
+   "confidence": 0.0,
+   "right": false
+  }
+ ],
+ "fast_on_clinc": []
+}

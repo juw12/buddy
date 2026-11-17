@@ -165,68 +165,100 @@ is slow and careful, and System 2 is called in when System 1 has no ready answer
 act and when to escalate to a person or a reasoning model" ([their docs](https://docs.typesafe.ai/concepts/system-one),
 read 17 Nov 2026). Jev is the fast half. The slow half, the handoff and the thresholds are yours to build.
 
-Buddy now has both halves and the handoff between them, on your PC ([keyit/keyit_minds.py](keyit/keyit_minds.py)):
+Buddy has both halves and the handoff between them, on your PC ([keyit/keyit_minds.py](keyit/keyit_minds.py)):
 
 - **System 1** does a routine one-step command at once, with no screenshot and no brain: close, minimize, maximize or
-  switch to an open window you name by its app, or open an app or website it knows. Before, even "minimize excel" waited
-  for the brain.
+  switch to an open window you name by its app, or open an app or website it knows. It reads 40 ways of saying so
+  ("quit outlook", "bring up excel", "make notepad full screen") and the polite words around them ("can you close
+  notepad", "minimize excel please").
 - **Strain hands over to System 2** (the brain that looks at your screen): a question, two steps ("and", "then"), a
-  "don't", an "if", "all" or "every", a "could you" or "maybe", more than 8 words, highlighted text, or a window
-  System 1 cannot pin down (two Notepads, or an app that is not open).
+  "don't", an "if", "all" or "every", a "maybe" or "should", more than 8 words, highlighted text, "it" or "that", or a
+  window System 1 cannot pin down (two Notepads, or an app that is not open).
 - **The bar rises with what a mistake would cost.** System 1 must be 0.80 sure to switch, minimize or maximize, 0.85 to
-  open, 0.90 to press keys and 0.95 to close. That is why "close this" still goes to the brain: the rule behind it is
-  only 0.875 sure.
+  open, 0.90 to press keys and 0.95 to close. That is why "close this" still goes to the brain: System 1 is 0.86 sure
+  of it, because "this" is sometimes a tab, a file or a dialog.
+- **Its confidence is trained, then checked (new in 1.6.0).** Kahneman's test for trusting an intuition is a lot of
+  practice with quick feedback. Waiting for that from real use would take months, so System 1 practised on simulated
+  use: 30,000 requests a program wrote from a known wish, and 636 written by a language model playing people. A small
+  model (57 weights, [keyit/minds_model.json](keyit/minds_model.json)) learned how often a reading worded like this
+  one was what the person wanted. It was calibrated on other simulated people, then scored once on requests the
+  simulator did not write (the table below). What it never met in training it does not guess at.
 - **Practice makes a habit.** When the brain does the same single step for the same short phrase again and again, System 1
   takes it over: after 3 times for switch, minimize and maximize, 5 for open, 8 for a shortcut ("next tab") and 18 for
   close. Typing, clicking, risky shortcuts and targets the brain read off the screen never become habits.
 - **"No" teaches it.** Say or type "no", "not that", "wrong" or "undo" within 30 seconds of a fast action and it counts
-  against the rule or habit that fired, so it drops below its bar and the brain is asked again.
+  against the kind of reading or the habit that fired. Since 1.6.0 a "no" said over Buddy's reply in talk mode counts
+  too. Your "no" can only lower the trained confidence, never raise it above what training gave.
 
-Jev could not be run here (vendor cloud, paid, and the office data rules), so **its column is what the vendor
-publishes, not something we measured**. Buddy's column is measured with [bench/fast_slow.py](bench/fast_slow.py) on the
-office laptop at 89% CPU load. Full tables: [bench/README.md](bench/README.md#thinking-fast-and-slow).
+Jev could not be run here: its API asks for a paid key, and the office data rules apply. So **its column is what the
+vendor publishes and what one third party measured, not something we measured**. The third party is
+[tsukumo.ch](https://tsukumo.ch/journal/jev-bounded-probability-benchmark) (23 Sep 2026), who ran jev-1.13.0 on Swiss
+bookkeeping data. Buddy's column is measured with [bench/fast_calibration.py](bench/fast_calibration.py) and
+[bench/fast_slow.py](bench/fast_slow.py) on the office laptop under heavy load. Full tables:
+[bench/README.md](bench/README.md#thinking-fast-and-slow).
 
-| Kahneman's idea | Jev (published by the vendor, not measured here) | Buddy (measured here) |
+| Kahneman's idea | Jev (vendor or third party, not measured here) | Buddy (measured here) |
 |---|---|---|
-| System 1: a quick, automatic answer | **Much broader:** a trained model that answers any question you define (one of a list, a score, yes or no, a box in an image), from text and images | Hand-written rules for five kinds of one-step command, in English, plus the habits it picks up |
+| System 1: a quick, automatic answer | **Much broader:** a trained model that answers any question you define (one of a list, a score, yes or no, a box in an image), from text, JSON and images (vendor) | A small model trained on simulated use, for five kinds of one-step command, in English, plus the habits it picks up |
 | System 2: slow and careful | Not included. You bring the reasoning model | Built in: the brain that looks at your screen (Free, Smart or Local) |
 | System 2 is called when System 1 is under strain | You write the routing from its probabilities | Built in: the strain signs above, and a confidence bar |
-| A loss weighs more than a gain | Thresholds are yours to pick | Built in: 0.80 to switch, 0.95 to close |
-| An honest confidence | **Stronger:** trained to be calibrated, measured across groups of predictions | A count, `(right + 1) / (seen + 2)`. On the held-out list no rule claimed more than it delivered, but that is 44 readings |
-| Skill comes from practice with feedback | Not described on the page we read; the vendor trains the model | Habits from what the brain did for you, and "no" counts against them. Kept on your PC |
-| Time for one decision | 70 to 500 ms, about 300 ms | 0.011 ms median, 0.023 ms p95 |
-| From the words to done | Not its job | 0.014 s median, 0.092 s slowest, in 15 real window actions. The free brain took 3.35 s (2.93 to 4.19 s) just to reply to the same kind of command |
+| Saying "I don't know" | No native abstention: you add "none of the above" as one of the options (third party) | Built in: what System 1 has not practised goes to the brain. 0 fast actions on 5,500 requests people wrote for other assistants |
+| A loss weighs more than a gain | Thresholds are yours to pick | Built in: 0.80 to switch, 0.95 to close. Every action met its bar on the held-out sets |
+| An honest confidence | The vendor says it is trained to be calibrated, but "has published no reliability diagram, no expected calibration error, no Brier score" (third party). The third party measured it: calibration error (ECE) 0.082 on 54 bookkeeping items, all 54 right; 0.011 on 28 easy VAT items; 0.615 on 10 expense claims, where 7 wrong answers came back 0.83 to 0.95 sure | ECE 0.028 on 233 held-out readings, 224 right, with the [reliability table](bench/results_calibration/fast_calibration.md) published. A different and much narrower task, and both samples are small: not a like-for-like win |
+| Skill comes from practice with feedback | The vendor trains the model; nothing is learned from your use | Simulated practice with known answers before it ships; then habits from what the brain did for you, and "no" counts against them, typed or spoken. Kept on your PC |
+| Time for one decision | 70 to 500 ms (vendor); 258 to 297 ms median, 640 ms at p99 (third party) | 0.016 ms median, 0.039 ms p95 |
+| From the words to done | Not its job | 0.014 s median, 0.092 s slowest, in 15 real window actions (measured for 1.5.0). The free brain took 3.35 s (2.93 to 4.19 s) just to reply to the same kind of command |
 | Where it runs, price | Vendor cloud, $0.042 per million input tokens | On your PC, free, nothing is sent |
 
-Measured on two lists of typed requests. System 1's confidences were counted on the first (96 requests) and the second
-(94 requests) was written before the first run and only scored, once; no rule was changed after it.
+The trained System 1 against the hand-counted System 1 of Buddy 1.5.0, on sets that were not used to write the rules,
+to train or to calibrate. Each was scored once, after the model was frozen. Raw rows:
+[bench/results_calibration](bench/results_calibration/fast_calibration.md).
 
-| | First list (rules counted on it) | Held-out list |
-|---|---|---|
-| Requests (one-step commands / must think first) | 96 (53 / 43) | 94 (49 / 45) |
-| One-step commands System 1 did itself | 48 of 53 | 43 of 49 |
-| Wrong fast actions | 0 | 0 |
-| Requests that needed thought and got a fast action | 0 of 43 | 0 of 45 |
+| Held-out set | Requests | One-step commands | Done at once and right (1.5.0 -> 1.6.0) | Wrong fast actions (1.5.0 -> 1.6.0) |
+|---|---|---|---|---|
+| Simulated users: four people played by Mistral Small 3.1, a different language model than the one in training | 364 | 191 | 23 -> 42 | 0 -> 0 |
+| Microsoft's Voice Access command list (app and window commands; labels are ours) | 44 | 38 | 29 -> 31 | 0 -> 0 |
+| The held-out list of Buddy 1.5.0 | 94 | 49 | 43 -> 40 | 0 -> 0 |
+| CLINC150: requests people wrote for other assistants | 5,500 | 0 | 0 -> 0 | 0 -> 0 |
+| Simulated speech: 100 simulated requests said by a synthetic voice (Kokoro) and heard by Buddy's own recognizer | 100 | 75 | 14 -> 43 | 0 -> 0 |
+| The same 100, a second synthetic voice | 100 | 75 | 14 -> 45 | 0 -> 0 |
+| In the simulator that trained it (a seed it did not train on) | 20,000 | 12,957 | 2,783 -> 9,302 | 183 -> 90 |
+
+On the first four sets together System 1 took 114 fast actions and none was wrong, so the true share of wrong ones is
+under 2.6% (95% bound). With the two speech sets it is 202 and none wrong, but those are the same 100 requests twice.
 
 Where Buddy does **not** beat Jev, and what was not shown:
-- Jev is a general model: any question, any domain, images too. Buddy's System 1 knows five kinds of desktop command
-  in English. It is not a model and cannot be pointed at another job.
-- Both lists are typed text by the person who wrote the rules, so they are parallel forms, not a sample of what people
-  really say. Nothing here was measured with a microphone, in the installed app, or on other people's requests.
-- "0 wrong" on the held-out list is 44 readings. With none wrong in 44, the true error rate can still be as high as
-  6.6% (95% bound), and for the 22 readings of the rule that closes windows, 12.7%. The list is too short to
-  prove the 0.95 that closing asks for.
-- Confidence for a habit starts from nothing and is not validated: it is a rule of thumb for how much practice to ask for.
-- A fast action counts as right when you do not object within 30 seconds, so silence is taken as agreement. A "no"
-  said while Buddy is still speaking in talk mode is not counted.
-- 6 of the 49 held-out one-step commands still went to the brain: "close this app", "close the current window",
-  "maximize this window please", "could you minimize excel", "copy this" and "type best regards". The first is
-  held back by the 0.95 bar, the next two because System 1 could not tell which window was meant (its wording
-  rules are narrow, and were left as they are after this run), the fourth by "could you", and the last two because
-  shortcuts and typing are not System 1's job.
-- The brain's 3.35 s is the free cloud brain's reply to a drawn screenshot (12 asks). Taking the real screenshot and
-  doing the action are not in it, and the Smart brain (about 1 to 2 s) was not timed. In 2 of the 12 asks the brain
-  chose to open File Explorer where System 1 switches to the open one.
+- Jev is a general model: any question, any domain, images too, and it was right in four languages in the third
+  party's small test. Buddy's System 1 knows five kinds of desktop command in English and cannot be pointed at
+  another job.
+- Jev got 54 of 54 right on a real bookkeeping task. Buddy has no result on real people's requests at all: the
+  training data is simulated, and so are the "users" in the test. They are a second author who never saw Buddy's
+  rules, not a sample of what people say.
+- On those simulated users System 1 did 42 of the 191 one-step commands (22%). The rest went to the brain, mostly
+  because the wording was not one it knows (49) or it could not tell which window was meant (41).
+- On the held-out list of 1.5.0 it does fewer than before, 40 of 49 against 43. It gained three ("close this app",
+  "maximize this window please", "could you minimize excel") and lost six ("open edge", "launch excel" and four
+  more): when the app is already open it is now only 0.55 to 0.69 sure whether you want that window or a new one, and
+  asks the brain.
+- "0 wrong in 114" allows up to 2.6%. For closing alone it is 39 fast actions, none wrong, which allows up to 7.4%:
+  still too few to prove the 0.95 that closing asks for.
+- In its own simulator System 1 is wrong in 90 of 9,392 fast actions (1.0%; 1.5.0: 183 of 2,966). There it is also
+  overconfident between 0.7 and 0.9 (by 0.43 on 248 readings, by 0.09 on 444), because the two simulators disagree
+  about "open settings" and about opening an app that is already open. Most of those readings stay under the bars,
+  but "go to settings" (0.88) is acted on, and the program-written simulator counts it wrong.
+- The 0.028 is close to our own limit of 0.03, and 203 of the 233 readings sit in the top bin, where System 1 was
+  a little too modest (stated 0.983, right every time). The bin from 0.6 to 0.7 claimed 0.12 too much, on 7 readings.
+- A habit's confidence is cautious, not calibrated: in simulated use it stated about 0.09 less than it delivered. When
+  the simulated brain was wrong 5% of the time and the person meant something else 2% of the time, 13 in 1,000
+  requests got a wrong fast action, whether or not the person said "no".
+- After one "no" to a fast window action, closing a window by name stays with the brain until about 155 more fast
+  window actions have passed without a "no". That is cautious on purpose, and slow to forgive.
+- Simulated speech is a synthetic voice in a silent room. Nobody has spoken a command to the installed app at a real
+  microphone. In the installed app (1.5.0) one typed command was checked: `Buddy.exe --ask "minimize python"`
+  minimized a window the check had opened, by System 1, in 0.005 s by Buddy's own log.
+- A fast action counts as right when you do not object within 30 seconds, so silence is taken as agreement.
+- The brain's 3.35 s is the free cloud brain's reply to a drawn screenshot (12 asks, measured for 1.5.0). Taking the
+  real screenshot and doing the action are not in it, and the Smart brain (about 1 to 2 s) was not timed.
 - Clicking and typing always go to the brain: they need the screen.
 
 To switch it off: *Voice input -> Do simple commands at once*. To make Buddy forget its habits, delete
