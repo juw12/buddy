@@ -421,7 +421,12 @@ class _TextRenderer:
         return image
 
     def bubble(self, text, color):
-        """Speech bubble (RGBA): rounded ink box with a coloured border around the text."""
+        """Speech bubble (RGBA): rounded ink box with a coloured border around the text. Cached: it is asked
+        for on every frame, and drawing it is the costly part of a frame."""
+        key = ("bubble", text, color)
+        frame = self.cache.get(key)
+        if frame is not None:
+            return frame
         body = self.render(text)
         pad_x, pad_y = BUBBLE_PAD
         width, height = body.width + 2 * pad_x, body.height + 2 * pad_y
@@ -431,6 +436,7 @@ class _TextRenderer:
                                                 fill=INK, outline=color, width=2 * s)
         frame = frame.resize((width, height), Image.LANCZOS)
         frame.alpha_composite(body, (pad_x, pad_y))
+        self.cache[key] = frame
         return frame
 
 

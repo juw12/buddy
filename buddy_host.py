@@ -34,6 +34,8 @@ for folder in (KEYIT_DIR, PIPS_DIR):
 os.environ.setdefault("KEYIT_HOME", str(Path(os.environ.get("APPDATA", Path.home())) / "Buddy"))
 
 import app as pips_app  # noqa: E402  (Pips main module)
+import buddy_crew  # noqa: E402
+import crew_sources  # noqa: E402
 import keyit_buddy  # noqa: E402
 import keyit_core  # noqa: E402
 import keyit_gui  # noqa: E402
@@ -41,7 +43,7 @@ import buddy_home  # noqa: E402
 import buddy_updater  # noqa: E402
 
 BUDDY_NAME = "Buddy"
-BUDDY_VERSION = "1.6.0"
+BUDDY_VERSION = "1.7.0"
 CONTEXT_REFRESH_MS = 60_000
 UPDATE_FIRST_CHECK_MS = 60_000              # first update check a minute after start...
 UPDATE_EVERY_MS = 3 * 3600 * 1000           # ...then every 3 hours
@@ -287,6 +289,13 @@ class BuddyHost:
 
     def make_overlay(self):
         return PetGuideOverlay(self.root, lambda: self.app.focus.pet if self.app.focus else None)
+
+    @property
+    def crew(self):
+        return self.app.crew
+
+    def set_crew(self, enabled):
+        self.app.set_crew(enabled)
 
     def build_tabs(self, notebook):
         self.app.tabs = buddy_home.BuddyTabs(self.app, notebook)
@@ -549,7 +558,13 @@ class BuddyApp:
         self.player = keyit_core.Player(self.settings)
         self.hook = keyit_core.KeyboardHook(self.player)
         self.hook.start()
+        # Feature: the crew - a pointer for every other AI agent working on this PC
+        self.crew = buddy_crew.Crew(looks=self.settings.get("crew_looks"),
+                                    avoid_color=self.settings.get("buddy_color"))
+        self.crew_watcher = None
         self.window = keyit_gui.KeyItApp(self.player, self.hook, start_hidden=True, host=self.host)
+        if not selftest:
+            self.set_crew(self.settings.get("crew_enabled", True))
 
         install_pet_menu(self)
         install_menu_scrolling()
@@ -569,6 +584,15 @@ class BuddyApp:
     # ------------------------------------------------------------------ helpers for the UI
     def post(self, function, *args):
         self.window.post(function, *args)
+
+    def set_crew(self, enabled):
+        """Start or stop watching what other AI agents do (Settings -> AI helper)."""
+        if self.crew_watcher is not None:
+            self.crew_watcher.stop()                   # also takes the crew's pointers off the screen
+            self.crew_watcher = None
+        if enabled:
+            self.crew_watcher = crew_sources.CrewWatcher(self.crew)
+            self.crew_watcher.start()
 
     def refresh(self):
         if self.tabs is not None and not self._quitting:
@@ -982,6 +1006,7 @@ class BuddyApp:
         steps = [
             lambda: self.tray and self.tray.stop(),
             lambda: self.window.buddy and self.window.buddy.cancel(),
+            lambda: self.set_crew(False),
             self.hook.stop,
             lambda: self.focus and self.focus.shutdown(),
             self.root.destroy,
@@ -1044,6 +1069,18 @@ def request_ask(question):
     return 0
 
 
+def request_crew(text):
+    """Buddy.exe --crew "explorer: Reading the docs": show an agent of any tool as a crew pointer. The line
+    goes into the crew's inbox; a running Buddy reads it within a second."""
+    try:
+        event = crew_sources.event_from_text(text)
+    except ValueError as error:
+        logger.error('--crew needs "name: what it is doing" or a JSON object with "agent" (%s)', error)
+        return 2
+    crew_sources.post_event(event)
+    return 0
+
+
 def request_quit():
     """Signal a running Buddy to quit (used by build.bat and by you: Buddy.exe --quit)."""
     try:
@@ -1079,6 +1116,8 @@ def main(argv=None):
     parser.add_argument("--quit", action="store_true", help="ask a running Buddy to quit cleanly, then exit")
     parser.add_argument("--ask", metavar="TEXT", help='give the running Buddy a typed question, e.g. --ask "open notepad"')
     parser.add_argument("--update", action="store_true", help="ask the running Buddy to update itself now")
+    parser.add_argument("--crew", metavar="TEXT", help='show an AI agent as its own pointer, e.g. --crew '
+                        '"explorer: Reading the docs", then --crew "explorer: done" (or a JSON object, see README)')
     args = parser.parse_args(argv)
     if args.quit:
         return request_quit()
@@ -1086,6 +1125,8 @@ def main(argv=None):
         return request_ask(args.ask)
     if args.update:
         return request_update()
+    if args.crew:
+        return request_crew(args.crew)
 
     pips_app.SingleInstance.MUTEX = "Local\\Buddy.App.Instance"
     pips_app.SingleInstance.EVENT = "Local\\Buddy.App.ShowRequest"
@@ -1123,6 +1164,13 @@ def main(argv=None):
             uia, automation = keyit_buddy._uia()               # selection reading for the ask box
             assert automation.GetRootElement(), "UI Automation unavailable"
             logger.info("UI Automation ready for highlighted-text questions")
+            watcher = crew_sources.CrewWatcher(app.crew)       # the crew: every source can be read
+            watcher.step()
+            assert [type(source).__name__ for source in watcher.sources] == \
+                ["InboxSource", "TranscriptSource", "TranscriptSource", "OpenCodeSource"], watcher.sources
+            logger.info("Crew ready: %d sources, OpenCode database %s", len(watcher.sources),
+                        watcher.sources[3].layout or "not found")
+            watcher.sources[3].close()
             import keyit_voice                                  # natural voices: libraries are bundled
             import kokoro_onnx  # noqa: F401
             import sounddevice  # noqa: F401

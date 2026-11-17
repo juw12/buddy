@@ -48,6 +48,7 @@ the import stops. Add `--force` to replace that profile; the old one is moved to
 - The buddy runs on its own thread with its own tiny window, so it keeps following the mouse even when the PC or the rest of Buddy is busy; after a hiccup it jumps straight back to the mouse instead of crawling after it.
   Buddy answers in the pet's speech bubble, reads it aloud, and draws an orange beam from the pet
   to whatever it is talking about.
+- **Crew:** other AI agents working on this PC (Claude Code, Codex, OpenCode) show up as extra pointers with their own names and colours, and `@opencode …` in the ask box hands your question to that agent: [Crew](#crew-your-other-ai-agents-as-pointers).
 - **Ctrl+Alt+M**: mute keyboard and mouse sounds.
 - Buddy plays a short chime when it wakes up (Ctrl+Alt+Space or *Ask Buddy*) and a blip when it got your question. Turn it off with *Wake-up chime* in Settings.
 - **Ctrl+Alt+P**: Pips's own hotkey (unchanged).
@@ -272,6 +273,44 @@ Where Buddy does **not** beat Jev, and what was not shown:
 To switch it off: *Voice input -> Do simple commands at once*. To make Buddy forget its habits, delete
 `%APPDATA%\Buddy\habits.json`; it holds counts under a scrambled form of each phrase, never the words you said.
 
+## Crew: your other AI agents as pointers
+When an AI agent works on this PC, Buddy shows it as one more pointer on screen, with its own name and colour
+and a bubble that says what it is doing right now: `explorer: Reading README.md`, `fixer: Running pytest`.
+A team of agents (an orchestrator and its sub-agents) shows as one pointer each. There is nothing to set up.
+
+- **Seen by themselves:** Claude Code (`~/.claude/projects`), Codex (`~/.codex/sessions`) and OpenCode
+  (`~/.local/share/opencode/opencode.db`). Buddy only reads these files; it never writes to them and never
+  tells an agent what to do. The name is the one the agent has in your own setup (`orchestrator`, `explorer`,
+  …). Two agents with the same name are told apart by the folder they work in.
+- **Where the pointers are:** they wait in a column at the right side of the screen. When the file an agent
+  works on (or its team's app) is in the title of the window on top, its pointer flies there. It hops at every
+  new step, says `done ✓` when the agent finishes and leaves 6 seconds later, or after 150 seconds without
+  news. At most 8 pointers are shown.
+- **What a bubble may show:** the name of the file and the name of the program, nothing else. The rest of a
+  command line, search words and file contents are never shown, because they can hold passwords and your
+  screen may be shared. The pointers hide while Buddy takes its screenshot.
+- **Any other tool:** `Buddy.exe --crew "explorer: Reading the docs"` shows a pointer, `--crew "explorer: done"`
+  finishes it and `--crew "explorer: leave"` removes it at once. For more control give one JSON object, or
+  append such a line to `%APPDATA%\Buddy\crew\inbox.jsonl` yourself. Only `agent` is needed:
+  `{"agent": "explorer", "team": "My tool", "say": "Reading the docs", "state": "working", "file": "notes.md",
+  "window": "Excel", "where": "project-a", "id": "any-stable-key", "color": "#22c55e", "icon": "star",
+  "x": 800, "y": 400}`. `state` is `working`, `done` or `leave`; `window` is a piece of a window title to fly
+  to; `x`/`y` is an exact screen point; `icon` is `arrow`, `pointer`, `plane`, `dot`, `star`, `heart` or `face`.
+- **Names and colours:** colours are handed out by themselves, never your own Buddy colour, and an agent that
+  comes back gets its old colour. To fix a look, add `crew_looks` to `%APPDATA%\Buddy\settings.json`:
+  `{"crew_looks": {"explorer": {"color": "#22c55e", "icon": "star"}, "opencode/fixer": {"color": "#ef4444"}}}`.
+- **Hand a question to an agent:** type `@opencode tidy the notes folder`, `@claude …` or `@codex …` in the
+  ask box (tap Ctrl+Alt+Space) or `Buddy.exe --ask "@opencode …"`. Buddy opens that agent's own window with
+  your words typed in. The agent uses the model and the rules you set there and asks its own "may I?"
+  questions; Buddy's own brain stays the small one for quick answers. It starts in your home folder, or in the
+  folder you put in `agent_folder` in `settings.json`.
+- **Off:** untick *Show my other AI agents as extra pointers* on the *Buddy (AI)* tab of Settings.
+
+Checked on a real screen with OpenCode (four live sessions at once) and with lines sent by
+`--crew`: three resting pointers cost about 1 % of one CPU core, and watching with nobody on screen 0.2 %.
+Claude Code, Codex and the newer OpenCode database layout are tested against recorded samples only, not
+against a live session. Windows only for now.
+
 ## Buddy Island
 Buddy lives in your screen's notch, so it is always one move away, on every device:
 
@@ -335,6 +374,7 @@ itself.
 - `assets/buddy.ico`: Buddy's icon. `make_buddy_icon.py` draws it.
 - `pips/`: Pips v2.28.0 source, unmodified.
 - `keyit/`: KeyIt modules, patched so they can be hosted inside Buddy.
+  `keyit/buddy_crew.py` draws the crew pointers, `keyit/crew_sources.py` reads what the agents do, `keyit/keyit_agents.py` opens an agent for `@name` questions.
 
 ## License
 
