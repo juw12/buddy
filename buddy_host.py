@@ -301,6 +301,12 @@ class BuddyHost:
     def set_crew(self, enabled):
         self.app.set_crew(enabled)
 
+    def set_tasks(self, enabled):
+        self.app.set_tasks(enabled)
+
+    def set_pointers_button(self, enabled):
+        self.app.set_pointers_button(enabled)
+
     def build_tabs(self, notebook):
         self.app.tabs = buddy_home.BuddyTabs(self.app, notebook)
 
@@ -570,6 +576,8 @@ class BuddyApp:
                                     avoid_color=self.settings.get("buddy_color"),
                                     icon=self.settings.get("buddy_icon"))
         self.crew_watcher = None
+        self.task_watch = None               # crew_tasks.TaskWatch while "Also show scheduled tasks ..." is on
+        self.pointers_button = None          # crew_button.Button while the button next to the clock is on
         # ...and its hands: an agent that asks for it really clicks and types (only after you said yes)
         self.hands = crew_hands.Hands(self.crew.post, allowed=self._hands_allowed, confirm=self.ask_yes_no)
         self._hands_question = threading.Lock()
@@ -577,7 +585,8 @@ class BuddyApp:
         crew_hands.tidy_results()
         self.window = keyit_gui.KeyItApp(self.player, self.hook, start_hidden=True, host=self.host)
         if not selftest:
-            self.set_crew(self.settings.get("crew_enabled", True))
+            self.set_tasks(self.settings.get("crew_tasks", False))       # also starts the crew's watcher
+            self.set_pointers_button(self.settings.get("crew_button", False))
 
         install_pet_menu(self)
         install_menu_scrolling()
@@ -601,15 +610,83 @@ class BuddyApp:
 
     def set_crew(self, enabled):
         """Start or stop watching what other AI agents do (Settings -> AI helper). Only the agents the user
-        said yes to are watched; what a tool posts with --crew is always shown."""
+        said yes to are watched; what a tool posts with --crew is always shown. The task watch is one more
+        source while it is on; with the pointers off it goes on writing its trace."""
         if self.crew_watcher is not None:
             self.crew_watcher.stop()                   # also takes the crew's pointers off the screen
             self.crew_watcher = None
+        if self.task_watch is not None:
+            self.task_watch.set_pointers(enabled)
         if enabled:
             watched = keyit_agents.enabled(self.settings)
-            self.crew_watcher = crew_sources.CrewWatcher(self.crew, enabled=watched, hands=self.hands)
+            sources = crew_sources.default_sources(enabled=watched)
+            if self.task_watch is not None:
+                sources.append(self.task_watch)
+            self.crew_watcher = crew_sources.CrewWatcher(self.crew, sources=sources, hands=self.hands)
             self.crew_watcher.start()
-            logger.info("Crew watches: %s", ", ".join(sorted(watched)) or "no agent yet (only --crew)")
+            logger.info("Crew watches: %s%s", ", ".join(sorted(watched)) or "no agent yet (only --crew)",
+                        " + scheduled tasks and AI apps" if self.task_watch is not None else "")
+
+    def set_tasks(self, enabled):
+        """Start or stop the task watch (Settings -> AI helper): pointers and a trace for scheduled tasks and
+        for what AI apps open. Off until the user switches it on."""
+        if self.task_watch is not None:
+            self.task_watch.stop()
+            self.task_watch = None
+        if enabled:
+            try:
+                import crew_tasks
+
+                self.task_watch = crew_tasks.TaskWatch(on=self.settings.get("crew_enabled", True),
+                                                       ignored=self.settings.get("crew_tasks_ignored") or ())
+                self.task_watch.start()
+                logger.info("Task watch started; its trace is %s", crew_tasks.TRACE)
+            except Exception:                          # Buddy starts without it
+                logger.exception("The task watch could not start")
+                self.task_watch = None
+        self.set_crew(self.settings.get("crew_enabled", True))        # the crew's watcher gets or loses this source
+
+    def set_pointers(self, enabled, why):
+        """The one switch for all the crew's pointers. The tick box in Settings, the button next to the clock
+        and Buddy.exe --pointers all mean this; the answer is saved like a click in Settings."""
+        self.settings["crew_enabled"] = enabled
+        keyit_core.save_settings(self.settings)
+        self.set_crew(enabled)
+        crew_var = getattr(self.window, "crew_var", None)
+        if crew_var is not None:
+            crew_var.set(enabled)                      # the tick box in Settings shows the same answer
+        logger.info("Agent pointers %s (%s)", "on" if enabled else "off", why)
+
+    def set_pointers_button(self, enabled):
+        """Show or take away the button next to the clock (Settings -> AI helper): one click flips set_pointers."""
+        if self.pointers_button is not None:
+            self.pointers_button.stop()
+            self.pointers_button = None
+        if not enabled:
+            return
+        try:
+            import crew_button
+
+            self.pointers_button = crew_button.Button(
+                is_on=lambda: self.settings.get("crew_enabled", True),
+                flip=lambda: self.post(self._flip_pointers),                 # the click comes on the button's thread
+                open_trace=self._open_trace)
+            self.pointers_button.start()
+        except Exception:
+            logger.exception("The pointers' button could not start")
+            self.pointers_button = None
+
+    def _flip_pointers(self):
+        if not self._quitting:
+            self.set_pointers(not self.settings.get("crew_enabled", True), "the button next to the clock")
+
+    def _open_trace(self):
+        """The button's menu: the task watch's trace, or its folder when nothing was written yet."""
+        import crew_tasks
+
+        trace = crew_tasks.TRACE
+        trace.parent.mkdir(parents=True, exist_ok=True)
+        os.startfile(trace if trace.exists() else trace.parent)
 
     def ask_yes_no(self, question, timeout_s=35):
         """Ask yes or no in a small box next to the mouse (worker threads only). It does not take the keyboard:
@@ -1077,13 +1154,7 @@ class BuddyApp:
         if enabled is None:
             logger.info("Ignored --pointers %s", wanted)
             return
-        self.settings["crew_enabled"] = enabled
-        keyit_core.save_settings(self.settings)
-        self.set_crew(enabled)
-        crew_var = getattr(self.window, "crew_var", None)
-        if crew_var is not None:
-            crew_var.set(enabled)                      # the tick box in Settings shows the same answer
-        logger.info("Agent pointers %s from outside (--pointers %s)", "on" if enabled else "off", wanted)
+        self.set_pointers(enabled, f"--pointers {wanted}")
 
     # ------------------------------------------------------------------ quit
     def quit(self):
@@ -1093,8 +1164,10 @@ class BuddyApp:
         logger.info("Buddy quitting")
         steps = [
             lambda: self.tray and self.tray.stop(),
+            lambda: self.pointers_button and self.pointers_button.stop(),
             lambda: self.window.buddy and self.window.buddy.cancel(),
             lambda: self.set_crew(False),
+            lambda: self.task_watch and self.task_watch.stop(),
             self.hands.close,
             self.hook.stop,
             lambda: self.focus and self.focus.shutdown(),
@@ -1336,6 +1409,11 @@ def main(argv=None):
             logger.info("Crew ready: %d sources, OpenCode database %s", len(watcher.sources),
                         watcher.sources[3].layout or "not found")
             watcher.sources[3].close()
+            import crew_button                                  # the task watch and its button: what they
+            import crew_tasks                                   # need is bundled, and Windows answers
+            assert crew_tasks.process_table(), "the list of processes could not be read"
+            assert crew_button.button_image(True).size == (64, 64)
+            logger.info("Task watch ready: %d windows on screen", len(crew_tasks.visible_windows()))
             import keyit_voice                                  # natural voices: libraries are bundled
             import kokoro_onnx  # noqa: F401
             import sounddevice  # noqa: F401

@@ -68,6 +68,9 @@ DEFAULTS = {
     "buddy_island": True,             # Buddy Island: a notch at the top of the screen (click = type, hold = talk)
     "crew_enabled": True,             # other AI agents working on this PC get their own pointers (buddy_crew)
     "crew_hands": False,              # those agents may click and type on screen when they ask to (crew_hands)
+    "crew_tasks": False,              # scheduled tasks and what AI apps open get pointers and a trace (crew_tasks)
+    "crew_tasks_ignored": [],         # ["Mail at logon"]: scheduled tasks that are never followed
+    "crew_button": False,             # an arrow next to the clock: one click, all agent pointers off or on (crew_button)
     "crew_looks": {},                 # {"explorer": {"color": "#22c55e", "icon": "star"}}; also "team/agent"
     "crew_agents": {},                # {"opencode": true}: the agents you said yes or no to (keyit_agents)
     "crew_custom": [],                # your own AIs: [{"name": "mybot", "command": "mybot ask {prompt}", "color": "#22c55e"}]

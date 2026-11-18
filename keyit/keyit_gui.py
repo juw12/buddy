@@ -449,6 +449,16 @@ class KeyItApp:
             ttk.Checkbutton(crew_box, text="Let those agents click and type on screen when they ask to (you see "
                                            "every click; a risky one is asked about first)",
                             variable=self.hands_var, command=self._on_hands_toggled).pack(anchor="w", pady=(6, 0))
+            if hasattr(self.host, "set_tasks"):
+                self.tasks_var = tk.BooleanVar(value=bool(self.settings.get("crew_tasks", False)))
+                ttk.Checkbutton(crew_box, text="Also show scheduled tasks and what AI apps open: a pointer on "
+                                               "their windows and clicks (a trace is kept)",
+                                variable=self.tasks_var, command=self._on_tasks_toggled).pack(anchor="w", pady=(6, 0))
+                self.crew_button_var = tk.BooleanVar(value=bool(self.settings.get("crew_button", False)))
+                ttk.Checkbutton(crew_box, text="A button next to the clock that switches all those pointers off "
+                                               "or on with one click",
+                                variable=self.crew_button_var, command=self._on_crew_button_toggled).pack(
+                    anchor="w", pady=(6, 0))
 
         self._build_voice_input(voice_tab)
         self._build_look_row(tab, row=8)
@@ -799,6 +809,16 @@ class KeyItApp:
     def _on_hands_toggled(self):
         self.settings["crew_hands"] = self.hands_var.get()
         core.save_settings(self.settings)
+
+    def _on_tasks_toggled(self):
+        self.settings["crew_tasks"] = self.tasks_var.get()
+        core.save_settings(self.settings)
+        self.host.set_tasks(self.settings["crew_tasks"])
+
+    def _on_crew_button_toggled(self):
+        self.settings["crew_button"] = self.crew_button_var.get()
+        core.save_settings(self.settings)
+        self.host.set_pointers_button(self.settings["crew_button"])
 
     def show_crew_hands(self):
         """The user said yes to an agent that asked to click: keep that, and show it in the settings."""
