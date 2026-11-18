@@ -191,12 +191,19 @@ class CrewPointer(BuddyOverlay):
 
 # --------------------------------------------------------------------------- where a pointer goes
 user32 = ctypes.WinDLL("user32", use_last_error=True)
+# The list of the windows asks Windows a few quick questions about every window there is, shown or not (several
+# hundred). They keep the GIL (PyDLL): giving it back and waiting to get it again costs up to 5 ms each time
+# while another thread is busy, and the list then took a second or more on Buddy's own thread, so every
+# pointer stood still that long (measured: 407 windows, 0.9 s beside one busy thread, 1 ms with the GIL kept).
+# None of these questions waits for a program: the title is the one Windows keeps (InternalGetWindowText).
+# Only safe on 64-bit Windows (one calling convention); 32-bit uses the normal handle.
+fast_user32 = ctypes.PyDLL("user32") if ctypes.sizeof(ctypes.c_void_p) == 8 else user32
 ENUM_WINDOWS_PROC = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
-user32.EnumWindows.argtypes = [ENUM_WINDOWS_PROC, wintypes.LPARAM]
-user32.IsWindowVisible.argtypes = [wintypes.HWND]
-user32.IsIconic.argtypes = [wintypes.HWND]
-user32.GetWindowTextW.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
-user32.GetWindowRect.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.RECT)]
+fast_user32.EnumWindows.argtypes = [ENUM_WINDOWS_PROC, wintypes.LPARAM]
+fast_user32.IsWindowVisible.argtypes = [wintypes.HWND]
+fast_user32.IsIconic.argtypes = [wintypes.HWND]
+fast_user32.InternalGetWindowText.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
+fast_user32.GetWindowRect.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.RECT)]
 user32.WindowFromPoint.argtypes = [wintypes.POINT]
 user32.WindowFromPoint.restype = wintypes.HWND
 user32.GetAncestor.argtypes = [wintypes.HWND, wintypes.UINT]
@@ -217,19 +224,19 @@ def visible_windows():
     found = []
 
     def visit(hwnd, _):
-        if not user32.IsWindowVisible(hwnd) or user32.IsIconic(hwnd):
+        if not fast_user32.IsWindowVisible(hwnd) or fast_user32.IsIconic(hwnd):
             return True
         buffer = ctypes.create_unicode_buffer(300)
-        if user32.GetWindowTextW(hwnd, buffer, 300) <= 0:
+        if fast_user32.InternalGetWindowText(hwnd, buffer, 300) <= 0:
             return True
         rect = wintypes.RECT()
-        if not user32.GetWindowRect(hwnd, ctypes.byref(rect)):
+        if not fast_user32.GetWindowRect(hwnd, ctypes.byref(rect)):
             return True
         if rect.right - rect.left >= MIN_WINDOW_SIZE[0] and rect.bottom - rect.top >= MIN_WINDOW_SIZE[1]:
             found.append((hwnd, buffer.value, (rect.left, rect.top, rect.right, rect.bottom)))
         return True
 
-    user32.EnumWindows(ENUM_WINDOWS_PROC(visit), 0)
+    fast_user32.EnumWindows(ENUM_WINDOWS_PROC(visit), 0)
     return found
 
 

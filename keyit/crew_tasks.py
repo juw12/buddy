@@ -90,8 +90,23 @@ dwmapi = ctypes.WinDLL("dwmapi")
 kernel32 = ctypes.WinDLL("kernel32")
 ntdll = ctypes.WinDLL("ntdll")
 shell32 = ctypes.WinDLL("shell32")
-user32.InternalGetWindowText.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
-user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
+# One look at the windows asks Windows a few quick questions about every window there is, shown or not
+# (several hundred). Asked the normal way, each question gives the GIL back and waits to get it again, up to
+# 5 ms each time while another thread of Buddy is busy: a look then took 1 to 9 s and the pointer was late
+# (measured: 407 windows, 0.9 s with one busy thread, 1 ms with the GIL kept). So these questions keep the GIL
+# (PyDLL). None of them waits for another program. Only safe on 64-bit Windows (one calling convention);
+# 32-bit uses the normal handles.
+if ctypes.sizeof(ctypes.c_void_p) == 8:
+    fast_user32, fast_dwmapi = ctypes.PyDLL("user32"), ctypes.PyDLL("dwmapi")
+else:
+    fast_user32, fast_dwmapi = user32, dwmapi
+EACH_WINDOW = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+fast_user32.EnumWindows.argtypes = [EACH_WINDOW, wintypes.LPARAM]
+fast_user32.IsWindowVisible.argtypes = [wintypes.HWND]
+fast_user32.IsIconic.argtypes = [wintypes.HWND]
+fast_user32.InternalGetWindowText.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
+fast_user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
+fast_dwmapi.DwmGetWindowAttribute.argtypes = [wintypes.HWND, wintypes.DWORD, ctypes.c_void_p, wintypes.DWORD]
 kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
 kernel32.OpenProcess.restype = wintypes.HANDLE
 kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
@@ -326,38 +341,42 @@ class RECT(ctypes.Structure):
     _fields_ = [("left", ctypes.c_long), ("top", ctypes.c_long), ("right", ctypes.c_long), ("bottom", ctypes.c_long)]
 
 
+fast_user32.GetWindowRect.argtypes = [wintypes.HWND, ctypes.POINTER(RECT)]
+
+
 def visible_windows():
     """{hwnd: (pid, title)} for top-level windows a person can see, without this program's own.
 
     Never late: no window is sent a question. Windows itself is asked for the title it keeps
     (InternalGetWindowText). GetWindowText asks a window of the same program through that program's main
     thread, and inside Buddy that waited for as long as Buddy was drawing: up to 9 s measured.
+    And every question here keeps the GIL (fast_user32), so a busy thread of Buddy cannot slow the look.
     """
     found = {}
     buffer = ctypes.create_unicode_buffer(TITLE_CHARS)
 
-    @ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    @EACH_WINDOW
     def visit(hwnd, _):
-        if not user32.IsWindowVisible(hwnd) or user32.IsIconic(hwnd):
+        if not fast_user32.IsWindowVisible(hwnd) or fast_user32.IsIconic(hwnd):
             return True
         pid = wintypes.DWORD()
-        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+        fast_user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
         if pid.value == OWN_PID:
             return True                                  # Buddy's own windows are nobody's task
-        if not user32.InternalGetWindowText(hwnd, buffer, TITLE_CHARS):
+        if not fast_user32.InternalGetWindowText(hwnd, buffer, TITLE_CHARS):
             return True
         cloaked = ctypes.c_int(0)
-        dwmapi.DwmGetWindowAttribute(hwnd, 14, ctypes.byref(cloaked), ctypes.sizeof(cloaked))
+        fast_dwmapi.DwmGetWindowAttribute(hwnd, 14, ctypes.byref(cloaked), ctypes.sizeof(cloaked))
         if cloaked.value:
             return True
         rect = RECT()
-        user32.GetWindowRect(hwnd, ctypes.byref(rect))
+        fast_user32.GetWindowRect(hwnd, ctypes.byref(rect))
         if rect.right - rect.left < 60 or rect.bottom - rect.top < 40:
             return True
         found[int(hwnd)] = (pid.value, buffer.value)
         return True
 
-    user32.EnumWindows(visit, 0)
+    fast_user32.EnumWindows(visit, 0)
     return found
 
 
