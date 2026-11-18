@@ -1,22 +1,21 @@
 {
-  "version": "1.8.1",
+  "version": "1.8.2",
   "date": "2026-11-18",
   "notes": [
-    "Windows: a crew pointer is on screen only while its agent works. The resting pointer that showed only a name is gone: nobody working means nobody on screen.",
-    "A pointer on screen always moves. It sways around its spot in a slow figure of eight and hops at every new step.",
-    "It says \"done\" when the agent finishes and leaves 2 seconds later. An agent Buddy hears nothing from for 30 seconds leaves.",
-    "During a long command the pointer stays with its text, for as long as Buddy can see the step has not ended, up to 10 minutes.",
-    "When an agent needs you: an agent that asks you a question, or a tool that posts \"state\": \"waiting\", stays on screen, says so and hops every 1.5 seconds until you answer.",
-    "Fixed: an OpenCode pointer keeps its own name when it says done.",
-    "Cost: the motion uses some CPU while agents work, about 1 % to 5 % of one core for each pointer on the test PC.",
-    "Not checked: Claude Code and Codex with a live session (recorded samples only), and a real question from an agent. An agent that waits for you to allow a command shows that command's line, not \"Needs you\": the agents do not record that they wait for a click."
+    "Windows: a crew pointer shows only when its agent has something on screen to point at. An agent that runs a command, or works on a file that no window on screen shows, has no pointer. Nobody waits at the right side of the screen any more.",
+    "A place on screen is: the window on top that has the step's file in its title, a window the step names, or an exact screen point (an agent that clicks). The agent's own program window no longer counts.",
+    "The pointer flies in to that place, hops, stays 5 seconds and hides. The next step with a place brings it back.",
+    "An agent that needs you (a question, or \"state\": \"waiting\") is still shown and hops until you answer.",
+    "\"done\" is said only by a pointer that is on screen at that moment.",
+    "Changed for other tools: the short form Buddy.exe --crew \"name: doing\" has no place, so it shows nothing by itself. Send a JSON line with file, window or x/y. Your own AI (@name) is followed but has no pointer until it reports such a step.",
+    "Not checked: Claude Code and Codex with a live session (recorded samples only), and an agent that really clicks on the screen (a posted point was used)."
   ],
-  "page": "https://github.com/juw12/buddy/releases/tag/v1.8.1",
+  "page": "https://github.com/juw12/buddy/releases/tag/v1.8.2",
   "windows": {
-    "version": "1.8.1",
-    "url": "https://github.com/juw12/buddy/releases/download/v1.8.1/Buddy-win64.zip",
-    "size": 181189186,
-    "sha256": "8806ec8b44aa11e36dc572d540aa9fc87c73e9d3f81309d196326490b087f01a"
+    "version": "1.8.2",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.8.2/Buddy-win64.zip",
+    "size": 181189596,
+    "sha256": "aa2c5611d3e08bf1673985ef3527967601a3e500fc1eea53d5cf6afd733ac1fc"
   },
   "mac": {
     "version": "1.6.0",
