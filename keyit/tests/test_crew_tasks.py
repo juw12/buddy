@@ -574,6 +574,65 @@ def test_a_busy_window_of_this_program_never_holds_the_look(monkeypatch):
         owner.join(10)
 
 
+def test_a_busy_thread_of_this_program_never_slows_the_look():
+    """Inside Buddy other threads work too (its drawing, the list of processes). A question to Windows that
+    gives the GIL back gets it again only after the busy thread's turn (5 ms), and one look asks about every
+    window there is, shown or not: 0.9 s was measured for 407 windows, and 1 to 9 s inside Buddy. The look
+    keeps the GIL for its quick questions, so it takes a few ms whatever the other threads do."""
+    import ctypes
+    import statistics
+    from ctypes import wintypes
+
+    if ctypes.sizeof(ctypes.c_void_p) != 8:
+        pytest.skip("the GIL is only kept on 64-bit Windows")
+    user32 = ctypes.WinDLL("user32")
+    user32.CreateWindowExW.restype = wintypes.HWND
+    user32.CreateWindowExW.argtypes = [wintypes.DWORD, wintypes.LPCWSTR, wintypes.LPCWSTR, wintypes.DWORD,
+                                       ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
+                                       wintypes.HWND, wintypes.HMENU, wintypes.HINSTANCE, wintypes.LPVOID]
+    user32.DestroyWindow.argtypes = [wintypes.HWND]
+    made, free, stop = threading.Event(), threading.Event(), threading.Event()
+    hidden = []
+
+    def many_windows():
+        # 300 windows nobody sees: a desktop in use has about that many, a build machine has few
+        for _ in range(300):
+            hwnd = user32.CreateWindowExW(0x08000080, "STATIC", "hidden", 0x80000000, 0, 0, 240, 120,
+                                          None, None, None, None)
+            if hwnd:
+                hidden.append(hwnd)
+        made.set()
+        free.wait(60)
+        for hwnd in hidden:
+            user32.DestroyWindow(hwnd)
+
+    def busy():
+        while not stop.is_set():
+            sum(number * number for number in range(2000))
+
+    owner = threading.Thread(target=many_windows, daemon=True)
+    owner.start()
+    made.wait(20)
+    worker = threading.Thread(target=busy, daemon=True)
+    try:
+        if len(hidden) < 300:
+            pytest.skip("no window can be made here (a build machine without a screen)")
+        worker.start()
+        time.sleep(0.2)                                  # the busy thread is at work
+        took = []
+        for _ in range(5):
+            began = time.perf_counter()
+            ct.visible_windows()
+            took.append(time.perf_counter() - began)
+            time.sleep(0.02)
+        check(f"a look at 300 windows beside a busy thread takes no time (it took {statistics.median(took):.3f} s)",
+              statistics.median(took) < 0.2)
+    finally:
+        stop.set()
+        free.set()
+        owner.join(20)
+
+
 def test_what_a_pointer_says_and_is_called():
     check("a mail page", ct.what_it_does("chrome.exe", "Inbox - Gmail - Google Chrome") == "Working in Gmail")
     check("a console", ct.what_it_does("conhost.exe", "C:\\Windows\\py.exe") == "Opened a command window")
