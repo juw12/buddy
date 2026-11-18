@@ -28,7 +28,9 @@ def test_the_switch_is_wired():
     assert "return request_pointers(args.pointers)" in HOST
     assert "win32event.CreateEvent(None, False, False, POINTERS_EVENT_NAME)" in HOST
     assert "self._pointers_from_outside()" in HOST
-    # the answer is saved and applied the same way as the tick box in Settings
-    body = HOST.split("def _pointers_from_outside(self):")[1].split("\n    def ")[0]
+    # the answer is saved and applied the same way as the tick box in Settings: one switch for all of them
+    assert 'self.set_pointers(enabled, f"--pointers {wanted}")' in \
+        HOST.split("def _pointers_from_outside(self):")[1].split("\n    def ")[0]
+    body = HOST.split("def set_pointers(self, enabled, why):")[1].split("\n    def ")[0]
     assert 'self.settings["crew_enabled"] = enabled' in body
     assert "keyit_core.save_settings(self.settings)" in body and "self.set_crew(enabled)" in body

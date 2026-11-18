@@ -346,8 +346,9 @@ Buddy's own shape (the one you picked in Settings → Look); its colour and its 
   questions; Buddy's own brain stays the small one for quick answers. It starts in your home folder, or in the
   folder you put in `agent_folder` in `settings.json`.
 - **Off:** untick *Show my other AI agents as extra pointers* on the *Buddy (AI)* tab of Settings.
-  From a script or a taskbar button: `Buddy.exe --pointers off`, `--pointers on` or `--pointers toggle` does the same
-  in the running Buddy right away and is saved like the tick box.
+  From a script: `Buddy.exe --pointers off`, `--pointers on` or `--pointers toggle` does the same
+  in the running Buddy right away and is saved like the tick box. With one click: the arrow button next to
+  the clock, see [Task watch](#task-watch-scheduled-tasks-and-ai-apps-get-a-pointer-too).
 
 Checked on a real screen with OpenCode (live sessions) and with lines sent by `--crew`. The motion is not
 free: a pointer on screen is moved about 21 times a second, 1.7 ms each time; three pointers on screen at
@@ -413,6 +414,45 @@ Checked on a real screen against a test window: `look`, three agents clicking th
 point with the real mouse (the mouse went back). Not checked: other programs than that test window, typing
 through the real keyboard, and an AI product driving it by itself. Windows only.
 
+### Task watch: scheduled tasks and AI apps get a pointer too
+A scheduled task runs hidden, but it can open a window you see: a web page in your browser, a command window.
+An AI app that works through programs it starts itself does the same. Nobody pointed at such a window, so it
+looked like a ghost was using the PC. With the task watch on, each of them is a crew pointer too, and there
+is always a trace of what they did.
+
+- **On:** tick *Also show scheduled tasks and what AI apps open* on the *Buddy (AI)* tab of Settings
+  (`crew_tasks` in `settings.json`). It is off until you do.
+- **Scheduled tasks:** Buddy reads the names and actions of your scheduled tasks (not Microsoft's own) every
+  10 minutes. When a program of a task shows a window, a pointer named after the task flies to it and says
+  *Working in the browser*, *Working in Gmail* or *Opened a command window*. A web page a task hands to your
+  already open browser counts too.
+- **AI apps:** a window opened by a program that an AI app started is pointed at in the same way. Which apps
+  count is the list `AGENT_HOSTS` in `keyit/crew_tasks.py`. The pointer of an AI app goes away after a minute
+  without news.
+- **Clicks in a browser:** when such a program steers a browser that was started with
+  `--remote-debugging-port`, the pointer flies to every click and every box that is typed in, and hops with a
+  ripple on the click. It says *Clicked a button* or *Typing in a box*, never the text.
+- **Never late:** windows are looked at 4 times a second. On a busy PC the pointer was on a new window 0.15
+  to 0.45 seconds after the window appeared. A look that came later than a second is written in the trace
+  as `slow:`.
+- **The trace:** `%APPDATA%\Buddy\crew\trace.log` has one line for each start, window, click and end, with
+  the time. It is written with the pointers off too. It holds the titles of the windows that were followed,
+  and never what was typed or a web address. It stays on this PC and starts over at 1 MB (the last full one
+  is kept as `trace.log.old`).
+- **Tasks you do not want followed:** put their names in `crew_tasks_ignored` in
+  `%APPDATA%\Buddy\settings.json`, for example `["Mail at logon"]`, and start Buddy again.
+- **The button:** tick *A button next to the clock that switches all those pointers off or on with one click*
+  (`crew_button`). A green arrow means the pointers are live, a grey arrow with a red bar means they are off.
+  One click is the same switch as the tick box and `--pointers toggle`. A right click offers to open the
+  trace.
+  Windows 10 puts a new icon behind the `^` arrow: drag it onto the taskbar once to keep it in view.
+
+Checked on a real screen: a scheduled task steering Chrome, a window opened from an AI app (pointer on it
+after 0.15 to 0.45 seconds, 8 tries), four clicks and typing in a steered Edge (the pointer at the exact
+spot), one click on the button, and that it all comes back when Buddy is started again. The right-click
+menu of the button and the two tick boxes were not looked at on screen, and the clicks were checked with
+Edge only. Windows only.
+
 ## Buddy Island
 Buddy lives in your screen's notch, so it is always one move away, on every device:
 
@@ -458,6 +498,7 @@ itself.
 - Autostart (pet menu: Autostart, or the "Start with Windows" setting) adds `Buddy.lnk` to your Startup folder.
   It doesn't change a standalone `Pips.lnk`.
 - What Buddy learned to do at once is stored in `%APPDATA%\Buddy\habits.json`: counts under a scrambled form of each phrase, never the words. Delete the file to make Buddy forget.
+- The task watch's trace is `%APPDATA%\Buddy\crew\trace.log` (only while the task watch is on). Delete it whenever you like.
 - Sound and AI settings are stored in `%APPDATA%\Buddy`. You can override this with the `KEYIT_HOME` environment variable.
 
 ## Notes
@@ -477,6 +518,7 @@ itself.
 - `pips/`: Pips v2.28.0 source, unmodified.
 - `keyit/`: KeyIt modules, patched so they can be hosted inside Buddy.
   `keyit/buddy_crew.py` draws the crew pointers, `keyit/crew_sources.py` reads what the agents do, `keyit/keyit_agents.py` opens an agent for `@name` questions.
+  `keyit/crew_tasks.py` is the task watch, `keyit/crew_browser.py` asks a steered browser where it is clicked, `keyit/crew_button.py` is the button next to the clock.
 
 ## License
 
