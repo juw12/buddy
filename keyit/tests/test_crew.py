@@ -47,8 +47,18 @@ class FakePointer:
 
 
 class FakeDesktop:
-    def spot(self, slot, point=None, file_name="", window="", team=""):
-        return point or (1000, 100 + slot * 50)
+    """Every agent's work is in a window on screen, unless `nowhere`: then only a given point is a place."""
+
+    def __init__(self, nowhere=False):
+        self.nowhere = nowhere
+
+    def place(self, slot, point=None, file_name="", window=""):
+        if point is not None or self.nowhere:
+            return point
+        return 1000, 100 + slot * 50
+
+    def dock(self, slot):
+        return 1500, 100 + slot * 50
 
     def entrance(self, slot):
         return 1900, 100 + slot * 50
@@ -128,16 +138,20 @@ class CrewTests(CrewCase):
                          [("show", "explorer: Reading README.md", (1000, 100), True, (1900, 100))])
         self.assertEqual(self.pointers[0].style, (buddy_crew.CREW_COLORS[0], buddy_crew.CREW_ICON))
 
-    def test_there_is_no_resting_pointer_its_words_stay_until_it_leaves(self):
+    def test_a_pointer_hides_a_few_seconds_after_its_step_and_is_back_at_the_next(self):
         self.post("explorer", "Reading README.md")
-        self.clock.now += buddy_crew.SILENT_LEAVE_S - 1
+        first = ("show", "explorer: Reading README.md", (1000, 100), True, (1900, 100))
+        self.clock.now += buddy_crew.AT_PLACE_S - 1
         self.crew.tick()
-        self.assertEqual(self.pointers[0].calls, [("show", "explorer: Reading README.md", (1000, 100), True,
-                                                   (1900, 100))])
+        self.assertEqual(self.pointers[0].calls, [first])
         self.clock.now += 2
         self.crew.tick()
-        self.assertEqual(self.pointers[0].calls[-1], ("leave",))
-        self.assertEqual(self.crew.members(), [])
+        self.crew.tick()
+        self.assertEqual(self.pointers[0].calls, [first, ("leave",)])       # hidden once, and still followed
+        self.assertEqual(len(self.crew.members()), 1)
+        self.post("explorer", "Editing README.md")
+        self.assertEqual(self.pointers[0].calls[-1],
+                         ("show", "explorer: Editing README.md", (1000, 100), True, (1900, 100)))
 
     def test_done_leaves_within_a_few_seconds_and_silence_within_a_minute(self):
         self.assertLessEqual(buddy_crew.DONE_LINGER_S, 3)
@@ -229,13 +243,14 @@ class CrewTests(CrewCase):
         self.post("explorer", "", state="leave")
         self.assertFalse(self.pointers[0].on_screen)
 
-    def test_an_agent_that_goes_silent_leaves(self):
+    def test_an_agent_that_goes_silent_is_no_longer_followed(self):
         self.post("explorer")
         self.clock.now += buddy_crew.SILENT_LEAVE_S - 1
         self.crew.tick()
-        self.assertTrue(self.pointers[0].on_screen)
+        self.assertEqual(len(self.crew.members()), 1)
         self.clock.now += 2
         self.crew.tick()
+        self.assertEqual(self.crew.members(), [])
         self.assertFalse(self.pointers[0].on_screen)
 
     def test_an_agent_that_comes_back_looks_the_same_and_reuses_a_pointer(self):
@@ -295,12 +310,12 @@ class AliveTests(CrewCase):
             self.assertFalse(normalize_event({"agent": "a", "alive": other})["alive"])
         self.assertFalse(normalize_event({"agent": "a"})["alive"])
 
-    def test_alive_keeps_a_silent_agent_on_screen_and_redraws_nothing(self):
+    def test_alive_keeps_a_silent_agent_followed_and_brings_no_pointer_back(self):
         self.post("explorer", "Running pytest", id="s1")
         for _ in range(10):
             self.clock.now += buddy_crew.SILENT_LEAVE_S - 1
             self.post("explorer", "", id="s1", alive=True)
-        self.assertEqual(len(self.pointers[0].calls), 1)
+        self.assertEqual([call[0] for call in self.pointers[0].calls], ["show", "leave"])
         self.assertEqual(self.crew.members()[0][2:4], ("working", "Running pytest"))
         self.clock.now += buddy_crew.SILENT_LEAVE_S + 1
         self.crew.tick()
@@ -353,7 +368,7 @@ class WaitingTests(CrewCase):
             self.crew.tick()
         self.assertEqual(self.pointers[0].calls[1:],
                          [("show", "installer: Click Allow", (1000, 100), True, None)] * 3)
-        self.assertEqual(len(self.pointers[1].calls), shown[1])
+        self.assertEqual([call[0] for call in self.pointers[1].calls].count("show"), 1)
 
     def test_back_at_work_it_no_longer_says_it_needs_you(self):
         self.post("explorer", "", state="waiting")
@@ -455,6 +470,65 @@ class PointerMotionTests(unittest.TestCase):
         self.assertNotEqual(first.sway(3.0), second.sway(3.0))
 
 
+class NothingToPointAtTests(CrewCase):
+    """An agent whose work is nowhere on screen has no pointer; it is followed all the same."""
+
+    def make_crew(self, **options):
+        def pointer():
+            self.pointers.append(FakePointer())
+            return self.pointers[-1]
+        return Crew(pointer_factory=pointer, desktop=FakeDesktop(nowhere=True), clock=self.clock, **options)
+
+    def test_it_is_followed_and_has_no_pointer(self):
+        self.post("explorer", "Running pytest")
+        self.post("explorer", "Reading README.md", file="README.md")
+        self.assertEqual(self.crew.members()[0][:4], ("explorer", "", "working", "Reading README.md"))
+        self.assertEqual(self.pointers[0].calls, [])
+
+    def test_a_point_on_screen_brings_its_pointer_and_the_next_step_elsewhere_hides_it(self):
+        self.post("clicker", "Running pytest")
+        self.post("clicker", "Clicking Save", x=300, y=400)
+        self.assertEqual(self.pointers[0].calls, [("show", "clicker: Clicking Save", (300, 400), True, (1900, 100))])
+        self.post("clicker", "Running pytest")
+        self.assertEqual(self.pointers[0].calls[-1], ("leave",))
+        self.post("clicker", "Clicking OK", x=320, y=400)                  # and it flies in again
+        self.assertEqual(self.pointers[0].calls[-1], ("show", "clicker: Clicking OK", (320, 400), True, (1900, 100)))
+
+    def test_an_agent_that_needs_you_is_there_with_no_place_too_and_hides_when_answered(self):
+        self.post("builder", "Running pytest")
+        self.post("installer", "Click Allow", state="waiting")
+        self.assertEqual(self.pointers[0].calls, [])
+        self.assertEqual(self.pointers[1].calls,                           # first row of the dock: no gap
+                         [("show", "installer: Click Allow", (1500, 100), True, (1900, 100))])
+        self.clock.now += buddy_crew.AT_PLACE_S + 30
+        self.crew.tick()
+        self.assertTrue(self.pointers[1].on_screen)
+        self.post("installer", "Back to work")
+        self.assertFalse(self.pointers[1].on_screen)
+
+    def test_done_is_said_only_by_a_pointer_that_is_on_screen(self):
+        self.post("quiet", "Running pytest")
+        self.post("quiet", "", state="done")
+        self.assertEqual(self.pointers[0].calls, [])
+        self.post("clicker", "Clicking Save", x=300, y=400)
+        self.post("clicker", "", state="done")
+        self.assertEqual(self.pointers[1].calls[-1], ("show", "clicker: done \u2713", (300, 400), False, None))
+        self.clock.now += buddy_crew.DONE_LINGER_S + 0.5
+        self.crew.tick()
+        self.assertEqual(self.pointers[1].calls[-1], ("leave",))
+        self.assertEqual(self.crew.members(), [])
+
+    def test_a_full_crew_lets_go_of_one_that_is_not_on_screen(self):
+        for index in range(buddy_crew.MAX_MEMBERS):
+            self.clock.now += 1
+            self.post(f"bot{index}", "Running pytest")
+        self.post("clicker", "Clicking Save", x=300, y=400)
+        names = [member[0] for member in self.crew.members()]
+        self.assertEqual(len(names), buddy_crew.MAX_MEMBERS)
+        self.assertIn("clicker", names)
+        self.assertNotIn("bot0", names)                                    # the one not heard from the longest
+
+
 class DesktopTests(unittest.TestCase):
     AREA = (0, 0, 1920, 1040)
 
@@ -477,19 +551,20 @@ class DesktopTests(unittest.TestCase):
     def test_the_window_with_the_file_in_its_title_is_where_the_work_is(self):
         windows = [(1, "Chrome", (0, 0, 900, 800)), (2, "notes.md - Editor", (200, 100, 1200, 900))]
         desktop = self.desktop(windows)
-        self.assertEqual(desktop.spot(0, file_name=r"C:\work\notes.md"), (200 + 360, 100 + 18))
-        self.assertEqual(desktop.spot(1, file_name="notes.md")[1], 100 + 18 + buddy_crew.WINDOW_SLOT_HEIGHT)
+        self.assertEqual(desktop.place(0, file_name=r"C:\work\notes.md"), (200 + 360, 100 + 18))
+        self.assertEqual(desktop.place(1, file_name="notes.md")[1], 100 + 18 + buddy_crew.WINDOW_SLOT_HEIGHT)
+        self.assertEqual(desktop.place(0, window="editor"), (200 + 360, 100 + 18))
 
-    def test_a_covered_window_or_no_window_means_the_dock(self):
+    def test_a_covered_window_or_no_window_is_no_place(self):
         windows = [(2, "notes.md - Editor", (200, 100, 1200, 900))]
-        self.assertEqual(self.desktop(windows, on_top=False).spot(0, file_name="notes.md"), self.desktop().dock(0))
-        self.assertEqual(self.desktop(windows).spot(0, file_name="other.md"), self.desktop().dock(0))
-        self.assertEqual(self.desktop(windows).spot(3), self.desktop().dock(3))
+        self.assertIsNone(self.desktop(windows, on_top=False).place(0, file_name="notes.md"))
+        self.assertIsNone(self.desktop(windows).place(0, file_name="other.md"))
+        self.assertIsNone(self.desktop(windows).place(3))
 
-    def test_a_short_file_name_is_not_looked_for(self):
-        self.assertEqual(buddy_crew.title_wanted(("a.py", "", "")), [])
-        self.assertEqual(buddy_crew.title_wanted((r"src\main.py", "Editor", "OpenCode")),
-                         ["main.py", "editor", "opencode"])
+    def test_a_short_file_name_and_the_agents_own_program_are_not_looked_for(self):
+        self.assertEqual(buddy_crew.title_wanted("a.py", ""), [])
+        self.assertEqual(buddy_crew.title_wanted(r"src\main.py", "Editor"), ["main.py", "editor"])
+        self.assertIsNone(self.desktop([(1, "OpenCode", (0, 0, 900, 800))]).place(0, file_name="a.py"))
 
     def test_the_file_counts_for_more_than_the_team(self):
         windows = [(1, "OpenCode", (0, 0, 900, 800)), (2, "README.md - Editor", (200, 100, 1200, 900))]
@@ -500,13 +575,13 @@ class DesktopTests(unittest.TestCase):
     def test_a_given_point_wins_and_windows_are_listed_once_a_second(self):
         clock = Clock()
         desktop = self.desktop([(1, "OpenCode", (0, 0, 900, 800))], clock=clock)
-        self.assertEqual(desktop.spot(0, point=(5, 6), team="OpenCode"), (5, 6))
+        self.assertEqual(desktop.place(0, point=(5, 6), window="OpenCode"), (5, 6))
         self.assertEqual(self.listed, 0)
-        desktop.spot(0, team="OpenCode")
-        desktop.spot(1, team="OpenCode")
+        desktop.place(0, window="OpenCode")
+        desktop.place(1, window="OpenCode")
         self.assertEqual(self.listed, 1)
         clock.now += 1.5
-        desktop.spot(0, team="OpenCode")
+        desktop.place(0, window="OpenCode")
         self.assertEqual(self.listed, 2)
 
 
