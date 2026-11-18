@@ -1,22 +1,22 @@
 {
-  "version": "1.9.0",
+  "version": "1.10.0",
   "date": "2026-11-18",
   "notes": [
-    "An agent asks with one line: Buddy.exe --crew \"{\\\"agent\\\": \\\"tester\\\", \\\"do\\\": \\\"click\\\", \\\"target\\\": \\\"Save\\\", \\\"window\\\": \\\"Notepad\\\"}\". do is look (lists what is in a window), click or type. The command waits, prints one JSON line such as {\"ok\": true, \"did\": \"Clicked Save\", \"how\": \"direct\"} and ends with 0 (done), 3 (not done, the line says why) or 1 (Buddy is not running). --out FILE writes the same line to a file.",
-    "Many at once: every agent has its own pointer and its own queue. Buttons, tick boxes, tabs, list items and text boxes are pressed through Windows UI Automation, which needs no mouse, so several agents press things in the same moment and your own mouse stays where it is. Up to 8 agents at a time.",
-    "The real mouse is used only where a program offers no direct way, and for a bare x/y point: one click at a time, then the mouse is put back.",
-    "Rules: off until you say yes (Buddy asks the first time an agent tries; Settings, tab Buddy (AI), Let those agents click and type on screen). Only what you can see is clicked. Never Buddy's own windows, never a window's Close, Minimize, Maximize or Exit button. A name like Delete, Send, Remove, Reset or Pay is asked about first, in a small box that does not take the keyboard. What an agent types is never shown in its bubble.",
-    "For your agent: tools/buddy-hands/ in the repository holds a skill (SKILL.md) and buddydo.ps1, which does the quoting: buddydo.ps1 -Agent tester -Do click -Window Notepad -Target Save.",
-    "OpenCode, Claude Code and Codex do not start clicking by themselves: an agent clicks when it runs that line.",
-    "Checked on a real screen with the built app against a test window: look, three agents clicking three buttons at once (all direct, the mouse did not move), typing, the first-time question, a Delete button with no and with yes, the Close button (refused). From source also: a covered button (left alone) and one x/y click with the real mouse.",
-    "Not checked: other programs than the test window, typing through the real keyboard, and an AI product driving it by itself."
+    "A pointer named after the task or app flies to every window it opens (a browser, a command window, a mail page) and says what it is doing. When such a program steers a browser started with --remote-debugging-port, the pointer flies to every click and hops with a ripple. The pointer of an AI app goes away after a minute without news.",
+    "A trace you can read: %APPDATA%\\Buddy\\crew\\trace.log, one line for each start, window, click and end, with the time. Never what was typed or a web address; it stays on this PC.",
+    "A button next to the clock (a green arrow when on, grey with a red bar when off): one click turns the pointers on or off, right-click opens the trace. Windows 10 puts a new icon behind the ^ arrow: drag it onto the taskbar once. The same from outside: Buddy.exe --pointers on|off|toggle.",
+    "Off until you tick it: Buddy window, tab Settings, box Buddy's brain, Also show scheduled tasks and what AI apps open and A button next to the clock that switches all those pointers off or on with one click. It comes back by itself after Buddy restarts.",
+    "This replaces the separate Task herald helper: nothing else to install or start.",
+    "Never late. Each look at the open windows used to take 0.9 to 2 s (up to 8.4 s) when Buddy was busy, so a pointer could arrive after the window was already gone. A look now takes about 1 ms. Measured with the built app on a real screen for 30 minutes: no slow look (before: 9 looks of 1.1 to 8.4 s in 23 minutes); a new window is in the trace after 0.02 to 0.18 s (median 0.13 s, 10 tries); the pointer is on the new window after 0.18 to 0.90 s (median 0.45 s, 26 tries, 1 over 0.5 s).",
+    "Checked on a real screen with the built app: pointers on windows opened by scheduled tasks and by an AI app, click animation in a steered Edge, the button and its right-click menu, both tick boxes, on/off from the command line, and that all of it is back after Buddy restarts.",
+    "Not checked: clicks in browsers other than Edge, and a full Windows restart (Buddy starts with Windows as before, the restart itself was not tried). When the whole PC stops for a few seconds, the pointer waits too."
   ],
-  "page": "https://github.com/juw12/buddy/releases/tag/v1.9.0",
+  "page": "https://github.com/juw12/buddy/releases/tag/v1.10.0",
   "windows": {
-    "version": "1.9.0",
-    "url": "https://github.com/juw12/buddy/releases/download/v1.9.0/Buddy-win64.zip",
-    "size": 181280627,
-    "sha256": "872369907cd8303b7fa14218cfdd00ead2c8d4d2c06231f5c9caa3cc397e275a"
+    "version": "1.10.0",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.10.0/Buddy-win64.zip",
+    "size": 181306213,
+    "sha256": "91967ac507703a378e8a14e79700cb2ff24c8fa31f622dda748b2e86c8025db4"
   },
   "mac": {
     "version": "1.6.0",
