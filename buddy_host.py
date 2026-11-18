@@ -530,6 +530,7 @@ class BuddyApp:
         self.quit_event = None
         self.ask_event = None
         self.update_event = None
+        self.pointers_event = None
         self._update_state = "idle"          # idle / checking / preparing / ready / installing
         self._update_ready = None            # (manifest, folder) once a verified update waits to be installed
         self._update_manual = False
@@ -540,6 +541,7 @@ class BuddyApp:
                 self.quit_event = win32event.CreateEvent(None, True, False, QUIT_EVENT_NAME)
                 self.ask_event = win32event.CreateEvent(None, False, False, ASK_EVENT_NAME)   # auto-reset
                 self.update_event = win32event.CreateEvent(None, False, False, UPDATE_EVENT_NAME)
+                self.pointers_event = win32event.CreateEvent(None, False, False, POINTERS_EVENT_NAME)
             except Exception:
                 logger.warning("Quit event unavailable", exc_info=True)
 
@@ -859,6 +861,9 @@ class BuddyApp:
                     win32event.WaitForSingleObject(self.update_event, 0) == win32event.WAIT_OBJECT_0:
                 logger.info("Update requested from outside (--update)")
                 self.check_for_updates(manual=True)
+            if self.pointers_event is not None and \
+                    win32event.WaitForSingleObject(self.pointers_event, 0) == win32event.WAIT_OBJECT_0:
+                self._pointers_from_outside()
             if self.instance.show_requested():          # Buddy was started again: show it
                 self.open_home()
         except Exception:
@@ -1059,6 +1064,27 @@ class BuddyApp:
         logger.info("Question from --ask: %s", question)
         buddy.ask_text(question)
 
+    def _pointers_from_outside(self):
+        """Buddy.exe --pointers on|off|toggle: the same switch as "Show my other AI agents as extra pointers"
+        in Settings, for a taskbar button or a script. The answer is saved like a click in Settings."""
+        try:
+            path = _pointers_file()
+            wanted = path.read_text(encoding="utf-8").strip().lower()
+            path.unlink(missing_ok=True)
+        except OSError:
+            return
+        enabled = pointers_wanted(wanted, self.settings.get("crew_enabled", True))
+        if enabled is None:
+            logger.info("Ignored --pointers %s", wanted)
+            return
+        self.settings["crew_enabled"] = enabled
+        keyit_core.save_settings(self.settings)
+        self.set_crew(enabled)
+        crew_var = getattr(self.window, "crew_var", None)
+        if crew_var is not None:
+            crew_var.set(enabled)                      # the tick box in Settings shows the same answer
+        logger.info("Agent pointers %s from outside (--pointers %s)", "on" if enabled else "off", wanted)
+
     # ------------------------------------------------------------------ quit
     def quit(self):
         if self._quitting:
@@ -1110,10 +1136,39 @@ def _prepare_pips(cfg):
 QUIT_EVENT_NAME = "Local\\Buddy.App.QuitRequest"
 ASK_EVENT_NAME = "Local\\Buddy.App.AskRequest"
 UPDATE_EVENT_NAME = "Local\\Buddy.App.UpdateRequest"
+POINTERS_EVENT_NAME = "Local\\Buddy.App.PointersRequest"
 
 
 def _ask_file():
     return keyit_core.USER_DIR / "ask_request.txt"
+
+
+def _pointers_file():
+    return keyit_core.USER_DIR / "pointers_request.txt"
+
+
+def pointers_wanted(wanted, now):
+    """What --pointers on|off|toggle makes of the switch that is `now`; None for any other word."""
+    if wanted == "toggle":
+        return not now
+    return {"on": True, "off": False}.get(wanted)
+
+
+def request_pointers(wanted):
+    """Buddy.exe --pointers on|off|toggle: the running Buddy shows or hides the pointers of your other AI
+    agents (the crew) right away."""
+    try:
+        import win32event
+
+        event = win32event.OpenEvent(win32event.EVENT_MODIFY_STATE, False, POINTERS_EVENT_NAME)
+    except Exception:
+        logger.info("Buddy isn't running - start it first")
+        return 1
+    keyit_core.ensure_user_dirs()
+    _pointers_file().write_text(wanted, encoding="utf-8")
+    win32event.SetEvent(event)
+    logger.info("Asked Buddy: agent pointers %s", wanted)
+    return 0
 
 
 def request_ask(question):
@@ -1213,6 +1268,8 @@ def main(argv=None):
     parser.add_argument("--quit", action="store_true", help="ask a running Buddy to quit cleanly, then exit")
     parser.add_argument("--ask", metavar="TEXT", help='give the running Buddy a typed question, e.g. --ask "open notepad"')
     parser.add_argument("--update", action="store_true", help="ask the running Buddy to update itself now")
+    parser.add_argument("--pointers", choices=("on", "off", "toggle"),
+                        help="show or hide the pointers of your other AI agents in the running Buddy, right away")
     parser.add_argument("--crew", metavar="TEXT", help='show an AI agent as its own pointer, e.g. --crew '
                         '"explorer: Reading the docs", then --crew "explorer: done" (or a JSON object, see README). '
                         'A JSON object with "do" makes the agent really look, click or type: {"agent": "tester", '
@@ -1225,6 +1282,8 @@ def main(argv=None):
         return request_ask(args.ask)
     if args.update:
         return request_update()
+    if args.pointers:
+        return request_pointers(args.pointers)
     if args.crew:
         return request_crew(args.crew, answer_file=args.out)
 

@@ -346,6 +346,8 @@ Buddy's own shape (the one you picked in Settings → Look); its colour and its 
   questions; Buddy's own brain stays the small one for quick answers. It starts in your home folder, or in the
   folder you put in `agent_folder` in `settings.json`.
 - **Off:** untick *Show my other AI agents as extra pointers* on the *Buddy (AI)* tab of Settings.
+  From a script or a taskbar button: `Buddy.exe --pointers off`, `--pointers on` or `--pointers toggle` does the same
+  in the running Buddy right away and is saved like the tick box.
 
 Checked on a real screen with OpenCode (live sessions) and with lines sent by `--crew`. The motion is not
 free: a pointer on screen is moved about 21 times a second, 1.7 ms each time; three pointers on screen at
