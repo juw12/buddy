@@ -297,10 +297,20 @@ Buddy's own shape (the one you picked in Settings → Look); its colour and its 
   read what such a program does; to say more, the program runs `Buddy.exe --crew "mybot: Reading the docs"`.
   Leave the command empty for an AI that is started some other way and only reports. They are saved as
   `crew_custom` in `settings.json`; at most 12.
-- **Where the pointers are:** they wait in a column at the right side of the screen. When the file an agent
-  works on (or its team's app) is in the title of the window on top, its pointer flies there. It hops at every
-  new step; after 10 seconds without news only its name stays, so a waiting crew takes little room. It says `done ✓` when the agent finishes and leaves 6 seconds later, or after 150 seconds without
-  news. At most 8 pointers are shown.
+- **Only while it works, and never still:** a pointer is on screen only while its agent works. It comes in at
+  the agent's first step, sways around its spot the whole time it is there, and hops at every new step. It
+  says `done ✓` when the agent finishes and leaves 2 seconds later. During a long step (a command that runs
+  for minutes, a helper it waits for) it stays, for as long as Buddy can see the step has not ended, up to 10
+  minutes. An agent Buddy hears nothing from for 30 seconds leaves. There is no resting pointer: nobody
+  working means nobody on screen.
+- **When an agent needs you:** an agent that asks you a question (its ask tool), or a tool that posts
+  `"state": "waiting"`, stays on screen with `Needs your answer` (or its own words) and hops every 1.5 seconds
+  until you have answered, for up to 10 minutes. An agent that waits for you to allow a command stays on
+  screen with that command's line: the agents do not write down that they are waiting for a click, so Buddy
+  cannot tell it from a command that runs.
+- **Where the pointers are:** in a column at the right side of the screen. When the file an agent works on
+  (or its team's app) is in the title of the window on top, its pointer flies there. At most 8 pointers are
+  shown.
 - **What a bubble may show:** the name of the file and the name of the program, nothing else. The rest of a
   command line, search words and file contents are never shown, because they can hold passwords and your
   screen may be shared. The pointers hide while Buddy takes its screenshot.
@@ -309,8 +319,11 @@ Buddy's own shape (the one you picked in Settings → Look); its colour and its 
   append such a line to `%APPDATA%\Buddy\crew\inbox.jsonl` yourself. Only `agent` is needed:
   `{"agent": "explorer", "team": "My tool", "say": "Reading the docs", "state": "working", "file": "notes.md",
   "window": "Excel", "where": "project-a", "id": "any-stable-key", "color": "#22c55e", "icon": "star",
-  "x": 800, "y": 400}`. `state` is `working`, `done` or `leave`; `window` is a piece of a window title to fly
-  to; `x`/`y` is an exact screen point; `icon` is `arrow`, `pointer`, `plane`, `dot`, `star`, `heart` or `face`.
+  "x": 800, "y": 400}`. `state` is `working`, `waiting` (it needs you), `done` or `leave`; `window` is a piece
+  of a window title to fly to; `x`/`y` is an exact screen point, for an agent that clicks on the screen; `icon`
+  is `arrow`, `pointer`, `plane`, `dot`, `star`, `heart` or `face`. A tool that works for longer than 30
+  seconds without news posts `{"agent": "explorer", "alive": true}` now and then: that keeps its pointer on
+  screen and changes nothing else.
 - **Names and colours:** colours are handed out by themselves, never your own Buddy colour and never a colour
   you picked for one agent, and an agent that comes back gets its old colour. To fix a look, add `crew_looks`
   to `%APPDATA%\Buddy\settings.json`:
@@ -330,7 +343,9 @@ Buddy's own shape (the one you picked in Settings → Look); its colour and its 
 - **Off:** untick *Show my other AI agents as extra pointers* on the *Buddy (AI)* tab of Settings.
 
 Checked on a real screen with OpenCode (four live sessions at once) and with lines sent by
-`--crew`: three resting pointers cost about 1 % of one CPU core, and watching with nobody on screen 0.2 %.
+`--crew`. The motion is not free: each pointer on screen is moved about 21 times a second, 1.7 ms each
+time. Three working pointers measured between 3 % and 15 % of one CPU core on a PC that was busy with
+other work. With nobody working there is no pointer, and watching costs 0.2 %.
 Claude Code, Codex and the newer OpenCode database layout are tested against recorded samples only, not
 against a live session. The question Buddy asks, the *Agents…* window, a rename line and the pointers in
 Buddy's shape were checked on a real screen; your own AI was checked with the tests and a stand-in program,

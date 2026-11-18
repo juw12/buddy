@@ -23,6 +23,7 @@ AGENTS = {
     "codex": ("Codex", "codex", lambda prompt: [prompt]),
 }
 CUSTOM_TEAM = "My AI"                  # team name on the pointer of an AI you added yourself
+STILL_RUNNING_EVERY_S = 10.0           # how often a running program of yours is said to be still at it
 PROMPT_MARK = "{prompt}"
 MAX_CUSTOM = 12
 _CALL = re.compile(r"@([A-Za-z][\w-]*)[\s:,]+(\S.*)", re.DOTALL)
@@ -199,12 +200,18 @@ def launch(name, prompt, folder=None, which=shutil.which, start=subprocess.Popen
 
 def report(process, agent, post):
     """Show an AI the user added as a crew pointer while its program runs: Buddy cannot read what such a
-    program does, but it knows when it started and when it ended. `post` is Crew.post."""
+    program does, but it knows when it started and when it ended, and says "still at it" in between.
+    `post` is Crew.post."""
     base = {"agent": agent["name"], "team": CUSTOM_TEAM, "id": f"custom:{agent['name'].lower()}:{process.pid}"}
     post(dict(base, say="Started"))
 
     def wait():
-        process.wait()
+        while True:
+            try:
+                process.wait(STILL_RUNNING_EVERY_S)
+                break
+            except subprocess.TimeoutExpired:
+                post(dict(base, alive=True))
         post(dict(base, state="done"))
 
     threading.Thread(target=wait, name="BuddyCrewCustom", daemon=True).start()

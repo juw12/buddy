@@ -3,10 +3,13 @@
 
 import datetime
 import json
+import math
 import os
 import sqlite3
+import subprocess
 import sys
 import tempfile
+import threading
 import time
 import types
 import unittest
@@ -125,13 +128,20 @@ class CrewTests(CrewCase):
                          [("show", "explorer: Reading README.md", (1000, 100), True, (1900, 100))])
         self.assertEqual(self.pointers[0].style, (buddy_crew.CREW_COLORS[0], buddy_crew.CREW_ICON))
 
-    def test_after_a_quiet_while_only_the_name_stays_and_news_brings_the_words_back(self):
+    def test_there_is_no_resting_pointer_its_words_stay_until_it_leaves(self):
         self.post("explorer", "Reading README.md")
-        self.clock.now += buddy_crew.QUIET_S + 1
+        self.clock.now += buddy_crew.SILENT_LEAVE_S - 1
         self.crew.tick()
-        self.assertEqual(self.pointers[0].calls[-1], ("show", "explorer", (1000, 100), False, None))
-        self.post("explorer", "Editing notes.md")
-        self.assertEqual(self.pointers[0].calls[-1], ("show", "explorer: Editing notes.md", (1000, 100), True, None))
+        self.assertEqual(self.pointers[0].calls, [("show", "explorer: Reading README.md", (1000, 100), True,
+                                                   (1900, 100))])
+        self.clock.now += 2
+        self.crew.tick()
+        self.assertEqual(self.pointers[0].calls[-1], ("leave",))
+        self.assertEqual(self.crew.members(), [])
+
+    def test_done_leaves_within_a_few_seconds_and_silence_within_a_minute(self):
+        self.assertLessEqual(buddy_crew.DONE_LINGER_S, 3)
+        self.assertLessEqual(buddy_crew.SILENT_LEAVE_S, 60)
 
     def test_done_keeps_its_words_until_the_pointer_leaves(self):
         self.post("explorer", "Reading README.md")
@@ -276,6 +286,175 @@ class CrewTests(CrewCase):
         self.assertFalse(any(pointer.on_screen for pointer in self.pointers))
 
 
+class AliveTests(CrewCase):
+    """{"alive": true}: the agent is still at its step. It stays on screen and nothing else changes."""
+
+    def test_normalize_knows_alive_only_when_it_is_true(self):
+        self.assertTrue(normalize_event({"agent": "a", "alive": True})["alive"])
+        for other in (False, None, "true", 1):
+            self.assertFalse(normalize_event({"agent": "a", "alive": other})["alive"])
+        self.assertFalse(normalize_event({"agent": "a"})["alive"])
+
+    def test_alive_keeps_a_silent_agent_on_screen_and_redraws_nothing(self):
+        self.post("explorer", "Running pytest", id="s1")
+        for _ in range(10):
+            self.clock.now += buddy_crew.SILENT_LEAVE_S - 1
+            self.post("explorer", "", id="s1", alive=True)
+        self.assertEqual(len(self.pointers[0].calls), 1)
+        self.assertEqual(self.crew.members()[0][2:4], ("working", "Running pytest"))
+        self.clock.now += buddy_crew.SILENT_LEAVE_S + 1
+        self.crew.tick()
+        self.assertEqual(self.crew.members(), [])
+
+    def test_alive_alone_shows_nobody(self):
+        self.post("explorer", "", id="s1", alive=True)
+        self.assertEqual(self.crew.members(), [])
+        self.assertEqual(self.pointers, [])
+
+    def test_alive_does_not_keep_an_agent_that_is_done(self):
+        self.post("explorer", id="s1")
+        self.post("explorer", "", id="s1", state="done")
+        self.clock.now += buddy_crew.DONE_LINGER_S - 0.5
+        self.post("explorer", "", id="s1", alive=True)
+        self.assertEqual(self.crew.members()[0][2], "done")
+        self.clock.now += 1
+        self.crew.tick()
+        self.assertEqual(self.crew.members(), [])
+
+
+class WaitingTests(CrewCase):
+    """"state": "waiting": the agent needs you. It stays, says so, and hops now and then until you answered."""
+
+    def test_an_agent_that_needs_you_says_so_and_outstays_the_silence(self):
+        self.post("explorer", "Reading README.md")
+        self.post("explorer", "", state="waiting")
+        self.assertEqual(self.pointers[0].text, "explorer: Needs you")
+        self.clock.now += buddy_crew.SILENT_LEAVE_S + 5
+        self.crew.tick()
+        self.assertTrue(self.pointers[0].on_screen)
+        self.clock.now += buddy_crew.WAITING_LEAVE_S
+        self.crew.tick()
+        self.assertFalse(self.pointers[0].on_screen)
+
+    def test_its_own_words_are_shown_and_it_may_be_the_first_we_hear_of_it(self):
+        self.post("installer", "Click Allow", state="waiting")
+        self.assertEqual(self.pointers[0].text, "installer: Click Allow")
+        self.assertEqual(self.crew.members()[0][2], "waiting")
+
+    def test_it_hops_every_now_and_then_and_a_working_agent_does_not(self):
+        self.post("installer", "Click Allow", state="waiting")
+        self.post("explorer", "Reading README.md")
+        shown = [len(pointer.calls) for pointer in self.pointers]
+        self.clock.now += buddy_crew.BECKON_EVERY_S / 2
+        self.crew.tick()
+        self.assertEqual([len(pointer.calls) for pointer in self.pointers], shown)
+        for _ in range(3):
+            self.clock.now += buddy_crew.BECKON_EVERY_S
+            self.crew.tick()
+        self.assertEqual(self.pointers[0].calls[1:],
+                         [("show", "installer: Click Allow", (1000, 100), True, None)] * 3)
+        self.assertEqual(len(self.pointers[1].calls), shown[1])
+
+    def test_back_at_work_it_no_longer_says_it_needs_you(self):
+        self.post("explorer", "", state="waiting")
+        self.post("explorer", "")
+        self.assertEqual(self.crew.members()[0][2:4], ("working", "Working"))
+        self.post("explorer", "", state="waiting")
+        self.post("explorer", "Editing notes.md")
+        self.assertEqual(self.pointers[0].text, "explorer: Editing notes.md")
+        self.clock.now += buddy_crew.SILENT_LEAVE_S + 1
+        self.crew.tick()
+        self.assertEqual(self.crew.members(), [])
+
+    def test_an_agent_that_needs_you_is_not_sent_away_to_make_room(self):
+        for index in range(buddy_crew.MAX_MEMBERS):
+            self.post(f"agent{index}", state="waiting" if index == 0 else "working")
+        self.post("late")
+        names = [member[0] for member in self.crew.members()]
+        self.assertIn("agent0", names)
+        self.assertNotIn("late", names)
+
+
+def bare_pointer(target=(500.0, 300.0)):
+    """A CrewPointer without a window: what it would draw is kept in `frames` as (x, y, pulse)."""
+    pointer = buddy_crew.CrewPointer.__new__(buddy_crew.CrewPointer)
+    pointer._lock = threading.RLock()
+    pointer.hwnd = None
+    pointer.mode, pointer._text, pointer._target = "talking", "explorer: Reading README.md", target
+    pointer._pos, pointer._vel = target, (0.0, 0.0)
+    pointer._hop, pointer._pulse_started, pointer._mode_started = False, None, 0.0
+    pointer._sway_phase = 0.7
+    pointer.monitor = {"left": 0, "top": 0, "width": 1920, "height": 1080}
+    pointer.color, pointer.icon = buddy_crew.CREW_COLORS[0], buddy_crew.CREW_ICON
+    pointer._shot_done = threading.Event()
+    pointer._moving_until = 5.0
+    pointer.frames = []
+    pointer.shown = True
+    pointer._present = lambda x, y, *rest: pointer.frames.append((x, y, rest[-1]))
+    pointer._set_shown = lambda shown: setattr(pointer, "shown", shown)
+    return pointer
+
+
+class PointerMotionTests(unittest.TestCase):
+    """A crew pointer on screen is never still: at its spot it sways in a slow figure of eight."""
+
+    def test_at_its_spot_it_moves_in_every_frame_and_stays_close(self):
+        pointer = bare_pointer()
+        frame_s = pointer.SWAY_FRAME_S
+        for frame in range(200):                              # three figures of eight
+            self.assertTrue(pointer._step(10.0 + frame * frame_s, frame_s))
+        places = [(x, y) for x, y, _ in pointer.frames]
+        moves = [math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(places, places[1:])]
+        self.assertGreater(min(moves), 0.3)                   # px in one frame: it never stops, not even to turn
+        self.assertLess(max(moves), 2.0)                      # and it never jumps
+        self.assertLessEqual(max(abs(x - 500.0) for x, _ in places), pointer.SWAY_X + 1e-6)
+        self.assertLessEqual(max(abs(y - 300.0) for _, y in places), pointer.SWAY_Y + 1e-6)
+        self.assertGreater(max(x for x, _ in places) - min(x for x, _ in places), pointer.SWAY_X * 1.9)
+        self.assertGreater(max(y for _, y in places) - min(y for _, y in places), pointer.SWAY_Y * 1.9)
+
+    def test_swaying_is_cheap_fewer_frames_and_no_fine_timer(self):
+        pointer = bare_pointer()
+        pointer._step(10.0, 0.033)
+        self.assertEqual(pointer.FRAME_S, pointer.SWAY_FRAME_S)
+        self.assertEqual(pointer._moving_until, 0.0)
+
+    def test_a_new_step_hops_with_a_ripple_at_full_frame_rate(self):
+        pointer = bare_pointer()
+        pointer.show("explorer: Editing notes.md", (500.0, 300.0), hop=True)
+        pointer._step(10.0, 0.016)
+        pointer._step(10.016, 0.016)
+        self.assertIsNotNone(pointer.frames[-1][2])           # the ripple
+        self.assertLess(pointer.frames[-1][1], pointer.frames[0][1])      # upwards
+        self.assertEqual(pointer.FRAME_S, pointer.ACTIVE_FRAME_S)
+        self.assertEqual(pointer._moving_until, 5.0)          # the fine timer is left to the drawing code
+        for frame in range(2, 400):
+            pointer._step(10.0 + frame * 0.016, 0.016)
+        self.assertIsNone(pointer.frames[-1][2])
+        self.assertEqual(pointer.FRAME_S, pointer.SWAY_FRAME_S)           # landed: back to swaying
+
+    def test_it_glides_to_a_new_spot_and_sways_there(self):
+        pointer = bare_pointer()
+        pointer.show("explorer: Reading README.md", (900.0, 600.0))
+        for frame in range(400):
+            pointer._step(10.0 + frame * 0.016, 0.016)
+        x, y, _ = pointer.frames[-1]
+        self.assertLessEqual(abs(x - 900.0), pointer.SWAY_X + 1e-6)
+        self.assertLessEqual(abs(y - 600.0), pointer.SWAY_Y + 1e-6)
+        self.assertNotEqual(pointer.frames[-1][:2], pointer.frames[-2][:2])
+
+    def test_told_to_leave_it_is_off_the_screen(self):
+        pointer = bare_pointer()
+        pointer.leave()
+        self.assertFalse(pointer._step(10.0, 0.016))
+        self.assertFalse(pointer.shown)
+        self.assertEqual(pointer.frames, [])
+
+    def test_no_two_pointers_sway_in_step(self):
+        with mock.patch.object(buddy_crew.BuddyOverlay, "__init__", return_value=None):
+            first, second = buddy_crew.CrewPointer(), buddy_crew.CrewPointer()
+        self.assertNotEqual(first.sway(3.0), second.sway(3.0))
+
+
 class DesktopTests(unittest.TestCase):
     AREA = (0, 0, 1920, 1040)
 
@@ -381,6 +560,24 @@ class WordsTests(unittest.TestCase):
         self.assertEqual(describe("TodoWrite", {})[0], "Updating its plan")
         self.assertEqual(describe("some_new_tool", {"q": "SECRET"})[0], "Using some_new_tool")
         self.assertEqual(describe("", None)[0], "Working")
+
+
+class QuestionTests(unittest.TestCase):
+    """A tool that asks the user something: the agent waits for you, it does not work."""
+
+    BASE = {"id": "s1", "agent": "explorer"}
+
+    def test_a_question_is_waiting_and_every_other_tool_is_working(self):
+        for tool in ("question", "AskUserQuestion", "ask_user", "ExitPlanMode", "request_user_input"):
+            with self.subTest(tool=tool):
+                self.assertEqual(crew_sources.tool_event(self.BASE, tool, {"question": "SECRET?"}),
+                                 dict(self.BASE, say="Needs your answer", file="", state="waiting"))
+        self.assertEqual(crew_sources.tool_event(self.BASE, "read", {"filePath": "a/notes.md"}),
+                         dict(self.BASE, say="Reading notes.md", file="notes.md", state="working"))
+        self.assertEqual(crew_sources.tool_event(self.BASE, "questionnaire", {})["state"], "working")
+
+    def test_still_at_it_says_who_and_nothing_new(self):
+        self.assertEqual(crew_sources.still_at_it(self.BASE), dict(self.BASE, state="working", alive=True))
 
 
 class FilesCase(unittest.TestCase):
@@ -514,6 +711,62 @@ class ClaudeCodeTests(FilesCase):
         self.assertEqual(events, [{"id": "claude:abc:7f", "agent": "explorer", "team": "Claude Code",
                                    "where": "titip", "say": "Searching the files", "file": "", "state": "working"}])
 
+    ALIVE = {"id": "claude:abc", "agent": "Claude", "team": "Claude Code", "where": "titip", "state": "working",
+             "alive": True}
+
+    @staticmethod
+    def result(call="toolu_1"):
+        return {"type": "user", "message": {"content": [{"type": "tool_result", "tool_use_id": call,
+                                                         "content": "SECRET output"}]}}
+
+    def live(self):
+        source = self.source()
+        source.LIVE_EVERY_S = -1.0
+        self.assertEqual(source.poll(), [])
+        return source, self.root / "proj" / "abc.jsonl"
+
+    def test_a_tool_without_its_result_keeps_claude_on_screen_and_the_result_ends_that(self):
+        source, session = self.live()
+        self.add(session, claude_line("abc", tool_use("Bash", command="pytest")))
+        self.assertEqual([(event.get("say"), event.get("alive")) for event in source.poll()],
+                         [("Running pytest", None), (None, True)])
+        self.assertEqual(source.poll(), [self.ALIVE])
+        self.assertEqual(source.poll(), [self.ALIVE])
+        self.add(session, self.result())
+        self.assertEqual(source.poll(), [])
+        self.assertEqual(source.poll(), [])
+
+    def test_still_at_it_is_said_only_every_few_seconds(self):
+        source, session = self.live()
+        source.LIVE_EVERY_S = 3600.0
+        self.add(session, claude_line("abc", tool_use("Bash", command="pytest")))
+        self.assertEqual(len(source.poll()), 1)
+        self.assertEqual(source.poll(), [])
+
+    def test_when_the_user_speaks_the_running_tool_has_been_stopped(self):
+        source, session = self.live()
+        self.add(session, claude_line("abc", tool_use("Bash", command="pytest")),
+                 {"type": "user", "message": {"content": "[Request interrupted by user]"}})
+        self.assertEqual([event.get("alive") for event in source.poll()], [None])
+        self.assertEqual(source.poll(), [])
+
+    def test_a_question_to_the_user_is_waiting_until_it_is_answered(self):
+        source, session = self.live()
+        self.add(session, claude_line("abc", tool_use("AskUserQuestion", questions=[{"question": "SECRET?"}])))
+        self.assertEqual([(event.get("say"), event["state"]) for event in source.poll()],
+                         [("Needs your answer", "waiting"), (None, "working")])
+        self.add(session, self.result())
+        self.assertEqual(source.poll(), [{"id": "claude:abc", "agent": "Claude", "team": "Claude Code",
+                                          "where": "titip", "say": "Back to work", "state": "working"}])
+        self.assertEqual(source.poll(), [])
+
+    def test_the_end_of_the_turn_ends_every_step(self):
+        source, session = self.live()
+        self.add(session, claude_line("abc", tool_use("Bash", command="pytest")),
+                 claude_line("abc", {"type": "text", "text": "All done"}, stop="end_turn"))
+        self.assertEqual([event["state"] for event in source.poll()], ["working", "done"])
+        self.assertEqual(source.poll(), [])
+
     def test_lines_that_are_not_an_assistant_step_say_nothing(self):
         self.assertEqual(crew_sources.claude_events({"type": "user", "message": {"content": []}}, {}), [])
         self.assertEqual(crew_sources.claude_events({"type": "assistant", "message": "odd"}, {}), [])
@@ -556,6 +809,34 @@ class CodexTests(FilesCase):
         self.assertEqual({(event["id"], event["agent"], event["team"], event["where"]) for event in events},
                          {("codex:rollout-1", "Codex", "Codex", "buddy")})
 
+    def test_a_call_without_its_output_keeps_codex_on_screen_and_a_question_is_waiting(self):
+        source = self.follow(lambda: crew_sources.codex_files(str(self.root), today=self.DAY),
+                             crew_sources.codex_events)
+        source.LIVE_EVERY_S = -1.0
+        source.poll()
+
+        def item(kind, **payload):
+            return {"type": "response_item", "payload": dict(payload, type=kind)}
+        self.add(self.rollout(), {"type": "session_meta", "payload": {"id": "1", "cwd": "/home/me/buddy"}},
+                 item("function_call", name="shell", call_id="call_1", arguments=json.dumps({"command": "pytest"})))
+        alive = {"id": "codex:rollout-1", "agent": "Codex", "team": "Codex", "where": "buddy", "state": "working",
+                 "alive": True}
+        self.assertEqual([(event.get("say"), event.get("alive")) for event in source.poll()],
+                         [("Running pytest", None), (None, True)])
+        self.assertEqual(source.poll(), [alive])
+        self.add(self.rollout(), item("function_call_output", call_id="call_1", output="SECRET"))
+        self.assertEqual(source.poll(), [])
+        self.add(self.rollout(), item("function_call", name="request_user_input", call_id="call_2", arguments="{}"))
+        self.assertEqual([(event.get("say"), event["state"]) for event in source.poll()],
+                         [("Needs your answer", "waiting"), (None, "working")])
+        self.add(self.rollout(), item("function_call_output", call_id="call_2", output="yes"))
+        self.assertEqual([(event.get("say"), event["state"]) for event in source.poll()],
+                         [("Back to work", "working")])
+        self.add(self.rollout(), item("custom_tool_call", name="apply_patch", call_id="call_3", input="x"),
+                 {"type": "event_msg", "payload": {"type": "turn_aborted"}})
+        self.assertEqual([event["state"] for event in source.poll()], ["working", "done"])
+        self.assertEqual(source.poll(), [])
+
 
 class OpenCodeCase(FilesCase):
     NOW_S = 1_800_000_000.0
@@ -566,9 +847,10 @@ class OpenCodeCase(FilesCase):
         self.path.parent.mkdir()
         self.database = sqlite3.connect(self.path)
         self.addCleanup(self.database.close)
+        self.wall_s = self.NOW_S
 
     def source(self):
-        source = crew_sources.OpenCodeSource(self.path, clock=lambda: self.NOW_S)
+        source = crew_sources.OpenCodeSource(self.path, clock=lambda: self.wall_s)
         source.POLL_EVERY_S = -1.0
         self.addCleanup(source.close)
         return source
@@ -591,13 +873,115 @@ class OpenCodeMessagesTests(OpenCodeCase):
         self.run_sql("INSERT INTO session_v2 VALUES ('ses_2', 'ses_1', 'explorer', 'E:\\Projects\\titip')")
         self.now = int(self.NOW_S * 1000)
 
-    def message(self, message_id, session, created, updated, data, kind="assistant"):
-        self.run_sql("INSERT OR REPLACE INTO session_message VALUES (?, ?, ?, 0, ?, ?, ?)",
-                     message_id, session, kind, created, updated, json.dumps(data))
+    def message(self, message_id, session, created, updated, data, kind="assistant", seq=0):
+        self.run_sql("INSERT OR REPLACE INTO session_message VALUES (?, ?, ?, ?, ?, ?, ?)",
+                     message_id, session, kind, seq, created, updated, json.dumps(data))
 
     @staticmethod
-    def tool(call, name, **arguments):
-        return {"type": "tool", "id": call, "name": name, "state": {"status": "running", "input": arguments}}
+    def tool(call, name, status="running", **arguments):
+        return {"type": "tool", "id": call, "name": name, "state": {"status": status, "input": arguments}}
+
+    ALIVE = {"id": "opencode:ses_1", "agent": "orchestrator", "team": "OpenCode", "where": "titip",
+             "state": "working", "alive": True}
+
+    def live(self):
+        source = self.source()
+        source.LIVE_EVERY_S = -1.0
+        return source
+
+    def step(self, message_id, seq, finish=None, tool=None, at=0):
+        """One assistant message of ses_1, last written `at` ms after the source started."""
+        content = [tool or self.tool("c" + message_id, "shell", command="pytest")]
+        self.message(message_id, "ses_1", self.now + at, self.now + at + 10,
+                     {"agent": "orchestrator", "content": content, "finish": finish}, seq=seq)
+
+    def test_a_command_that_runs_for_minutes_keeps_its_agent_on_screen(self):
+        source = self.live()
+        self.step("m1", seq=5)
+        self.assertEqual([(event.get("say"), event.get("alive")) for event in source.poll()],
+                         [("Running pytest", None), (None, True)])
+        self.wall_s += crew_sources.LIVE_CAP_S - 5            # OpenCode does not touch the row while the tool runs
+        self.assertEqual(source.poll(), [self.ALIVE])
+        self.wall_s += 10
+        self.assertEqual(source.poll(), [])                   # no sign of life for too long: given up
+        self.wall_s -= 600
+        self.assertEqual(source.poll(), [])                   # and not looked at again until it works again
+
+    def test_between_two_steps_it_stays_for_a_short_while_only(self):
+        source = self.live()
+        self.step("m1", seq=5, finish="tool-calls")
+        self.assertEqual([event.get("alive") for event in source.poll()], [None, True])
+        self.wall_s += source.BETWEEN_STEPS_S - 1
+        self.assertEqual(source.poll(), [self.ALIVE])
+        self.wall_s += 2
+        self.assertEqual(source.poll(), [])
+
+    def test_only_the_newest_message_of_the_session_counts(self):
+        source = self.live()
+        self.step("m1", seq=5)                                # never finished: OpenCode was stopped in the middle
+        self.assertEqual(len(source.poll()), 2)
+        self.message("m2", "ses_1", self.now + 50, self.now + 60, {"text": "next"}, kind="user", seq=6)
+        self.assertEqual(source.poll(), [self.ALIVE])
+        self.wall_s += source.BETWEEN_STEPS_S + 1
+        self.assertEqual(source.poll(), [])
+
+    def test_done_keeps_the_name_the_agent_worked_under(self):
+        self.run_sql("INSERT INTO session_v2 VALUES ('ses_3', NULL, NULL, 'E:\\Projects\\titip')")
+        source = self.live()
+        self.message("m1", "ses_3", self.now, self.now + 10,
+                     {"agent": "reviewer", "content": [self.tool("c1", "shell", command="pytest")]}, seq=5)
+        self.assertEqual({event["agent"] for event in source.poll()}, {"reviewer"})
+        self.message("m2", "ses_3", self.now + 50, self.now + 60, {}, kind="idle", seq=6)   # names no agent
+        self.assertEqual([(event["agent"], event["state"]) for event in source.poll()], [("reviewer", "done")])
+
+    def test_the_end_of_the_turn_ends_it_at_once(self):
+        for ending in ("stop", "idle"):
+            with self.subTest(ending=ending):
+                source = self.live()
+                self.step("m1", seq=5, finish="tool-calls")
+                self.assertEqual(len(source.poll()), 2)
+                if ending == "stop":
+                    self.message("m2", "ses_1", self.now + 50, self.now + 60,
+                                 {"agent": "orchestrator", "content": [], "finish": "stop"}, seq=6)
+                else:
+                    self.message("m2", "ses_1", self.now + 50, self.now + 60, {}, kind="idle", seq=6)
+                self.assertEqual([(event["state"], event.get("alive")) for event in source.poll()],
+                                 [("done", None)])
+                self.assertEqual(source.poll(), [])
+                self.run_sql("DELETE FROM session_message")
+                source.close()
+
+    def test_still_at_it_is_said_only_every_few_seconds_and_only_for_sessions_seen_at_work(self):
+        source = self.source()
+        source.LIVE_EVERY_S = 3600.0
+        self.step("m1", seq=5)
+        self.assertEqual(len(source.poll()), 1)
+        self.assertEqual(source.poll(), [])
+        self.run_sql("DELETE FROM session_message")
+        self.step("m0", seq=4, at=-5000)                      # a step from before Buddy started, still running
+        self.assertEqual(self.live().poll(), [])
+
+    def test_a_question_to_the_user_is_waiting_until_it_is_answered(self):
+        source = self.live()
+        self.step("m1", seq=5, tool=self.tool("c1", "question", questions=["SECRET?"]))
+        self.assertEqual([(event.get("say"), event["state"]) for event in source.poll()],
+                         [("Needs your answer", "waiting"), (None, "working")])
+        self.step("m1", seq=5, tool=self.tool("c1", "question", status="completed"), at=100)
+        self.assertEqual([(event.get("say"), event["state"]) for event in source.poll()],
+                         [("Back to work", "working"), (None, "working")])
+        self.step("m1", seq=5, tool=self.tool("c1", "question", status="completed"), at=200)
+        self.assertEqual(source.poll(), [self.ALIVE])
+
+    def test_no_more_sessions_are_followed_than_fit(self):
+        source = self.live()
+        source.LIVE_SESSIONS = 2
+        for index in range(4):
+            self.run_sql("INSERT INTO session_v2 VALUES (?, NULL, 'work', 'E:\\Projects\\titip')", f"ses_x{index}")
+            self.message(f"x{index}", f"ses_x{index}", self.now + 10 + index, self.now + 20 + index,
+                         {"content": [self.tool("c", "read", filePath="a.md")]}, seq=1)
+        events = source.poll()
+        self.assertEqual([event["id"] for event in events if event.get("alive")],
+                         ["opencode:ses_x2", "opencode:ses_x3"])
 
     def test_what_happened_before_is_not_told(self):
         self.message("m0", "ses_1", self.now - 5000, self.now - 4000,
@@ -1032,8 +1416,9 @@ class OwnAiTests(unittest.TestCase):
             def __init__(self):
                 self.ended = threading.Event()
 
-            def wait(self):
-                self.ended.wait(5)
+            def wait(self, timeout=None):
+                if not self.ended.wait(timeout):
+                    raise subprocess.TimeoutExpired("mybot", timeout)
 
         posted, done = [], threading.Event()
 
@@ -1042,8 +1427,16 @@ class OwnAiTests(unittest.TestCase):
             if event.get("state") == "done":
                 done.set()
         process = Process()
-        self.agents.report(process, {"name": "MyBot"}, post)
-        self.assertEqual(posted, [{"agent": "MyBot", "team": "My AI", "id": "custom:mybot:4242", "say": "Started"}])
+        with mock.patch.object(self.agents, "STILL_RUNNING_EVERY_S", 0.02):
+            self.agents.report(process, {"name": "MyBot"}, post)
+            self.assertEqual(posted[0], {"agent": "MyBot", "team": "My AI", "id": "custom:mybot:4242",
+                                         "say": "Started"})
+            for _ in range(200):                              # while it runs it says it is still at it
+                if len(posted) >= 3:
+                    break
+                time.sleep(0.01)
+        self.assertEqual(posted[1:3], [{"agent": "MyBot", "team": "My AI", "id": "custom:mybot:4242",
+                                        "alive": True}] * 2)
         process.ended.set()
         self.assertTrue(done.wait(5))
         self.assertEqual(posted[-1], {"agent": "MyBot", "team": "My AI", "id": "custom:mybot:4242", "state": "done"})
