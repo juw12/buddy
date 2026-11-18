@@ -1,21 +1,22 @@
 {
-  "version": "1.8.0",
-  "date": "2026-11-17",
+  "version": "1.8.1",
+  "date": "2026-11-18",
   "notes": [
-    "Windows: the crew now has Buddy's own shape. Every other AI agent on screen is a pointer in the shape you picked in Settings, Look. Its colour and its name tell it from Buddy, and when you change Buddy's shape the crew follows.",
-    "Buddy asks first. It looks for OpenCode, Claude Code and Codex on your PC and asks before it shows any of them. 1.7.0 showed them without asking, so after this update Buddy asks once.",
-    "Agents window: Settings, Buddy (AI), Agents. Tick the agents to show, scan again, or add your own AI.",
-    "Your own AI: give it a name, a colour and the command that starts it. Then \"@name question\" in the ask box starts it and shows its pointer until the program ends.",
-    "Team names: a tool that starts sessions in another agent can give each session its own name on the pointer (README, \"Crew\"). The OpenBot bridge uses this.",
-    "Fixed: a colour you picked for one agent is no longer handed to another agent.",
-    "Not checked: Claude Code and Codex with a live session (recorded samples only), and a real third-party AI product as your own AI (a stand-in program was used)."
+    "Windows: a crew pointer is on screen only while its agent works. The resting pointer that showed only a name is gone: nobody working means nobody on screen.",
+    "A pointer on screen always moves. It sways around its spot in a slow figure of eight and hops at every new step.",
+    "It says \"done\" when the agent finishes and leaves 2 seconds later. An agent Buddy hears nothing from for 30 seconds leaves.",
+    "During a long command the pointer stays with its text, for as long as Buddy can see the step has not ended, up to 10 minutes.",
+    "When an agent needs you: an agent that asks you a question, or a tool that posts \"state\": \"waiting\", stays on screen, says so and hops every 1.5 seconds until you answer.",
+    "Fixed: an OpenCode pointer keeps its own name when it says done.",
+    "Cost: the motion uses some CPU while agents work, about 1 % to 5 % of one core for each pointer on the test PC.",
+    "Not checked: Claude Code and Codex with a live session (recorded samples only), and a real question from an agent. An agent that waits for you to allow a command shows that command's line, not \"Needs you\": the agents do not record that they wait for a click."
   ],
-  "page": "https://github.com/juw12/buddy/releases/tag/v1.8.0",
+  "page": "https://github.com/juw12/buddy/releases/tag/v1.8.1",
   "windows": {
-    "version": "1.8.0",
-    "url": "https://github.com/juw12/buddy/releases/download/v1.8.0/Buddy-win64.zip",
-    "size": 181187455,
-    "sha256": "1297c0cb3b08767d103a6514432ca8aa66ae43955629d1bb0f61e830062e5651"
+    "version": "1.8.1",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.8.1/Buddy-win64.zip",
+    "size": 181189186,
+    "sha256": "8806ec8b44aa11e36dc572d540aa9fc87c73e9d3f81309d196326490b087f01a"
   },
   "mac": {
     "version": "1.6.0",
