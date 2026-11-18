@@ -11,7 +11,7 @@ text: "Editing notes.md", "Running git push". Only the file's name and the progr
 the rest of a command line, a search pattern or file contents: they can hold passwords, and the screen may
 be shared.
 
-A pointer is on screen only while its agent works. Between two steps an agent can be silent for minutes (a
+An agent is followed only while it works. Between two steps an agent can be silent for minutes (a
 long command, a helper it waits for), so each source also says "still at it" ({"alive": true}) every few
 seconds for as long as it can see that: a tool call without its result, a message that is not finished.
 """

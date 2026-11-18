@@ -1,10 +1,11 @@
-"""Buddy's crew: one extra pointer on screen for every AI agent that is working on this PC.
+"""Buddy's crew: an extra pointer on screen for an AI agent that does something you can see on this PC.
 
 Each agent (Claude Code, Codex, OpenCode, a sub-agent of one of them, or anything that writes a line to
 Buddy's crew inbox) gets its own pointer with its own name and colour. The pointer says what the agent is
-doing right now ("explorer: Reading README.md"), flies to the window that work shows up in when there is
-one on screen, and hops at every new step. A pointer is on screen only while its agent works or waits for
-you, and while it is on screen it never stands still. When the agent is done the pointer says so and leaves.
+doing right now ("explorer: Reading README.md"), flies to the window that work shows up in, and hops at
+every new step. A pointer is on screen only when its agent has something to do on screen: a step in a window
+you can see, a point it was given, or a question for you. An agent that works where there is nothing to
+point at has no pointer; a pointer never waits in a corner. While it is on screen it never stands still.
 
 Nothing here decides what an agent does: the crew only shows it. Where the events come from is in
 crew_sources.py; this file turns them into pointers.
@@ -14,7 +15,7 @@ One event is a dict (see README, "Crew"):
      "file": "README.md", "id": "any-stable-key", "color": "#22c55e", "icon": "star", "x": 800, "y": 400}
 Only "agent" is needed. With "rename": true the event only gives the agent with that id another name and
 team: an orchestrator uses it to label the sessions it starts in another agent. With "alive": true it only
-says "still at it": the agent stays on screen, and nothing else changes. "state": "waiting" is an agent that
+says "still at it": the agent stays followed, and nothing else changes. "state": "waiting" is an agent that
 needs you (a question, a click): it stays and beckons until you have answered.
 """
 
@@ -40,6 +41,7 @@ MAX_MEMBERS = 8                       # more pointers than this is noise, not in
 NAME_CHARS = 24
 SAY_CHARS = 48
 DONE_LINGER_S = 2.0                   # "done" stays this long, then the pointer leaves
+AT_PLACE_S = 5.0                      # after a step on screen the pointer stays this long, then it hides
 SILENT_LEAVE_S = 30.0                 # no news and no "alive" for this long: it is not working, so it leaves
 WAITING_LEAVE_S = 600.0               # an agent that needs you stays this long without news
 BECKON_EVERY_S = 1.5                  # an agent that needs you hops this often
@@ -245,17 +247,15 @@ def work_area():
     return 0, 0, 1920, 1040
 
 
-def title_wanted(titles_needles):
-    """Lower-case words to look for in window titles, most telling first: the file, a named window, the team."""
-    file_name, window, team = titles_needles
+def title_wanted(file_name, window):
+    """Lower-case words to look for in window titles, most telling first: the file, then a named window. The
+    agent's own program is not looked for: sitting on its own window is not work you can point at."""
     needles = []
     base = re.split(r"[\\/]", file_name)[-1] if file_name else ""
     if len(base) >= MIN_FILE_NAME_CHARS and "." in base:
         needles.append(base.lower())
     if window:
         needles.append(window.lower())
-    if team:
-        needles.append(team.lower())
     return needles
 
 
@@ -269,7 +269,8 @@ def pick_window(needles, windows):
 
 
 class Desktop:
-    """Finds the screen point for a crew member: the point it was given, the window its work is in, or the dock."""
+    """Finds the screen point for a crew member: the point it was given or the window its work is in. The dock
+    (a column at the right) is only for an agent that needs you and has no such place."""
 
     WINDOWS_EVERY_S = 1.0
 
@@ -297,10 +298,11 @@ class Desktop:
         _, _, right, _ = self._area()
         return right - 30, self.dock(slot)[1]
 
-    def spot(self, slot, point=None, file_name="", window="", team=""):
+    def place(self, slot, point=None, file_name="", window=""):
+        """Where on screen this work is; None when there is nothing on screen to point at."""
         if point is not None:
             return point
-        needles = title_wanted((file_name, window, team))
+        needles = title_wanted(file_name, window)
         match = pick_window(needles, self._windows()) if needles else None
         if match is not None:
             hwnd, (left, top, right, bottom) = match
@@ -308,7 +310,7 @@ class Desktop:
             for y in (top + 18 + slot * WINDOW_SLOT_HEIGHT, (top + bottom) // 2 + slot * WINDOW_SLOT_HEIGHT):
                 if y < bottom - 10 and self._on_top_at(hwnd, x, y):
                     return x, y
-        return self.dock(slot)
+        return None
 
 
 # --------------------------------------------------------------------------- the crew
@@ -329,16 +331,17 @@ class Member:
         self.icon = None                 # its own icon (settings or event); None = the same as Buddy's
         self.style = None                # (colour, icon) the pointer has now
         self.changed = now               # last event
+        self.stepped = now               # last step (an event that is more than "still at it")
         self.beckoned = now              # last hop of an agent that needs you
         self.label = ""
         self.shown = None                # (label, target) the pointer shows now; None = not on screen
-        self.entered = False             # has flown in from the edge of the screen
+        self.entered = False             # is on screen: it has flown in from the edge and not been hidden since
         self.hop = False
 
 
 class Crew:
-    """Keeps one pointer per agent that works or needs you. post() from any thread; tick() from one thread, a
-    few times a second."""
+    """Follows every agent that works or needs you, and shows a pointer for those with something to do on
+    screen. post() from any thread; tick() from one thread, a few times a second."""
 
     def __init__(self, pointer_factory=CrewPointer, desktop=None, clock=time.monotonic, looks=None,
                  avoid_color=None, icon=None):
@@ -382,7 +385,7 @@ class Crew:
             done.wait(max(0.0, deadline - time.perf_counter()))
 
     def members(self):
-        """[(agent, team, state, say, colour)] for the agents on screen now, in dock order."""
+        """[(agent, team, state, say, colour)] for the agents followed now, with a pointer on screen or not."""
         with self._lock:
             ordered = sorted(self._members.values(), key=lambda member: member.slot)
             return [(member.agent, member.team, member.state, member.say, member.color) for member in ordered]
@@ -412,16 +415,34 @@ class Crew:
                 return
             self._name_everyone()
             members = list(self._members.values())
-        for member in members:
-            target = self._desktop.spot(member.slot, member.point, member.file, member.window, member.team)
+        row = 0                                   # pointers on screen stand in rows, with no gap for a hidden one
+        for member in sorted(members, key=lambda member: member.slot):
+            target = self._target(member, row, now)
+            if target is None:                        # nothing to point at: no pointer
+                if member.entered:
+                    member.pointer.leave()
+                member.shown, member.entered, member.hop = None, False, False
+                continue
+            row += 1
             style = (member.color, member.icon or self.icon)
             if member.style != style:
                 member.style = style
                 member.pointer.set_style(*style)
             if member.hop or member.shown != (member.label, target):
-                enter_from = None if member.entered else self._desktop.entrance(member.slot)
+                enter_from = None if member.entered else self._desktop.entrance(row - 1)
                 member.pointer.show(member.label, target, hop=member.hop, enter_from=enter_from)
                 member.shown, member.hop, member.entered = (member.label, target), False, True
+
+    def _target(self, member, row, now):
+        """The screen point the member's pointer belongs at now; None when it has nothing to do on screen."""
+        place = self._desktop.place(row, member.point, member.file, member.window)
+        if member.state == "waiting":
+            return place or self._desktop.dock(row)            # it needs you: it is there, place or no place
+        if place is None:
+            return None
+        if member.state == "done":
+            return place if member.entered else None           # only a pointer you could see says it is done
+        return place if now - member.stepped <= AT_PLACE_S else None
 
     def _apply(self, event, now):
         member = self._members.get(event["key"])
@@ -459,9 +480,8 @@ class Crew:
             member.file, member.window, member.point = event["file"], event["window"], event["point"]
         elif event["state"] == "done":
             member.say = event["say"] or "done \u2713"
-            member.point = None
         member.state = event["state"]
-        member.changed = now
+        member.changed = member.stepped = now
 
     def _look(self, member, event):
         """Colour and icon: what the event says, else what the settings say for this name, else what it had."""
@@ -475,8 +495,11 @@ class Crew:
     def _join(self, key, now):
         if len(self._members) >= MAX_MEMBERS:
             idle = [member for member in self._members.values() if member.state not in ("working", "waiting")]
+            if not idle:                          # nobody is done: let go of one that is not on screen
+                idle = [member for member in self._members.values()
+                        if member.state != "waiting" and not member.entered]
             if not idle:
-                return None                       # everyone on screen is busy: the newcomer is not shown
+                return None                       # everyone is on screen and busy: the newcomer is not followed
             self._dismiss(min(idle, key=lambda member: member.changed))
         taken = {member.slot for member in self._members.values()}
         slot = next(index for index in range(MAX_MEMBERS) if index not in taken)

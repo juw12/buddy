@@ -44,7 +44,7 @@ import buddy_home  # noqa: E402
 import buddy_updater  # noqa: E402
 
 BUDDY_NAME = "Buddy"
-BUDDY_VERSION = "1.8.1"
+BUDDY_VERSION = "1.8.2"
 CONTEXT_REFRESH_MS = 60_000
 OFFER_AGENTS_MS = 9_000                     # after the hello: ask about the AI agents found on this PC
 UPDATE_FIRST_CHECK_MS = 60_000              # first update check a minute after start...
