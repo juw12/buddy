@@ -419,7 +419,9 @@ class TaskWatch:
         self.tasks_ready = threading.Event()
         self.processes_ready = threading.Event()
         self.known = {}           # pid -> (parent, exe, created): every process of the last list, all looked at
-        self.tags = {}            # pid -> (task, created, tagged at)
+        self.tags = {}            # pid -> (task, created, tagged in look number)
+        self.looks = 0            # looks at the list of processes begun so far (a count, not a clock:
+                                  # two looks can fall in one tick of the clock)
         self.followed = {}        # task -> {"started", "announced", "alive", "pids"}
         self.handoffs = []        # (exe, task, started, exe path, noted at) of tagged browser / console processes
         self.windows = {}         # hwnd -> (pid, title, task or None, last pointed, first seen)
@@ -525,7 +527,7 @@ class TaskWatch:
                     task = "OpenCode\\" + next(group for group in title.groups() if group)
         if not task:
             return None
-        self.tags[pid] = (task, created, time.monotonic())
+        self.tags[pid] = (task, created, self.looks)
         follow = self.followed.get(task)
         if follow is None:
             follow = self.followed[task] = {"started": time.time(), "announced": False, "alive": 0.0, "pids": set(),
@@ -546,7 +548,8 @@ class TaskWatch:
     def look_at_processes(self, startup=False):
         """One look of the process thread. The slow questions (the list, the command lines) are asked without
         the lock, so the window loop never waits for them."""
-        began = time.monotonic()
+        self.looks += 1
+        this_look = self.looks         # a tag made from now on is not judged by this list
         table = process_table()
         if table is None:
             return
@@ -575,7 +578,7 @@ class TaskWatch:
             for pid in list(self.tags):
                 task, created, tagged = self.tags[pid]
                 row = table.get(pid)
-                if tagged < began and (row is None or row[2] != created):     # ended (or its pid has a new owner)
+                if tagged < this_look and (row is None or row[2] != created):     # ended (or its pid has a new owner)
                     ended[pid] = self.tags.pop(pid)
                     follow = self.followed.get(task)
                     if follow:

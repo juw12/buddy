@@ -295,10 +295,9 @@ def test_which_processes_belong_to_a_task(lab, monkeypatch):
     starts = sum("START  T\\A" in line for line in logged)
     old_table = dict(table)
     monkeypatch.setattr(ct, "process_table", lambda: old_table)    # a list asked for BEFORE the process was tagged
-    watch.tags[6000] = (watch.tags[6000][0], watch.tags[6000][1], time.monotonic() + 5)   # tagged after that list began
+    watch.tags[6000] = (watch.tags[6000][0], watch.tags[6000][1], watch.looks + 1)   # tagged after that list began
     watch.look_at_processes()
     check("a late list does not end a task a window just started", 6000 in watch.tags and "T\\A" in watch.followed)
-    watch.tags[6000] = (watch.tags[6000][0], watch.tags[6000][1], time.monotonic() - 5)
     lab.look(watch, {**table, 6000: (900, "pythonw.exe", started(400))})
     check("the list then takes it over without a second START",
           6000 in watch.known and sum("START  T\\A" in line for line in logged) == starts)
