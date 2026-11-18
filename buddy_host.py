@@ -636,7 +636,7 @@ class BuddyApp:
             self._hands_asked = True
             logger.info("%s asks to click on screen: asking the user", request["agent"])
             if not self.ask_yes_no(f"{request['agent']} wants to click and type on your screen.\n"
-                                   "Let your AI agents do that? Settings -> AI helper changes it."):
+                                   "Let your AI agents do that? Settings -> Buddy (AI) changes it."):
                 return False
             self.settings["crew_hands"] = True
             self.post(self.window.show_crew_hands)
@@ -1172,7 +1172,7 @@ def request_hands(event, out=None, answer_file=None):
             Path(answer_file).write_text(line, encoding="utf-8")
         except OSError:
             logger.exception("Could not write the answer to %s", answer_file)
-    logger.info("Crew hands: %s", result.get("did"))
+    logger.debug("Crew hands: %s", result.get("did"))      # not INFO: the caller reads one JSON line, no more
     if not running:
         return 1
     return 0 if result.get("ok") else 3

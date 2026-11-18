@@ -15,7 +15,7 @@ things in several windows in the same moment, and your own mouse stays where it 
 offers no such way, and for a bare x/y point, the real mouse is used: one click at a time, then it is put back.
 
 The rules, the same for every agent:
-* off until you said yes (Settings -> AI helper, or the question Buddy asks the first time an agent tries);
+* off until you said yes (Settings -> Buddy (AI), or the question Buddy asks the first time an agent tries);
 * only what you can see: something covered by another window is not clicked, so every click has a pointer;
 * never Buddy's own windows, never a window's close/minimize button;
 * a name that can delete or send something ("Delete", "Send", "Don't save"...) is asked about first;
@@ -61,7 +61,7 @@ WINDOW_BUTTONS = re.compile(r"^(close|close window|close tab|minimi[sz]e|maximi[
 RISKY_CLICKS = re.compile(r"\b(delete|remove|discard|don'?t save|do not save|erase|reset|uninstall|format|send|"
                           r"sign out|log ?out|empty|clear all|overwrite|replace all|purchase|buy|pay)\b",
                           re.IGNORECASE)
-NOT_ALLOWED = "Agents may not click or type on this PC. Buddy -> Settings -> AI helper switches it on."
+NOT_ALLOWED = "Agents may not click or type on this PC. Buddy -> Settings -> Buddy (AI) switches it on."
 _REQUEST_ID = re.compile(r"[A-Za-z0-9_-]{1,64}")
 
 
