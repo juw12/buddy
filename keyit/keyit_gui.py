@@ -436,13 +436,19 @@ class KeyItApp:
 
         if self.host is not None and hasattr(self.host, "set_crew"):
             self.crew_var = tk.BooleanVar(value=self.settings.get("crew_enabled", True))
-            crew_row = ttk.Frame(tab)
-            crew_row.grid(row=7, column=0, columnspan=3, sticky="w", pady=(8, 0))
+            crew_box = ttk.Frame(tab)
+            crew_box.grid(row=7, column=0, columnspan=3, sticky="w", pady=(8, 0))
+            crew_row = ttk.Frame(crew_box)
+            crew_row.pack(anchor="w")
             ttk.Checkbutton(crew_row, text="Show my other AI agents as extra pointers, each with its own name "
                                            "and colour",
                             variable=self.crew_var, command=self._on_crew_toggled).pack(side="left")
             ttk.Button(crew_row, text="Agents\u2026", width=9, command=self.open_agents).pack(
                 side="left", padx=(8, 0))
+            self.hands_var = tk.BooleanVar(value=bool(self.settings.get("crew_hands", False)))
+            ttk.Checkbutton(crew_box, text="Let those agents click and type on screen when they ask to (you see "
+                                           "every click; a risky one is asked about first)",
+                            variable=self.hands_var, command=self._on_hands_toggled).pack(anchor="w", pady=(6, 0))
 
         self._build_voice_input(voice_tab)
         self._build_look_row(tab, row=8)
@@ -789,6 +795,17 @@ class KeyItApp:
         self.settings["crew_enabled"] = self.crew_var.get()
         core.save_settings(self.settings)
         self.host.set_crew(self.settings["crew_enabled"])
+
+    def _on_hands_toggled(self):
+        self.settings["crew_hands"] = self.hands_var.get()
+        core.save_settings(self.settings)
+
+    def show_crew_hands(self):
+        """The user said yes to an agent that asked to click: keep that, and show it in the settings."""
+        self.settings["crew_hands"] = True
+        core.save_settings(self.settings)
+        if getattr(self, "hands_var", None) is not None:
+            self.hands_var.set(True)
 
     def open_agents(self, offer=False):
         """The list of AI agents the crew shows. `offer`: Buddy found one it never asked about, and asks now."""

@@ -67,6 +67,7 @@ DEFAULTS = {
     "buddy_icon": buddy_overlay.DEFAULT_ICON,     # Settings -> Look: arrow, pointer, plane, dot, star, heart, face
     "buddy_island": True,             # Buddy Island: a notch at the top of the screen (click = type, hold = talk)
     "crew_enabled": True,             # other AI agents working on this PC get their own pointers (buddy_crew)
+    "crew_hands": False,              # those agents may click and type on screen when they ask to (crew_hands)
     "crew_looks": {},                 # {"explorer": {"color": "#22c55e", "icon": "star"}}; also "team/agent"
     "crew_agents": {},                # {"opencode": true}: the agents you said yes or no to (keyit_agents)
     "crew_custom": [],                # your own AIs: [{"name": "mybot", "command": "mybot ask {prompt}", "color": "#22c55e"}]
@@ -972,7 +973,9 @@ class AskBox:
 class ConfirmBox:
     """'Force it closed?  [Yes] [No]' next to the mouse. Enter = yes, Esc = no, closes itself after 30 s."""
 
-    def __init__(self, root, cursor, question, on_answer):
+    def __init__(self, root, cursor, question, on_answer, keys=True):
+        """`keys=False`: the box does not take the keyboard, it has to be clicked (for a question that comes
+        while you may be typing something else)."""
         import tkinter as tk
 
         self.on_answer = on_answer
@@ -992,13 +995,15 @@ class ConfirmBox:
                   fg=buddy_overlay.INK if accent in ("#ffffff", "#facc15") else "white",
                   relief="flat", padx=10).pack(side="left", padx=(0, 6))
         tk.Button(buttons, text="No", command=lambda: self.answer(False), relief="flat", padx=10).pack(side="left")
-        window.bind("<Return>", lambda _e: self.answer(True))
-        window.bind("<Escape>", lambda _e: self.answer(False))
+        if keys:
+            window.bind("<Return>", lambda _e: self.answer(True))
+            window.bind("<Escape>", lambda _e: self.answer(False))
         window.update_idletasks()
         x, y = cursor
         window.geometry(f"+{max(0, x + 20)}+{max(0, y + 20)}")
         window.after(30000, lambda: self.answer(False))
-        window.focus_force()
+        if keys:
+            window.focus_force()
 
     def answer(self, value):
         if self.answered:
