@@ -3,7 +3,8 @@
 Each agent (Claude Code, Codex, OpenCode, a sub-agent of one of them, or anything that writes a line to
 Buddy's crew inbox) gets its own pointer with its own name and colour. The pointer says what the agent is
 doing right now ("explorer: Reading README.md"), flies to the window that work shows up in when there is
-one on screen, and hops at every new step. When the agent is done the pointer says so and leaves.
+one on screen, and hops at every new step. A pointer is on screen only while its agent works or waits for
+you, and while it is on screen it never stands still. When the agent is done the pointer says so and leaves.
 
 Nothing here decides what an agent does: the crew only shows it. Where the events come from is in
 crew_sources.py; this file turns them into pointers.
@@ -12,7 +13,9 @@ One event is a dict (see README, "Crew"):
     {"agent": "explorer", "team": "OpenCode", "say": "Reading README.md", "state": "working",
      "file": "README.md", "id": "any-stable-key", "color": "#22c55e", "icon": "star", "x": 800, "y": 400}
 Only "agent" is needed. With "rename": true the event only gives the agent with that id another name and
-team: an orchestrator uses it to label the sessions it starts in another agent.
+team: an orchestrator uses it to label the sessions it starts in another agent. With "alive": true it only
+says "still at it": the agent stays on screen, and nothing else changes. "state": "waiting" is an agent that
+needs you (a question, a click): it stays and beckons until you have answered.
 """
 
 import ctypes
@@ -32,13 +35,15 @@ logger = logging.getLogger(__name__)
 # the colour and the name are what tells a crew pointer from Buddy
 CREW_COLORS = ("#3b82f6", "#22c55e", "#ec4899", "#8b5cf6", "#14b8a6", "#ef4444", "#facc15", "#ff8424")
 CREW_ICON = buddy_overlay.DEFAULT_ICON     # Buddy's own arrow, unless Settings -> Look says otherwise
-STATES = ("working", "done", "leave")
+STATES = ("working", "waiting", "done", "leave")
 MAX_MEMBERS = 8                       # more pointers than this is noise, not information
 NAME_CHARS = 24
 SAY_CHARS = 48
-DONE_LINGER_S = 6.0                   # "done" stays this long, then the pointer leaves
-SILENT_LEAVE_S = 150.0                # no news for this long: the agent stopped or was closed
-QUIET_S = 10.0                        # no news for this long: only the name stays, so a waiting crew is small
+DONE_LINGER_S = 2.0                   # "done" stays this long, then the pointer leaves
+SILENT_LEAVE_S = 30.0                 # no news and no "alive" for this long: it is not working, so it leaves
+WAITING_LEAVE_S = 600.0               # an agent that needs you stays this long without news
+BECKON_EVERY_S = 1.5                  # an agent that needs you hops this often
+NEEDS_YOU = "Needs you"
 COLORS_REMEMBERED = 200               # agents whose colour is kept for when they come back
 NAMES_REMEMBERED = 500                # ids that were given another name with "rename"
 _HEX_COLOR = re.compile(r"#[0-9a-fA-F]{6}")
@@ -77,6 +82,7 @@ def normalize_event(event):
         "color": valid_color(event.get("color")),
         "icon": event.get("icon") if event.get("icon") in buddy_overlay.ICONS.values() else None,
         "rename": event.get("rename") is True,
+        "alive": event.get("alive") is True,
         "point": None,
     }
     try:
@@ -88,19 +94,31 @@ def normalize_event(event):
 
 # --------------------------------------------------------------------------- one pointer
 class CrewPointer(BuddyOverlay):
-    """A pointer that goes where it is told instead of following the mouse."""
+    """A pointer that goes where it is told instead of following the mouse. On screen it never stands still:
+    it sways around its spot in a slow figure of eight, so one look tells you the agent is at work."""
 
     STIFFNESS = 150.0                  # softer than Buddy's own pointer: a glide you can follow by eye
     DAMPING = 17.0
     ACTIVE_FRAME_S = 0.016
-    REST_FRAME_S = 0.15                # at rest nothing moves, so it only has to notice new orders
+    SWAY_FRAME_S = 0.033               # swaying is slow: half the frames are enough
+    SWAY_X = 10.0                      # px to each side of its spot
+    SWAY_Y = 5.0
+    SWAY_PERIOD_S = 2.2                # one figure of eight
     HOP_SPEED = 260.0                  # px/s upwards at every new step
     PULSE_S = 0.45
+    _made = 0
 
     def __init__(self, color=CREW_COLORS[0], icon=CREW_ICON):
         self._target = None
         self._hop = False
+        CrewPointer._made += 1
+        self._sway_phase = CrewPointer._made * 2.4       # no two pointers sway in step
         super().__init__(always_on=False, color=color, icon=icon)
+
+    def sway(self, now):
+        """(dx, dy) from its spot at time `now`."""
+        angle = 2 * math.pi * now / self.SWAY_PERIOD_S + self._sway_phase
+        return self.SWAY_X * math.sin(angle), self.SWAY_Y * math.sin(2 * angle)
 
     def show(self, text, target, hop=False, enter_from=None):
         """Say `text` at screen point `target`. `hop`: a new step, so jump and ripple. `enter_from`: start there."""
@@ -155,12 +173,17 @@ class CrewPointer(BuddyOverlay):
                     pulse = (now - self._pulse_started) / self.PULSE_S
                 else:
                     self._pulse_started = None
+            sway_x, sway_y = self.sway(now)
+            x, y = x + sway_x, y + sway_y
             if self.monitor is None or not buddy_overlay._inside(self.monitor, x, y):
                 self.monitor = buddy_overlay.monitor_at(x, y)
             monitor, color, icon, text = self.monitor, self.color, self.icon, self._text
             seconds = now - self._mode_started
-            self.FRAME_S = self.REST_FRAME_S if resting and pulse is None else self.ACTIVE_FRAME_S
+            only_swaying = resting and pulse is None
+            self.FRAME_S = self.SWAY_FRAME_S if only_swaying else self.ACTIVE_FRAME_S
         self._present(x, y, monitor, "talking", icon, color, text, seconds, pulse)
+        if only_swaying:
+            self._moving_until = 0.0              # a slow sway does not need Windows' 1 ms timer
         return True
 
 
@@ -306,6 +329,7 @@ class Member:
         self.icon = None                 # its own icon (settings or event); None = the same as Buddy's
         self.style = None                # (colour, icon) the pointer has now
         self.changed = now               # last event
+        self.beckoned = now              # last hop of an agent that needs you
         self.label = ""
         self.shown = None                # (label, target) the pointer shows now; None = not on screen
         self.entered = False             # has flown in from the edge of the screen
@@ -313,7 +337,8 @@ class Member:
 
 
 class Crew:
-    """Keeps one pointer per working agent. post() from any thread; tick() from one thread, a few times a second."""
+    """Keeps one pointer per agent that works or needs you. post() from any thread; tick() from one thread, a
+    few times a second."""
 
     def __init__(self, pointer_factory=CrewPointer, desktop=None, clock=time.monotonic, looks=None,
                  avoid_color=None, icon=None):
@@ -377,12 +402,15 @@ class Crew:
                 self._apply(event, now)
             for member in list(self._members.values()):
                 silent = now - member.changed
+                patience = WAITING_LEAVE_S if member.state == "waiting" else SILENT_LEAVE_S
                 if member.state == "leave" or (member.state == "done" and silent > DONE_LINGER_S) \
-                        or silent > SILENT_LEAVE_S:
+                        or silent > patience:
                     self._dismiss(member)
+                elif member.state == "waiting" and now - member.beckoned >= BECKON_EVERY_S:
+                    member.hop, member.beckoned = True, now
             if now < self._hidden_until:
                 return
-            self._name_everyone(now)
+            self._name_everyone()
             members = list(self._members.values())
         for member in members:
             target = self._desktop.spot(member.slot, member.point, member.file, member.window, member.team)
@@ -405,8 +433,12 @@ class Crew:
                 member.agent, member.team = event["agent"], event["team"]
                 self._look(member, event)
             return
+        if event["alive"]:                        # still at it: it stays, and nothing else changes
+            if member is not None and member.state in ("working", "waiting"):
+                member.changed = now
+            return
         if member is None:
-            if event["state"] != "working":
+            if event["state"] not in ("working", "waiting"):
                 return                            # someone we never showed is done: nothing to show
             member = self._join(event["key"], now)
             if member is None:
@@ -414,10 +446,16 @@ class Crew:
         member.agent, member.team = self._names.get(member.key) or (event["agent"], event["team"])
         member.where = event["where"] or member.where
         self._look(member, event)
-        if event["state"] == "working":
-            if event["say"] and event["say"] != member.say:
+        if event["state"] in ("working", "waiting"):
+            say = event["say"]
+            if event["state"] == "waiting":
+                say = say or NEEDS_YOU
+                member.beckoned = now
+            elif member.state == "waiting" and not say:
+                say = "Working"                   # it was answered: "Needs you" is no longer true
+            if say and say != member.say:
                 member.hop = True
-            member.say = event["say"] or member.say
+            member.say = say or member.say
             member.file, member.window, member.point = event["file"], event["window"], event["point"]
         elif event["state"] == "done":
             member.say = event["say"] or "done \u2713"
@@ -436,7 +474,7 @@ class Crew:
 
     def _join(self, key, now):
         if len(self._members) >= MAX_MEMBERS:
-            idle = [member for member in self._members.values() if member.state != "working"]
+            idle = [member for member in self._members.values() if member.state not in ("working", "waiting")]
             if not idle:
                 return None                       # everyone on screen is busy: the newcomer is not shown
             self._dismiss(min(idle, key=lambda member: member.changed))
@@ -469,9 +507,8 @@ class Crew:
         self._spare.append(member.pointer)
         self._members.pop(member.key, None)
 
-    def _name_everyone(self, now):
-        """Bubble text per member; two agents with one name are told apart by where they work, then by number.
-        What it is doing is shown for QUIET_S after its last news, then only the name."""
+    def _name_everyone(self):
+        """Bubble text per member; two agents with one name are told apart by where they work, then by number."""
         by_name = {}
         for member in sorted(self._members.values(), key=lambda member: member.slot):
             by_name.setdefault(member.agent.lower(), []).append(member)
@@ -482,5 +519,4 @@ class Crew:
                 if len(same) > 1:
                     unique_place = member.where and places.count(member.where) == 1
                     name = f"{name} ({member.where})" if unique_place else f"{name} {index + 1}"
-                quiet = member.state == "working" and now - member.changed > QUIET_S
-                member.label = f"{name}: {member.say}" if member.say and not quiet else name
+                member.label = f"{name}: {member.say}" if member.say else name

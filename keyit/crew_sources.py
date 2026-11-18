@@ -10,6 +10,10 @@ Each source turns what it reads into crew events (buddy_crew.normalize_event) wi
 text: "Editing notes.md", "Running git push". Only the file's name and the program's name are shown, never
 the rest of a command line, a search pattern or file contents: they can hold passwords, and the screen may
 be shared.
+
+A pointer is on screen only while its agent works. Between two steps an agent can be silent for minutes (a
+long command, a helper it waits for), so each source also says "still at it" ({"alive": true}) every few
+seconds for as long as it can see that: a tool call without its result, a message that is not finished.
 """
 
 import datetime
@@ -32,6 +36,9 @@ logger = logging.getLogger(__name__)
 INBOX_FILE = keyit_core.USER_DIR / "crew" / "inbox.jsonl"
 INBOX_MAX_BYTES = 1_000_000
 CATCH_UP_BYTES = 262_144              # after a long gap only the newest part of a file is read
+LIVE_EVERY_S = 3.0                    # how often "still at it" is said
+LIVE_CAP_S = 600.0                    # a step that shows no sign of life for this long has been given up
+BACK_TO_WORK = "Back to work"
 
 
 # --------------------------------------------------------------------------- words for a tool call
@@ -54,6 +61,9 @@ _TOOL_LINES = {
 }
 _RUN_TOOLS = {"bash", "shell", "exec_command", "execute", "local_shell", "run", "container.exec", "powershell"}
 _HAND_OVER_TOOLS = {"task", "agent", "delegate"}
+# Tools that are a question to the user: the agent waits for you, it does not work
+_ASK_TOOLS = {"question", "ask", "askuserquestion", "ask_user", "ask_user_question", "exitplanmode",
+              "request_user_input"}
 _VERB = re.compile(r"[a-z][a-z-]{1,14}")
 # Only for these is the second word shown ("git push"): it is a verb there, never a secret
 _VERB_PROGRAMS = {"git", "gh", "npm", "pnpm", "yarn", "npx", "pip", "uv", "poetry", "conda", "cargo", "go",
@@ -112,6 +122,8 @@ def describe(tool, arguments):
         return f"{_TOOL_WORDS[key]} {file_name or 'a file'}", file_name
     if key in _TOOL_LINES:
         return _TOOL_LINES[key], ""
+    if key in _ASK_TOOLS:
+        return "Needs your answer", ""
     if key in _RUN_TOOLS:
         command = next((arguments[k] for k in _COMMAND_KEYS if arguments.get(k)), "")
         program = program_of(command)
@@ -123,6 +135,20 @@ def describe(tool, arguments):
         parts = [part for part in key.split("__")[1:] if part]
         return f"Using {' '.join(parts)[:30]}" if parts else "Using a tool", ""
     return (f"Using {name[:30]}" if name else "Working"), file_name
+
+
+def is_question(tool):
+    return str(tool or "").strip().lower() in _ASK_TOOLS
+
+
+def tool_event(base, tool, arguments):
+    """The crew event for one tool call: working, or waiting when the call is a question to the user."""
+    say, file_name = describe(tool, arguments)
+    return dict(base, say=say, file=file_name, state="waiting" if is_question(tool) else "working")
+
+
+def still_at_it(base):
+    return dict(base, state="working", alive=True)
 
 
 def _folder_name(path):
@@ -220,10 +246,12 @@ def event_from_text(text):
 
 class TranscriptSource:
     """Follows the session files of one kind of agent. `find()` lists (path, size) of the files there are now;
-    `parse(record, context, path)` turns one JSON line into events."""
+    `parse(record, context, path)` turns one JSON line into events. A parser that keeps context["open"] (the
+    tool calls without a result yet) and context["base"] (who it is) gets "still at it" said for it."""
 
     SCAN_EVERY_S = 3.0
     FORGET_AFTER_S = 900.0
+    LIVE_EVERY_S = LIVE_EVERY_S
 
     def __init__(self, find, parse):
         self._find = find
@@ -231,6 +259,7 @@ class TranscriptSource:
         self._known = None                # path -> size at the last scan; None until the first scan
         self._active = {}                 # path -> GrowingFile
         self._scanned = 0.0
+        self._said_alive = time.monotonic()
 
     def poll(self):
         now = time.monotonic()
@@ -247,6 +276,12 @@ class TranscriptSource:
             if now - growing.grown > self.FORGET_AFTER_S:
                 self._known[path] = growing.offset
                 del self._active[path]
+        if now - self._said_alive >= self.LIVE_EVERY_S:
+            self._said_alive = now
+            for growing in self._active.values():
+                context = growing.context
+                if context.get("open") and context.get("base") and now - growing.grown < LIVE_CAP_S:
+                    events.append(still_at_it(context["base"]))
         return events
 
     def _scan(self):
@@ -308,10 +343,19 @@ def _claude_helper_name(path):
 
 
 def claude_events(record, context, path=""):
-    if record.get("type") != "assistant":
+    kind = record.get("type")
+    if kind not in ("assistant", "user"):
         return []
     message = record.get("message") if isinstance(record.get("message"), dict) else {}
     content = message.get("content") if isinstance(message.get("content"), list) else []
+    open_calls = context.setdefault("open", {})   # call id -> is it a question to the user
+    if kind == "user":
+        results = [block for block in content if isinstance(block, dict) and block.get("type") == "tool_result"]
+        if not results:
+            open_calls.clear()                    # the user speaks: whatever was running has been stopped
+            return []
+        answered = [open_calls.pop(block.get("tool_use_id"), False) for block in results]
+        return [dict(context["base"], say=BACK_TO_WORK, state="working")] if any(answered) else []
     session = str(record.get("sessionId") or Path(path).stem)
     helper = bool(record.get("isSidechain")) or "subagents" in Path(path).parts
     if helper:
@@ -322,12 +366,14 @@ def claude_events(record, context, path=""):
     else:
         agent, key = "Claude", f"claude:{session}"
     base = {"id": key, "agent": agent, "team": "Claude Code", "where": _folder_name(record.get("cwd"))}
+    context["base"] = base
     events = []
     for block in content:
         if isinstance(block, dict) and block.get("type") == "tool_use":
-            say, file_name = describe(block.get("name"), block.get("input"))
-            events.append(dict(base, say=say, file=file_name, state="working"))
+            open_calls[block.get("id")] = is_question(block.get("name"))
+            events.append(tool_event(base, block.get("name"), block.get("input")))
     if not events and message.get("stop_reason") == "end_turn":
+        open_calls.clear()
         events.append(dict(base, state="done"))
     return events
 
@@ -351,6 +397,8 @@ def codex_files(root, today=None):
 
 
 _PATCH_FILE = re.compile(r"^\*\*\* (?:Update|Add|Delete) File: (.+)$", re.MULTILINE)
+_CODEX_CALLS = ("function_call", "custom_tool_call", "local_shell_call")
+_CODEX_RESULTS = tuple(call + "_output" for call in _CODEX_CALLS)
 
 
 def codex_events(record, context, path=""):
@@ -360,7 +408,12 @@ def codex_events(record, context, path=""):
         context["where"] = _folder_name(payload.get("cwd"))
         return []
     base = {"id": f"codex:{Path(path).stem}", "agent": "Codex", "team": "Codex", "where": context.get("where", "")}
-    if kind == "response_item" and inner in ("function_call", "custom_tool_call", "local_shell_call"):
+    context["base"] = base
+    open_calls = context.setdefault("open", {})   # call id -> is it a question to the user
+    if kind == "response_item" and inner in _CODEX_RESULTS:
+        answered = open_calls.pop(payload.get("call_id"), False)
+        return [dict(base, say=BACK_TO_WORK, state="working")] if answered else []
+    if kind == "response_item" and inner in _CODEX_CALLS:
         arguments = payload.get("arguments") if inner == "function_call" else payload.get("input")
         if isinstance(arguments, str):
             patched = _PATCH_FILE.search(arguments)
@@ -373,9 +426,11 @@ def codex_events(record, context, path=""):
             name, arguments = "shell", {"command": action.get("command")}
         else:
             name = payload.get("name")
-        say, file_name = describe(name, arguments)
-        return [dict(base, say=say, file=file_name, state="working")]
+        if payload.get("call_id"):
+            open_calls[payload["call_id"]] = is_question(name)
+        return [tool_event(base, name, arguments)]
     if kind == "event_msg" and inner in ("task_complete", "turn_complete", "turn_aborted"):
+        open_calls.clear()
         return [dict(base, state="done")]
     return []
 
@@ -392,6 +447,9 @@ class OpenCodeSource:
     POLL_EVERY_S = 1.0
     RETRY_EVERY_S = 30.0
     RECENT_MS = 30 * 60 * 1000
+    LIVE_EVERY_S = LIVE_EVERY_S
+    BETWEEN_STEPS_S = 30.0                # from the end of one step to the first word of the next
+    LIVE_SESSIONS = 50
 
     def __init__(self, path=None, clock=time.time):
         self.path = Path(path) if path else opencode_database()
@@ -403,6 +461,8 @@ class OpenCodeSource:
         self._last_part = None
         self._seen = set()                        # tool calls and finished messages already told
         self._waiting = set()                     # part ids seen before the agent had filled them in
+        self._live = {}                           # session -> who it is, for the sessions seen at work
+        self._said_alive = time.monotonic()
 
     def poll(self):
         now = time.monotonic()
@@ -474,6 +534,7 @@ class OpenCodeSource:
                 continue
             base = self._base(session, message.get("agent") or session_agent, directory)
             if kind == "idle":
+                base = self._live.pop(session, None) or base      # an idle row does not say which agent it was
                 if self._remember(("idle", message_id)):
                     events.append(dict(base, state="done"))
                 continue
@@ -481,11 +542,53 @@ class OpenCodeSource:
                 if not isinstance(item, dict) or item.get("type") != "tool":
                     continue
                 state = item.get("state") if isinstance(item.get("state"), dict) else {}
-                if self._remember(("tool", message_id, item.get("id"))):
-                    say, file_name = describe(item.get("name"), state.get("input"))
-                    events.append(dict(base, say=say, file=file_name, state="working"))
-            if message.get("finish") == "stop" and self._remember(("stop", message_id)):
-                events.append(dict(base, state="done"))
+                call = (message_id, item.get("id"))
+                if is_question(item.get("name")) and state.get("status") in ("completed", "error"):
+                    if self._remember(("answered",) + call):
+                        self._seen.add(("tool",) + call)
+                        events.append(dict(base, say=BACK_TO_WORK, state="working"))
+                elif self._remember(("tool",) + call):
+                    events.append(tool_event(base, item.get("name"), state.get("input")))
+                else:
+                    continue
+                self._live.pop(session, None)     # newest last
+                self._live[session] = base
+            if message.get("finish") == "stop":
+                self._live.pop(session, None)
+                if self._remember(("stop", message_id)):
+                    events.append(dict(base, state="done"))
+        while len(self._live) > self.LIVE_SESSIONS:
+            del self._live[next(iter(self._live))]
+        return events + self._still_at_it()
+
+    def _still_at_it(self):
+        """"Still at it" for each session seen at work whose newest message is not the end of a turn: a command
+        that runs, a helper it waits for, an answer being written. OpenCode does not touch the message while a
+        tool runs, so without this a long command would look like an agent that stopped."""
+        now = time.monotonic()
+        if now - self._said_alive < self.LIVE_EVERY_S:
+            return []
+        self._said_alive = now
+        wall_ms = self._clock() * 1000
+        events = []
+        for session, base in list(self._live.items()):
+            row = self._connection.execute(
+                "SELECT type, time_updated, data FROM session_message WHERE session_id = ? "
+                "ORDER BY seq DESC LIMIT 1", (session,)).fetchone()
+            busy = False
+            if row is not None and row[0] != "idle":
+                try:
+                    message = json.loads(row[2])
+                except ValueError:
+                    message = {}
+                finish = message.get("finish") if isinstance(message, dict) else "stop"
+                in_a_step = row[0] == "assistant" and finish is None
+                patience = LIVE_CAP_S if in_a_step else self.BETWEEN_STEPS_S
+                busy = finish != "stop" and wall_ms - row[1] < patience * 1000
+            if busy:
+                events.append(still_at_it(base))
+            else:
+                del self._live[session]
         return events
 
     def _poll_parts(self):
@@ -513,8 +616,7 @@ class OpenCodeSource:
                     continue
                 self._waiting.discard(part_id)
                 if self._remember(("part", part_id)):
-                    say, file_name = describe(part.get("tool"), state.get("input"))
-                    events.append(dict(base, say=say, file=file_name, state="working"))
+                    events.append(tool_event(base, part.get("tool"), state.get("input")))
             elif part.get("type") == "step-finish" and part.get("reason") == "stop":
                 events.append(dict(base, state="done"))
         return events
