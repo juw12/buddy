@@ -1,7 +1,8 @@
 """Where Buddy's crew hears what AI agents are doing on this PC. Everything is read-only and stays on the PC.
 
 * the inbox: a file any tool can append one JSON line to (`Buddy.exe --crew "{...}"` does it for you).
-  It is always read; the three agents below only after the user said yes to them (keyit_agents.enabled);
+  It is always read; the three agents below only after the user said yes to them (keyit_agents.enabled).
+  A line with "do" asks Buddy to click or type for the agent: that goes to crew_hands.py;
 * Claude Code: its session files under ~/.claude/projects (sub-agents have their own files);
 * Codex: its rollout files under ~/.codex/sessions;
 * OpenCode: its database ~/.local/share/opencode/opencode.db (a sub-agent is a child session).
@@ -640,8 +641,9 @@ class CrewWatcher:
 
     TICK_S = 0.25
 
-    def __init__(self, crew, sources=None, enabled=None):
+    def __init__(self, crew, sources=None, enabled=None, hands=None):
         self.crew = crew
+        self.hands = hands                # crew_hands.Hands: does what an inbox line asks for with "do"
         self.sources = default_sources(enabled=enabled) if sources is None else sources
         self._stop = threading.Event()
         self._thread = None
@@ -660,8 +662,11 @@ class CrewWatcher:
     def step(self):
         for source in self.sources:
             try:
+                asks = self.hands is not None and isinstance(source, InboxSource)
                 for event in source.poll():
-                    self.crew.post(event)
+                    # only a line somebody put in the inbox can ask for a click: never what an agent read or wrote
+                    if not (asks and self.hands.submit(event)):
+                        self.crew.post(event)
             except Exception:
                 logger.exception("Crew source %s failed", type(source).__name__)
         self.crew.tick()

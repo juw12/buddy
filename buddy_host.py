@@ -10,6 +10,7 @@ Its features:
 The vendored Pips source in pips/ stays byte-identical; Buddy adapts it from the outside.
 """
 import argparse
+import json
 import logging
 import math
 import re
@@ -35,6 +36,7 @@ os.environ.setdefault("KEYIT_HOME", str(Path(os.environ.get("APPDATA", Path.home
 
 import app as pips_app  # noqa: E402  (Pips main module)
 import buddy_crew  # noqa: E402
+import crew_hands  # noqa: E402
 import crew_sources  # noqa: E402
 import keyit_agents  # noqa: E402
 import keyit_buddy  # noqa: E402
@@ -44,7 +46,7 @@ import buddy_home  # noqa: E402
 import buddy_updater  # noqa: E402
 
 BUDDY_NAME = "Buddy"
-BUDDY_VERSION = "1.8.2"
+BUDDY_VERSION = "1.9.0"
 CONTEXT_REFRESH_MS = 60_000
 OFFER_AGENTS_MS = 9_000                     # after the hello: ask about the AI agents found on this PC
 UPDATE_FIRST_CHECK_MS = 60_000              # first update check a minute after start...
@@ -566,6 +568,11 @@ class BuddyApp:
                                     avoid_color=self.settings.get("buddy_color"),
                                     icon=self.settings.get("buddy_icon"))
         self.crew_watcher = None
+        # ...and its hands: an agent that asks for it really clicks and types (only after you said yes)
+        self.hands = crew_hands.Hands(self.crew.post, allowed=self._hands_allowed, confirm=self.ask_yes_no)
+        self._hands_question = threading.Lock()
+        self._hands_asked = False
+        crew_hands.tidy_results()
         self.window = keyit_gui.KeyItApp(self.player, self.hook, start_hidden=True, host=self.host)
         if not selftest:
             self.set_crew(self.settings.get("crew_enabled", True))
@@ -598,9 +605,42 @@ class BuddyApp:
             self.crew_watcher = None
         if enabled:
             watched = keyit_agents.enabled(self.settings)
-            self.crew_watcher = crew_sources.CrewWatcher(self.crew, enabled=watched)
+            self.crew_watcher = crew_sources.CrewWatcher(self.crew, enabled=watched, hands=self.hands)
             self.crew_watcher.start()
             logger.info("Crew watches: %s", ", ".join(sorted(watched)) or "no agent yet (only --crew)")
+
+    def ask_yes_no(self, question, timeout_s=35):
+        """Ask yes or no in a small box next to the mouse (worker threads only). It does not take the keyboard:
+        you may be typing when an agent asks, and Enter must not answer for you. False when nobody answers."""
+        answer = {"value": False}
+        done = threading.Event()
+
+        def show():
+            keyit_buddy.ConfirmBox(self.root, keyit_buddy.cursor_position(), question,
+                                   lambda value: (answer.update(value=value), done.set()), keys=False)
+
+        self.post(show)
+        done.wait(timeout_s)
+        return answer["value"]
+
+    def _hands_allowed(self, request):
+        """May agents click and type on screen? (Settings -> AI helper.) While it is off, the first agent that
+        tries makes Buddy ask you, once per start; yes switches it on."""
+        if self.settings.get("crew_hands"):
+            return True
+        with self._hands_question:                     # several agents may try in the same moment: one question
+            if self.settings.get("crew_hands"):
+                return True
+            if self._hands_asked or self._quitting:
+                return False
+            self._hands_asked = True
+            logger.info("%s asks to click on screen: asking the user", request["agent"])
+            if not self.ask_yes_no(f"{request['agent']} wants to click and type on your screen.\n"
+                                   "Let your AI agents do that? Settings -> Buddy (AI) changes it."):
+                return False
+            self.settings["crew_hands"] = True
+            self.post(self.window.show_crew_hands)
+            return True
 
     def _offer_agents(self):
         """Once per agent: Buddy found an AI agent on this PC and asks whether to show it. Nothing is shown
@@ -1029,6 +1069,7 @@ class BuddyApp:
             lambda: self.tray and self.tray.stop(),
             lambda: self.window.buddy and self.window.buddy.cancel(),
             lambda: self.set_crew(False),
+            self.hands.close,
             self.hook.stop,
             lambda: self.focus and self.focus.shutdown(),
             self.root.destroy,
@@ -1091,16 +1132,50 @@ def request_ask(question):
     return 0
 
 
-def request_crew(text):
+def request_crew(text, answer_file=None):
     """Buddy.exe --crew "explorer: Reading the docs": show an agent of any tool as a crew pointer. The line
-    goes into the crew's inbox; a running Buddy reads it within a second."""
+    goes into the crew's inbox; a running Buddy reads it within a second. A line with "do" (look, click, type)
+    asks Buddy to do that on screen for the agent, and waits for the answer."""
     try:
         event = crew_sources.event_from_text(text)
     except ValueError as error:
         logger.error('--crew needs "name: what it is doing" or a JSON object with "agent" (%s)', error)
         return 2
+    if event.get("do") in crew_hands.ACTIONS:          # a click or some typing: wait for what happened
+        return request_hands(event, answer_file=answer_file)
     crew_sources.post_event(event)
     return 0
+
+
+def request_hands(event, out=None, answer_file=None):
+    """Buddy.exe --crew '{"agent": "tester", "do": "click", "target": "Save", "window": "Notepad"}': the running
+    Buddy does it and the answer is printed as one JSON line (and written to `answer_file`, for a caller that
+    cannot read what a windowed program prints). 0: done, 1: Buddy is not running, 3: not done."""
+    out = out or sys.stdout
+    try:
+        import win32event
+
+        win32event.OpenEvent(win32event.EVENT_MODIFY_STATE, False, ASK_EVENT_NAME)
+        running = True
+    except Exception:
+        running = False
+    result = crew_hands.ask(event) if running else {"ok": False, "did": "Buddy isn't running - start it first."}
+    line = json.dumps(result, ensure_ascii=False) + "\n"
+    if out is not None:
+        try:
+            out.write(line)
+            out.flush()
+        except (OSError, ValueError, UnicodeError):
+            pass
+    if answer_file:
+        try:
+            Path(answer_file).write_text(line, encoding="utf-8")
+        except OSError:
+            logger.exception("Could not write the answer to %s", answer_file)
+    logger.debug("Crew hands: %s", result.get("did"))      # not INFO: the caller reads one JSON line, no more
+    if not running:
+        return 1
+    return 0 if result.get("ok") else 3
 
 
 def request_quit():
@@ -1139,7 +1214,10 @@ def main(argv=None):
     parser.add_argument("--ask", metavar="TEXT", help='give the running Buddy a typed question, e.g. --ask "open notepad"')
     parser.add_argument("--update", action="store_true", help="ask the running Buddy to update itself now")
     parser.add_argument("--crew", metavar="TEXT", help='show an AI agent as its own pointer, e.g. --crew '
-                        '"explorer: Reading the docs", then --crew "explorer: done" (or a JSON object, see README)')
+                        '"explorer: Reading the docs", then --crew "explorer: done" (or a JSON object, see README). '
+                        'A JSON object with "do" makes the agent really look, click or type: {"agent": "tester", '
+                        '"do": "click", "target": "Save", "window": "Notepad"}; the answer is printed as one JSON line')
+    parser.add_argument("--out", metavar="FILE", help="with --crew and \"do\": also write the answer to this file")
     args = parser.parse_args(argv)
     if args.quit:
         return request_quit()
@@ -1148,7 +1226,7 @@ def main(argv=None):
     if args.update:
         return request_update()
     if args.crew:
-        return request_crew(args.crew)
+        return request_crew(args.crew, answer_file=args.out)
 
     pips_app.SingleInstance.MUTEX = "Local\\Buddy.App.Instance"
     pips_app.SingleInstance.EVENT = "Local\\Buddy.App.ShowRequest"

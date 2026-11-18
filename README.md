@@ -325,7 +325,7 @@ Buddy's own shape (the one you picked in Settings → Look); its colour and its 
   `{"agent": "explorer", "team": "My tool", "say": "Reading the docs", "state": "working", "file": "notes.md",
   "window": "Excel", "where": "project-a", "id": "any-stable-key", "color": "#22c55e", "icon": "star",
   "x": 800, "y": 400}`. `state` is `working`, `waiting` (it needs you), `done` or `leave`; `window` is a piece
-  of a window title to fly to; `x`/`y` is an exact screen point, for an agent that clicks on the screen; `icon`
+  of a window title to fly to; `x`/`y` is an exact screen point the pointer flies to (it only points: to really click, see *Crew hands* below); `icon`
   is `arrow`, `pointer`, `plane`, `dot`, `star`, `heart` or `face`. A tool that works for longer than 30
   seconds without news posts `{"agent": "explorer", "alive": true}` now and then: Buddy keeps following it,
   and nothing else changes.
@@ -355,6 +355,61 @@ Claude Code, Codex and the newer OpenCode database layout are tested against rec
 against a live session. The question Buddy asks, the *Agents…* window, a rename line and the pointers in
 Buddy's shape were checked on a real screen; your own AI was checked with the tests and a stand-in program,
 not with a real AI product. Windows only for now.
+
+### Crew hands: agents that really click and type (1.9.0)
+A crew pointer is no longer only a picture of the work. An agent can ask Buddy to **look** at a window,
+**click** something in it or **type** into it, and Buddy does it, with that agent's own pointer flying to the
+spot first. Several agents do this at the same time, each with its own pointer.
+
+An agent asks with one line (any tool that can run a command can do it):
+
+```
+Buddy.exe --crew "{\"agent\": \"tester\", \"do\": \"look\", \"window\": \"Notepad\"}"
+Buddy.exe --crew "{\"agent\": \"tester\", \"do\": \"click\", \"target\": \"Save\", \"window\": \"Notepad\"}"
+Buddy.exe --crew "{\"agent\": \"tester\", \"do\": \"type\", \"target\": \"File name\", \"text\": \"notes\", \"window\": \"Save As\"}"
+Buddy.exe --crew "{\"agent\": \"tester\", \"do\": \"click\", \"x\": 900, \"y\": 500}"
+```
+
+- **`look`** answers with what can be seen in the window: `{"ok": true, "window": "notes.txt - Notepad",
+  "elements": [{"name": "Save", "kind": "button", "x": 412, "y": 300}, …]}` (at most 150 things).
+  **`click`** presses the thing called `target` in the window whose title has `window` in it. **`type`** puts
+  `text` into the text box called `target`. `team`, `id`, `color` and `icon` work as in every other crew line.
+- **The answer:** the command waits (up to 45 seconds), prints one JSON line, for example
+  `{"ok": true, "did": "Clicked Save", "how": "direct"}`, and ends with 0 when it was done, 3 when it was not
+  (the line says why) and 1 when Buddy is not running. Add `--out answer.json` to get the same line in a file.
+- **Many at once:** every agent has its own pointer and its own queue. A button, tick box, tab, list item or
+  text box is pressed through Windows UI Automation, which needs no mouse (`"how": "direct"`): three agents
+  press three things in the same moment and **your own mouse stays where it is**. One agent's requests are
+  done in the order they came. Up to 8 agents at a time, 20 waiting requests for each.
+- **When the real mouse is used:** only where a program offers no direct way, and for a bare `x`/`y` point
+  (`"how": "mouse"`, typing: `"keyboard"`). There is one mouse, so these go one at a time, and the mouse is put
+  back where you had it. `x`/`y` are the numbers `look` gives.
+- **The rules, the same for every agent:**
+  - Off until you say yes: the first agent that tries makes Buddy ask *"… wants to click and type on your
+    screen. Let your AI agents do that?"*, once per start. Yes ticks *Let those agents click and type on
+    screen* on the *Buddy (AI)* tab of Settings (`crew_hands` in `settings.json`); untick it to stop it.
+  - Only what you can see. Something covered by another window is not clicked, so every click has a pointer
+    on it. The pointer is at the spot 0.7 seconds before the click, and the spot is checked again then.
+  - Never Buddy's own windows, never a window's Close, Minimize, Maximize or Exit button.
+  - A name that can delete or send something (*Delete*, *Send*, *Don't save*, *Remove*, *Reset*, *Pay*, …) is
+    asked about first: the pointer says `May I click "Delete"?` and a small box asks you. The box does not take
+    the keyboard, so typing on never answers it; no answer in 35 seconds is a no.
+  - What an agent types is never shown in its bubble or in the answer.
+  - Only a `--crew` line (the inbox) can ask for a click. Nothing an agent reads or writes in its own
+    session files can.
+- **What it does not do:** OpenCode, Claude Code and Codex do not start clicking by themselves. An agent
+  clicks when it runs the line above, so tell it to (a rule in its instructions, a skill, or your prompt).
+  Buddy does not choose what to click; the agent does.
+- **A ready skill for your agent:** `tools/buddy-hands/` holds `SKILL.md` (when and how to ask, and what Buddy
+  refuses) and `buddy_do.ps1`, which does the quoting and prints the answer:
+  `buddy_do.ps1 -Agent tester -Do click -Window Notepad -Target Save`. Copy the folder to where your agent
+  keeps its skills, for OpenCode `~/.config/opencode/skills/buddy-hands/`.
+
+Checked on a real screen against a test window: `look`, three agents clicking three buttons at the same time
+(all direct, the mouse did not move), typing into a text box, a tick box, a covered button (left alone), a
+*Delete* button (asked about, not clicked without a yes), the Close button (refused) and one click at an `x`/`y`
+point with the real mouse (the mouse went back). Not checked: other programs than that test window, typing
+through the real keyboard, and an AI product driving it by itself. Windows only.
 
 ## Buddy Island
 Buddy lives in your screen's notch, so it is always one move away, on every device:
