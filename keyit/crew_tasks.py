@@ -16,6 +16,10 @@ it learns stays on this PC:
 * an AI app's own programs are followed the same way, and in a browser such a program steers
   (--remote-debugging-port) the pointer flies to every click and typed-in box, with a hop and a ripple on the
   click (crew_browser.py);
+* a browser window a followed program works through the screen instead (UI Automation, no debugging port: a
+  script that reads Gmail in your own Chrome) is followed too: the pointer flies to the thing that is pressed
+  (crew_screen.py). After a click the pointer stays there while the page changes, instead of going back to
+  the top of the window with every new title;
 * everything is written to %APPDATA%\\Buddy\\crew\\trace.log, so there is always a trace: which task, which
   program, which window, when it started and ended. The trace is written with the pointers off too.
 
@@ -47,6 +51,7 @@ from ctypes import wintypes
 from pathlib import Path
 
 import crew_browser                               # where a steered browser is clicked
+import crew_screen                                # where a browser is pressed through the screen
 import keyit_core
 
 TRACE = keyit_core.USER_DIR / "crew" / "trace.log"
@@ -81,6 +86,7 @@ AGENT_TEAM = "AI agent"
 DRIVEN_BROWSER = "Browser agent"   # a browser a program steers, when nobody is left to say which program
 AGENT_QUIET_S = 60                # an agent's app stays open all day: its pointer goes after this long without news
 CLICK_LANDS_S = 0.4               # the pointer needs this long to fly to a click: then it hops and ripples there
+CLICK_HOLDS_S = 10                # news about a window this soon after a click in it leaves the pointer at the click
 PATH_RE = re.compile(r"[A-Za-z]:\\[^\"'|<>]*?\.(?:py|pyw|ps1|vbs|bat|cmd|exe)\b|[\w.-]+\.(?:py|pyw|ps1|vbs|bat)\b",
                      re.IGNORECASE)
 TITLE_RE = re.compile(r"--title\s+(?:\"([^\"]+)\"|'([^']+)'|(\S+))")
@@ -452,6 +458,7 @@ class TaskWatch:
         self.stopped = threading.Event()
         self.threads = []
         self.asked_for_clicks = set()   # (pid, created) of the steered browsers that are asked for their clicks
+        self.screen = crew_screen.ScreenWatch(self.screen_action, log)   # presses in a browser worked through the screen
 
     def poll(self):
         """The crew events since the last call (what crew_sources.CrewWatcher asks every source for)."""
@@ -484,6 +491,7 @@ class TaskWatch:
         if self.stopped.is_set():
             return
         self.stopped.set()
+        self.screen.stop()
         with self.lock:
             for task, follow in self.followed.items():
                 if follow["announced"]:
@@ -686,29 +694,53 @@ class TaskWatch:
                     return task
         return None
 
-    # --- clicks (from the thread of a steered browser)
+    # --- clicks (from the thread of a steered browser, or from crew_screen's listeners)
     def browser_action(self, pid, action, what, x, y, window=""):
         """The agent clicked (or typed) at this screen point in its browser: the pointer flies there, and for a
         click it hops and ripples when it has arrived. Only the kind of thing is told, never its text. No
         point (x is None) = the spot is behind another window: the trace has it, and the pointer is shown
         on whatever of that browser window can be seen."""
-        thing = f"a {what}" if what else "the page"
         with self.lock:
             tag = self.tags.get(pid)
-            follow = self.followed.get(tag[0]) if tag else None
+        if tag:
+            self.act(tag[0], pid, 0, action, what, x, y, window)
+
+    def screen_action(self, hwnd, pid, action, what, x, y, gone=False):
+        """The same for a browser window that is worked through the screen. Such a window can be one of your
+        own browser (a task opened a page in it), so it is the window that names the task, not the process.
+        `gone`: the pressed thing was gone before its place could be read (there is no point then)."""
+        entry = self.windows.get(hwnd)
+        if entry and entry[0] == pid and entry[2]:
+            self.act(entry[2], pid, hwnd, action, what, x, y, entry[1], gone)
+
+    def act(self, task, pid, hwnd, action, what, x, y, window, gone=False):
+        thing = f"a {what}" if what else "the page"
+        with self.lock:
+            follow = self.followed.get(task)
             if follow is None:
                 return
-            task = tag[0]
             follow["moved"] = time.monotonic()
+            # where the agent last clicked: the next news about that window leaves the pointer there
+            follow["spot"] = (pid, hwnd, x, y, follow["moved"]) if x is not None else None
             exe = self.known.get(pid, (0, "browser", 0))[1]
-            where = f"at ({x}, {y})" if x is not None else "behind another window"
-            log(f"{'TYPE  ' if action == 'type' else 'CLICK '} {task}  -> {exe} pid {pid}: {thing} {where}"
+            if x is not None:
+                where = f" at ({x}, {y})"
+            else:
+                where = ": the thing was gone before its place could be read" if gone else " behind another window"
+            log(f"{'TYPE  ' if action == 'type' else 'CLICK '} {task}  -> {exe} pid {pid}: {thing}{where}"
                 + ("" if self.on else "  (pointers off)"))
             if not self.on:
                 return
             agent, team = short_agent(task)
             event = {"agent": agent, "team": team, "id": f"task:{task}", "state": "working"}
-            event.update({"x": x, "y": y} if x is not None else {"window": window[:80]})
+            if x is None:
+                event["window"] = window[:80]
+            else:
+                event.update({"x": x, "y": y})
+                if hwnd:
+                    # a spot in that window: when the window goes behind another one (a script parks
+                    # its browser there after a press), the pointer goes to what is left to see of it
+                    event.update({"hwnd": hwnd, "window": window[:80]})
             post({**event, "say": f"Typing in {thing}" if action == "type" else f"Clicking {thing}"})
             follow["announced"] = True
         if action != "type":
@@ -769,8 +801,14 @@ class TaskWatch:
                 if changed:
                     log(f"WINDOW {task}  -> {exe} pid {pid}: \"{title[:90]}\"  [{say}]" + ("" if self.on else "  (pointers off)"))
                 if self.on:
-                    post({"agent": agent, "team": team, "id": f"task:{task}", "say": say,
-                          "window": title[:80], "state": "working"})
+                    event = {"agent": agent, "team": team, "id": f"task:{task}", "say": say,
+                             "window": title[:80], "state": "working"}
+                    spot = follow.get("spot")
+                    if spot and spot[0] == pid and spot[1] in (0, hwnd) and now - spot[4] < CLICK_HOLDS_S:
+                        # the agent just clicked in this window and the page changed: the pointer stays at
+                        # the click (for as long as the window shows that spot: buddy_crew.Desktop.place)
+                        event.update({"x": spot[2], "y": spot[3], "hwnd": hwnd})
+                    post(event)
                     follow["announced"] = True
         for hwnd in list(self.windows):
             if hwnd not in seen:
@@ -778,6 +816,18 @@ class TaskWatch:
         with_window = {pid for pid, _ in seen.values()}
         self.window_exes = {pid: exe for pid, exe in self.window_exes.items() if pid in with_window}
         self.first_windows = False
+        self.screen.follow(self.screen_browsers(), front)
+
+    def screen_browsers(self):
+        """{window: its process} of the browser windows a followed task works in, for crew_screen. Without the
+        browsers that tell their clicks themselves, over their debugging port (crew_browser)."""
+        with self.lock:
+            if not self.followed:
+                return {}
+            by_port = {pid for pid, _ in self.asked_for_clicks}
+            return {hwnd: entry[0] for hwnd, entry in self.windows.items()
+                    if entry[2] in self.followed and entry[0] not in by_port
+                    and self.exe_of(entry[0]) in crew_screen.BROWSERS}
 
     def keep_alive(self):
         now = time.monotonic()

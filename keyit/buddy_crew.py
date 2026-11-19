@@ -16,7 +16,9 @@ One event is a dict (see README, "Crew"):
 Only "agent" is needed. With "rename": true the event only gives the agent with that id another name and
 team: an orchestrator uses it to label the sessions it starts in another agent. With "alive": true it only
 says "still at it": the agent stays followed, and nothing else changes. "state": "waiting" is an agent that
-needs you (a question, a click): it stays and beckons until you have answered.
+needs you (a question, a click): it stays and beckons until you have answered. With "hwnd" (a window's number)
+next to "x", "y" and "window", the point is a spot in that window: it is the place for as long as the window
+shows it there, else the window itself is.
 """
 
 import ctypes
@@ -86,9 +88,11 @@ def normalize_event(event):
         "rename": event.get("rename") is True,
         "alive": event.get("alive") is True,
         "point": None,
+        "hwnd": 0,
     }
     try:
         clean["point"] = (int(event["x"]), int(event["y"]))
+        clean["hwnd"] = int(event.get("hwnd") or 0)
     except (KeyError, TypeError, ValueError):
         pass
     return clean
@@ -133,6 +137,10 @@ class CrewPointer(BuddyOverlay):
             self._text = text
             self._target = (float(target[0]), float(target[1]))
             self._hop = self._hop or hop
+            # A new step: above every window again at once. A window that keeps itself on top (an agent's
+            # browser window does, and a press brings it to the front) would else hide the pointer until
+            # the next TOPMOST_EVERY_S, and the hop at a click is over by then.
+            self._last_topmost = 0.0
         self._wake()
 
     def leave(self):
@@ -305,9 +313,10 @@ class Desktop:
         _, _, right, _ = self._area()
         return right - 30, self.dock(slot)[1]
 
-    def place(self, slot, point=None, file_name="", window=""):
-        """Where on screen this work is; None when there is nothing on screen to point at."""
-        if point is not None:
+    def place(self, slot, point=None, file_name="", window="", hwnd=0):
+        """Where on screen this work is; None when there is nothing on screen to point at. A point that
+        belongs to a window (`hwnd`) is only the place while that window shows it."""
+        if point is not None and (not hwnd or self._on_top_at(hwnd, *point)):
             return point
         needles = title_wanted(file_name, window)
         match = pick_window(needles, self._windows()) if needles else None
@@ -334,6 +343,7 @@ class Member:
         self.file = ""
         self.window = ""
         self.point = None
+        self.hwnd = 0                    # the window `point` is a spot in (0: the point stands for itself)
         self.color = CREW_COLORS[0]
         self.icon = None                 # its own icon (settings or event); None = the same as Buddy's
         self.style = None                # (colour, icon) the pointer has now
@@ -442,7 +452,7 @@ class Crew:
 
     def _target(self, member, row, now):
         """The screen point the member's pointer belongs at now; None when it has nothing to do on screen."""
-        place = self._desktop.place(row, member.point, member.file, member.window)
+        place = self._desktop.place(row, member.point, member.file, member.window, member.hwnd)
         if member.state == "waiting":
             return place or self._desktop.dock(row)            # it needs you: it is there, place or no place
         if place is None:
@@ -485,6 +495,7 @@ class Crew:
                 member.hop = True
             member.say = say or member.say
             member.file, member.window, member.point = event["file"], event["window"], event["point"]
+            member.hwnd = event["hwnd"]
         elif event["state"] == "done":
             member.say = event["say"] or "done \u2713"
         member.state = event["state"]
