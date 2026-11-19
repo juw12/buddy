@@ -54,6 +54,7 @@ MOUSE_BUTTONS = {-1: "left", -2: "right", -3: "middle", -4: "side"}
 # Mechvibes/iohook codes = Windows scan code set 1; extended keys = 0xE000 | scan
 WM_KEYDOWN, WM_KEYUP, WM_SYSKEYDOWN, WM_SYSKEYUP = 0x100, 0x101, 0x104, 0x105
 LLKHF_EXTENDED = 0x01
+LLKHF_INJECTED = 0x10           # the key came from a program (SendInput, keybd_event), not from a keyboard
 FAKE_SHIFT_CODES = {0xE02A, 0xE036}
 CTRL_CODES = {29, 3613}
 ALT_CODES = {56, 3640}
@@ -63,6 +64,7 @@ D_CODE = 32                  # Ctrl+Alt+D: Buddy dictation (hold = talk, tap = h
 T_CODE = 20                     # Ctrl+Alt+T: Buddy talk mode
 ESCAPE_CODE = 1
 VK_MENU_MASK = 0xE8           # unassigned virtual key: tapped so a lone Alt release can't open a menu
+MODIFIER_KEYS = frozenset({0x10, 0x11, 0x12, 0x5B, 0x5C, 0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5})   # Shift, Ctrl, Alt, Win
 LETTER_CODES = list(range(16, 26)) + list(range(30, 39)) + list(range(44, 51))
 DEMO_TYPING = [35, 18, 38, 38, 24, 57, 17, 24, 19, 38, 32, 28, 14, 14, 37, 18, 21, 23, 20, 57]
 
@@ -334,7 +336,8 @@ class MouseClicks:
     such a press no device. A precision touchpad's presses have no device either, so the touchpad is listened
     to as well (only "a finger is on it", nothing of what it reports is read), and a press this soon after a
     finger was on it is yours. Buddy's own clicks carry OWN_CLICK_MARK and are never told. One process can
-    listen to the mouse this way only once, so this is the place for it.
+    listen to the mouse this way only once, so this is the place for it. `own_press_at` is when your own hand
+    last pressed a button (the watch needs it to tell your work from a program's).
     """
 
     WM_INPUT = 0x00FF
@@ -367,6 +370,7 @@ class MouseClicks:
         self.on_program_click = None      # callable(button name, x, y) in real screen pixels; must return at once
         self.touchpad_heard = False       # the touchpad could be listened to: without that nothing is told
         self.touchpad_at = float("-inf")  # when a finger was last on the touchpad (time.monotonic)
+        self.own_press_at = float("-inf") # when your own hand last pressed a button (not a program, not Buddy)
 
     def from_a_program(self, device, extra, now, remote=False):
         """Is a press with these marks a program's? `device`: the raw input's device (none for a program and
@@ -459,7 +463,7 @@ class MouseClicks:
                         for bit, code, is_down in self.BUTTON_FLAGS:
                             if flags & bit:
                                 self.player.submit(code, is_down)
-                                if is_down and self.on_program_click and code in self.PRESSES:
+                                if is_down and code in self.PRESSES:
                                     self._tell_program_click(code, data, message)
             user32.DispatchMessageW(ctypes.byref(message))   # lets Windows clean up the raw input
 
@@ -472,11 +476,16 @@ class MouseClicks:
 
     def _tell_program_click(self, code, data, message):
         """One button went down: told to `on_program_click` when a program pressed it, with where the pointer
-        was at that instant (Windows writes that into the message)."""
+        was at that instant (Windows writes that into the message). Any other press but Buddy's own is your
+        own hand's."""
         try:
-            if self.from_a_program(data.header.hDevice, data.mouse.ulExtraInformation, time.monotonic(),
+            now, extra = time.monotonic(), data.mouse.ulExtraInformation
+            if self.from_a_program(data.header.hDevice, extra, now,
                                    remote=bool(ctypes.windll.user32.GetSystemMetrics(0x1000))):   # SM_REMOTESESSION
-                self.on_program_click(self.PRESSES[code], message.pt.x, message.pt.y)
+                if self.on_program_click:
+                    self.on_program_click(self.PRESSES[code], message.pt.x, message.pt.y)
+            elif extra != self.OWN_CLICK_MARK:
+                self.own_press_at = now
         except Exception:                                    # the sounds must go on
             pass
 
@@ -485,6 +494,10 @@ class KeyboardHook:
     """Global low-level keyboard hook; ignores auto-repeat; Ctrl+Alt+M toggles mute.
 
     observers: callables(code, is_down, perf_counter_time) - used by the recorder.
+
+    Windows marks a key that a program presses (SendInput, keybd_event). Such a key that is not Buddy's own
+    (those carry MouseClicks.OWN_CLICK_MARK) is told to `on_program_key`, for the crew's task watch: only
+    "a program pressed a key", never which key. `own_key_at` is when your own hand last used a key.
     """
 
     def __init__(self, player, on_toggle=None):
@@ -497,6 +510,18 @@ class KeyboardHook:
         self.dictate_active = False
         self.listener = keyboard.Listener(win32_event_filter=self._filter)
         self.mouse = MouseClicks(player)
+        self.on_program_key = None        # callable() for a key a program pressed; must return at once
+        self.own_key_at = float("-inf")   # when your own hand last used a key (time.monotonic)
+
+    def own_hands(self):
+        """Seconds since your own hand last used a key or pressed a mouse button (not a program, not Buddy)."""
+        return time.monotonic() - max(self.own_key_at, self.mouse.own_press_at)
+
+    def from_a_program(self, flags, extra, vk, remote=False):
+        """Is a key that goes down with these marks a program's typing? `extra`: its extra word (Buddy's own
+        keys carry the mark); a lone Shift, Ctrl, Alt or Win types nothing; `remote`: you sit at another PC."""
+        return bool(flags & LLKHF_INJECTED) and not remote and (extra or 0) != MouseClicks.OWN_CLICK_MARK \
+            and vk not in MODIFIER_KEYS
 
     def start(self):
         self.listener.start()
@@ -513,6 +538,15 @@ class KeyboardHook:
         if code in FAKE_SHIFT_CODES or data.vkCode == VK_MENU_MASK:
             return False
         now = time.monotonic()
+        if not data.flags & LLKHF_INJECTED:
+            self.own_key_at = now
+        elif self.on_program_key and msg in (WM_KEYDOWN, WM_SYSKEYDOWN):
+            try:
+                if self.from_a_program(data.flags, data.dwExtraInfo, data.vkCode,
+                                       remote=bool(ctypes.windll.user32.GetSystemMetrics(0x1000))):   # SM_REMOTESESSION
+                    self.on_program_key()
+            except Exception:                                    # the sounds and the hotkeys must go on
+                pass
         modifiers_down = self.held.keys() & CTRL_CODES and self.held.keys() & ALT_CODES
 
         # Buddy push-to-talk: hold Ctrl+Alt+Space. Space is swallowed so nothing gets typed.

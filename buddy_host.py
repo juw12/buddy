@@ -46,7 +46,7 @@ import buddy_home  # noqa: E402
 import buddy_updater  # noqa: E402
 
 BUDDY_NAME = "Buddy"
-BUDDY_VERSION = "1.12.0"
+BUDDY_VERSION = "1.13.0"
 CONTEXT_REFRESH_MS = 60_000
 OFFER_AGENTS_MS = 9_000                     # after the hello: ask about the AI agents found on this PC
 UPDATE_FIRST_CHECK_MS = 60_000              # first update check a minute after start...
@@ -630,7 +630,8 @@ class BuddyApp:
     def set_tasks(self, enabled):
         """Start or stop the task watch (Settings -> AI helper): pointers and a trace for scheduled tasks and
         for what AI apps open. Off until the user switches it on."""
-        self.hook.mouse.on_program_click = None       # the listener for the mouse tells nobody while the watch is off
+        self.hook.mouse.on_program_click = None       # the listeners for the mouse and the keyboard tell nobody
+        self.hook.on_program_key = None               # while the watch is off
         if self.task_watch is not None:
             self.task_watch.stop()
             self.task_watch = None
@@ -639,10 +640,13 @@ class BuddyApp:
                 import crew_tasks
 
                 self.task_watch = crew_tasks.TaskWatch(on=self.settings.get("crew_enabled", True),
-                                                       ignored=self.settings.get("crew_tasks_ignored") or ())
+                                                       ignored=self.settings.get("crew_tasks_ignored") or (),
+                                                       own_hands=self.hook.own_hands)
                 self.task_watch.start()
-                # a click a program makes with the mouse itself, in any window: the watch follows it
+                # a click a program makes with the mouse itself, and what it types with the keyboard itself,
+                # in any window: the watch follows them
                 self.hook.mouse.on_program_click = self.task_watch.program_clicked
+                self.hook.on_program_key = self.task_watch.program_typed
                 logger.info("Task watch started; its trace is %s", crew_tasks.TRACE)
             except Exception:                          # Buddy starts without it
                 logger.exception("The task watch could not start")

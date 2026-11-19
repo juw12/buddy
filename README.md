@@ -471,11 +471,44 @@ is always a trace of what they did.
   your own clicks are never taken for it. When that window is not the task's own, nobody can say which
   program clicked: the click is taken for the followed task most likely at work (an AI agent before a
   scheduled task) and the trace says so, *(not its own window: taken for its click)*. With no followed
-  task the trace still has *a program nobody follows*, with the program and the point. What it cannot
-  show: a press through Windows in an app you had open already that is not a followed window (no mouse,
-  no news), a round option box in a Windows Forms program chosen that way, a box filled without the
-  keyboard, and programs that tell Windows nothing (there only mouse clicks are followed). Firefox and
-  command windows are not followed. On a Mac see [Buddy Lite for Mac](mac/README.md#the-agent-pointer-1120).
+  task the trace still has *a program nobody follows*, with the program and the point. What 1.12.0
+  could not show is the next point. On a Mac see
+  [Buddy Lite for Mac](mac/README.md#the-agent-pointer-1120-typing-since-1130).
+- **What was left out, as far as Windows tells it (1.13.0):**
+  - *A press without the mouse in an app you had open already.* A program that presses without the mouse
+    has Windows' UI Automation loaded. While a followed task has such a program with no window of its
+    own (any program of an AI agent; of a scheduled task a script: PowerShell, Python, cmd, node, Windows
+    Script Host), the other plain windows on screen are listened to as well (up to 20, those in front
+    first). A
+    press, tick, list entry or filled box there is taken for that task, and the trace says
+    *(not its own window: taken for its click)*. Nothing is taken there while your own hand is at the
+    keys or the mouse (the last 5 seconds): what an app tells then is your work, or its answer to it.
+  - *Typing a program does with the keyboard, in every window.* Windows marks a key that a program made.
+    The pointer goes to the window that has the keyboard and the trace says *the keyboard: the program
+    does not tell where in its window*. Never which keys. A key within 1 second of your own key or click
+    is left out (a helper that completes what you type).
+  - *A box that is filled in without the keyboard*, and *round option boxes* in Windows Forms and WPF
+    programs.
+  - *A real window that PowerShell or Python shows* (a form, a small tool) is followed like any other.
+    Only the black command window itself is not.
+
+  What stays out, and why. A press without the mouse in an app that is not the task's own while you
+  are at the keys or the mouse yourself: Windows does not say whether it was you, the app or the program
+  (what a program does with the mouse or the keyboard is shown then too, Windows marks those). A program
+  that presses another app by sending it window messages only and
+  never loads UI Automation: no sign that it works through the screen. A program that has a window of
+  its own and presses other apps from there: every app with a window loads UI Automation, so it cannot
+  be told apart. A scheduled task whose compiled program (not a script) presses other apps without a
+  window: such a program can have UI Automation loaded and never press anything (Zoom's updater, run by
+  its task, has), so it is no sign. The very first press of a script started a blink ago (the look comes 0.25 s later;
+  measured: missed). What a program writes into a command window without the keyboard: that window
+  tells nothing. A program that draws everything itself (a game, some old tools): mouse clicks and
+  keyboard typing are shown there, nothing else. Firefox is not installed on the PC this was built on,
+  so nothing was measured there and nothing was built on a guess: mouse clicks and keyboard typing by a
+  program are shown in it as everywhere, presses without the mouse are not. And in a window that is not
+  the task's own, Windows never says who did it: an app that changes something by itself while a task
+  works through the screen (a chat message that comes in) can be taken for that task. The trace always
+  says *taken for*.
 - **Never late:** windows are looked at 4 times a second, and one look takes about a millisecond, whatever
   else Buddy is doing at that moment. On a busy PC a new window was in the trace 0.02 to 0.18 seconds after
   it appeared (10 tries), and the pointer was on it after 0.2 to 0.9 seconds, half of the time within 0.45
@@ -508,7 +541,25 @@ never told. Every app (1.12.0): two test windows kept off the screen, one classi
 pressed through UI Automation from another program: the button, tick box, list entry and tab of both were
 told (and the classic round option box), the test windows never came to the front, and all listeners were
 gone afterwards. Which mouse presses count as a program's is checked by tests only: no click was made on a
-real screen for it. Not checked: clicks in another steered browser than Edge, clicks through the screen in
+real screen for it. What was left out (1.13.0): three test windows kept off the screen (classic, Windows
+Forms, WPF), pressed and filled through UI Automation by a script without a window. The list entry and the
+filled box of each were told, the round option boxes of the Windows Forms window (chosen by their default
+action; UI Automation's own *Select* changes nothing in such a program, so there is nothing to show) and
+of the WPF window, and the WPF button. In a test window that was no task's own, the tick box, list entry,
+filled box and button were in the trace as *taken for* the agent: all 4 presses made while the hands
+were off (15 to 22 s), and a press made 0.8 s after a key of the user was left out, as the rule says.
+Then the same code ran next to the real Buddy during normal work in Outlook, Teams, Excel, PowerPoint
+and File Explorer, showing nothing, with a program without a window that had UI Automation loaded. With
+the first rules (your hand within one second; the same window in front) 16 lines took the user's own
+work for the agent's. Everything those apps told came within 4.3 s of a key or mouse button of the user
+(332 reports in 4.7 minutes), so the rule became 5 seconds. With it: 12 minutes of work, 91 reports from
+Outlook, the latest 3.7 s after the user's hand, and no line that took his work for the agent's. (A
+first count with the 5 second rule, 18 minutes, was void: the counting script itself was broken and
+heard nothing. It was done again.) In neither run did an app tell anything while the hands were off
+for 5 s or more, so that case (an app that changes something by itself) was never seen. Not checked: a press by
+an agent in a real app while somebody looks at it (only test windows off the screen were pressed), a
+scheduled task's script that presses through the screen (tests only), Firefox (not installed),
+clicks in another steered browser than Edge, clicks through the screen in
 Edge, a screen that is not at 100% size, and a restart of Windows itself. The task watch is Windows only;
 the Mac app follows a program's mouse clicks (below in its own README).
 
