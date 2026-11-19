@@ -1,21 +1,22 @@
 {
-  "version": "1.11.1",
+  "version": "1.12.0",
   "date": "2026-11-19",
   "notes": [
-    "A window that keeps itself on top hid the pointer for up to 2 s. The pointers are now put above all windows every 0.3 s.",
-    "The window was looked up by its title. With your own Gmail open next to the agent's Gmail, both have the same title, so the pointer could stand on the tab of your window. The pointer now belongs to the one window the program works in, by that window's number.",
-    "A place past the screen edge counted as a place you can see. The scripts that work Gmail keep their window as a strip a few pixels wide at the right screen edge, or behind your windows, or off the screen. Windows names the window that lies at such a point all the same: a press was told at (2892, 493) on a screen 2560 wide, and the pointer flew out of sight with only its words left at the edge.",
-    "Now. A thing in view: the pointer flies to it, as in 1.11.0. A thing that is covered while its window is in view: the pointer stands on the window and says Clicked a link (where you cannot see it). A window that is not in view at all: the pointer stands at the right edge of the screen and says Clicked a link (in a window you cannot see). A new window that opens out of view is told the same way for its first 10 s. The trace says behind another window or off the screen for such a press.",
-    "Checked on a real screen (Chrome, 2560x1440 at 100%, a test page pressed through UI Automation): with the window kept as an 8-pixel strip at the right edge and on top, next to a window of another program with the same title, the pointer (arrow and words) stood at the right edge for the new window, the pressed link and the pressed button, and never on the lookalike. With the window at (-3200, -3200) its news was shown at the right edge.",
-    "Not checked: a press in the window at (-3200, -3200) with the pointers on (it is in the trace only), real Gmail with the pointers on (real Gmail is never pressed for a test), a window in view on the screen after this change (it was checked for 1.11.0, and by the tests now), Edge worked through the screen, a screen that is not at 100% size, a full Windows restart.",
-    "Still true. The titles a hidden window gets later by itself are only in the trace. A thing that is gone in the instant it is pressed is not told by the browser. Firefox is not followed."
+    "Windows",
+    "Every window of a followed task that is not a browser is listened to (Notepad, a settings box, File Explorer, an Office window), from the moment it is followed: a button, tick box, list entry, tab or menu entry a program presses there through Windows (UI Automation) gets the pointer on that thing.",
+    "A click a program makes with the mouse itself is followed in every window, also in an app you had open already. Windows gives such a press no device; your own mouse and touchpad always have one, so your own clicks are never taken for it.",
+    "Honest about whose click it was. In a window that is not the task's own nobody can say which program clicked: it is taken for the followed task most likely at work (an AI agent before a scheduled task) and the trace says (not its own window: taken for its click). With no followed task the trace still has a program nobody follows, with the program and the point.",
+    "Fixed on the way: the screen listener could fail to start when its thread was the first one to load COM.",
+    "What it cannot show: a press through Windows in an app you had open already that is not a followed window (no mouse, no news), a round option box in a Windows Forms program chosen that way, a box filled without the keyboard, and programs that tell Windows nothing (there only mouse clicks are followed). Firefox and command windows are not followed.",
+    "Mac (Buddy Lite)",
+    "New: the agent pointer. When a program clicks with the mouse, in any app, a second pointer in another colour flies to the click, shows a ring and names the program: Terminal clicked here. It leaves 2.5 s after the last click."
   ],
-  "page": "https://github.com/juw12/buddy/releases/tag/v1.11.1",
+  "page": "https://github.com/juw12/buddy/releases/tag/v1.12.0",
   "windows": {
-    "version": "1.11.1",
-    "url": "https://github.com/juw12/buddy/releases/download/v1.11.1/Buddy-win64.zip",
-    "size": 181314843,
-    "sha256": "c5c11b4985ed40575540c13c0714f79bb3d6b5cd22df47d0813107fa1e4cad8b"
+    "version": "1.12.0",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.12.0/Buddy-win64.zip",
+    "size": 181321300,
+    "sha256": "085625538c84510675ce305236ced81d95166d145abda8da65bcf074e6be8c54"
   },
   "mac": {
     "version": "1.11.1",
