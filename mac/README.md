@@ -25,9 +25,9 @@ Windows-only for now.
 
     curl -fsSL https://juw12.github.io/buddy/mac-install.sh | bash
 
-It downloads the latest release, puts Buddy in Applications, clears the download quarantine (so there's no
-"unidentified developer" block, no Apple Developer ID needed) and opens it. The script is
-[40 readable lines](../docs/mac-install.sh). Then do step 4 below.
+It downloads the newest Mac build, checks its SHA-256, puts Buddy in Applications, clears the download
+quarantine (so there's no "unidentified developer" block, no Apple Developer ID needed) and opens it. The
+script is [short and readable](../docs/mac-install.sh). Then do step 4 below.
 
 **Or by hand:**
 

@@ -1,10 +1,23 @@
 name: Buddy Lite for Mac
 
+# Every release gets its Mac app without anyone asking:
+#   - a release is published  -> build that tag, give the app the release's version, test it on Apple Silicon
+#                                and Intel, attach Buddy-mac.zip to that release and refresh docs/latest.json.
+#   - every 6 hours           -> if the latest release still has no Buddy-mac.zip (a build failed, or GitHub had
+#                                no macOS runner), build and attach it. Otherwise this costs a few seconds.
+#   - a push that touches mac -> build and test only.
+#   - by hand, publish ticked -> build this branch and attach it to the latest release.
+
 on:
   push:
+    branches: ["**"]             # not tags: a release starts its own run below
     paths:
       - "mac/**"
       - ".github/workflows/mac.yml"
+  release:
+    types: [published]
+  schedule:
+    - cron: "23 */6 * * *"
   workflow_dispatch:
     inputs:
       publish:
@@ -14,6 +27,7 @@ on:
 
 permissions:
   contents: write
+  actions: write                 # publish starts the "Update manifest" workflow
 
 env:
   # python.org's macOS installer is a universal2 build (Apple Silicon + Intel in one binary)
@@ -21,11 +35,81 @@ env:
   PY: /Library/Frameworks/Python.framework/Versions/3.12/bin/python3.12
 
 jobs:
+  plan:
+    # Decides what this run does: which commit to build, and which release (if any) gets the zip.
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      build: ${{ steps.plan.outputs.build }}
+      ref: ${{ steps.plan.outputs.ref }}
+      tag: ${{ steps.plan.outputs.tag }}
+    steps:
+      - id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          WANT_PUBLISH: ${{ inputs.publish }}
+        run: |
+          build=true
+          ref="$GITHUB_SHA"
+          tag=""
+          case "$EVENT" in
+            release)
+              tag="$RELEASE_TAG"
+              ref="$RELEASE_TAG"
+              ;;
+            workflow_dispatch)
+              if [ "$WANT_PUBLISH" = "true" ]; then
+                tag=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)
+              fi
+              ;;
+            schedule)
+              latest=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName,publishedAt,assets)
+              tag=$(jq -r .tagName <<<"$latest")
+              ref="$tag"
+              has_mac=$(jq -r '[.assets[].name] | index("Buddy-mac.zip") != null' <<<"$latest")
+              age=$(( $(date +%s) - $(date -d "$(jq -r .publishedAt <<<"$latest")" +%s) ))
+              # Younger than 2 hours: the run its release started may still be building.
+              if [ "$has_mac" = "true" ] || [ "$age" -lt 7200 ]; then
+                echo "Nothing to do: $tag has Buddy-mac.zip ($has_mac) or is only $age s old."
+                build=false
+                tag=""
+              fi
+              ;;
+          esac
+          echo "event=$EVENT build=$build ref=$ref tag=$tag"
+          {
+            echo "build=$build"
+            echo "ref=$ref"
+            echo "tag=$tag"
+          } >> "$GITHUB_OUTPUT"
+
   build:
+    needs: plan
+    if: needs.plan.outputs.build == 'true'
     runs-on: macos-15            # Apple Silicon (macos-14 was retired on 2026-11-02): builds the universal app and tests the arm64 half
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.plan.outputs.ref }}
+
+      - name: Take the release's version
+        # The Mac app always carries the version of the release it ships in, so nobody has to remember to
+        # raise VERSION in mac/buddy_mac/core.py when only Windows changed.
+        if: needs.plan.outputs.tag != ''
+        env:
+          TAG: ${{ needs.plan.outputs.tag }}
+        run: |
+          version="${TAG#v}"
+          if ! [[ "$version" =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
+            echo "::error::release tag $TAG is not a version like v1.2.3"
+            exit 1
+          fi
+          sed -i '' -E "s/^VERSION = \"[^\"]*\"$/VERSION = \"$version\"/" mac/buddy_mac/core.py
+          grep -n '^VERSION = ' mac/buddy_mac/core.py
+          grep -qx "VERSION = \"$version\"" mac/buddy_mac/core.py
 
       - name: Universal Python (python.org)
         run: |
@@ -153,23 +237,32 @@ jobs:
           if-no-files-found: warn
 
   publish:
-    needs: [build, intel]
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish }}
+    needs: [plan, build, intel]
+    if: needs.plan.outputs.tag != ''
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/download-artifact@v4
         with:
           name: Buddy-mac
-      - name: Upload to the latest release
+      - name: Attach to the release and refresh the manifest
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.plan.outputs.tag }}
         run: |
-          TAG=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)
           # The manifest gives the Mac entry the release's version; an app with another version would offer itself
           # as an update forever. Refuse to upload unless the app inside the zip has the release's version.
           APP_VERSION=$(unzip -p Buddy-mac.zip Buddy.app/Contents/Info.plist | python3 -c "import plistlib,sys; print(plistlib.loads(sys.stdin.buffer.read())['CFBundleShortVersionString'])")
           if [ "$APP_VERSION" != "${TAG#v}" ]; then
-            echo "::error::Buddy.app is $APP_VERSION but the latest release is $TAG; set VERSION in mac/buddy_mac/core.py to ${TAG#v}"
+            echo "::error::Buddy.app is $APP_VERSION but the release is $TAG"
             exit 1
           fi
+          # The 6-hourly catch-up never replaces a zip that arrived in the meantime: latest.json already
+          # carries that file's SHA-256.
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ] && gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' | grep -qx "Buddy-mac.zip"; then
+            echo "$TAG already has Buddy-mac.zip, leaving it alone."
+            exit 0
+          fi
           gh release upload "$TAG" Buddy-mac.zip --clobber --repo "$GITHUB_REPOSITORY"
+          # docs/latest.json (auto-update and the one-line installer) takes the new file's size and SHA-256.
+          gh workflow run manifest.yml --repo "$GITHUB_REPOSITORY" --ref main
