@@ -1182,12 +1182,14 @@ def test_every_other_window_is_listened_to_at_once(monkeypatch):
     buttons = {901: (2, (100, 100, 200, 130)), 902: (9, (0, 0, 50, 20))}
     monkeypatch.setattr(crew_screen, "forms_button", lambda hwnd: buttons.get(hwnd))
     screen.on_button(901)
-    watch.tell_buttons(time.monotonic() + crew_screen.BUTTON_PAIR_S)      # a moment later (round boxes speak in pairs)
+    # a moment later (round boxes speak in pairs); twice the wait: on a clock in coarse steps (Python 3.12 on
+    # Windows) "now + wait - now" can come out a hair under the wait
+    watch.tell_buttons(time.monotonic() + 2 * crew_screen.BUTTON_PAIR_S)
     check("a pressed Windows Forms button in a followed window: a press at its middle", told == [(2, 500, "click", "button", 150, 115)])
     screen.on_button(901)
     screen.on_button(902)                                  # a button of a window nobody follows
     screen.on_button(903)                                  # a window that is no such button
-    watch.tell_buttons(time.monotonic() + crew_screen.BUTTON_PAIR_S)
+    watch.tell_buttons(time.monotonic() + 2 * crew_screen.BUTTON_PAIR_S)
     check("the same button again at once, a button somewhere else, another thing: nothing more", len(told) == 1)
 
     told.clear()
