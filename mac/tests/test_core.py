@@ -394,3 +394,52 @@ def test_pick_voice_chinese_script_and_preferred_region():
 def test_settings_default_voice_language(tmp_path):
     settings = core.load_settings(tmp_path / "missing.json")
     assert settings["voice_language"] == ""
+
+
+# --------------------------------------------------------------------------- the agent pointer
+def test_only_a_press_a_program_posted_is_an_agents_click():
+    buddy = 500
+    assert core.is_program_click(0, buddy) is False                 # your own mouse or trackpad
+    assert core.is_program_click(buddy, buddy) is False             # Buddy itself
+    assert core.is_program_click(731, buddy) is True                # a command-line tool (no bundle id)
+    assert core.is_program_click(731, buddy, "com.apple.Terminal") is True
+    assert core.is_program_click(731, buddy, "com.apple.systemevents") is True
+
+
+def test_a_mouse_tool_passing_on_your_own_hand_is_not_an_agent():
+    for bundle in ("com.hegenberg.BetterTouchTool", "com.lujjjh.LinearMouse", "com.nuebling.mac-mouse-fix.helper",
+                   "com.logi.cp-dev-mgr", "org.pqrs.Karabiner-Elements", "com.apple.screensharing.agent"):
+        assert core.is_program_click(731, 500, bundle) is False, bundle
+
+
+def test_what_the_agent_pointer_says():
+    assert core.click_words("Terminal") == "Terminal clicked here"
+    assert core.click_words("cliclick", "right") == "cliclick right-clicked here"
+    assert core.click_words("Python", "left", 2) == "Python double-clicked here"
+    assert core.click_words("Python", "other") == "Python middle-clicked here"
+    assert core.click_words("") == "A program clicked here"
+
+
+def test_every_program_click_gets_a_log_line():
+    line = core.click_log_line("Terminal", 731, "left", 1, 640.4, 399.6, True)
+    assert line == "agent click: Terminal clicked (pid 731) at (640, 400) - pointer shown"
+    off = core.click_log_line("", 9, "right", 1, 5, 6, False)
+    assert off == "agent click: A program right-clicked (pid 9) at (5, 6) - pointer is off"
+
+
+def test_a_click_point_is_turned_upside_down_for_cocoa():
+    assert core.quartz_to_cocoa(200.0, 150.0, 900.0) == (200.0, 750.0)
+    assert core.quartz_to_cocoa(-300.0, 0.0, 900.0) == (-300.0, 900.0)      # a display to the left
+
+
+def test_the_agent_pointer_never_has_your_buddys_colour():
+    for own in core.COLORS:
+        other = core.agent_color(own)
+        assert other in core.COLORS and other != own
+
+
+def test_the_agent_pointer_is_on_unless_switched_off(tmp_path):
+    assert core.load_settings(tmp_path / "missing.json")["agent_pointer"] is True
+    saved = tmp_path / "settings.json"
+    core.save_settings({**core.DEFAULTS, "agent_pointer": False}, saved)
+    assert core.load_settings(saved)["agent_pointer"] is False

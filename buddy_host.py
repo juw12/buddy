@@ -46,7 +46,7 @@ import buddy_home  # noqa: E402
 import buddy_updater  # noqa: E402
 
 BUDDY_NAME = "Buddy"
-BUDDY_VERSION = "1.11.1"
+BUDDY_VERSION = "1.12.0"
 CONTEXT_REFRESH_MS = 60_000
 OFFER_AGENTS_MS = 9_000                     # after the hello: ask about the AI agents found on this PC
 UPDATE_FIRST_CHECK_MS = 60_000              # first update check a minute after start...
@@ -630,6 +630,7 @@ class BuddyApp:
     def set_tasks(self, enabled):
         """Start or stop the task watch (Settings -> AI helper): pointers and a trace for scheduled tasks and
         for what AI apps open. Off until the user switches it on."""
+        self.hook.mouse.on_program_click = None       # the listener for the mouse tells nobody while the watch is off
         if self.task_watch is not None:
             self.task_watch.stop()
             self.task_watch = None
@@ -640,6 +641,8 @@ class BuddyApp:
                 self.task_watch = crew_tasks.TaskWatch(on=self.settings.get("crew_enabled", True),
                                                        ignored=self.settings.get("crew_tasks_ignored") or ())
                 self.task_watch.start()
+                # a click a program makes with the mouse itself, in any window: the watch follows it
+                self.hook.mouse.on_program_click = self.task_watch.program_clicked
                 logger.info("Task watch started; its trace is %s", crew_tasks.TRACE)
             except Exception:                          # Buddy starts without it
                 logger.exception("The task watch could not start")
@@ -1414,6 +1417,9 @@ def main(argv=None):
             assert crew_tasks.process_table(), "the list of processes could not be read"
             assert crew_button.button_image(True).size == (64, 64)
             logger.info("Task watch ready: %d windows on screen", len(crew_tasks.visible_windows()))
+            assert app.hook.mouse.error is None and app.hook.mouse.touchpad_heard, \
+                "the mouse and the touchpad could not be listened to (a program's click would not be told)"
+            assert crew_tasks.window_at(0, 0) is not None and crew_tasks.crew_screen.kind_of(0) == "plain"
             import keyit_voice                                  # natural voices: libraries are bundled
             import kokoro_onnx  # noqa: F401
             import sounddevice  # noqa: F401

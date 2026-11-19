@@ -6,6 +6,7 @@ asks the brain, then points at what it means and reads the answer aloud.
 from __future__ import annotations
 
 import logging
+import os
 import subprocess
 import sys
 import threading
@@ -25,6 +26,7 @@ from AppKit import (
     NSMenu,
     NSMenuItem,
     NSPanel,
+    NSRunningApplication,
     NSScreen,
     NSSecureTextField,
     NSStatusBar,
@@ -52,6 +54,27 @@ UPDATE_EVERY_S = 3 * 3600
 UPDATE_IDLE_S = 90           # a ready update installs after 90 s without keyboard/mouse use
 
 PRIVACY_SCREEN = "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"
+
+# NSEventMask for left, right and other mouse button presses (NSEventType 1, 3 and 25)
+MOUSE_PRESSES = (1 << 1) | (1 << 3) | (1 << 25)
+MOUSE_BUTTONS = {1: "left", 3: "right"}
+EVENT_SOURCE_PID = 41        # kCGEventSourceUnixProcessID: the process that posted an event, 0 = the device
+
+
+def _program(pid):
+    """(name, bundle id) of a process: an app's own name, or the command's name for a tool without one."""
+    running = NSRunningApplication.runningApplicationWithProcessIdentifier_(pid)
+    if running is not None:
+        return str(running.localizedName() or ""), str(running.bundleIdentifier() or "")
+    try:
+        import ctypes
+
+        name = ctypes.create_string_buffer(256)
+        if ctypes.CDLL("/usr/lib/libproc.dylib").proc_name(int(pid), name, len(name)) > 0:
+            return name.value.decode("utf-8", "replace"), ""
+    except Exception:                                       # noqa: BLE001
+        logging.exception("could not name process %s", pid)
+    return "", ""
 
 
 def _status_icon():
@@ -114,6 +137,9 @@ class _Delegate(NSObject):
     def islandClicked_(self, sender):
         self.controller.toggle("island", sender)
 
+    def agentPointerClicked_(self, sender):
+        self.controller.toggle("agent_pointer", sender)
+
     def colorClicked_(self, sender):
         self.controller.set_color(sender.representedObject())
 
@@ -152,6 +178,10 @@ class Controller:
         self.on_answered = None             # self-test hook
         self.update_ready = None            # new Buddy.app waiting to be installed
         self.update_busy = False
+        self.agent = None                   # the agent pointer, on screen only around a program's click
+        self.agent_token = 0
+        self.agent_monitor = None
+        self.agent_heard = None             # self-test: a list here collects every press the monitor reads
 
     # ------------------------------------------------------------------ startup
     def start(self):
@@ -163,6 +193,7 @@ class Controller:
         self.listener = Listener(self._heard_partial, self._heard, self._voice_error,
                                  language=self.settings.get("voice_language", ""))
         self.hotkey = HotKey(self._key_down, self._key_up)
+        self._watch_program_clicks()
         self._build_menu()
         if self.persist:
             self._ask_screen_permission()
@@ -279,6 +310,8 @@ class Controller:
         follow.setState_(1 if self.settings["follow_mouse"] else 0)
         island = add("Buddy Island in the notch", "islandClicked:")
         island.setState_(1 if self.settings.get("island", True) else 0)
+        agent = add("Show where an agent clicks", "agentPointerClicked:")
+        agent.setState_(1 if self.settings.get("agent_pointer", True) else 0)
 
         colors = NSMenu.alloc().init()
         self.color_items = {}
@@ -331,6 +364,8 @@ class Controller:
             self.overlay.follow_mouse = self.settings[key]
         if key == "island":
             self._set_island(self.settings[key])
+        if key == "agent_pointer" and not self.settings[key]:
+            self._agent_rest(self.agent_token)
         if key == "speak" and not self.settings[key]:
             self.speaker.stop()
         self._save()
@@ -340,6 +375,8 @@ class Controller:
         for other, item in self.color_items.items():
             item.setState_(1 if other == name else 0)
         self.overlay.set_color(core.COLORS[name])
+        if self.agent is not None:
+            self.agent.set_color(core.COLORS[core.agent_color(name)])
         self._save()
 
     def set_voice_language(self, code):
@@ -416,11 +453,80 @@ class Controller:
         alert.setInformativeText_(
             "Hold Control+Option+Space and ask, or tap it to type. Buddy looks at the display under your mouse, "
             "points at what it means and reads the answer aloud.\n\n"
+            "When a program clicks with the mouse, a second pointer flies to the click and names the program; "
+            "every such click is in the log.\n\n"
             "Lite means: pointing and answers only. Clicking and typing for you, the Pips pet and keyboard "
             "sounds are on Windows for now.\n\nhttps://juw12.github.io/buddy/"
         )
         NSApp.activateIgnoringOtherApps_(True)
         alert.runModal()
+
+    # ------------------------------------------------------------------ the agent pointer
+    def _watch_program_clicks(self):
+        """Hear every mouse press in other apps. Mouse presses need no permission (unlike keys), so macOS
+        asks nothing. Only presses a program posted are used; your own never leave _mouse_heard."""
+        try:
+            self.agent_monitor = NSEvent.addGlobalMonitorForEventsMatchingMask_handler_(
+                MOUSE_PRESSES, self._mouse_heard
+            )
+        except Exception:                                   # noqa: BLE001
+            logging.exception("could not watch for a program's clicks")
+        if self.agent_monitor is None:
+            logging.warning("agent pointer off: macOS gave no mouse monitor")
+
+    def _read_press(self, event):
+        """(posting pid, x, y, button, clicks) of a mouse press; x, y from the top-left of the main display."""
+        import Quartz
+
+        press = event.CGEvent()
+        if press is None:
+            return None
+        pid = int(Quartz.CGEventGetIntegerValueField(press, EVENT_SOURCE_PID))
+        where = Quartz.CGEventGetLocation(press)
+        button = MOUSE_BUTTONS.get(int(event.type()), "other")
+        return pid, float(where.x), float(where.y), button, int(event.clickCount())
+
+    def _mouse_heard(self, event):
+        try:
+            press = self._read_press(event)
+            if press is None:
+                return
+            if self.agent_heard is not None:
+                self.agent_heard.append(press)
+            if press[0]:
+                self.program_clicked(*press)
+        except Exception:                                   # noqa: BLE001
+            logging.exception("could not read a mouse press")
+
+    def program_clicked(self, pid, x, y, button="left", clicks=1):
+        """A mouse press posted by process `pid` at (x, y) from the top-left of the main display: write it to
+        the log and, unless the menu switch is off, fly the agent pointer to it. True = taken as a program's."""
+        if not pid or pid == os.getpid():
+            return False
+        name, bundle = _program(pid)
+        if not core.is_program_click(pid, os.getpid(), bundle):
+            return False
+        shown = bool(self.settings.get("agent_pointer", True))
+        logging.info(core.click_log_line(name, pid, button, clicks, x, y, shown))
+        self.events.append(("agent_click", core.click_words(name, button, clicks)))
+        if not shown:
+            return True
+        cocoa_x, cocoa_y = core.quartz_to_cocoa(x, y, NSScreen.screens()[0].frame().size.height)
+        if self.agent is None:
+            self.agent = Overlay(core.COLORS[core.agent_color(self.settings["color"])], follow_mouse=False)
+            self.agent.fly_seconds = core.AGENT_FLY_SECONDS
+            self.agent.pos = [cocoa_x + core.AGENT_START_OFFSET[0], cocoa_y + core.AGENT_START_OFFSET[1]]
+        self.agent.fly_to(cocoa_x, cocoa_y)
+        self.agent.say(core.click_words(name, button, clicks))
+        self.agent_token += 1
+        AppHelper.callLater(core.AGENT_HOLD_SECONDS, self._agent_rest, self.agent_token)
+        return True
+
+    def _agent_rest(self, token):
+        """No click for a while (or the switch went off): take the agent pointer off the screen."""
+        if token == self.agent_token and self.agent is not None:
+            self.agent.close()
+            self.agent = None
 
     # ------------------------------------------------------------------ hotkey: hold = talk, tap = type
     def _key_down(self):

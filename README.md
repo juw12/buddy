@@ -462,6 +462,20 @@ is always a trace of what they did.
   a place you can see: a browser kept as a strip at the screen edge had its presses told at points past
   the edge (`at (2892, 493)` on a screen 2560 wide), and the pointer flew out of sight with only its
   words left at the edge. The trace now says *behind another window or off the screen* for these.
+- **Every app, not only the browser (1.12.0):** the pointer follows the real click in any program.
+  A window of a followed task that is not a browser (Notepad, a settings box, File Explorer, an Office
+  window) is listened to from the moment it is followed: a button, a tick box, a list entry, a tab or a
+  menu entry a program presses there through Windows (UI Automation) gets the pointer on that thing.
+  And a click a program makes with the mouse itself is followed in **every** window, also in an app you
+  had open already: Windows gives such a press no device, your own mouse and touchpad always have one, so
+  your own clicks are never taken for it. When that window is not the task's own, nobody can say which
+  program clicked: the click is taken for the followed task most likely at work (an AI agent before a
+  scheduled task) and the trace says so, *(not its own window: taken for its click)*. With no followed
+  task the trace still has *a program nobody follows*, with the program and the point. What it cannot
+  show: a press through Windows in an app you had open already that is not a followed window (no mouse,
+  no news), a round option box in a Windows Forms program chosen that way, a box filled without the
+  keyboard, and programs that tell Windows nothing (there only mouse clicks are followed). Firefox and
+  command windows are not followed. On a Mac see [Buddy Lite for Mac](mac/README.md#the-agent-pointer-1120).
 - **Never late:** windows are looked at 4 times a second, and one look takes about a millisecond, whatever
   else Buddy is doing at that moment. On a busy PC a new window was in the trace 0.02 to 0.18 seconds after
   it appeared (10 tries), and the pointer was on it after 0.2 to 0.9 seconds, half of the time within 0.45
@@ -490,8 +504,13 @@ the page had a new title. After a press that is not told (the window is put on t
 pointer was behind the window 0.4 s later and above it again 0.8 s later (1.11.1, one run; in 1.11.0 it
 was still out of sight after 1 s). Real Gmail was only listened to, never pressed for a test: of 5 presses on a
 row of mail Chrome told 3 with the place, 1 without, and 1 not at all, and a *mark as unread* press was
-never told. Not checked: clicks in another steered browser than Edge, clicks through the screen in Edge,
-a screen that is not at 100% size, and a restart of Windows itself. Windows only.
+never told. Every app (1.12.0): two test windows kept off the screen, one classic and one Windows Forms,
+pressed through UI Automation from another program: the button, tick box, list entry and tab of both were
+told (and the classic round option box), the test windows never came to the front, and all listeners were
+gone afterwards. Which mouse presses count as a program's is checked by tests only: no click was made on a
+real screen for it. Not checked: clicks in another steered browser than Edge, clicks through the screen in
+Edge, a screen that is not at 100% size, and a restart of Windows itself. The task watch is Windows only;
+the Mac app follows a program's mouse clicks (below in its own README).
 
 ## Buddy Island
 Buddy lives in your screen's notch, so it is always one move away, on every device:

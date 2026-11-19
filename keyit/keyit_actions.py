@@ -53,6 +53,7 @@ user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintyp
 user32.SendMessageTimeoutW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM,
                                        wintypes.UINT, wintypes.UINT, ctypes.POINTER(ctypes.c_size_t)]  # PDWORD_PTR
 WM_CLOSE = 0x0010
+OWN_CLICK_MARK = 0x42554459          # the same as keyit_core.MouseClicks.OWN_CLICK_MARK (a test holds them together)
 SW_MINIMIZE, SW_MAXIMIZE, SW_RESTORE = 6, 3, 9
 GWL_EXSTYLE = -20
 WS_EX_TOOLWINDOW = 0x00000080
@@ -457,8 +458,9 @@ def click_at(x, y):
     with physical_pixels():
         user32.SetCursorPos(int(x), int(y))
     time.sleep(0.05)
-    user32.mouse_event(0x0002, 0, 0, 0, 0)
-    user32.mouse_event(0x0004, 0, 0, 0, 0)
+    # the mark says "Buddy's own click": the crew's task watch never takes it for an agent's
+    user32.mouse_event(0x0002, 0, 0, 0, OWN_CLICK_MARK)
+    user32.mouse_event(0x0004, 0, 0, 0, OWN_CLICK_MARK)
 
 
 def _visible_top_windows():

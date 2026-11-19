@@ -7,6 +7,7 @@ import json
 import os
 import socket
 import struct
+import subprocess
 import sys
 import threading
 import time
@@ -486,10 +487,11 @@ def test_the_watch_starts_and_stops(quiet):
     watch.start()
     watch.start()                                                 # a second start is nothing
     until = time.monotonic() + 10
-    while time.monotonic() < until and not (watch.processes_ready.is_set() and len(watch.threads) == 3):
+    while time.monotonic() < until and not (watch.processes_ready.is_set() and len(watch.threads) == 4):
         time.sleep(0.05)
-    check("three threads: the task list, the processes, the windows",
-          sorted(thread.name for thread in watch.threads) == ["BuddyTaskList", "BuddyTaskProcesses", "BuddyTaskWindows"])
+    check("four threads: the task list, the processes, the windows, the clicks a program makes with the mouse",
+          sorted(thread.name for thread in watch.threads)
+          == ["BuddyTaskList", "BuddyTaskMouse", "BuddyTaskProcesses", "BuddyTaskWindows"])
     with watch.lock:
         watch.followed["Backups\\Nightly copy"] = {"started": time.time(), "announced": True, "alive": 0.0,
                                                   "pids": {1}, "moved": 0.0}
@@ -940,13 +942,15 @@ def time_now_as_windows():
 class FakeScreen:
     """Windows for crew_screen.ScreenWatch: what is hooked and listened to is only written down."""
 
-    def __init__(self, on_sign):
-        self.on_sign = on_sign
+    def __init__(self, on_sign, on_button=None):
+        self.on_sign, self.on_button = on_sign, on_button
         self.hooked, self.listened, self.broken = set(), {}, set()
+        self.news, self.selections = {}, {}     # process -> which news its hook brings; window -> entries too?
         self.did = []
 
-    def hook(self, pid):
+    def hook(self, pid, events=crew_screen.HOOKED):
         self.hooked.add(pid)
+        self.news[pid] = events
         self.did.append(("hook", pid))
         return [pid]
 
@@ -954,10 +958,11 @@ class FakeScreen:
         self.hooked -= set(handles)
         self.did.append(("unhook", handles[0]))
 
-    def listen(self, hwnd, tell):
+    def listen(self, hwnd, tell, selections=False):
         if hwnd in self.broken:
             raise OSError("the window is gone")
         self.listened[hwnd] = tell
+        self.selections[hwnd] = selections
         self.did.append(("listen", hwnd))
         return hwnd
 
@@ -972,6 +977,7 @@ def test_a_browser_is_only_listened_to_once_somebody_works_its_page(monkeypatch)
     screen = watch.screen = FakeScreen(watch.page_spoke)
     pages = {501: 1, 502: 2, 503: 3}                       # a page's own window -> the browser window it is in
     monkeypatch.setattr(crew_screen, "page_of", lambda hwnd: pages.get(hwnd, 0))
+    monkeypatch.setattr(crew_screen, "kind_of", lambda hwnd: "page")     # every window here is a browser's
     started_threads = []
 
     def start(self):
@@ -994,7 +1000,9 @@ def test_a_browser_is_only_listened_to_once_somebody_works_its_page(monkeypatch)
     watch.settle()
     check("the first news about a thing in the page: somebody works it through the screen, so its presses are "
           "listened for, in that window only", set(screen.listened) == {1} and screen.hooked == {210, 300})
-    check("the trace says so", any("window 0x1 (pid 210) are followed" in line for line in logged))
+    check("the trace says so",
+          "presses in the browser window 0x1 (pid 210) are followed: it is worked through the screen" in logged)
+    check("a browser is asked for presses, ticks and values; not for every entry a page chooses", screen.selections[1] is False)
     screen.on_sign(502)
     watch.settle()
     check("a process whose windows are all listened to is not hooked any more", screen.hooked == {300})
@@ -1134,6 +1142,275 @@ def test_which_reports_of_a_browser_are_a_press_of_the_agent(monkeypatch):
           and crew_screen.spots((0, 0, 400, 40), first=(80, 20))[0] == (80, 20))
 
 
+def test_every_other_window_is_listened_to_at_once(monkeypatch):
+    """A window that is no browser's (Notepad, a settings window, a company tool): listened to from the first
+    look. Asking it costs its program nothing, and no page has to give a sign first."""
+    told, logged = [], []
+    watch = crew_screen.ScreenWatch(lambda *action, **more: told.append(action), logged.append, screen=FakeScreen)
+    screen = watch.screen = FakeScreen(watch.page_spoke, watch.button_spoke)
+    kinds = {1: "page", 2: "plain", 3: "plain", 4: None, 5: "plain"}
+    asked = []
+    monkeypatch.setattr(crew_screen, "kind_of", lambda hwnd: asked.append(hwnd) or kinds[hwnd])
+    monkeypatch.setattr(crew_screen.ScreenWatch, "start", lambda self: setattr(self, "thread", "started"))
+    monkeypatch.setattr(crew_screen.crew_browser, "on_top", lambda hwnd, point: True)
+    monkeypatch.setattr(crew_screen.crew_browser, "page_areas", lambda pid: [])       # no window here has a page
+    monkeypatch.setattr(crew_screen, "mouse", lambda: (0, 0))
+    monkeypatch.setattr(crew_screen, "idle_seconds", lambda: 60.0)
+
+    watch.follow({1: 210, 2: 500, 3: 500, 4: 600}, front=7)
+    watch.settle()
+    watch.settle()
+    check("the plain windows are listened to at the first look; the browser waits for a sign; a window that "
+          "tells nothing (Firefox, a command window) is left alone",
+          set(screen.listened) == {2, 3} and watch.waiting == {1: 210} and 600 not in screen.hooked)
+    check("a plain window is also asked for the entries that are chosen", screen.selections == {2: True, 3: True})
+    check("the trace names each one once",
+          [line for line in logged if "0x2" in line] == ["presses in the window 0x2 (pid 500) are followed"])
+    check("what kind a window is, is asked once", sorted(asked) == [1, 2, 3, 4])
+    check("its process is hooked for the one news a Windows Forms button gives, the browser's for all news",
+          screen.news[500] == crew_screen.BUTTONS_HOOKED and screen.news[210] == crew_screen.HOOKED)
+
+    # a Windows Forms button says only "my state changed", as a window of its own
+    buttons = {901: (2, (100, 100, 200, 130)), 902: (9, (0, 0, 50, 20))}
+    monkeypatch.setattr(crew_screen, "forms_button", lambda hwnd: buttons.get(hwnd))
+    screen.on_button(901)
+    check("a pressed Windows Forms button in a followed window: a press at its middle", told == [(2, 500, "click", "button", 150, 115)])
+    screen.on_button(901)
+    screen.on_button(902)                                  # a button of a window nobody follows
+    screen.on_button(903)                                  # a window that is no such button
+    check("the same button again at once, a button somewhere else, another thing: nothing more", len(told) == 1)
+
+    told.clear()
+    screen.listened[3](crew_screen.SELECTED, 50007, (300, 300, 500, 320), False)
+    check("an entry of a list that is chosen is a press", told == [(3, 500, "click", "list", 400, 310)])
+    screen.listened[3](crew_screen.SELECTED, 50007, (300, 320, 500, 340), False)
+    check("the entries a list chooses right after are the same press", len(told) == 1)
+    told.clear()
+    screen.listened[2](crew_screen.VALUE, 50004, (100, 200, 400, 224), True)
+    check("a box with the keyboard gets a value: typing, and a plain window has no page it must lie in",
+          told == [(2, 500, "type", "box", 180, 212)])
+    told.clear()
+    screen.listened[2](crew_screen.VALUE, 50004, (100, 200, 400, 224), False)
+    check("a box without the keyboard gets a value (its program filled it in): nothing", told == [])
+
+    watch.follow({1: 210, 2: 500, 3: 500, 5: 210}, front=7)
+    watch.settle()
+    check("a process with a browser window that waits and a plain one is hooked for all news (the button's is in it)",
+          set(screen.listened) == {2, 3, 5} and screen.news[210] == crew_screen.HOOKED)
+    watch.follow({1: 210, 2: 500, 3: 500}, front=7)
+    watch.settle()
+    check("the plain window closed: let go", set(screen.listened) == {2, 3} and 5 not in watch.plain)
+
+    monkeypatch.setattr(crew_screen, "MOST_PLAIN", 2)
+    kinds[6] = "plain"
+    watch.follow({2: 500, 3: 500, 6: 700}, front=7)
+    watch.settle()
+    check("only so many plain windows at once", set(screen.listened) == {2, 3} and 700 not in screen.hooked)
+    watch.follow({3: 500, 6: 700}, front=7)
+    watch.settle()
+    check("one closes: the next one gets its turn", set(screen.listened) == {3, 6} and screen.hooked == {500, 700})
+    watch.follow({}, front=7)
+    watch.settle()
+    check("nothing to follow: every listener and hook is off", not screen.listened and not screen.hooked and not watch.plain)
+    screen.on_button(901)
+    check("and a button's news is nobody's", told == [])
+
+
+def test_which_mouse_presses_are_a_programs(monkeypatch):
+    """Buddy's listener for the mouse (the click sounds) also knows who pressed: Windows gives a program's press
+    no device. A touchpad's, a finger's on the screen, Buddy's own and a press over a remote desktop are not told."""
+    import keyit_actions
+    import keyit_core
+
+    mouse = keyit_core.MouseClicks(player=None)
+    check("as long as the touchpad cannot be listened to, nothing is told (its presses have no device either)",
+          mouse.from_a_program(0, 0, 100.0) is False)
+    mouse.touchpad_heard = True
+    check("no device, no mark: a program's press", mouse.from_a_program(0, 0, 100.0) is True)
+    check("a program may put its own mark on it", mouse.from_a_program(None, 0x1234, 100.0) is True)
+    check("your mouse has a device", mouse.from_a_program(0x10041, 0, 100.0) is False)
+    check("Buddy's own click (a button of the island, a macro) carries Buddy's mark",
+          mouse.from_a_program(0, keyit_core.MouseClicks.OWN_CLICK_MARK, 100.0) is False)
+    check("a finger or a pen on the screen carries Windows' mark",
+          mouse.from_a_program(0, 0xFF515780, 100.0) is False and mouse.from_a_program(0, 0xFF515701, 100.0) is False)
+    mouse.touchpad_at = 99.5
+    check("a finger was on the touchpad a moment ago: your own tap", mouse.from_a_program(0, 0, 100.0) is False)
+    check("and long after it: a program's again", mouse.from_a_program(0, 0, 99.5 + mouse.TOUCHPAD_S + 0.1) is True)
+    check("at another PC (remote desktop) every press has no device: nothing is told",
+          mouse.from_a_program(0, 0, 200.0, remote=True) is False)
+
+    told = []
+    mouse.on_program_click = lambda button, x, y: told.append((button, x, y))
+    mouse.touchpad_at = float("-inf")
+    monkeypatch.setattr(keyit_core.ctypes.windll.user32, "GetSystemMetrics", lambda index: 0)
+
+    def press(code, device, extra=0):
+        data = types.SimpleNamespace(header=types.SimpleNamespace(hDevice=device),
+                                     mouse=types.SimpleNamespace(ulExtraInformation=extra))
+        mouse._tell_program_click(code, data, types.SimpleNamespace(pt=types.SimpleNamespace(x=640, y=480)))
+
+    press(-1, None)
+    press(-2, None)
+    press(-1, 0x10041)
+    press(-1, None, keyit_core.MouseClicks.OWN_CLICK_MARK)
+    check("a program's press is told with its button and the place the pointer had; yours and Buddy's are not",
+          told == [("left", 640, 480), ("right", 640, 480)])
+    mouse.on_program_click = lambda button, x, y: 1 / 0
+    press(-1, None)                                        # must not raise: the click sounds go on
+
+    check("Buddy's own clicks carry the mark the listener knows", keyit_actions.OWN_CLICK_MARK == keyit_core.MouseClicks.OWN_CLICK_MARK)
+    sent = []
+    monkeypatch.setattr(keyit_actions.user32, "SetCursorPos", lambda x, y: sent.append(("to", x, y)))
+    monkeypatch.setattr(keyit_actions.user32, "mouse_event", lambda *words: sent.append(words))
+    monkeypatch.setattr(keyit_actions.time, "sleep", lambda seconds: None)
+    keyit_actions.click_at(10, 20)
+    check("both halves of Buddy's own click have it",
+          sent[0] == ("to", 10, 20) and [words[-1] for words in sent[1:]] == [keyit_actions.OWN_CLICK_MARK] * 2)
+
+
+def test_a_click_a_program_makes_with_the_mouse_is_followed_in_every_window(lab, monkeypatch):
+    """An agent that moves the mouse itself and clicks: in a window of a program it started (Notepad), and in
+    one that was open already (a drawing program: nobody can say which program clicked there)."""
+    logged, posted, commands, screen = lab.logged, lab.posted, lab.commands, lab.screen
+    watch = ct.TaskWatch()
+    watch.on = watch.applied = True
+    vector, repl, script, notepad, shell, drawing, own = 100, 120, 200, 240, 250, 310, 300
+    commands[repl] = "python.exe -m vector_repl --owner-pid 100"
+    commands[script] = "python.exe c:\\work\\fill_in.py"
+    commands[notepad] = "notepad.exe c:\\work\\notes.txt"
+    commands[shell] = "cmd.exe /k dir"
+    base = {0: (0, "", 0), 4: (0, "system", 0), 950: (4, "explorer.exe", started(2)),
+            vector: (950, "vector.exe", started(10)), repl: (vector, "python.exe", started(12)),
+            own: (950, "chrome.exe", started(5)), drawing: (950, "sldworks.exe", started(6)),
+            ct.OWN_PID: (950, "buddy.exe", started(7))}
+    lab.look(watch, base, startup=True)
+    lab.look(watch, {**base, script: (repl, "python.exe", started(100)), notepad: (script, "notepad.exe", started(101)),
+                     shell: (script, "cmd.exe", started(102))})
+    watch.first_windows = False
+    screen.update({1: (notepad, "notes.txt - Notepad"), 3: (shell, "C:\\Windows\\System32\\cmd.exe"),
+                   4: (own, "News - Google Chrome"), 6: (drawing, "SOLIDWORKS"), 8: (ct.OWN_PID, "Buddy")})
+    followed = []
+    monkeypatch.setattr(watch.screen, "follow", lambda windows, front=0: followed.append(dict(windows)))
+    places = {(500, 400): (1, notepad), (503, 402): (1, notepad), (600, 400): (1, notepad), (900, 300): (6, drawing), (910, 310): (6, drawing), (920, 320): (6, drawing),
+              (50, 50): (8, ct.OWN_PID), (30, 700): (77, 4321)}
+    monkeypatch.setattr(ct, "window_at", lambda x, y: places.get((x, y), (0, 0)))
+    watch.scan_windows()
+    check("a window of any program the agent started is followed through the screen, not only a browser's; "
+          "a command window has nothing to press", followed[-1] == {1: notepad})
+
+    def said():
+        time.sleep(ct.CLICK_LANDS_S + 0.3)
+        return [(event.get("x"), event.get("y"), event.get("hwnd"), event["say"]) for event in posted]
+
+    logged.clear(), posted.clear()
+    watch.mouse_action("left", 500, 400)
+    check("a mouse click of a program in the agent's window: the pointer flies to the click and hops there",
+          said() == [(500, 400, 1, "Clicking here"), (500, 400, 1, "Clicked here")] and posted[0]["agent"] == "Vector"
+          and posted[0]["window"] == "notes.txt - Notepad")
+    check("the trace has it, as the mouse's",
+          logged == ["CLICK  AI agent\\Vector  -> notepad.exe pid 240: the mouse at (500, 400)"])
+    watch.screen_action(1, notepad, "click", "button", 500, 400)
+    watch.mouse_action("left", 503, 402)
+    check("the button says right after that it was pressed, and the click's second half comes (a double click): "
+          "the same click, told once", len(said()) == 2 and len(logged) == 1)
+    watch.mouse_action("left", 600, 400)
+    check("a click somewhere else right after is another click", said()[2][:2] == (600, 400) and len(logged) == 2)
+    real_monotonic = time.monotonic
+    monkeypatch.setattr(ct.time, "monotonic", lambda: real_monotonic() + ct.SAME_CLICK_S + 1)
+    posted.clear()
+    watch.screen_action(1, notepad, "click", "button", 520, 410)
+    monkeypatch.setattr(ct.time, "monotonic", real_monotonic)
+    check("a press the window tells later is a press of its own", said()[0] == (520, 410, 1, "Clicking a button"))
+    logged.clear(), posted.clear()
+    watch.screen_action(1, notepad, "click", "", None, None, gone=True)
+    check("a press with no kind in a window that is no browser's is not called a page",
+          [words[3] for words in said()] == ["Clicking something", "Clicked something"]
+          and logged == ["CLICK  AI agent\\Vector  -> notepad.exe pid 240: something: the thing was gone before its place could be read"])
+
+    logged.clear(), posted.clear()
+    watch.mouse_action("right", 900, 300)
+    check("a click in a window that is not the agent's (a program that was open already): taken for the agent "
+          "that is at work, shown in that window",
+          said() == [(900, 300, 6, "Right-clicking here"), (900, 300, 6, "Right-clicked here")]
+          and posted[0]["agent"] == "Vector" and posted[0]["window"] == "SOLIDWORKS")
+    check("and the trace says that it was taken so",
+          logged == ["CLICK  AI agent\\Vector  -> sldworks.exe pid 310: the mouse (right button) at (900, 300)"
+                     "  (not its own window: taken for its click)"])
+
+    # the agent's own windows close: it works on in the window it clicked in
+    del screen[1], screen[3]
+    watch.scan_windows()
+    posted.clear()
+    watch.keep_alive()
+    check("its own windows are closed, the window it clicked in is open: the pointer is not put to rest",
+          not [event for event in posted if event.get("state") == "done"])
+    del screen[6]
+    watch.scan_windows()
+    watch.keep_alive()
+    check("that window just closed: the pointer stays for a moment (a click on the taskbar has no window in the list)",
+          not [event for event in posted if event.get("state") == "done"])
+    monkeypatch.setattr(ct.time, "monotonic", lambda: real_monotonic() + ct.CLICK_HOLDS_S + 1)
+    watch.keep_alive()
+    monkeypatch.setattr(ct.time, "monotonic", real_monotonic)
+    check("and then it rests", [event["state"] for event in posted if event.get("state") == "done"] == ["done"])
+    screen[6] = (drawing, "SOLIDWORKS")
+    watch.scan_windows()
+
+    # whose click is it, when a scheduled task runs too?
+    with watch.lock:
+        watch.followed["Backups\\Nightly copy"] = {"started": time.time() + 50, "announced": False, "alive": 0.0,
+                                                  "pids": {1}, "moved": time.monotonic() + 50}
+    logged.clear(), posted.clear()
+    watch.mouse_action("left", 910, 310)
+    check("an AI agent is taken before a scheduled task, though the task has the later news",
+          said()[0][3] == "Clicking here" and posted[0]["agent"] == "Vector")
+    with watch.lock:
+        agent = watch.followed.pop("AI agent\\Vector")
+    logged.clear(), posted.clear()
+    watch.mouse_action("middle", 900, 300)
+    check("with no agent it is the scheduled task's",
+          posted and posted[0]["agent"] == "Nightly copy" and "the mouse (middle button) at (900, 300)" in logged[0])
+    time.sleep(ct.CLICK_LANDS_S + 0.3)
+
+    with watch.lock:
+        watch.followed.clear()
+    logged.clear(), posted.clear()
+    watch.mouse_action("left", 900, 300)
+    watch.mouse_action("left", 30, 700)
+    check("nobody is followed: only the trace has the click, with the program it went to (no ghost without a trace)",
+          not posted and logged == ["CLICK  a program nobody follows  -> sldworks.exe pid 310: the mouse at (900, 300)",
+                                    "CLICK  a program nobody follows  -> ? pid 4321: the mouse at (30, 700)"])
+    with watch.lock:
+        watch.followed["AI agent\\Vector"] = agent
+    logged.clear(), posted.clear()
+    watch.mouse_action("left", 50, 50)
+    watch.mouse_action("left", 1, 1)
+    check("a click on Buddy itself (its own buttons) or on nothing is nobody's work", not posted and not logged)
+    watch.on = False
+    watch.mouse_action("left", 920, 320)
+    check("pointers off: the trace goes on, nothing is shown",
+          not posted and len(logged) == 1 and logged[0].endswith("(not its own window: taken for its click)  (pointers off)"))
+    watch.on = True
+
+    # from the listener's thread to the watch's own
+    done = []
+    monkeypatch.setattr(ct, "first_in_line", lambda: None)
+    monkeypatch.setattr(watch, "mouse_action", lambda *click: done.append(click) or (1 / 0 if click[1] == 1 else None))
+    worker = threading.Thread(target=watch.watch_mouse, daemon=True)
+    worker.start()
+    watch.program_clicked("left", 1, 2)                    # this one fails: the watch goes on
+    watch.program_clicked("right", 3, 4)
+    until = time.monotonic() + 5
+    while len(done) < 2 and time.monotonic() < until:
+        time.sleep(0.02)
+    monkeypatch.setattr(watch.screen, "stop", lambda: None)
+    watch.stop()
+    worker.join(5)
+    check("the listener only notes a click; the watch's own thread works it off, and ends with the watch",
+          done == [("left", 1, 2), ("right", 3, 4)] and not worker.is_alive()
+          and any("error (a program's click): ZeroDivisionError" in line for line in logged))
+
+
 def test_windows_can_be_asked_about_presses():
     """The real thing, on this PC: the hook and the listeners can be put on and taken off (this test's own
     process and a window of it are used: no browser is touched)."""
@@ -1149,10 +1426,17 @@ def test_windows_can_be_asked_about_presses():
             screen.pump(0.05)
             facts["pump"] = time.monotonic() - began
             screen.unhook(hooks)
+            hooks = screen.hook(os.getpid(), crew_screen.BUTTONS_HOOKED)
+            facts["button hooks"] = len(hooks)
+            screen.unhook(hooks)
             desktop = crew_screen.user32.GetDesktopWindow()
             token = screen.listen(desktop, lambda *report: None)
             screen.unlisten(token)
             screen.unlisten(token)                           # twice is harmless
+            token = screen.listen(desktop, lambda *report: None, selections=True)
+            facts["events"] = token[2]
+            screen.unlisten(token)
+            facts["kinds"] = (crew_screen.kind_of(desktop), crew_screen.forms_button(desktop))
             screen.close()
             facts["page"] = crew_screen.page_of(desktop)
         except Exception as error:
@@ -1162,11 +1446,36 @@ def test_windows_can_be_asked_about_presses():
     thread.start()
     thread.join(30)
     check(f"nothing failed: {facts.get('error')}", "error" not in facts and not thread.is_alive())
-    check("a process can be hooked", facts["hooks"] == len(crew_screen.HOOKED))
+    check("a process can be hooked, for all its news and for its buttons only",
+          facts["hooks"] == len(crew_screen.HOOKED) and facts["button hooks"] == 1)
+    check("a plain window is also asked for the entries that are chosen",
+          facts["events"] == (crew_screen.INVOKED, crew_screen.SELECTED))
+    check("a window that is no browser's is a plain one, and no Windows Forms button",
+          facts["kinds"] == ("plain", None))
     check("waiting for news comes back in time", facts["pump"] < 2)
     check("a window that is no page is nobody's page", facts["page"] == 0)
     check("you were at the keyboard or the mouse some time ago", crew_screen.idle_seconds() >= 0)
     check("the mouse is somewhere", len(crew_screen.mouse()) == 2)
+
+
+def test_the_listeners_start_in_a_program_that_never_used_them_before():
+    """The watch's thread can be the first of all to load comtypes (nothing else in Buddy asked Windows for a
+    thing on the screen yet). Loading it sets the thread up the wrong way: the watch must get over that."""
+    pytest.importorskip("comtypes")
+    code = ("import sys, threading; sys.path.insert(0, sys.argv[1]); import crew_screen\n"
+            "said = []\n"
+            "def work():\n"
+            "    try:\n"
+            "        screen = crew_screen.Screen(lambda hwnd: None)\n"
+            "        screen.unlisten(screen.listen(crew_screen.user32.GetDesktopWindow(), lambda *report: None, selections=True))\n"
+            "        screen.close(); said.append('ok')\n"
+            "    except Exception as error:\n"
+            "        said.append(repr(error))\n"
+            "thread = threading.Thread(target=work); thread.start(); thread.join(60); print(said)\n")
+    done = subprocess.run([sys.executable, "-c", code, str(ROOT / "keyit")], capture_output=True, text=True, timeout=120,
+                          creationflags=0x08000000)
+    check(f"a thread that loads comtypes itself can listen: {done.stdout.strip()} {done.stderr.strip()[-300:]}",
+          done.stdout.strip() == "['ok']")
 
 
 class FakeIcon:
@@ -1246,8 +1555,8 @@ def test_buddy_runs_the_watch_itself():
 
 def test_only_what_buddy_ships_is_needed():
     """Buddy.exe brings Python's own modules and the libraries of requirements.txt, nothing else."""
-    allowed = {"base64", "collections", "ctypes", "datetime", "hashlib", "json", "logging", "os", "pathlib", "re",
-               "socket", "struct", "subprocess", "threading", "time", "urllib", "PIL", "pystray",
+    allowed = {"base64", "collections", "ctypes", "datetime", "hashlib", "json", "logging", "os", "pathlib", "queue",
+               "re", "socket", "struct", "subprocess", "threading", "time", "urllib", "PIL", "pystray",
                "crew_browser", "crew_screen", "keyit_core", "comtypes"}
     for name in ("crew_tasks.py", "crew_browser.py", "crew_screen.py", "crew_button.py"):
         tree = ast.parse((ROOT / "keyit" / name).read_text(encoding="utf-8"))

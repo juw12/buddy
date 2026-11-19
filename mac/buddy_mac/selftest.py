@@ -8,6 +8,7 @@ Writes report.json; exits 0 only if the checks pass.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import threading
 import time
@@ -86,6 +87,7 @@ class SelfTestController(Controller):
         self._check_island()
         self._check_text_recognition()
         self._check_voice_languages()
+        self._check_agent_pointer()
         plan = [
             (0.8, self._shot, "01_idle"),
             (1.0, self._state, ("listening", "“where's save as”")),
@@ -130,6 +132,88 @@ class SelfTestController(Controller):
             voice = self.speaker.voice_for(text, "")
             voices[expected] = str(voice.language()) if voice is not None else "default"
         self.report["answer_voices"] = voices        # which voice reads each answer (not required)
+
+    def _check_agent_pointer(self):
+        """The agent pointer: a click a program makes is flown to and named, your own click is left alone,
+        and the pointer goes away again. The press is handed to the app directly, so this needs no permission."""
+        import Quartz
+        from AppKit import NSEvent
+
+        checks = self.report["checks"]
+        result = self.report["agent_pointer"] = {}
+        checks["agent_monitor"] = self.agent_monitor is not None
+        # A real mouse press event is read back correctly (where, which button)
+        try:
+            press = Quartz.CGEventCreateMouseEvent(None, Quartz.kCGEventRightMouseDown, (300.0, 200.0),
+                                                   Quartz.kCGMouseButtonRight)
+            read = self._read_press(NSEvent.eventWithCGEvent_(press))
+            result["read"] = list(read)
+            checks["agent_press_read"] = read[1:4] == (300.0, 200.0, "right")
+        except Exception as error:                                # noqa: BLE001
+            result["read_error"] = repr(error)
+            checks["agent_press_read"] = False
+        # Your own hand (no posting process) and Buddy itself are never followed; another process is
+        other = os.getppid()
+        result["own_hand_followed"] = self.program_clicked(0, 200.0, 150.0)
+        result["buddy_followed"] = self.program_clicked(os.getpid(), 200.0, 150.0)
+        result["program_followed"] = self.program_clicked(other, 200.0, 150.0)
+        result["program"] = other
+        main_height = NSScreen.screens()[0].frame().size.height
+        AppHelper.callLater(1.0, self._check_agent_landed, (200.0, main_height - 150.0))
+        AppHelper.callLater(core.AGENT_HOLD_SECONDS + 1.0, self._check_agent_rested, None)
+        if os.environ.get("BUDDY_SELFTEST_LIVE_CLICK") == "1":
+            AppHelper.callLater(core.AGENT_HOLD_SECONDS + 1.2, self._live_click, None)
+
+    def _check_agent_landed(self, target):
+        result = self.report["agent_pointer"]
+        agent = self.agent
+        landed = False
+        if agent is not None:
+            error = ((agent.pos[0] - target[0]) ** 2 + (agent.pos[1] - target[1]) ** 2) ** 0.5
+            picture = self.out_dir / "00_agent_pointer.png"
+            try:
+                agent.render_png(picture)
+            except Exception as error_drawing:                    # noqa: BLE001
+                result["render_error"] = repr(error_drawing)
+            result.update(landed_error_pt=round(error, 2), text=agent.text,
+                          visible=bool(agent.window.isVisible()),
+                          render_ok=picture.exists() and picture.stat().st_size > 0)
+            landed = (error < 3 and agent.text.endswith("clicked here") and result["visible"]
+                      and result["render_ok"])
+        self.report["checks"]["agent_pointer_flies"] = (landed and result["program_followed"]
+                                                        and not result["own_hand_followed"]
+                                                        and not result["buddy_followed"])
+
+    def _check_agent_rested(self, _):
+        self.report["checks"]["agent_pointer_rests"] = self.agent is None
+
+    def _live_click(self, _):
+        """Only when CI asks for it: post one real click and see whether the monitor hears it with the
+        posting process on it. Reported, not required: a machine may not let a program post clicks."""
+        import Quartz
+
+        live = self.report["live_click"] = {"buddy": os.getpid()}
+        try:
+            allowed = getattr(Quartz, "CGPreflightPostEventAccess", None)
+            live["post_allowed"] = bool(allowed()) if allowed else None
+            frame = NSScreen.screens()[0].frame()
+            where = (frame.size.width / 2.0, frame.size.height / 2.0)
+            self.agent_heard = []
+            for kind in (Quartz.kCGEventLeftMouseDown, Quartz.kCGEventLeftMouseUp):
+                press = Quartz.CGEventCreateMouseEvent(None, kind, where, Quartz.kCGMouseButtonLeft)
+                Quartz.CGEventPost(Quartz.kCGHIDEventTap, press)
+            live["posted_at"] = list(where)
+        except Exception as error:                                # noqa: BLE001
+            live["error"] = repr(error)
+        AppHelper.callLater(1.5, self._live_click_heard, None)
+
+    def _live_click_heard(self, _):
+        live = self.report["live_click"]
+        heard = self.agent_heard or []
+        self.agent_heard = None
+        live["heard"] = [list(press) for press in heard]
+        # Buddy posted it, so the press must come back carrying Buddy's own process
+        self.report["checks"]["live_click_seen"] = any(press[0] == os.getpid() for press in heard)
 
     def _check_text_recognition(self):
         """The arrow snaps onto text read by Apple's Vision framework: prove it is bundled and works."""
@@ -264,7 +348,8 @@ class SelfTestController(Controller):
         required = ["answer_parsed", "two_points", "pointer_landed", "renders_ok", "error_bubble",
                     "brain_called", "hotkey_registered", "menu_bar_item", "text_recognition",
                     "island_at_top", "island_clickable", "island_renders", "island_mirrors",
-                    "voice_languages", "voice_language_switch", "language_detect"]
+                    "voice_languages", "voice_language_switch", "language_detect",
+                    "agent_monitor", "agent_press_read", "agent_pointer_flies", "agent_pointer_rests"]
         self.report["passed"] = reason == "done" and all(checks.get(name) for name in required)
         (self.out_dir / "report.json").write_text(json.dumps(self.report, indent=1), encoding="utf-8")
         print(json.dumps({"passed": self.report["passed"], "checks": checks,
@@ -274,6 +359,8 @@ class SelfTestController(Controller):
                           "voice_switch": self.report.get("voice_switch"),
                           "language_detect": self.report.get("language_detect"),
                           "answer_voices": self.report.get("answer_voices"),
+                          "agent_pointer": self.report.get("agent_pointer"),
+                          "live_click": self.report.get("live_click"),
                           "text_recognition_error": self.report.get("text_recognition_error")}, indent=1), flush=True)
         self.server.shutdown()
         AppHelper.stopEventLoop()

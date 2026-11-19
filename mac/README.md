@@ -14,6 +14,8 @@ A buddy next to your mouse, on macOS 12 or newer. One universal download runs na
   or English (only the ones your Mac's speech recognition has are listed). Buddy answers in the language you
   asked in and reads the answer with a Mac voice for that language. Languages your Mac can't recognise
   offline go through Apple's servers, like dictation does.
+- **The agent pointer:** when a program (an AI agent, a script) clicks with the mouse, a second pointer
+  flies to the click and names the program. [More below](#the-agent-pointer-1120).
 - Works out of the box on a free cloud brain. No account, no key, no model download.
 
 **Lite** means pointing and answers only. Clicking and typing for you, the Pips pet and keyboard sounds are
@@ -57,6 +59,25 @@ To change it: menu bar buddy → **Brain…** (any OpenAI-compatible `/chat/comp
 The screenshot and your question go only to the endpoint you set (and, if that brain can't answer, to the
 free brain or a local Ollama; a brain with an API key never falls back to the free cloud brain). Settings live in
 `~/Library/Application Support/Buddy/settings.json`, the log in `~/Library/Logs/Buddy/buddy.log`.
+
+## The agent pointer (1.12.0)
+
+An AI agent or a script that uses this Mac should not look like a ghost. When a program clicks with the
+mouse, in any app, a second pointer in another colour than your Buddy flies to the click, shows a ring
+there and says who it was: *Terminal clicked here*, *cliclick right-clicked here*. It leaves 2.5 seconds
+after the last click.
+
+- **How Buddy knows:** macOS marks every mouse press with the process that posted it. A press from your
+  own mouse or trackpad has none, so your own clicks are never shown.
+- **No new permission:** hearing mouse presses needs none (unlike keys), so macOS asks nothing.
+- **Always a trace:** every such click is a line in `~/Library/Logs/Buddy/buddy.log` (menu: *Open log*),
+  with the program, its process number, the button and the point. Never what was typed.
+- **Off:** menu bar buddy, untick *Show where an agent clicks*. The log line is still written.
+- **Not shown:** a press a program makes without the mouse (through Accessibility), and typing.
+  Clicks passed on by mouse and trackpad tools (BetterTouchTool, LinearMouse, Mac Mouse Fix, SteerMouse,
+  USB Overdrive, Logitech, Karabiner) and by screen sharing are your own hand and are left out.
+  An agent that works from the command line is named by its tool (*python3.12*, *cliclick*), not by the
+  app that started it.
 
 ## From source
 
