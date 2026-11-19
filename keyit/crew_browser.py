@@ -28,6 +28,7 @@ BINDING = "buddySaw"
 OWN_CLICK_PX = 10          # a click this close to your real mouse is your own click, not the agent's
 OWN_KEYS_S = 0.3           # typing this soon after your own keyboard or mouse, in the window in front, is yours
 GA_ROOT = 2
+MONITOR_DEFAULTTONULL = 0
 VK_LBUTTON = 0x01
 
 # Runs in every frame of every tab. It reports a place and a kind, nothing else.
@@ -103,6 +104,8 @@ user32.WindowFromPoint.argtypes = [wintypes.POINT]
 user32.WindowFromPoint.restype = wintypes.HWND
 user32.GetAncestor.argtypes = [wintypes.HWND, wintypes.UINT]
 user32.GetAncestor.restype = wintypes.HWND
+user32.MonitorFromPoint.argtypes = [wintypes.POINT, wintypes.DWORD]
+user32.MonitorFromPoint.restype = wintypes.HANDLE
 user32.GetForegroundWindow.restype = wintypes.HWND
 user32.GetCursorPos.argtypes = [ctypes.POINTER(wintypes.POINT)]
 user32.SetThreadDpiAwarenessContext.argtypes = [ctypes.c_void_p]
@@ -297,7 +300,12 @@ def is_yours(action, hwnd, point):
 
 
 def on_top(hwnd, point):
-    seen = user32.WindowFromPoint(wintypes.POINT(*point))
+    """True when `hwnd` is the window you see at this screen point. A point off every screen is never seen:
+    Windows names the window that lies there all the same (a browser kept as a strip at the screen edge)."""
+    point = wintypes.POINT(*point)
+    if not user32.MonitorFromPoint(point, MONITOR_DEFAULTTONULL):
+        return False
+    seen = user32.WindowFromPoint(point)
     return bool(seen) and int(user32.GetAncestor(seen, GA_ROOT) or 0) == hwnd
 
 

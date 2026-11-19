@@ -451,6 +451,25 @@ class PointerMotionTests(unittest.TestCase):
             pointer._set_shown(True)
         self.assertEqual(raised, [buddy_crew.buddy_overlay.HWND_TOPMOST])   # once for the step, then the regular turns
 
+    def test_a_window_that_went_above_the_pointer_hides_it_for_a_moment_only(self):
+        # The agent's window is put on top again after a press that gives no news (a thing gone at once):
+        # no new step comes, so the regular turn must come soon.
+        self.assertLessEqual(buddy_crew.CrewPointer.TOPMOST_EVERY_S, 0.5)
+        self.assertEqual(buddy_crew.BuddyOverlay.TOPMOST_EVERY_S, 2.0)      # Buddy's own pointer: as it was
+        pointer = bare_pointer()
+        raised = []
+        pointer._shown = True
+        del pointer._set_shown
+        windows = types.SimpleNamespace(SetWindowPos=lambda *arguments: raised.append(arguments[1]),
+                                        ShowWindow=lambda *arguments: None)
+        with mock.patch.object(buddy_crew.buddy_overlay, "user32", windows):
+            pointer._last_topmost = time.perf_counter() - 0.2
+            pointer._set_shown(True)
+            self.assertEqual(raised, [])                                    # too soon
+            pointer._last_topmost = time.perf_counter() - 0.4
+            pointer._set_shown(True)
+        self.assertEqual(raised, [buddy_crew.buddy_overlay.HWND_TOPMOST])
+
     def test_a_new_step_hops_with_a_ripple_at_full_frame_rate(self):
         pointer = bare_pointer()
         pointer.show("explorer: Editing notes.md", (500.0, 300.0), hop=True)
@@ -524,6 +543,38 @@ class NothingToPointAtTests(CrewCase):
         self.post("installer", "Back to work")
         self.assertFalse(self.pointers[1].on_screen)
 
+    def test_a_step_in_a_window_you_cannot_see_is_said_at_the_edge_of_the_screen(self):
+        # the task watch's news of a new window, or of a press, in a window that is off the screen
+        self.post("Vector", "Clicking a link", window="Gmail - Google Chrome", hwnd=7, dock=True)
+        self.assertEqual(self.pointers[0].calls, [
+            ("show", "Vector: Clicking a link (in a window you cannot see)", (1500, 100), True, (1900, 100))])
+        self.clock.now += buddy_crew.AT_PLACE_S + 0.5
+        self.crew.tick()
+        self.assertEqual(self.pointers[0].calls[-1], ("leave",))           # it does not wait there
+        self.post("Vector", "Working in Gmail", window="Inbox - Gmail - Google Chrome", hwnd=7)
+        self.assertEqual(self.pointers[0].calls[-1], ("leave",))           # a later title alone brings none
+        self.post("Vector", "Clicking a button", window="Inbox - Gmail - Google Chrome", hwnd=7, dock=True)
+        self.assertEqual(self.pointers[0].calls[-1][:3],
+                         ("show", "Vector: Clicking a button (in a window you cannot see)", (1500, 100)))
+        self.crew._desktop.nowhere = False                                 # the window comes into view
+        self.crew.tick()
+        self.assertEqual(self.pointers[0].calls[-1][:3], ("show", "Vector: Clicking a button", (1000, 100)))
+
+    def test_a_press_on_a_covered_thing_is_said_on_its_window_with_words_that_say_so(self):
+        self.crew._desktop.nowhere = False
+
+        def last():
+            return self.pointers[0].calls[-1][1:3]
+        # the browser told the press without a place you can see: the pointer can only stand on the window
+        self.post("Vector", "Clicked a link", window="Inbox - Gmail", hwnd=7, dock=True, press=True)
+        self.assertEqual(last(), ("Vector: Clicked a link (where you cannot see it)", (1000, 100)))
+        # the thing itself can be seen: the pointer is on it, and the words are plain
+        self.post("Vector", "Clicked a button", x=640, y=480, window="Inbox - Gmail", hwnd=7, dock=True, press=True)
+        self.assertEqual(last(), ("Vector: Clicked a button", (640, 480)))
+        # the window's own news is never said to be covered
+        self.post("Vector", "Working in Gmail", window="A mail - Gmail", hwnd=7)
+        self.assertEqual(last(), ("Vector: Working in Gmail", (1000, 100)))
+
     def test_done_is_said_only_by_a_pointer_that_is_on_screen(self):
         self.post("quiet", "Running pytest")
         self.post("quiet", "", state="done")
@@ -557,7 +608,12 @@ class DesktopTests(unittest.TestCase):
             self.listed += 1
             return list(windows)
         return Desktop(windows=list_windows, on_top_at=lambda hwnd, x, y: on_top, area=lambda: self.AREA,
-                       clock=clock or Clock())
+                       clock=clock or Clock(), rect_of=self.rect_of(windows))
+
+    @staticmethod
+    def rect_of(windows):
+        """Windows' answer for one window by its number, from the list of the test."""
+        return lambda hwnd: next((rect for number, _, rect in windows if number == hwnd), None)
 
     def test_the_dock_is_a_column_on_the_right_that_stays_on_the_screen(self):
         desktop = self.desktop()
@@ -606,7 +662,7 @@ class DesktopTests(unittest.TestCase):
         windows = [(7, "Inbox - Browser", (200, 100, 1200, 900))]
         shows = {(7, 640, 480), (7, 200 + 360, 100 + 18)}          # what window 7 shows: the spot, and its top
         desktop = Desktop(windows=lambda: windows, on_top_at=lambda hwnd, x, y: (hwnd, x, y) in shows,
-                          area=lambda: self.AREA, clock=Clock())
+                          area=lambda: self.AREA, clock=Clock(), rect_of=self.rect_of(windows))
         self.assertEqual(desktop.place(0, point=(640, 480), window="Inbox - Browser", hwnd=7), (640, 480))
         shows.discard((7, 640, 480))                                # another window covers the spot now
         self.assertEqual(desktop.place(0, point=(640, 480), window="Inbox - Browser", hwnd=7), (200 + 360, 100 + 18))
@@ -618,7 +674,8 @@ class DesktopTests(unittest.TestCase):
         event = buddy_crew.normalize_event({"agent": "Vector", "x": 640, "y": 480, "window": "Inbox", "hwnd": 7})
         self.assertEqual((event["point"], event["hwnd"]), ((640, 480), 7))
         self.assertEqual(buddy_crew.normalize_event({"agent": "Vector", "x": 1, "y": 2})["hwnd"], 0)
-        self.assertEqual(buddy_crew.normalize_event({"agent": "Vector", "window": "Inbox", "hwnd": 7})["hwnd"], 0)
+        self.assertEqual(buddy_crew.normalize_event({"agent": "Vector", "window": "Inbox", "hwnd": 7})["hwnd"], 7)
+        self.assertEqual(buddy_crew.normalize_event({"agent": "Vector", "window": "Inbox", "hwnd": "x"})["hwnd"], 0)
         # the crew hands the window's number on: a covered spot is not pointed at, the window's top is
         pointers = []
 
@@ -627,15 +684,49 @@ class DesktopTests(unittest.TestCase):
             return pointers[-1]
         clock = Clock()
         shows = {(7, 640, 480), (7, 360, 18)}
+        windows = [(7, "Inbox", (0, 0, 900, 800))]
         crew = Crew(pointer_factory=pointer, clock=clock, desktop=Desktop(
-            windows=lambda: [(7, "Inbox", (0, 0, 900, 800))], on_top_at=lambda hwnd, x, y: (hwnd, x, y) in shows,
-            area=lambda: self.AREA, clock=clock))
+            windows=lambda: windows, on_top_at=lambda hwnd, x, y: (hwnd, x, y) in shows,
+            area=lambda: self.AREA, clock=clock, rect_of=self.rect_of(windows)))
         crew.post({"agent": "Vector", "x": 640, "y": 480, "window": "Inbox", "hwnd": 7})
         crew.tick()
         self.assertEqual(pointers[0].calls[-1][2], (640, 480))
         shows.discard((7, 640, 480))
         crew.tick()
         self.assertEqual(pointers[0].calls[-1][2], (360, 18))
+
+    def test_work_in_a_numbered_window_is_never_shown_on_another_window_with_the_same_title(self):
+        # the agent's Gmail (7) is behind your windows or off the screen; your own Gmail (3) is in front
+        windows = [(3, "Inbox - you - Gmail - Google Chrome", (0, 0, 1600, 900)),
+                   (7, "Gmail - Google Chrome", (-3200, -3200, -1920, -2200))]
+        desktop = Desktop(windows=lambda: windows, on_top_at=lambda hwnd, x, y: hwnd == 3, area=lambda: self.AREA,
+                          clock=Clock(), rect_of=self.rect_of(windows))
+        self.assertEqual(desktop.place(0, window="Gmail - Google Chrome"), (360, 18))    # by title: your own (wrong)
+        self.assertIsNone(desktop.place(0, window="Gmail - Google Chrome", hwnd=7))      # by number: nowhere to see
+        self.assertIsNone(desktop.place(0, point=(-2500, -2700), window="Gmail - Google Chrome", hwnd=7))
+        self.assertIsNone(desktop.place(0, window="Gmail - Google Chrome", hwnd=99))     # a window that is gone
+        windows[1] = (7, "Gmail - Google Chrome", (200, 100, 1200, 900))                 # it comes into view
+        seen = Desktop(windows=lambda: windows, on_top_at=lambda hwnd, x, y: hwnd == 7, area=lambda: self.AREA,
+                       clock=Clock(), rect_of=self.rect_of(windows))
+        self.assertEqual(seen.place(0, window="Gmail - Google Chrome", hwnd=7), (200 + 360, 100 + 18))
+
+    def test_a_number_no_window_has_is_no_place(self):
+        self.assertIsNone(buddy_crew.window_rect(0))
+
+    def test_a_point_off_every_screen_is_never_seen(self):
+        # Windows names the window that lies at a point off the screen (a browser kept as a strip at the
+        # screen edge): the pointer flew there, out of sight, with only its words left at the edge
+        named = []
+        with mock.patch.object(buddy_crew.user32, "WindowFromPoint", lambda point: named.append(point) or 7), \
+                mock.patch.object(buddy_crew.user32, "GetAncestor", lambda hwnd, flag: 7):
+            self.assertFalse(buddy_crew._on_top_at(7, -32000, -32000))
+            self.assertEqual(named, [])
+            self.assertTrue(buddy_crew._on_top_at(7, *self.on_this_screen()))
+
+    @staticmethod
+    def on_this_screen():
+        left, top, right, bottom = buddy_crew.work_area()
+        return (left + right) // 2, (top + bottom) // 2
 
 
 class WordsTests(unittest.TestCase):

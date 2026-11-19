@@ -326,8 +326,10 @@ Buddy's own shape (the one you picked in Settings → Look); its colour and its 
   "window": "Excel", "where": "project-a", "id": "any-stable-key", "color": "#22c55e", "icon": "star",
   "x": 800, "y": 400}`. `state` is `working`, `waiting` (it needs you), `done` or `leave`; `window` is a piece
   of a window title to fly to; `x`/`y` is an exact screen point the pointer flies to (it only points: to really click, see *Crew hands* below).
-  With `"hwnd"` (the number of a window) next to `x`/`y`, the point only counts while that window shows it;
-  behind another window the pointer goes to the part of that window you can see. `icon`
+  With `"hwnd"` (the number of a window) the work is in that one window, whatever its title is: a point
+  next to it only counts while that window shows it, else the pointer goes to the top of that window. With
+  `"dock": true` a step in a window you cannot see at all is shown at the right edge of the screen, and with
+  `"press": true` the words say when the pointer could only stand on the window. `icon`
   is `arrow`, `pointer`, `plane`, `dot`, `star`, `heart` or `face`. A tool that works for longer than 30
   seconds without news posts `{"agent": "explorer", "alive": true}` now and then: Buddy keeps following it,
   and nothing else changes.
@@ -439,13 +441,27 @@ is always a trace of what they did.
   in your own Chrome works like this, and your mouse never moves. The pointer now flies to the thing that
   was pressed there too. After a click it stays at that spot for 10 seconds while the page changes, and no
   longer goes back to the tab with every new title. With every new step the pointer is put above all
-  windows at once, so a browser window that keeps itself on top no longer hides it. What it cannot show:
+  windows at once, so a browser window that keeps itself on top no longer hides it. From 1.11.1 a crew
+  pointer also puts itself above all windows 3 times a second: when such a window is put on top again
+  without any news (after a press that is not told), the pointer is back in well under a second, where
+  it was out of sight for up to 2 seconds before. What it cannot show:
   a thing that is gone in the instant it is pressed (a *back* button that takes its own view away) is not
   told by the browser, so the pointer stays where it was. A thing that is gone a moment later is sometimes
-  told without its place: the trace then says *the thing was gone before its place could be read*. A press
-  in a window that is behind another window is only in the trace (*behind another window*), and the pointer
-  waits on the part of that window you can see. Typing is shown for the box that has the keyboard, and
-  not while you use that same window yourself. Firefox is not followed.
+  told without its place: the trace then says *the thing was gone before its place could be read*.
+  Typing is shown for the box that has the keyboard, and not while you use that same window yourself.
+  Firefox is not followed.
+- **The right window, and no ghost (1.11.1):** the pointer belongs to the one window the program works in,
+  by that window's number. Before, the window was looked up by its title, so with your own Gmail open the
+  pointer could stand on the tab of *your* window while the work went on in the agent's window. When the
+  pressed thing is covered and only the window can be seen, the pointer stands on the window and says so:
+  *Clicked a link (where you cannot see it)*. When none of that window can be seen (it is behind your
+  windows, or the program keeps it off the screen), the pointer stands at the right edge of the screen and
+  says *Clicked a link (in a window you cannot see)*. A new window that opens where you cannot see it is
+  told the same way, for its first 10 seconds: *Working in Gmail (in a window you cannot see)*. The titles
+  such a hidden window gets later by itself are only in the trace. A place that is off the screen is not
+  a place you can see: a browser kept as a strip at the screen edge had its presses told at points past
+  the edge (`at (2892, 493)` on a screen 2560 wide), and the pointer flew out of sight with only its
+  words left at the edge. The trace now says *behind another window or off the screen* for these.
 - **Never late:** windows are looked at 4 times a second, and one look takes about a millisecond, whatever
   else Buddy is doing at that moment. On a busy PC a new window was in the trace 0.02 to 0.18 seconds after
   it appeared (10 tries), and the pointer was on it after 0.2 to 0.9 seconds, half of the time within 0.45
@@ -470,7 +486,9 @@ late. Clicks through the screen (1.11.0): a test page in Chrome 157, pressed thr
 window that keeps itself on top. In four runs every press of a thing that stayed at least 150 ms was in
 the trace at the centre of that thing (links, buttons, a tick box, a button far down the page, also after
 the window was dragged), and in a picture the pointer sat on the pressed link and was still there after
-the page had a new title. Real Gmail was only listened to, never pressed for a test: of 5 presses on a
+the page had a new title. After a press that is not told (the window is put on top again, no news): the
+pointer was behind the window 0.4 s later and above it again 0.8 s later (1.11.1, one run; in 1.11.0 it
+was still out of sight after 1 s). Real Gmail was only listened to, never pressed for a test: of 5 presses on a
 row of mail Chrome told 3 with the place, 1 without, and 1 not at all, and a *mark as unread* press was
 never told. Not checked: clicks in another steered browser than Edge, clicks through the screen in Edge,
 a screen that is not at 100% size, and a restart of Windows itself. Windows only.
