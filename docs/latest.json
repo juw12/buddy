@@ -1,22 +1,20 @@
 {
-  "version": "1.10.0",
-  "date": "2026-11-18",
+  "version": "1.11.0",
+  "date": "2026-11-19",
   "notes": [
-    "A pointer named after the task or app flies to every window it opens (a browser, a command window, a mail page) and says what it is doing. When such a program steers a browser started with --remote-debugging-port, the pointer flies to every click and hops with a ripple. The pointer of an AI app goes away after a minute without news.",
-    "A trace you can read: %APPDATA%\\Buddy\\crew\\trace.log, one line for each start, window, click and end, with the time. Never what was typed or a web address; it stays on this PC.",
-    "A button next to the clock (a green arrow when on, grey with a red bar when off): one click turns the pointers on or off, right-click opens the trace. Windows 10 puts a new icon behind the ^ arrow: drag it onto the taskbar once. The same from outside: Buddy.exe --pointers on|off|toggle.",
-    "Off until you tick it: Buddy window, tab Settings, box Buddy's brain, Also show scheduled tasks and what AI apps open and A button next to the clock that switches all those pointers off or on with one click. It comes back by itself after Buddy restarts.",
-    "This replaces the separate Task herald helper: nothing else to install or start.",
-    "Never late. Each look at the open windows used to take 0.9 to 2 s (up to 8.4 s) when Buddy was busy, so a pointer could arrive after the window was already gone. A look now takes about 1 ms. Measured with the built app on a real screen for 30 minutes: no slow look (before: 9 looks of 1.1 to 8.4 s in 23 minutes); a new window is in the trace after 0.02 to 0.18 s (median 0.13 s, 10 tries); the pointer is on the new window after 0.18 to 0.90 s (median 0.45 s, 26 tries, 1 over 0.5 s).",
-    "Checked on a real screen with the built app: pointers on windows opened by scheduled tasks and by an AI app, click animation in a steered Edge, the button and its right-click menu, both tick boxes, on/off from the command line, and that all of it is back after Buddy restarts.",
-    "Not checked: clicks in browsers other than Edge, and a full Windows restart (Buddy starts with Windows as before, the restart itself was not tried). When the whole PC stops for a few seconds, the pointer waits too."
+    "Why it stayed on the tab. Buddy only knew the clicks of a browser started with --remote-debugging-port. A script that presses things through Windows itself (UI Automation, no port, your mouse never moves) was not heard. Every new page title also put the pointer back on the tab, and a browser window that keeps itself on top hid the pointer for up to 2 s.",
+    "Now. Buddy hears those presses in Chrome and Edge and the pointer flies to the thing that was pressed. After a click it stays there for 10 s while the page changes. With every new step the pointer is put above all windows at once.",
+    "The trace (%APPDATA%\\Buddy\\crew\\trace.log) has a line for each press, for example CLICK ... a link at (2130, 1253). Only the kind of thing and the place, never a text.",
+    "What it cannot show. A thing that is gone in the instant it is pressed (a back button that takes its own view away) is not told by the browser, so the pointer stays where it was. A thing that is gone a moment later is sometimes told without its place: the trace then says the thing was gone before its place could be read. A press in a window that is behind another window is only in the trace (behind another window), and the pointer waits on the part of that window you can see. Typing is shown for the box that has the keyboard, and not while you use that same window yourself. Firefox is not followed.",
+    "Checked on a real screen (Chrome 157, a test page pressed through UI Automation in a window that keeps itself on top): in four runs every press of a thing that stayed at least 150 ms was in the trace at the centre of that thing, and a picture shows the pointer on the pressed link, still there after the page had a new title. Real Gmail was only listened to, never pressed for a test: of 5 presses on a row of mail Chrome told 3 with the place, 1 without, and 1 not at all; a mark as unread press was never told.",
+    "Not checked: Edge worked through the screen, a screen that is not at 100% size, clicks in another steered browser than Edge, and a full Windows restart."
   ],
-  "page": "https://github.com/juw12/buddy/releases/tag/v1.10.0",
+  "page": "https://github.com/juw12/buddy/releases/tag/v1.11.0",
   "windows": {
-    "version": "1.10.0",
-    "url": "https://github.com/juw12/buddy/releases/download/v1.10.0/Buddy-win64.zip",
-    "size": 181306213,
-    "sha256": "91967ac507703a378e8a14e79700cb2ff24c8fa31f622dda748b2e86c8025db4"
+    "version": "1.11.0",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.11.0/Buddy-win64.zip",
+    "size": 181315021,
+    "sha256": "1f83d42fc095e071a2a92f884b3a8f9706a32419f1e6c80da13679ccebc40fbe"
   },
   "mac": {
     "version": "1.10.0",
