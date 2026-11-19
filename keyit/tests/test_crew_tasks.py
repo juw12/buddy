@@ -1,6 +1,6 @@
-"""The crew's task watch (crew_tasks.py), the steered browser's clicks (crew_browser.py) and the pointers'
-button (crew_button.py). Nothing real is started, traced or shown: processes, windows, the browser and the
-taskbar icon are stand-ins."""
+"""The crew's task watch (crew_tasks.py), the steered browser's clicks (crew_browser.py), the presses in a
+browser worked through the screen (crew_screen.py) and the pointers' button (crew_button.py). Nothing real is
+started, traced or shown: processes, windows, the browser and the taskbar icon are stand-ins."""
 
 import ast
 import json
@@ -18,6 +18,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import crew_browser  # noqa: E402
 import crew_button  # noqa: E402
+import crew_screen  # noqa: E402
 import crew_sources  # noqa: E402
 import crew_tasks as ct  # noqa: E402
 
@@ -40,6 +41,12 @@ def windows_time(wall):
 
 def tag(watch, pid):
     return watch.tags.get(pid, (None,))[0]
+
+
+@pytest.fixture(autouse=True)
+def no_browser_is_listened_to(monkeypatch):
+    """No test lets the watch put real hooks and listeners on a browser of this PC."""
+    monkeypatch.setattr(crew_screen.ScreenWatch, "start", lambda self: None)
 
 
 @pytest.fixture
@@ -771,6 +778,366 @@ def test_the_listener_tells_a_place_and_a_kind_only():
 
 
 # ----------------------------------------------------------------------------------------- the button
+# ----------------------------------------------------------------------------------------- a browser worked through the screen
+def test_a_browser_worked_through_the_screen_is_followed_by_its_windows(lab, monkeypatch):
+    """A chat's script opens Gmail in a normal Chrome (no debugging port) and presses things in it through
+    UI Automation; a scheduled task has a page opened in your own, already running browser."""
+    logged, posted, commands, screen = lab.logged, lab.posted, lab.commands, lab.screen
+    watch = ct.TaskWatch()
+    watch.on = watch.applied = True
+    watch.tasks = [("Mail\\Read inbox", ["c:\\mail\\read.py", "c:\\mail\\"])]
+    vector, repl, script, chrome, steered, fox, own = 100, 120, 200, 210, 220, 230, 300
+    commands[repl] = "python.exe -m vector_repl --owner-pid 100"
+    commands[script] = "python.exe c:\\work\\gmail_reader.py"
+    commands[chrome] = "chrome.exe --profile-directory=Default --new-window https://mail.google.com/"
+    commands[steered] = "msedge.exe --remote-debugging-port=9473 --user-data-dir=E:\\Temp\\p"
+    commands[fox] = "firefox.exe https://example.org"
+    base = {0: (0, "", 0), 4: (0, "system", 0), 950: (4, "explorer.exe", started(2)),
+            vector: (950, "vector.exe", started(10)), repl: (vector, "python.exe", started(12)),
+            own: (950, "chrome.exe", started(5))}
+    lab.look(watch, base, startup=True)
+    lab.look(watch, {**base, script: (repl, "python.exe", started(100)), chrome: (script, "chrome.exe", started(101)),
+                     steered: (script, "msedge.exe", started(102)), fox: (script, "firefox.exe", started(103))})
+    watch.first_windows = False
+    screen.update({1: (chrome, "Inbox - Gmail - Google Chrome"), 2: (steered, "Register - Microsoft Edge"),
+                   3: (fox, "Example - Mozilla Firefox"), 4: (own, "News - Google Chrome"), 5: (vector, "Vector")})
+    followed = []
+    monkeypatch.setattr(watch.screen, "follow", lambda windows, front=0: followed.append((dict(windows), front)))
+    monkeypatch.setattr(ct.user32, "GetForegroundWindow", lambda: 4)
+    watch.scan_windows()
+    check("the agent's Chrome without a debugging port is followed through the screen; not the browser that "
+          "tells its clicks itself, not Firefox, not your own Chrome, not the app",
+          followed[-1] == ({1: chrome}, 4))
+
+    # the browser reports a press: crew_screen hands the window, the process and the place over
+    logged.clear(), posted.clear()
+    watch.screen_action(1, chrome, "click", "link", 640, 480)
+    time.sleep(ct.CLICK_LANDS_S + 0.3)
+    check("a press through the screen: the pointer flies to the thing, then hops there",
+          [(event.get("x"), event.get("y"), event["say"]) for event in posted]
+          == [(640, 480, "Clicking a link"), (640, 480, "Clicked a link")] and posted[0]["agent"] == "Vector")
+    check("the point is a spot in that window: behind another window it is not pointed at",
+          all(event["hwnd"] == 1 and event["window"] == "Inbox - Gmail - Google Chrome" for event in posted))
+    check("and it is in the trace, without any text of the page",
+          any(line == "CLICK  AI agent\\Vector  -> chrome.exe pid 210: a link at (640, 480)" for line in logged))
+
+    # the mail opens: the window has a new title
+    posted.clear()
+    screen[1] = (chrome, "A mail subject - Gmail - Google Chrome")
+    watch.scan_windows()
+    check("the page changes after the click: the pointer stays at the click, in that window (not back to the "
+          "top of the window)",
+          len(posted) == 1 and (posted[0].get("x"), posted[0].get("y"), posted[0].get("hwnd")) == (640, 480, 1)
+          and posted[0]["window"].startswith("A mail subject") and posted[0]["say"] == "Working in Gmail")
+    real_monotonic = time.monotonic
+    monkeypatch.setattr(ct.time, "monotonic", lambda: real_monotonic() + ct.CLICK_HOLDS_S + 1)
+    posted.clear()
+    screen[1] = (chrome, "Inbox - Gmail - Google Chrome")
+    watch.scan_windows()
+    monkeypatch.setattr(ct.time, "monotonic", real_monotonic)
+    check("long after the click a new title points at the window again",
+          len(posted) == 1 and "x" not in posted[0] and "hwnd" not in posted[0])
+
+    posted.clear(), logged.clear()
+    watch.screen_action(1, chrome, "type", "box", 300, 200)
+    watch.screen_action(1, chrome, "click", "button", None, None)
+    time.sleep(ct.CLICK_LANDS_S + 0.3)
+    check("typing, and a press on a thing no part of which can be seen: told with the window",
+          [event["say"] for event in posted] == ["Typing in a box", "Clicking a button", "Clicked a button"]
+          and (posted[0]["x"], posted[0]["y"]) == (300, 200)
+          and all(event.get("window") == "Inbox - Gmail - Google Chrome" and "x" not in event for event in posted[1:])
+          and any("a button behind another window" in line for line in logged))
+    posted.clear()
+    screen[1] = (chrome, "Search results - Gmail - Google Chrome")
+    watch.scan_windows()
+    check("after a press nobody could see, the pointer is not left at an older spot", "x" not in posted[0])
+
+    posted.clear(), logged.clear()
+    watch.screen_action(1, chrome, "click", "", None, None, gone=True)
+    time.sleep(ct.CLICK_LANDS_S + 0.3)
+    check("a press on a thing that was gone before its place could be read: in the trace as just that, and "
+          "said at the window",
+          logged == ["CLICK  AI agent\\Vector  -> chrome.exe pid 210: the page: the thing was gone before its place could be read"]
+          and [event["say"] for event in posted] == ["Clicking the page", "Clicked the page"]
+          and all("x" not in event and event["window"].startswith("Search results") for event in posted))
+
+    posted.clear()
+    watch.screen_action(4, own, "click", "link", 5, 5)
+    watch.screen_action(1, 99999, "click", "link", 5, 5)
+    watch.screen_action(77, chrome, "click", "link", 5, 5)
+    check("a press in a window nobody follows (your own, another process's, a closed one) is nothing", not posted)
+
+    # a click the browser tells over its port holds the pointer the same way
+    posted.clear()
+    watch.browser_action(steered, "click", "button", 900, 500)
+    time.sleep(ct.CLICK_LANDS_S + 0.3)
+    check("a click a steered browser told itself is a point of its own, as before",
+          len(posted) == 2 and all("hwnd" not in event and "window" not in event for event in posted))
+    posted.clear()
+    screen[2] = (steered, "Welcome - Microsoft Edge")
+    watch.scan_windows()
+    check("the same after a click a steered browser told itself",
+          (posted[0].get("x"), posted[0].get("y"), posted[0].get("hwnd")) == (900, 500, 2))
+
+    # your own running browser gets a window from a scheduled task (a hand-off): the window names the task
+    logged.clear(), posted.clear()
+    launcher = 400
+    commands[launcher] = "chrome.exe https://mail.google.com/"
+    table = {**base, script: (repl, "python.exe", started(100)), chrome: (script, "chrome.exe", started(101)),
+             5000: (950, "svchost.exe", started(1)), 401: (5000, "python.exe", time_now_as_windows() - 20_000_000)}
+    commands[401] = "python.exe c:\\mail\\read.py"
+    lab.look(watch, table)
+    lab.look(watch, {**table, launcher: (401, "chrome.exe", time_now_as_windows())})
+    screen[9] = (own, "Inbox - Gmail - Google Chrome")
+    watch.scan_windows()
+    check("a task's page in your own browser is followed through the screen too", followed[-1][0].get(9) == own)
+    watch.screen_action(9, own, "click", "link", 700, 300)
+    check("a press there is the task's, though the browser's process is your own",
+          any(line.startswith("CLICK  Mail\\Read inbox  -> chrome.exe pid 300: a link at (700, 300)") for line in logged)
+          and posted[-1]["agent"] == "Read inbox")
+
+    stopped = []
+    monkeypatch.setattr(watch.screen, "stop", lambda: stopped.append(True))
+    watch.stop()
+    check("when the watch stops, the listening stops", stopped == [True])
+
+
+def time_now_as_windows():
+    return windows_time(time.time())
+
+
+class FakeScreen:
+    """Windows for crew_screen.ScreenWatch: what is hooked and listened to is only written down."""
+
+    def __init__(self, on_sign):
+        self.on_sign = on_sign
+        self.hooked, self.listened, self.broken = set(), {}, set()
+        self.did = []
+
+    def hook(self, pid):
+        self.hooked.add(pid)
+        self.did.append(("hook", pid))
+        return [pid]
+
+    def unhook(self, handles):
+        self.hooked -= set(handles)
+        self.did.append(("unhook", handles[0]))
+
+    def listen(self, hwnd, tell):
+        if hwnd in self.broken:
+            raise OSError("the window is gone")
+        self.listened[hwnd] = tell
+        self.did.append(("listen", hwnd))
+        return hwnd
+
+    def unlisten(self, token):
+        del self.listened[token]
+        self.did.append(("unlisten", token))
+
+
+def test_a_browser_is_only_listened_to_once_somebody_works_its_page(monkeypatch):
+    told, logged = [], []
+    watch = crew_screen.ScreenWatch(lambda *action: told.append(action), logged.append, screen=FakeScreen)
+    screen = watch.screen = FakeScreen(watch.page_spoke)
+    pages = {501: 1, 502: 2, 503: 3}                       # a page's own window -> the browser window it is in
+    monkeypatch.setattr(crew_screen, "page_of", lambda hwnd: pages.get(hwnd, 0))
+    started_threads = []
+
+    def start(self):
+        started_threads.append(True)
+        self.thread = "started"
+    monkeypatch.setattr(crew_screen.ScreenWatch, "start", start)
+
+    watch.follow({}, front=7)
+    check("nothing to follow: no thread, nothing asked", not started_threads and not watch.wake.is_set())
+    watch.follow({1: 210, 2: 210, 3: 300}, front=7)
+    check("the first browser window to follow starts the thread", started_threads == [True] and watch.wake.is_set())
+    watch.settle()
+    check("at first a browser is only heard the way that asks it nothing: one hook per process, no listener",
+          screen.hooked == {210, 300} and not screen.listened)
+    screen.on_sign(999)                                    # news from something that is not a page (a toolbar)
+    screen.on_sign(504)                                    # a page of a window nobody wants
+    watch.settle()
+    check("news that is not about a followed window's page changes nothing", not screen.listened)
+    screen.on_sign(501)
+    watch.settle()
+    check("the first news about a thing in the page: somebody works it through the screen, so its presses are "
+          "listened for, in that window only", set(screen.listened) == {1} and screen.hooked == {210, 300})
+    check("the trace says so", any("window 0x1 (pid 210) are followed" in line for line in logged))
+    screen.on_sign(502)
+    watch.settle()
+    check("a process whose windows are all listened to is not hooked any more", screen.hooked == {300})
+    screen.on_sign(501)
+    watch.settle()
+    check("a window is listened to once", [step for step in screen.did if step[0] == "listen"] == [("listen", 1), ("listen", 2)])
+
+    watch.follow({2: 210, 3: 300}, front=7)                # window 1 closed
+    watch.settle()
+    check("a window that is gone is let go", set(screen.listened) == {2})
+    watch.follow({2: 210}, front=7)
+    watch.settle()
+    check("a window that was never worked is let go too, with its hook", not screen.hooked)
+
+    screen.broken.add(4)
+    watch.follow({2: 210, 4: 400}, front=7)
+    watch.settle()
+    screen.on_sign(504)
+    pages[504] = 4
+    screen.on_sign(504)
+    watch.settle()
+    watch.settle()
+    check("a window that cannot be listened to is told once and left alone",
+          len([line for line in logged if "are not followed" in line]) == 1 and 400 not in screen.hooked
+          and 4 not in screen.listened)
+    watch.follow({2: 210, 4: 401}, front=7)                # the window's number has a new owner
+    watch.follow({2: 210}, front=7)
+    watch.settle()
+    check("and forgotten when it is gone", not watch.failed)
+
+    # the report of a listener reaches the task watch with its window and process
+    monkeypatch.setattr(crew_screen.crew_browser, "on_top", lambda hwnd, point: True)
+    monkeypatch.setattr(crew_screen, "mouse", lambda: (0, 0))
+    screen.listened[2](crew_screen.INVOKED, 50005, (600, 400, 800, 420), False)
+    check("a listener's report is the window's", told == [(2, 210, "click", "link", 700, 410)])
+
+    watch.wanted = {}
+    watch.settle()
+    check("when the watch stops, every listener and hook is taken off", not screen.listened and not screen.hooked)
+    check("one thread does it all", started_threads == [True])
+    stopped = crew_screen.ScreenWatch(lambda *action: None, logged.append, screen=FakeScreen)
+    stopped.stop()
+    stopped.follow({1: 210}, front=7)
+    check("a stopped watch starts nothing", started_threads == [True] and stopped.wake.is_set())
+
+
+def test_which_reports_of_a_browser_are_a_press_of_the_agent(monkeypatch):
+    told = []
+    watch = crew_screen.ScreenWatch(lambda *action, **more: told.append(action + tuple(more.items())),
+                                    lambda line: None, screen=FakeScreen)
+    HWND, PID, LINK, BUTTON, TICK, EDIT = 2, 210, 50005, 50000, 50002, 50004
+    visible = {"all": True, "points": set()}
+    clock = {"now": 5000.0, "idle": 60.0, "mouse": (0, 0)}
+    monkeypatch.setattr(crew_screen.crew_browser, "on_top",
+                        lambda hwnd, point: hwnd == HWND and (visible["all"] or point in visible["points"]))
+    monkeypatch.setattr(crew_screen.crew_browser, "page_areas",
+                        lambda pid: [(HWND, "Inbox - Gmail", (100, 200, 1100, 900))] if pid == PID else [])
+    monkeypatch.setattr(crew_screen, "mouse", lambda: clock["mouse"])
+    monkeypatch.setattr(crew_screen, "idle_seconds", lambda: clock["idle"])
+    monkeypatch.setattr(crew_screen.time, "monotonic", lambda: clock["now"])
+
+    def report(what, kind, box, has_keyboard=False, after=10.0):
+        clock["now"] += after
+        told.clear()
+        watch.saw(HWND, PID, what, kind, box, has_keyboard)
+        return list(told)
+
+    row = (582, 513, 698, 534)
+    check("a pressed link: the middle of the link", report(crew_screen.INVOKED, LINK, row) == [(HWND, PID, "click", "link", 640, 523)])
+    check("the kinds of things", [report(crew_screen.INVOKED, kind, row)[0][3] for kind in (BUTTON, 50031, TICK, 50013, EDIT, 50003, 50019, 50025)]
+          == ["button", "button", "tick box", "tick box", "box", "list", "tab", ""])
+    visible.update(all=False, points={(611, 523)})
+    check("its middle is covered and a part of it shows: that part",
+          report(crew_screen.INVOKED, LINK, row) == [(HWND, PID, "click", "link", 611, 523)])
+    visible["points"] = set()
+    check("nothing of it shows (covered, or the window is off the screen): told without a place",
+          report(crew_screen.INVOKED, LINK, row) == [(HWND, PID, "click", "link", None, None)])
+    visible["all"] = True
+    check("a thing without a size has no place", report(crew_screen.INVOKED, LINK, (5, 5, 5, 5)) == [])
+
+    clock.update(mouse=(640, 523), idle=0.2)
+    check("your mouse is on the thing and you just used it: your own click", report(crew_screen.INVOKED, LINK, row) == [])
+    clock["idle"] = 30.0
+    check("your mouse only rests there: the agent's press", len(report(crew_screen.INVOKED, LINK, row)) == 1)
+    clock.update(mouse=(50, 50), idle=0.05)
+    watch.front = (HWND, clock["now"])
+    check("you type somewhere else and the press brings the browser to the front: still the agent's press",
+          len(report(crew_screen.INVOKED, LINK, row)) == 1)
+
+    tick = (502, 272, 516, 285)
+    first = report(crew_screen.TOGGLED, TICK, tick)
+    again = report(crew_screen.INVOKED, TICK, tick, after=0.02)
+    check("a tick box told twice (ticked, and pressed) is one press", first == [(HWND, PID, "click", "tick box", 509, 278)] and again == [])
+    first = report(crew_screen.INVOKED, TICK, tick)
+    burst = [report(crew_screen.TOGGLED, TICK, (502, 300 + 30 * index, 516, 313 + 30 * index), after=0.01) for index in range(20)]
+    check("one press that ticks a whole list of boxes is one press", len(first) == 1 and not any(burst))
+    check("two different things pressed right after each other are two presses",
+          len(report(crew_screen.INVOKED, LINK, row)) == 1 and len(report(crew_screen.INVOKED, BUTTON, (332, 261, 433, 299), after=0.1)) == 1)
+
+    # a row of mail that opens its mail so quickly that Windows could not read the row's place any more
+    clock.update(mouse=(50, 50), idle=60.0)
+    gone = report(crew_screen.INVOKED, 0, None)
+    check("a press on a thing that was gone before its place could be read: a press all the same, without a place",
+          gone == [(HWND, PID, "click", "", None, None, ("gone", True))])
+    check("told once", report(crew_screen.INVOKED, 0, None, after=0.1) == [])
+    check("a new value of a thing that is gone is nothing", report(crew_screen.VALUE, 0, None) == [])
+    clock.update(mouse=(640, 523), idle=0.2)
+    check("your mouse is in that window and you just used it: your own click", report(crew_screen.INVOKED, 0, None) == [])
+    clock.update(mouse=(50, 50), idle=0.05)
+
+    box = (332, 650, 648, 684)
+    clock["idle"] = 60.0
+    check("a box in the page with the keyboard gets a value: typing, pointed at the start of the box",
+          report(crew_screen.VALUE, EDIT, box, has_keyboard=True) == [(HWND, PID, "type", "box", 412, 667)])
+    check("more of it right after is the same typing", report(crew_screen.VALUE, EDIT, box, True, after=0.3) == [])
+    check("and later it is told again", len(report(crew_screen.VALUE, EDIT, box, True, after=2.0)) == 1)
+    check("a box without the keyboard gets a value (the page filled it in): nothing", report(crew_screen.VALUE, EDIT, box, False) == [])
+    check("the address bar gets a value (a new page): nothing", report(crew_screen.VALUE, EDIT, (329, 151, 944, 175), True) == [])
+    check("something that is no box gets a value: nothing", report(crew_screen.VALUE, 50015, box, True) == [])
+    clock["idle"] = 0.05
+    watch.front = (HWND, clock["now"] - 30)
+    check("you type in that window yourself (it was in front already): your own typing", report(crew_screen.VALUE, EDIT, box, True) == [])
+    watch.front = (HWND, clock["now"] + 10 - 0.03)
+    check("you type somewhere else and the browser only just came to the front: the agent's typing",
+          len(report(crew_screen.VALUE, EDIT, box, True)) == 1)
+    watch.front = (99, clock["now"] - 30)
+    check("another window is in front: the agent's typing", len(report(crew_screen.VALUE, EDIT, box, True)) == 1)
+
+    watch.follow({HWND: PID}, front=HWND)
+    since = watch.front
+    clock["now"] += 5
+    watch.follow({HWND: PID}, front=HWND)
+    check("the watch tells which window is in front, and since when", watch.front == since and since[0] == HWND)
+
+    check("spots: the middle first, then towards the edges; a wished one before all",
+          crew_screen.spots((0, 0, 400, 40)) == [(200, 20), (100, 20), (300, 20), (200, 10), (200, 30)]
+          and crew_screen.spots((0, 0, 400, 40), first=(80, 20))[0] == (80, 20))
+
+
+def test_windows_can_be_asked_about_presses():
+    """The real thing, on this PC: the hook and the listeners can be put on and taken off (this test's own
+    process and a window of it are used: no browser is touched)."""
+    pytest.importorskip("comtypes")
+    facts, signs = {}, []
+
+    def work():                                              # a thread of its own, as in Buddy
+        try:
+            screen = crew_screen.Screen(signs.append)
+            hooks = screen.hook(os.getpid())
+            facts["hooks"] = len(hooks)
+            began = time.monotonic()
+            screen.pump(0.05)
+            facts["pump"] = time.monotonic() - began
+            screen.unhook(hooks)
+            desktop = crew_screen.user32.GetDesktopWindow()
+            token = screen.listen(desktop, lambda *report: None)
+            screen.unlisten(token)
+            screen.unlisten(token)                           # twice is harmless
+            screen.close()
+            facts["page"] = crew_screen.page_of(desktop)
+        except Exception as error:
+            facts["error"] = repr(error)
+
+    thread = threading.Thread(target=work)
+    thread.start()
+    thread.join(30)
+    check(f"nothing failed: {facts.get('error')}", "error" not in facts and not thread.is_alive())
+    check("a process can be hooked", facts["hooks"] == len(crew_screen.HOOKED))
+    check("waiting for news comes back in time", facts["pump"] < 2)
+    check("a window that is no page is nobody's page", facts["page"] == 0)
+    check("you were at the keyboard or the mouse some time ago", crew_screen.idle_seconds() >= 0)
+    check("the mouse is somewhere", len(crew_screen.mouse()) == 2)
+
+
 class FakeIcon:
     def __init__(self):
         self.icon, self.title, self.menus = None, "", 0
@@ -850,8 +1217,8 @@ def test_only_what_buddy_ships_is_needed():
     """Buddy.exe brings Python's own modules and the libraries of requirements.txt, nothing else."""
     allowed = {"base64", "collections", "ctypes", "datetime", "hashlib", "json", "logging", "os", "pathlib", "re",
                "socket", "struct", "subprocess", "threading", "time", "urllib", "PIL", "pystray",
-               "crew_browser", "keyit_core"}
-    for name in ("crew_tasks.py", "crew_browser.py", "crew_button.py"):
+               "crew_browser", "crew_screen", "keyit_core", "comtypes"}
+    for name in ("crew_tasks.py", "crew_browser.py", "crew_screen.py", "crew_button.py"):
         tree = ast.parse((ROOT / "keyit" / name).read_text(encoding="utf-8"))
         used = set()
         for node in ast.walk(tree):

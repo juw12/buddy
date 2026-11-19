@@ -52,7 +52,7 @@ class FakeDesktop:
     def __init__(self, nowhere=False):
         self.nowhere = nowhere
 
-    def place(self, slot, point=None, file_name="", window=""):
+    def place(self, slot, point=None, file_name="", window="", hwnd=0):
         if point is not None or self.nowhere:
             return point
         return 1000, 100 + slot * 50
@@ -433,6 +433,24 @@ class PointerMotionTests(unittest.TestCase):
         self.assertEqual(pointer.FRAME_S, pointer.SWAY_FRAME_S)
         self.assertEqual(pointer._moving_until, 0.0)
 
+    def test_a_new_step_puts_the_pointer_above_every_window_again_at_once(self):
+        # An agent's browser window that keeps itself on top comes to the front with every press: the pointer
+        # must not wait for its next regular turn (TOPMOST_EVERY_S) to be seen again.
+        pointer = bare_pointer()
+        pointer._wake = lambda: None
+        pointer._last_topmost = time.perf_counter()
+        pointer.show("Vector: Clicking a link", (640.0, 480.0), hop=True)
+        self.assertEqual(pointer._last_topmost, 0.0)
+        raised = []
+        pointer._shown = True
+        del pointer._set_shown                                # the real one from here on
+        windows = types.SimpleNamespace(SetWindowPos=lambda *arguments: raised.append(arguments[1]),
+                                        ShowWindow=lambda *arguments: None)
+        with mock.patch.object(buddy_crew.buddy_overlay, "user32", windows):
+            pointer._set_shown(True)
+            pointer._set_shown(True)
+        self.assertEqual(raised, [buddy_crew.buddy_overlay.HWND_TOPMOST])   # once for the step, then the regular turns
+
     def test_a_new_step_hops_with_a_ripple_at_full_frame_rate(self):
         pointer = bare_pointer()
         pointer.show("explorer: Editing notes.md", (500.0, 300.0), hop=True)
@@ -583,6 +601,41 @@ class DesktopTests(unittest.TestCase):
         clock.now += 1.5
         desktop.place(0, window="OpenCode")
         self.assertEqual(self.listed, 2)
+
+    def test_a_point_in_a_window_is_the_place_while_the_window_shows_it(self):
+        windows = [(7, "Inbox - Browser", (200, 100, 1200, 900))]
+        shows = {(7, 640, 480), (7, 200 + 360, 100 + 18)}          # what window 7 shows: the spot, and its top
+        desktop = Desktop(windows=lambda: windows, on_top_at=lambda hwnd, x, y: (hwnd, x, y) in shows,
+                          area=lambda: self.AREA, clock=Clock())
+        self.assertEqual(desktop.place(0, point=(640, 480), window="Inbox - Browser", hwnd=7), (640, 480))
+        shows.discard((7, 640, 480))                                # another window covers the spot now
+        self.assertEqual(desktop.place(0, point=(640, 480), window="Inbox - Browser", hwnd=7), (200 + 360, 100 + 18))
+        shows.clear()                                               # the whole window is covered
+        self.assertIsNone(desktop.place(0, point=(640, 480), window="Inbox - Browser", hwnd=7))
+        self.assertEqual(desktop.place(0, point=(640, 480), window="Inbox - Browser"), (640, 480))
+
+    def test_an_event_can_say_which_window_its_point_is_in(self):
+        event = buddy_crew.normalize_event({"agent": "Vector", "x": 640, "y": 480, "window": "Inbox", "hwnd": 7})
+        self.assertEqual((event["point"], event["hwnd"]), ((640, 480), 7))
+        self.assertEqual(buddy_crew.normalize_event({"agent": "Vector", "x": 1, "y": 2})["hwnd"], 0)
+        self.assertEqual(buddy_crew.normalize_event({"agent": "Vector", "window": "Inbox", "hwnd": 7})["hwnd"], 0)
+        # the crew hands the window's number on: a covered spot is not pointed at, the window's top is
+        pointers = []
+
+        def pointer():
+            pointers.append(FakePointer())
+            return pointers[-1]
+        clock = Clock()
+        shows = {(7, 640, 480), (7, 360, 18)}
+        crew = Crew(pointer_factory=pointer, clock=clock, desktop=Desktop(
+            windows=lambda: [(7, "Inbox", (0, 0, 900, 800))], on_top_at=lambda hwnd, x, y: (hwnd, x, y) in shows,
+            area=lambda: self.AREA, clock=clock))
+        crew.post({"agent": "Vector", "x": 640, "y": 480, "window": "Inbox", "hwnd": 7})
+        crew.tick()
+        self.assertEqual(pointers[0].calls[-1][2], (640, 480))
+        shows.discard((7, 640, 480))
+        crew.tick()
+        self.assertEqual(pointers[0].calls[-1][2], (360, 18))
 
 
 class WordsTests(unittest.TestCase):

@@ -325,7 +325,9 @@ Buddy's own shape (the one you picked in Settings → Look); its colour and its 
   `{"agent": "explorer", "team": "My tool", "say": "Reading the docs", "state": "working", "file": "notes.md",
   "window": "Excel", "where": "project-a", "id": "any-stable-key", "color": "#22c55e", "icon": "star",
   "x": 800, "y": 400}`. `state` is `working`, `waiting` (it needs you), `done` or `leave`; `window` is a piece
-  of a window title to fly to; `x`/`y` is an exact screen point the pointer flies to (it only points: to really click, see *Crew hands* below); `icon`
+  of a window title to fly to; `x`/`y` is an exact screen point the pointer flies to (it only points: to really click, see *Crew hands* below).
+  With `"hwnd"` (the number of a window) next to `x`/`y`, the point only counts while that window shows it;
+  behind another window the pointer goes to the part of that window you can see. `icon`
   is `arrow`, `pointer`, `plane`, `dot`, `star`, `heart` or `face`. A tool that works for longer than 30
   seconds without news posts `{"agent": "explorer", "alive": true}` now and then: Buddy keeps following it,
   and nothing else changes.
@@ -432,6 +434,18 @@ is always a trace of what they did.
 - **Clicks in a browser:** when such a program steers a browser that was started with
   `--remote-debugging-port`, the pointer flies to every click and every box that is typed in, and hops with a
   ripple on the click. It says *Clicked a button* or *Typing in a box*, never the text.
+- **Clicks through the screen (1.11.0):** a program can also press things in a normal Chrome or Edge window
+  without that port, by asking Windows for the things in the page (UI Automation). A script that reads Gmail
+  in your own Chrome works like this, and your mouse never moves. The pointer now flies to the thing that
+  was pressed there too. After a click it stays at that spot for 10 seconds while the page changes, and no
+  longer goes back to the tab with every new title. With every new step the pointer is put above all
+  windows at once, so a browser window that keeps itself on top no longer hides it. What it cannot show:
+  a thing that is gone in the instant it is pressed (a *back* button that takes its own view away) is not
+  told by the browser, so the pointer stays where it was. A thing that is gone a moment later is sometimes
+  told without its place: the trace then says *the thing was gone before its place could be read*. A press
+  in a window that is behind another window is only in the trace (*behind another window*), and the pointer
+  waits on the part of that window you can see. Typing is shown for the box that has the keyboard, and
+  not while you use that same window yourself. Firefox is not followed.
 - **Never late:** windows are looked at 4 times a second, and one look takes about a millisecond, whatever
   else Buddy is doing at that moment. On a busy PC a new window was in the trace 0.02 to 0.18 seconds after
   it appeared (10 tries), and the pointer was on it after 0.2 to 0.9 seconds, half of the time within 0.45
@@ -452,7 +466,14 @@ Checked on a real screen: a scheduled task steering Chrome, a window opened from
 above), four clicks and typing in a steered Edge (the pointer at the exact spot), one click on the button,
 its right-click menu, the two tick boxes in Settings, and that it all comes back when Buddy is started
 again. In 30 minutes of normal work on a PC at 50 to 100% CPU (55 task starts in the trace) no look was
-late. Not checked: clicks in another browser than Edge, and a restart of Windows itself. Windows only.
+late. Clicks through the screen (1.11.0): a test page in Chrome 157, pressed through UI Automation in a
+window that keeps itself on top. In four runs every press of a thing that stayed at least 150 ms was in
+the trace at the centre of that thing (links, buttons, a tick box, a button far down the page, also after
+the window was dragged), and in a picture the pointer sat on the pressed link and was still there after
+the page had a new title. Real Gmail was only listened to, never pressed for a test: of 5 presses on a
+row of mail Chrome told 3 with the place, 1 without, and 1 not at all, and a *mark as unread* press was
+never told. Not checked: clicks in another steered browser than Edge, clicks through the screen in Edge,
+a screen that is not at 100% size, and a restart of Windows itself. Windows only.
 
 ## Buddy Island
 Buddy lives in your screen's notch, so it is always one move away, on every device:
@@ -519,7 +540,7 @@ itself.
 - `pips/`: Pips v2.28.0 source, unmodified.
 - `keyit/`: KeyIt modules, patched so they can be hosted inside Buddy.
   `keyit/buddy_crew.py` draws the crew pointers, `keyit/crew_sources.py` reads what the agents do, `keyit/keyit_agents.py` opens an agent for `@name` questions.
-  `keyit/crew_tasks.py` is the task watch, `keyit/crew_browser.py` asks a steered browser where it is clicked, `keyit/crew_button.py` is the button next to the clock.
+  `keyit/crew_tasks.py` is the task watch, `keyit/crew_browser.py` asks a steered browser where it is clicked, `keyit/crew_screen.py` hears where a browser is pressed through the screen, `keyit/crew_button.py` is the button next to the clock.
 
 ## License
 
