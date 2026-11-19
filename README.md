@@ -4,7 +4,7 @@
 
 > **Works out of the box:** Buddy starts on a free cloud brain, so there's no account, key or model download. For unlimited, private answers, add a local brain with [Ollama](https://ollama.com). The free brain's source is in [cloud/brain](cloud/brain).
 >
-> **On a Mac?** [Buddy Lite for Mac](mac/README.md) points and answers (hold Control+Option+Space), in English, Indonesian, Chinese and 11 more languages (menu bar, *Voice language*). One line in Terminal installs it: `curl -fsSL https://juw12.github.io/buddy/mac-install.sh | bash`. Clicking and typing for you, the Pips pet and key sounds are Windows-only for now.
+> **On a Mac?** [Buddy Lite for Mac](mac/README.md) points and answers (hold Control+Option+Space), in English, Indonesian, Chinese and 11 more languages (menu bar, *Voice language*). It also shows where a program (an AI agent, a script) clicks with the mouse: a second pointer flies there and names the program (from 1.12.0), and to its typing if you tick Buddy under Accessibility (from 1.13.0). One download for Apple Silicon and Intel Macs, macOS 12 or newer. One line in Terminal installs it: `curl -fsSL https://juw12.github.io/buddy/mac-install.sh | bash`. Clicking and typing for you, the Pips pet and key sounds are Windows-only for now.
 >
 > **On a phone, tablet or any other computer?** Open [juw12.github.io/buddy/island](https://juw12.github.io/buddy/island/) and add it to your home screen: tap to type, hold to talk, or share a screenshot to Buddy. See [Buddy Island](#buddy-island).
 >
