@@ -21,8 +21,8 @@
   "mac": {
     "version": "1.10.0",
     "url": "https://github.com/juw12/buddy/releases/download/v1.10.0/Buddy-mac.zip",
-    "size": 17586131,
-    "sha256": "d1099571986b549d372aa3055fa9aab0e79d610d91e60b82a47886f52854586c"
+    "size": 17587664,
+    "sha256": "9fcf60b8577e780b8e58f282dcb5b8f1067f13ead87af129eac23908fed54893"
   },
   "ios": {
     "version": "1.1.0",
