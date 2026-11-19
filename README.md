@@ -439,7 +439,10 @@ is always a trace of what they did.
   in your own Chrome works like this, and your mouse never moves. The pointer now flies to the thing that
   was pressed there too. After a click it stays at that spot for 10 seconds while the page changes, and no
   longer goes back to the tab with every new title. With every new step the pointer is put above all
-  windows at once, so a browser window that keeps itself on top no longer hides it. What it cannot show:
+  windows at once, so a browser window that keeps itself on top no longer hides it. From 1.11.1 a crew
+  pointer also puts itself above all windows 3 times a second: when such a window is put on top again
+  without any news (after a press that is not told), the pointer is back in well under a second, where
+  it was out of sight for up to 2 seconds before. What it cannot show:
   a thing that is gone in the instant it is pressed (a *back* button that takes its own view away) is not
   told by the browser, so the pointer stays where it was. A thing that is gone a moment later is sometimes
   told without its place: the trace then says *the thing was gone before its place could be read*. A press
@@ -470,7 +473,9 @@ late. Clicks through the screen (1.11.0): a test page in Chrome 157, pressed thr
 window that keeps itself on top. In four runs every press of a thing that stayed at least 150 ms was in
 the trace at the centre of that thing (links, buttons, a tick box, a button far down the page, also after
 the window was dragged), and in a picture the pointer sat on the pressed link and was still there after
-the page had a new title. Real Gmail was only listened to, never pressed for a test: of 5 presses on a
+the page had a new title. After a press that is not told (the window is put on top again, no news): the
+pointer was behind the window 0.4 s later and above it again 0.8 s later (1.11.1, one run; in 1.11.0 it
+was still out of sight after 1 s). Real Gmail was only listened to, never pressed for a test: of 5 presses on a
 row of mail Chrome told 3 with the place, 1 without, and 1 not at all, and a *mark as unread* press was
 never told. Not checked: clicks in another steered browser than Edge, clicks through the screen in Edge,
 a screen that is not at 100% size, and a restart of Windows itself. Windows only.

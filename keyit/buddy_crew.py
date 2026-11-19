@@ -112,6 +112,10 @@ class CrewPointer(BuddyOverlay):
     SWAY_PERIOD_S = 2.2                # one figure of eight
     HOP_SPEED = 260.0                  # px/s upwards at every new step
     PULSE_S = 0.45
+    # An agent's browser window that keeps itself on top goes above the pointer again after every press
+    # (the script puts it there). Buddy's own pointer looks every 2 s; a crew pointer was then out of
+    # sight for up to 2 s in the middle of the work (seen in a picture, 1 s after a press).
+    TOPMOST_EVERY_S = 0.3
     _made = 0
 
     def __init__(self, color=CREW_COLORS[0], icon=CREW_ICON):

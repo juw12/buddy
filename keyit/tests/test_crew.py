@@ -451,6 +451,25 @@ class PointerMotionTests(unittest.TestCase):
             pointer._set_shown(True)
         self.assertEqual(raised, [buddy_crew.buddy_overlay.HWND_TOPMOST])   # once for the step, then the regular turns
 
+    def test_a_window_that_went_above_the_pointer_hides_it_for_a_moment_only(self):
+        # The agent's window is put on top again after a press that gives no news (a thing gone at once):
+        # no new step comes, so the regular turn must come soon.
+        self.assertLessEqual(buddy_crew.CrewPointer.TOPMOST_EVERY_S, 0.5)
+        self.assertEqual(buddy_crew.BuddyOverlay.TOPMOST_EVERY_S, 2.0)      # Buddy's own pointer: as it was
+        pointer = bare_pointer()
+        raised = []
+        pointer._shown = True
+        del pointer._set_shown
+        windows = types.SimpleNamespace(SetWindowPos=lambda *arguments: raised.append(arguments[1]),
+                                        ShowWindow=lambda *arguments: None)
+        with mock.patch.object(buddy_crew.buddy_overlay, "user32", windows):
+            pointer._last_topmost = time.perf_counter() - 0.2
+            pointer._set_shown(True)
+            self.assertEqual(raised, [])                                    # too soon
+            pointer._last_topmost = time.perf_counter() - 0.4
+            pointer._set_shown(True)
+        self.assertEqual(raised, [buddy_crew.buddy_overlay.HWND_TOPMOST])
+
     def test_a_new_step_hops_with_a_ripple_at_full_frame_rate(self):
         pointer = bare_pointer()
         pointer.show("explorer: Editing notes.md", (500.0, 300.0), hop=True)

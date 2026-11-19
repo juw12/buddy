@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 APP_NAME = "Buddy"
-VERSION = "1.11.0"
+VERSION = "1.11.1"
 
 SUPPORT_DIR = Path.home() / "Library" / "Application Support" / APP_NAME
 SETTINGS_PATH = SUPPORT_DIR / "settings.json"
