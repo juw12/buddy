@@ -16,10 +16,16 @@ it learns stays on this PC:
 * an AI app's own programs are followed the same way, and in a browser such a program steers
   (--remote-debugging-port) the pointer flies to every click and typed-in box, with a hop and a ripple on the
   click (crew_browser.py);
-* a browser window a followed program works through the screen instead (UI Automation, no debugging port: a
-  script that reads Gmail in your own Chrome) is followed too: the pointer flies to the thing that is pressed
-  (crew_screen.py). After a click the pointer stays there while the page changes, instead of going back to
-  the top of the window with every new title;
+* a window a followed program works through the screen instead (UI Automation, no debugging port: a script
+  that reads Gmail in your own Chrome, or one that presses a button in Notepad or in any other program) is
+  followed too: the pointer flies to the thing that is pressed (crew_screen.py). After a click the pointer
+  stays there while the page changes, instead of going back to the top of the window with every new title;
+* a click a program makes with the mouse itself is followed in every window, also in one that is not the
+  task's own (an app you had open already): Windows gives such a press no device, and Buddy's own listener
+  for the mouse tells it (keyit_core.MouseClicks; your own mouse and touchpad are never taken for it). The
+  click is the task's whose window it is in; in any other window nobody can say which program clicked, so it
+  is taken for the followed task that is most likely at work (an AI agent before a scheduled task), and the
+  trace says that it was taken so. With no followed task at all only the trace has it;
 * the pointer is for that one window, by its number: never for another window with the same words in its
   title (your own Gmail next to the agent's). A new window you cannot see (opened behind your windows, or
   off the screen) and a press in such a window are said at the right edge of the screen instead, "... (in a
@@ -47,6 +53,7 @@ import ctypes
 import datetime
 import json
 import os
+import queue
 import re
 import subprocess
 import threading
@@ -83,6 +90,7 @@ LAUNCHERS = {"svchost.exe", "wscript.exe", "cscript.exe", "taskeng.exe"}
 CONSOLE_HOSTS = {"conhost.exe", "openconsole.exe", "windowsterminal.exe"}
 CONSOLE_APPS = {"cmd.exe", "python.exe", "powershell.exe", "pwsh.exe", "py.exe", "node.exe", "opencode.exe"}
 BROWSERS = {"chrome.exe", "msedge.exe", "firefox.exe"}
+NOT_PRESSED = CONSOLE_HOSTS | {"cmd.exe", "powershell.exe", "pwsh.exe", "firefox.exe"}   # never followed through the screen
 # Apps whose AI works on this PC through programs it starts itself (its Python, PowerShell, the browser it
 # opens). What those open gets a pointer too. The app's own windows are never pointed at.
 AGENT_HOSTS = {"vector.exe": "Vector"}
@@ -91,6 +99,9 @@ DRIVEN_BROWSER = "Browser agent"   # a browser a program steers, when nobody is 
 AGENT_QUIET_S = 60                # an agent's app stays open all day: its pointer goes after this long without news
 CLICK_LANDS_S = 0.4               # the pointer needs this long to fly to a click: then it hops and ripples there
 CLICK_HOLDS_S = 10                # news about a window this soon after a click in it leaves the pointer at the click
+SAME_CLICK_S = 0.7                # a press a window tells this soon after a mouse click in it is that click
+SAME_CLICK_PX = 4                 # and a second mouse click this soon and this near is the same one (a double click)
+GA_ROOT = 2
 NEW_WINDOW_S = 10                 # a window is new for this long: its news is told even where you cannot see it
 PATH_RE = re.compile(r"[A-Za-z]:\\[^\"'|<>]*?\.(?:py|pyw|ps1|vbs|bat|cmd|exe)\b|[\w.-]+\.(?:py|pyw|ps1|vbs|bat)\b",
                      re.IGNORECASE)
@@ -118,6 +129,11 @@ fast_user32.IsIconic.argtypes = [wintypes.HWND]
 fast_user32.InternalGetWindowText.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
 fast_user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
 fast_dwmapi.DwmGetWindowAttribute.argtypes = [wintypes.HWND, wintypes.DWORD, ctypes.c_void_p, wintypes.DWORD]
+user32.WindowFromPoint.argtypes = [wintypes.POINT]
+user32.WindowFromPoint.restype = wintypes.HWND
+user32.GetAncestor.argtypes = [wintypes.HWND, wintypes.UINT]
+user32.GetAncestor.restype = wintypes.HWND
+user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]
 kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
 kernel32.OpenProcess.restype = wintypes.HANDLE
 kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
@@ -427,6 +443,19 @@ def watch_clicks(watch, pid, created, command):
     threading.Thread(target=follow, name="BuddyTaskBrowser", daemon=True).start()
 
 
+def window_at(x, y):
+    """(the top-level window you see at this point of the screen, its process), or (0, 0)."""
+    hwnd = int(user32.GetAncestor(user32.WindowFromPoint(wintypes.POINT(x, y)), GA_ROOT) or 0)
+    pid = wintypes.DWORD()
+    if hwnd:
+        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+    return hwnd, pid.value
+
+
+def mouse_words(button):
+    return "the mouse" if button == "left" else f"the mouse ({button} button)"
+
+
 def is_agent(task):
     return task.startswith(AGENT_TEAM + "\\")
 
@@ -463,7 +492,8 @@ class TaskWatch:
         self.stopped = threading.Event()
         self.threads = []
         self.asked_for_clicks = set()   # (pid, created) of the steered browsers that are asked for their clicks
-        self.screen = crew_screen.ScreenWatch(self.screen_action, log)   # presses in a browser worked through the screen
+        self.screen = crew_screen.ScreenWatch(self.screen_action, log)   # presses in a window worked through the screen
+        self.mouse_clicks = queue.SimpleQueue()   # (button, x, y) of the clicks a program made with the mouse
 
     def poll(self):
         """The crew events since the last call (what crew_sources.CrewWatcher asks every source for)."""
@@ -486,7 +516,8 @@ class TaskWatch:
         if self.threads:
             return
         log(f"task watch on (inside Buddy, pid {os.getpid()}), pointers {'on' if self.on else 'off'}")
-        for name, work in (("BuddyTaskList", self.watch_tasks), ("BuddyTaskWindows", self.run)):
+        for name, work in (("BuddyTaskList", self.watch_tasks), ("BuddyTaskWindows", self.run),
+                           ("BuddyTaskMouse", self.watch_mouse)):
             self.threads.append(threading.Thread(target=work, name=name, daemon=True))
             self.threads[-1].start()
 
@@ -497,6 +528,7 @@ class TaskWatch:
             return
         self.stopped.set()
         self.screen.stop()
+        self.mouse_clicks.put(None)                  # wakes the thread that waits for clicks
         with self.lock:
             for task, follow in self.followed.items():
                 if follow["announced"]:
@@ -711,15 +743,64 @@ class TaskWatch:
             self.act(tag[0], pid, 0, action, what, x, y, window)
 
     def screen_action(self, hwnd, pid, action, what, x, y, gone=False):
-        """The same for a browser window that is worked through the screen. Such a window can be one of your
-        own browser (a task opened a page in it), so it is the window that names the task, not the process.
+        """The same for a window that is worked through the screen. Such a window can be one of your own
+        browser (a task opened a page in it), so it is the window that names the task, not the process.
         `gone`: the pressed thing was gone before its place could be read (there is no point then)."""
         entry = self.windows.get(hwnd)
-        if entry and entry[0] == pid and entry[2]:
-            self.act(entry[2], pid, hwnd, action, what, x, y, entry[1], gone)
+        if not (entry and entry[0] == pid and entry[2]):
+            return
+        with self.lock:
+            clicked = self.followed.get(entry[2], {}).get("mouse")
+        if action == "click" and clicked and clicked[0] == hwnd and time.monotonic() - clicked[1] < SAME_CLICK_S:
+            return                                   # the window tells the click a program's mouse just made: told already
+        self.act(entry[2], pid, hwnd, action, what, x, y, entry[1], gone)
 
-    def act(self, task, pid, hwnd, action, what, x, y, window, gone=False):
-        thing = f"a {what}" if what else "the page"
+    # --- clicks a program makes with the mouse itself (from keyit_core.MouseClicks, through a thread of its own)
+    def program_clicked(self, button, x, y):
+        """Called in the thread that hears the mouse, for every press a program made: only noted here, so the
+        click sounds never wait."""
+        self.mouse_clicks.put((button, x, y))
+
+    def watch_mouse(self):
+        first_in_line()                              # it sleeps until a program clicks
+        while not self.stopped.is_set():
+            click = self.mouse_clicks.get()
+            if click is None or self.stopped.is_set():
+                continue
+            try:
+                self.mouse_action(*click)
+            except Exception as error:               # a watch must not die on one odd window
+                log(f"error (a program's click): {type(error).__name__}: {error}")
+
+    def mouse_action(self, button, x, y):
+        """A program pressed a mouse button at this point of the screen. In a followed task's window it is that
+        task's click. In any other window nobody can say whose it is: it is taken for the followed task most
+        likely at work (an AI agent before a scheduled task, then the one with the latest news), and the
+        trace says so. With no followed task, only the trace has it."""
+        hwnd, pid = window_at(x, y)
+        if not hwnd or pid == OWN_PID:
+            return                                   # on Buddy itself (or on nothing): nobody's work
+        entry = self.windows.get(hwnd)
+        entry = entry if entry and entry[0] == pid else None
+        exe = self.exe_of(pid)
+        with self.lock:
+            task = entry[2] if entry and entry[2] in self.followed else None
+            taken = task is None
+            if taken:
+                task = max(self.followed, default=None, key=lambda name: (
+                    is_agent(name), self.followed[name]["moved"], self.followed[name]["started"]))
+            if task is None:
+                log(f"CLICK  a program nobody follows  -> {exe} pid {pid}: {mouse_words(button)} at ({x}, {y})")
+                return
+            clicked = self.followed[task].get("mouse")
+            if (clicked and clicked[0] == hwnd and time.monotonic() - clicked[1] < SAME_CLICK_S
+                    and abs(clicked[3] - x) <= SAME_CLICK_PX and abs(clicked[4] - y) <= SAME_CLICK_PX):
+                return                               # the second press of a double click
+        self.act(task, pid, hwnd, "click", "", x, y, entry[1] if entry else "", mouse=button, taken=taken, exe=exe)
+
+    def act(self, task, pid, hwnd, action, what, x, y, window, gone=False, mouse="", taken=False, exe=""):
+        """`mouse`: the button, for a click a program made with the mouse itself. `taken`: such a click in a
+        window that is not the task's own."""
         with self.lock:
             follow = self.followed.get(task)
             if follow is None:
@@ -728,12 +809,21 @@ class TaskWatch:
             # where the agent last clicked: the next news about that window leaves the pointer there
             follow["spot"] = (pid, hwnd, x, y, follow["moved"]) if x is not None else None
             follow["pressed"] = (pid, hwnd, follow["moved"])     # and when, also for a press with no place
-            exe = self.known.get(pid, (0, "browser", 0))[1]
+            exe = exe or self.known.get(pid, (0, "browser", 0))[1]
+            if mouse:
+                follow["mouse"] = (hwnd, follow["moved"], taken, x, y)
+                thing, told = "here", mouse_words(mouse)
+            elif what:
+                thing = told = f"a {what}"
+            else:
+                thing = told = "the page" if exe in BROWSERS or exe == "browser" else "something"
+            clicking, clicked = ("Right-clicking", "Right-clicked") if mouse == "right" else ("Clicking", "Clicked")
             if x is not None:
                 where = f" at ({x}, {y})"
             else:
                 where = ": the thing was gone before its place could be read" if gone else " behind another window or off the screen"
-            log(f"{'TYPE  ' if action == 'type' else 'CLICK '} {task}  -> {exe} pid {pid}: {thing}{where}"
+            log(f"{'TYPE  ' if action == 'type' else 'CLICK '} {task}  -> {exe} pid {pid}: {told}{where}"
+                + ("  (not its own window: taken for its click)" if taken else "")
                 + ("" if self.on else "  (pointers off)"))
             if not self.on:
                 return
@@ -752,10 +842,10 @@ class TaskWatch:
                     event["window"] = window[:80]
             if hwnd:
                 event["hwnd"] = hwnd         # this window and no other, whatever else has the same title
-            post({**event, "say": f"Typing in {thing}" if action == "type" else f"Clicking {thing}"})
+            post({**event, "say": f"Typing in {thing}" if action == "type" else f"{clicking} {thing}"})
             follow["announced"] = True
         if action != "type":
-            landed = threading.Timer(CLICK_LANDS_S, self.click_lands, args=(task, {**event, "say": f"Clicked {thing}"}))
+            landed = threading.Timer(CLICK_LANDS_S, self.click_lands, args=(task, {**event, "say": f"{clicked} {thing}"}))
             landed.daemon = True
             landed.start()
 
@@ -836,18 +926,19 @@ class TaskWatch:
         with_window = {pid for pid, _ in seen.values()}
         self.window_exes = {pid: exe for pid, exe in self.window_exes.items() if pid in with_window}
         self.first_windows = False
-        self.screen.follow(self.screen_browsers(), front)
+        self.screen.follow(self.screen_windows(), front)
 
-    def screen_browsers(self):
-        """{window: its process} of the browser windows a followed task works in, for crew_screen. Without the
-        browsers that tell their clicks themselves, over their debugging port (crew_browser)."""
+    def screen_windows(self):
+        """{window: its process} of the windows a followed task works in, whatever the program, for
+        crew_screen. Without the browsers that tell their clicks themselves, over their debugging port
+        (crew_browser), and without what tells nothing or has nothing to press (Firefox, a command window)."""
         with self.lock:
             if not self.followed:
                 return {}
             by_port = {pid for pid, _ in self.asked_for_clicks}
             return {hwnd: entry[0] for hwnd, entry in self.windows.items()
                     if entry[2] in self.followed and entry[0] not in by_port
-                    and self.exe_of(entry[0]) in crew_screen.BROWSERS}
+                    and self.exe_of(entry[0]) not in NOT_PRESSED}
 
     def keep_alive(self):
         now = time.monotonic()
@@ -856,6 +947,11 @@ class TaskWatch:
         on_screen = {entry[2] for entry in self.windows.values()}
         with self.lock:
             for task, follow in self.followed.items():
+                clicked = follow.get("mouse")
+                if clicked and clicked[2] and (clicked[0] in self.windows or now - clicked[1] < CLICK_HOLDS_S):
+                    # it clicked in a window that is not its own: it works there (a window without a title,
+                    # the taskbar, is in no list: the pointer stays for a moment all the same)
+                    on_screen.add(task)
                 if follow["announced"] and is_agent(task) and (
                         task not in on_screen or now - follow["moved"] > AGENT_QUIET_S):
                     # the agent's app lives on (a chat stays open for hours): its pointer must not stay that long

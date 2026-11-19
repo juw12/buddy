@@ -328,13 +328,24 @@ class MouseClicks:
     """Hears mouse button presses through Windows Raw Input and feeds them to the Player.
 
     Raw Input is posted to our own hidden window, so - unlike a low-level mouse hook - Windows never
-    waits for Python before moving the cursor. Only button flags are read; positions are ignored.
+    waits for Python before moving the cursor. Only button flags are read.
+
+    It also tells a press that a program made (`on_program_click`, for the crew's task watch): Windows gives
+    such a press no device. A precision touchpad's presses have no device either, so the touchpad is listened
+    to as well (only "a finger is on it", nothing of what it reports is read), and a press this soon after a
+    finger was on it is yours. Buddy's own clicks carry OWN_CLICK_MARK and are never told. One process can
+    listen to the mouse this way only once, so this is the place for it.
     """
 
     WM_INPUT = 0x00FF
     WM_QUIT = 0x0012
     RID_INPUT = 0x10000003
     RIM_TYPEMOUSE = 0
+    OWN_CLICK_MARK = 0x42554459       # "BUDY": the extra word of a click Buddy makes itself (keyit_actions.click_at)
+    TOUCH_MARK = 0xFF515700           # the extra word (its high 24 bits) of a press Windows makes from touch or a pen
+    TOUCHPAD_S = 1.0                  # a press with no device this soon after a finger was on the touchpad is yours
+    INPUT_BYTES = 4096                # room for one report of a touchpad too (a mouse needs 48)
+    PRESSES = {-1: "left", -2: "right", -3: "middle"}       # the buttons a program's press is told for
     RIDEV_INPUTSINK = 0x00000100      # also while another app is in front
     RIDEV_REMOVE = 0x00000001
     HWND_MESSAGE = -3
@@ -353,6 +364,15 @@ class MouseClicks:
         self.thread_id = None
         self.ready = threading.Event()
         self.error = None
+        self.on_program_click = None      # callable(button name, x, y) in real screen pixels; must return at once
+        self.touchpad_heard = False       # the touchpad could be listened to: without that nothing is told
+        self.touchpad_at = float("-inf")  # when a finger was last on the touchpad (time.monotonic)
+
+    def from_a_program(self, device, extra, now, remote=False):
+        """Is a press with these marks a program's? `device`: the raw input's device (none for a program and
+        for a touchpad); `extra`: its extra word; `remote`: you sit at another PC (every press has no device)."""
+        return (not device and self.touchpad_heard and not remote and extra != self.OWN_CLICK_MARK
+                and extra & 0xFFFFFF00 != self.TOUCH_MARK and now - self.touchpad_at > self.TOUCHPAD_S)
 
     def start(self):
         if os.name != "nt" or self.thread is not None:
@@ -405,6 +425,11 @@ class MouseClicks:
         user32.DestroyWindow.argtypes = [wintypes.HWND]
 
         self.thread_id = ctypes.windll.kernel32.GetCurrentThreadId()
+        try:                                          # where a press was is told in real pixels on a scaled screen
+            user32.SetThreadDpiAwarenessContext.restype = ctypes.c_void_p
+            user32.SetThreadDpiAwarenessContext(ctypes.c_void_p(-4))
+        except (AttributeError, OSError):
+            pass
         hwnd = user32.CreateWindowExW(0, "STATIC", "KeyIt mouse clicks", 0, 0, 0, 0, 0,
                                       wintypes.HWND(self.HWND_MESSAGE), None, None, None)
         device = RAWINPUTDEVICE(0x01, 0x02, self.RIDEV_INPUTSINK, hwnd)     # generic desktop / mouse
@@ -413,29 +438,47 @@ class MouseClicks:
             print(self.error, file=sys.stderr)
             self.ready.set()
             return
+        touchpad = RAWINPUTDEVICE(0x0D, 0x05, self.RIDEV_INPUTSINK, hwnd)   # digitizer / touch pad
+        self.touchpad_heard = bool(user32.RegisterRawInputDevices(ctypes.byref(touchpad), 1, ctypes.sizeof(touchpad)))
         self.ready.set()
 
-        data = RAWINPUT()
+        buffer = ctypes.create_string_buffer(self.INPUT_BYTES)
+        data = RAWINPUT.from_buffer(buffer)
         header_size = ctypes.sizeof(RAWINPUTHEADER)
         message = wintypes.MSG()
         while user32.GetMessageW(ctypes.byref(message), None, 0, 0) > 0:
             if message.message == self.WM_INPUT:
-                size = wintypes.UINT(ctypes.sizeof(data))
+                size = wintypes.UINT(self.INPUT_BYTES)
                 got = user32.GetRawInputData(wintypes.HANDLE(message.lParam), self.RID_INPUT,
-                                             ctypes.byref(data), ctypes.byref(size), header_size)
-                if got not in (0, 0xFFFFFFFF) and data.header.dwType == self.RIM_TYPEMOUSE:
+                                             buffer, ctypes.byref(size), header_size)
+                if got in (0, 0xFFFFFFFF) or data.header.dwType != self.RIM_TYPEMOUSE:
+                    self.touchpad_at = time.monotonic()      # not the mouse (or too long for one): the touchpad
+                else:
                     flags = data.mouse.u.buttons.usButtonFlags
                     if flags & 0x03FF:
                         for bit, code, is_down in self.BUTTON_FLAGS:
                             if flags & bit:
                                 self.player.submit(code, is_down)
+                                if is_down and self.on_program_click and code in self.PRESSES:
+                                    self._tell_program_click(code, data, message)
             user32.DispatchMessageW(ctypes.byref(message))   # lets Windows clean up the raw input
 
-        device.dwFlags = self.RIDEV_REMOVE
-        device.hwndTarget = None
-        user32.RegisterRawInputDevices(ctypes.byref(device), 1, ctypes.sizeof(device))
+        for registered in (device, touchpad):
+            registered.dwFlags = self.RIDEV_REMOVE
+            registered.hwndTarget = None
+            user32.RegisterRawInputDevices(ctypes.byref(registered), 1, ctypes.sizeof(registered))
         user32.DestroyWindow(hwnd)
         self.thread_id = None
+
+    def _tell_program_click(self, code, data, message):
+        """One button went down: told to `on_program_click` when a program pressed it, with where the pointer
+        was at that instant (Windows writes that into the message)."""
+        try:
+            if self.from_a_program(data.header.hDevice, data.mouse.ulExtraInformation, time.monotonic(),
+                                   remote=bool(ctypes.windll.user32.GetSystemMetrics(0x1000))):   # SM_REMOTESESSION
+                self.on_program_click(self.PRESSES[code], message.pt.x, message.pt.y)
+        except Exception:                                    # the sounds must go on
+            pass
 
 
 class KeyboardHook:

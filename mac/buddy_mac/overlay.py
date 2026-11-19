@@ -98,6 +98,7 @@ class Overlay:
         x, y = NSEvent.mouseLocation()
         self.pos = [x + REST_OFFSET[0], y + REST_OFFSET[1]]
         self.flight = None            # (start_x, start_y, end_x, end_y, started_at)
+        self.fly_seconds = FLY_SECONDS
         self.parked = False           # True while pointing at something: don't follow the mouse
         self.pulse_started = 0.0
         self.last_tick = time.perf_counter()
@@ -169,6 +170,12 @@ class Overlay:
         else:
             self.window.orderOut_(None)
 
+    def close(self):
+        """Take the pointer off the screen for good and stop its timer (the agent pointer between clicks)."""
+        self.visible = False
+        self._timer.invalidate()
+        self.window.orderOut_(None)
+
     def render_png(self, path):
         """Draw the current frame into a PNG (used by the self-test; needs no screen permission)."""
         from AppKit import NSBitmapImageRep
@@ -191,7 +198,7 @@ class Overlay:
         self.last_tick = now
         if self.flight is not None:
             sx, sy, ex, ey, started = self.flight
-            t = min(1.0, (now - started) / FLY_SECONDS)
+            t = min(1.0, (now - started) / self.fly_seconds)
             k = _ease_in_out(t)
             self.pos = [sx + (ex - sx) * k, sy + (ey - sy) * k]
             if t >= 1.0:

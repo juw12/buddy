@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 APP_NAME = "Buddy"
-VERSION = "1.11.1"
+VERSION = "1.12.0"
 
 SUPPORT_DIR = Path.home() / "Library" / "Application Support" / APP_NAME
 SETTINGS_PATH = SUPPORT_DIR / "settings.json"
@@ -64,6 +64,9 @@ DEFAULTS = {
     "island": True,
     # The language Buddy listens for when you hold the hotkey. "" = the Mac's own language.
     "voice_language": "",
+    # When a program (an AI agent, a script) clicks with the mouse, a second pointer flies to the click and
+    # says who it was. Off = the click is still written to the log, nothing is drawn.
+    "agent_pointer": True,
 }
 
 # Languages for hold-to-talk (Apple's speech recognition). The menu only lists the ones this Mac supports.
@@ -294,6 +297,73 @@ class ScreenRect:
 
     def contains(self, px: float, py: float) -> bool:
         return self.x <= px < self.x + self.width and self.y <= py < self.y + self.height
+
+
+# --------------------------------------------------------------------------- the agent pointer
+# A click a program makes with the mouse (an AI agent, a script, a remote tool) is flown to by a second
+# pointer that names the program, and is written to the log, so nothing clicks on this Mac without a trace.
+# macOS marks every mouse press with the process that posted it; a press from your own mouse or trackpad
+# has none. A press a program makes without the mouse (through Accessibility) is not seen.
+AGENT_FLY_SECONDS = 0.2           # short, so the pointer is at the click while it happens
+AGENT_HOLD_SECONDS = 2.5          # how long it stays after the last click
+AGENT_START_OFFSET = (90.0, -90.0)   # the first flight starts this far from the click (Cocoa: y grows up)
+
+# Programs that pass on your own hand: mouse and trackpad tools, and another device driving this Mac.
+# Their clicks are yours, so they are never shown or logged. Matched on the start of the bundle id.
+YOUR_OWN_MOUSE = (
+    "com.hegenberg.bettertouchtool",
+    "com.lujjjh.linearmouse",
+    "com.nuebling.mac-mouse-fix",
+    "com.plentycom.driver.steermouse",
+    "com.usboverdrive.",
+    "com.logi.",
+    "com.logitech.",
+    "org.pqrs.",
+    "com.apple.screensharing",
+    "com.apple.universalcontrol",
+)
+
+
+def is_program_click(source_pid: int, own_pid: int, bundle_id: str = "") -> bool:
+    """True when a mouse press was made by a program and not by your hand.
+
+    source_pid: the process that posted the press (0 = the mouse or trackpad itself).
+    own_pid: Buddy. bundle_id: the posting app's id, "" for a command-line tool.
+    """
+    if not source_pid or source_pid == own_pid:
+        return False
+    return not (bundle_id or "").lower().startswith(YOUR_OWN_MOUSE)
+
+
+def click_words(name: str, button: str = "left", clicks: int = 1) -> str:
+    """What the agent pointer says: "Terminal clicked here", "cliclick right-clicked here"."""
+    who = (name or "").strip() or "A program"
+    if button == "right":
+        did = "right-clicked"
+    elif button != "left":
+        did = "middle-clicked"
+    elif clicks >= 2:
+        did = "double-clicked"
+    else:
+        did = "clicked"
+    return f"{who} {did} here"
+
+
+def click_log_line(name: str, pid: int, button: str, clicks: int, x: float, y: float, shown: bool) -> str:
+    """One line in the log for every click a program made, whether or not the pointer was drawn."""
+    words = click_words(name, button, clicks).rsplit(" here", 1)[0]
+    drawn = "pointer shown" if shown else "pointer is off"
+    return f"agent click: {words} (pid {pid}) at ({round(x)}, {round(y)}) - {drawn}"
+
+
+def quartz_to_cocoa(x: float, y: float, main_height: float) -> tuple[float, float]:
+    """A mouse event's point (origin top-left of the main display, y down) -> Cocoa (origin bottom-left, y up)."""
+    return x, main_height - y
+
+
+def agent_color(own_color: str) -> str:
+    """The agent pointer's colour name: never the one your own Buddy has."""
+    return "Purple" if own_color == "Blue" else "Blue"
 
 
 # --------------------------------------------------------------------------- Buddy Island geometry
