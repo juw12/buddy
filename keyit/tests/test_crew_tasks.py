@@ -177,7 +177,7 @@ def test_an_ai_apps_programs_their_windows_and_their_clicks(lab, monkeypatch):
     watch.browser_action(edge, "type", "box", 300, 200)
     time.sleep(0.2)
     check("typing: one pointer at the box, the text is never told",
-          len(posted) == 1 and posted[0]["say"] == "Typing in a box" and set(posted[0]) == {"agent", "team", "id", "x", "y", "state", "say"})
+          len(posted) == 1 and posted[0]["say"] == "Typing in a box" and set(posted[0]) == {"agent", "team", "id", "x", "y", "state", "say", "dock", "press"})
     posted.clear(), logged.clear()
     watch.browser_action(edge, "click", "button", None, None, window="Sign in to GitHub - Microsoft Edge")
     time.sleep(ct.CLICK_LANDS_S + 0.3)
@@ -835,8 +835,8 @@ def test_a_browser_worked_through_the_screen_is_followed_by_its_windows(lab, mon
     screen[1] = (chrome, "Inbox - Gmail - Google Chrome")
     watch.scan_windows()
     monkeypatch.setattr(ct.time, "monotonic", real_monotonic)
-    check("long after the click a new title points at the window again",
-          len(posted) == 1 and "x" not in posted[0] and "hwnd" not in posted[0])
+    check("long after the click a new title points at the window again: that window, by its number",
+          len(posted) == 1 and "x" not in posted[0] and posted[0]["hwnd"] == 1)
 
     posted.clear(), logged.clear()
     watch.screen_action(1, chrome, "type", "box", 300, 200)
@@ -847,10 +847,14 @@ def test_a_browser_worked_through_the_screen_is_followed_by_its_windows(lab, mon
           and (posted[0]["x"], posted[0]["y"]) == (300, 200)
           and all(event.get("window") == "Inbox - Gmail - Google Chrome" and "x" not in event for event in posted[1:])
           and any("a button behind another window" in line for line in logged))
+    check("every press names its window by number and may be said at the edge of the screen (no ghost)",
+          all(event["hwnd"] == 1 and event["dock"] is True and event["press"] is True for event in posted))
     posted.clear()
     screen[1] = (chrome, "Search results - Gmail - Google Chrome")
     watch.scan_windows()
     check("after a press nobody could see, the pointer is not left at an older spot", "x" not in posted[0])
+    check("what that press brings (the next title) is told at the edge of the screen too, as the window's news",
+          posted[0].get("dock") is True and "press" not in posted[0])
 
     posted.clear(), logged.clear()
     watch.screen_action(1, chrome, "click", "", None, None, gone=True)
@@ -895,6 +899,33 @@ def test_a_browser_worked_through_the_screen_is_followed_by_its_windows(lab, mon
     check("a press there is the task's, though the browser's process is your own",
           any(line.startswith("CLICK  Mail\\Read inbox  -> chrome.exe pid 300: a link at (700, 300)") for line in logged)
           and posted[-1]["agent"] == "Read inbox")
+
+    # which window, and what when you cannot see it
+    posted.clear()
+    screen[11] = (chrome, "Gmail - Google Chrome")
+    watch.scan_windows()
+    check("a new window of the agent is named by its number (your own Gmail has the same words in its title), "
+          "and may be told at the edge of the screen when it opened where you cannot see it",
+          len(posted) == 1 and posted[0]["hwnd"] == 11 and posted[0]["dock"] is True)
+    posted.clear()
+    screen[11] = (chrome, "Search results - Gmail - Google Chrome")
+    watch.scan_windows()
+    check("while the window is new, its next title too", len(posted) == 1 and posted[0].get("dock") is True)
+    real_time = time.time
+    monkeypatch.setattr(ct.time, "time", lambda: real_time() + ct.NEW_WINDOW_S + 1)
+    posted.clear()
+    screen[11] = (chrome, "A mail - Gmail - Google Chrome")
+    watch.scan_windows()
+    check("the titles it gets later are only shown on the window itself, when you can see it",
+          len(posted) == 1 and posted[0]["hwnd"] == 11 and "dock" not in posted[0])
+    watch.screen_action(11, chrome, "click", "link", None, None)
+    posted.clear()
+    screen[11] = (chrome, "Another mail - Gmail - Google Chrome")
+    watch.scan_windows()
+    monkeypatch.setattr(ct.time, "time", real_time)
+    check("but the title a press in it brings is told where the press was told: at the edge of the screen",
+          len(posted) == 1 and posted[0]["say"] == "Working in Gmail" and posted[0].get("dock") is True)
+    time.sleep(ct.CLICK_LANDS_S + 0.3)
 
     stopped = []
     monkeypatch.setattr(watch.screen, "stop", lambda: stopped.append(True))
@@ -1227,3 +1258,14 @@ def test_only_what_buddy_ships_is_needed():
             elif isinstance(node, ast.ImportFrom):
                 used.add((node.module or "").split(".")[0])
         check(f"{name} needs nothing new: {sorted(used - allowed)}", used <= allowed)
+
+
+def test_a_point_off_every_screen_is_not_on_top(monkeypatch):
+    # Windows names the window that lies at a point off the screen all the same: a browser kept as a strip
+    # at the screen edge had its presses told "at (2892, 493)" on a screen 2560 wide
+    asked = []
+    monkeypatch.setattr(crew_browser.user32, "WindowFromPoint", lambda point: asked.append(point) or 7)
+    monkeypatch.setattr(crew_browser.user32, "GetAncestor", lambda hwnd, flag: 7)
+    check("off every screen: not seen, and Windows is not even asked which window lies there",
+          crew_browser.on_top(7, (-32000, -32000)) is False and not asked)
+    check("on the screen: the window Windows names there", crew_browser.on_top(7, (40, 40)) is True and len(asked) == 1)

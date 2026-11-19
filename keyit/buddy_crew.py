@@ -17,8 +17,11 @@ Only "agent" is needed. With "rename": true the event only gives the agent with 
 team: an orchestrator uses it to label the sessions it starts in another agent. With "alive": true it only
 says "still at it": the agent stays followed, and nothing else changes. "state": "waiting" is an agent that
 needs you (a question, a click): it stays and beckons until you have answered. With "hwnd" (a window's number)
-next to "x", "y" and "window", the point is a spot in that window: it is the place for as long as the window
-shows it there, else the window itself is.
+the work is in that one window and in no other, whatever the titles say: "x" and "y" are then a spot in it,
+which is the place for as long as the window shows it there, else the window itself is. With "dock": true a
+step in a window you cannot see (behind your windows, or off the screen) is shown at the right edge of the
+screen, with words that say so. With "press": true the step is a press at that spot: when the pointer can
+only stand on the window, because the spot is covered, its words say so too.
 """
 
 import ctypes
@@ -48,6 +51,8 @@ SILENT_LEAVE_S = 30.0                 # no news and no "alive" for this long: it
 WAITING_LEAVE_S = 600.0               # an agent that needs you stays this long without news
 BECKON_EVERY_S = 1.5                  # an agent that needs you hops this often
 NEEDS_YOU = "Needs you"
+UNSEEN_WORDS = " (in a window you cannot see)"
+COVERED_WORDS = " (where you cannot see it)"
 COLORS_REMEMBERED = 200               # agents whose colour is kept for when they come back
 NAMES_REMEMBERED = 500                # ids that were given another name with "rename"
 _HEX_COLOR = re.compile(r"#[0-9a-fA-F]{6}")
@@ -89,11 +94,16 @@ def normalize_event(event):
         "alive": event.get("alive") is True,
         "point": None,
         "hwnd": 0,
+        "dock": event.get("dock") is True,
+        "press": event.get("press") is True,
     }
     try:
         clean["point"] = (int(event["x"]), int(event["y"]))
-        clean["hwnd"] = int(event.get("hwnd") or 0)
     except (KeyError, TypeError, ValueError):
+        pass
+    try:
+        clean["hwnd"] = int(event.get("hwnd") or 0)
+    except (TypeError, ValueError):
         pass
     return clean
 
@@ -220,8 +230,11 @@ user32.WindowFromPoint.argtypes = [wintypes.POINT]
 user32.WindowFromPoint.restype = wintypes.HWND
 user32.GetAncestor.argtypes = [wintypes.HWND, wintypes.UINT]
 user32.GetAncestor.restype = wintypes.HWND
+user32.MonitorFromPoint.argtypes = [wintypes.POINT, wintypes.DWORD]
+user32.MonitorFromPoint.restype = wintypes.HANDLE
 user32.SystemParametersInfoW.argtypes = [wintypes.UINT, wintypes.UINT, ctypes.c_void_p, wintypes.UINT]
 GA_ROOT = 2
+MONITOR_DEFAULTTONULL = 0
 SPI_GETWORKAREA = 0x0030
 MIN_WINDOW_SIZE = (240, 120)
 DOCK_FROM_RIGHT = 400                 # room for the pointer's bubble between it and the screen edge
@@ -252,9 +265,23 @@ def visible_windows():
     return found
 
 
+def window_rect(hwnd):
+    """(left, top, right, bottom) of this one window, or None when it is gone, hidden or minimized."""
+    if not fast_user32.IsWindowVisible(hwnd) or fast_user32.IsIconic(hwnd):
+        return None
+    rect = wintypes.RECT()
+    if not fast_user32.GetWindowRect(hwnd, ctypes.byref(rect)):
+        return None
+    return rect.left, rect.top, rect.right, rect.bottom
+
+
 def _on_top_at(hwnd, x, y):
-    """True when `hwnd` is the window you actually see at (x, y); Buddy's own pointers are click-through."""
-    seen = user32.WindowFromPoint(wintypes.POINT(int(x), int(y)))
+    """True when `hwnd` is the window you actually see at (x, y); Buddy's own pointers are click-through.
+    A point off every screen is never seen: Windows names the window that lies there all the same."""
+    point = wintypes.POINT(int(x), int(y))
+    if not user32.MonitorFromPoint(point, MONITOR_DEFAULTTONULL):
+        return False
+    seen = user32.WindowFromPoint(point)
     return bool(seen) and user32.GetAncestor(seen, GA_ROOT) == hwnd
 
 
@@ -293,8 +320,10 @@ class Desktop:
 
     WINDOWS_EVERY_S = 1.0
 
-    def __init__(self, windows=visible_windows, on_top_at=_on_top_at, area=work_area, clock=time.monotonic):
+    def __init__(self, windows=visible_windows, on_top_at=_on_top_at, area=work_area, clock=time.monotonic,
+                 rect_of=window_rect):
         self._list_windows = windows
+        self._rect_of = rect_of
         self._on_top_at = on_top_at
         self._area = area
         self._clock = clock
@@ -319,11 +348,17 @@ class Desktop:
 
     def place(self, slot, point=None, file_name="", window="", hwnd=0):
         """Where on screen this work is; None when there is nothing on screen to point at. A point that
-        belongs to a window (`hwnd`) is only the place while that window shows it."""
+        belongs to a window (`hwnd`) is only the place while that window shows it. Work in a window that is
+        named by its number is in that window only: another window with the same words in its title (your
+        own Gmail next to the agent's) is never pointed at for it."""
         if point is not None and (not hwnd or self._on_top_at(hwnd, *point)):
             return point
-        needles = title_wanted(file_name, window)
-        match = pick_window(needles, self._windows()) if needles else None
+        if hwnd:
+            rect = self._rect_of(hwnd)
+            match = (hwnd, rect) if rect else None
+        else:
+            needles = title_wanted(file_name, window)
+            match = pick_window(needles, self._windows()) if needles else None
         if match is not None:
             hwnd, (left, top, right, bottom) = match
             x = left + min((right - left) // 2, 360)
@@ -347,7 +382,10 @@ class Member:
         self.file = ""
         self.window = ""
         self.point = None
-        self.hwnd = 0                    # the window `point` is a spot in (0: the point stands for itself)
+        self.hwnd = 0                    # the one window the work is in (0: the title or the point says where)
+        self.dock = False                # a step in a window you cannot see is shown at the edge of the screen
+        self.unseen = False              # it stands there now, for that reason
+        self.press = False               # the step is a press or typing at one spot (the words say when it is covered)
         self.color = CREW_COLORS[0]
         self.icon = None                 # its own icon (settings or event); None = the same as Buddy's
         self.style = None                # (colour, icon) the pointer has now
@@ -449,17 +487,28 @@ class Crew:
             if member.style != style:
                 member.style = style
                 member.pointer.set_style(*style)
-            if member.hop or member.shown != (member.label, target):
+            label = member.label
+            if member.unseen:
+                label += UNSEEN_WORDS
+            elif member.press and target != member.point:
+                label += COVERED_WORDS       # it stands on the window: the pressed thing itself is covered
+            if member.hop or member.shown != (label, target):
                 enter_from = None if member.entered else self._desktop.entrance(row - 1)
-                member.pointer.show(member.label, target, hop=member.hop, enter_from=enter_from)
-                member.shown, member.hop, member.entered = (member.label, target), False, True
+                member.pointer.show(label, target, hop=member.hop, enter_from=enter_from)
+                member.shown, member.hop, member.entered = (label, target), False, True
 
     def _target(self, member, row, now):
         """The screen point the member's pointer belongs at now; None when it has nothing to do on screen."""
         place = self._desktop.place(row, member.point, member.file, member.window, member.hwnd)
+        member.unseen = False
         if member.state == "waiting":
             return place or self._desktop.dock(row)            # it needs you: it is there, place or no place
         if place is None:
+            if member.dock and member.state == "working" and now - member.stepped <= AT_PLACE_S:
+                # a step in a window you cannot see: no ghost. It is said at the edge of the screen, and
+                # never on another window that only looks like it
+                member.unseen = True
+                return self._desktop.dock(row)
             return None
         if member.state == "done":
             return place if member.entered else None           # only a pointer you could see says it is done
@@ -499,7 +548,7 @@ class Crew:
                 member.hop = True
             member.say = say or member.say
             member.file, member.window, member.point = event["file"], event["window"], event["point"]
-            member.hwnd = event["hwnd"]
+            member.hwnd, member.dock, member.press = event["hwnd"], event["dock"], event["press"]
         elif event["state"] == "done":
             member.say = event["say"] or "done \u2713"
         member.state = event["state"]

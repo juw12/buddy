@@ -326,8 +326,10 @@ Buddy's own shape (the one you picked in Settings → Look); its colour and its 
   "window": "Excel", "where": "project-a", "id": "any-stable-key", "color": "#22c55e", "icon": "star",
   "x": 800, "y": 400}`. `state` is `working`, `waiting` (it needs you), `done` or `leave`; `window` is a piece
   of a window title to fly to; `x`/`y` is an exact screen point the pointer flies to (it only points: to really click, see *Crew hands* below).
-  With `"hwnd"` (the number of a window) next to `x`/`y`, the point only counts while that window shows it;
-  behind another window the pointer goes to the part of that window you can see. `icon`
+  With `"hwnd"` (the number of a window) the work is in that one window, whatever its title is: a point
+  next to it only counts while that window shows it, else the pointer goes to the top of that window. With
+  `"dock": true` a step in a window you cannot see at all is shown at the right edge of the screen, and with
+  `"press": true` the words say when the pointer could only stand on the window. `icon`
   is `arrow`, `pointer`, `plane`, `dot`, `star`, `heart` or `face`. A tool that works for longer than 30
   seconds without news posts `{"agent": "explorer", "alive": true}` now and then: Buddy keeps following it,
   and nothing else changes.
@@ -445,10 +447,21 @@ is always a trace of what they did.
   it was out of sight for up to 2 seconds before. What it cannot show:
   a thing that is gone in the instant it is pressed (a *back* button that takes its own view away) is not
   told by the browser, so the pointer stays where it was. A thing that is gone a moment later is sometimes
-  told without its place: the trace then says *the thing was gone before its place could be read*. A press
-  in a window that is behind another window is only in the trace (*behind another window*), and the pointer
-  waits on the part of that window you can see. Typing is shown for the box that has the keyboard, and
-  not while you use that same window yourself. Firefox is not followed.
+  told without its place: the trace then says *the thing was gone before its place could be read*.
+  Typing is shown for the box that has the keyboard, and not while you use that same window yourself.
+  Firefox is not followed.
+- **The right window, and no ghost (1.11.1):** the pointer belongs to the one window the program works in,
+  by that window's number. Before, the window was looked up by its title, so with your own Gmail open the
+  pointer could stand on the tab of *your* window while the work went on in the agent's window. When the
+  pressed thing is covered and only the window can be seen, the pointer stands on the window and says so:
+  *Clicked a link (where you cannot see it)*. When none of that window can be seen (it is behind your
+  windows, or the program keeps it off the screen), the pointer stands at the right edge of the screen and
+  says *Clicked a link (in a window you cannot see)*. A new window that opens where you cannot see it is
+  told the same way, for its first 10 seconds: *Working in Gmail (in a window you cannot see)*. The titles
+  such a hidden window gets later by itself are only in the trace. A place that is off the screen is not
+  a place you can see: a browser kept as a strip at the screen edge had its presses told at points past
+  the edge (`at (2892, 493)` on a screen 2560 wide), and the pointer flew out of sight with only its
+  words left at the edge. The trace now says *behind another window or off the screen* for these.
 - **Never late:** windows are looked at 4 times a second, and one look takes about a millisecond, whatever
   else Buddy is doing at that moment. On a busy PC a new window was in the trace 0.02 to 0.18 seconds after
   it appeared (10 tries), and the pointer was on it after 0.2 to 0.9 seconds, half of the time within 0.45

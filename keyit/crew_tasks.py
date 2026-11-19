@@ -20,6 +20,10 @@ it learns stays on this PC:
   script that reads Gmail in your own Chrome) is followed too: the pointer flies to the thing that is pressed
   (crew_screen.py). After a click the pointer stays there while the page changes, instead of going back to
   the top of the window with every new title;
+* the pointer is for that one window, by its number: never for another window with the same words in its
+  title (your own Gmail next to the agent's). A new window you cannot see (opened behind your windows, or
+  off the screen) and a press in such a window are said at the right edge of the screen instead, "... (in a
+  window you cannot see)": no ghost;
 * everything is written to %APPDATA%\\Buddy\\crew\\trace.log, so there is always a trace: which task, which
   program, which window, when it started and ended. The trace is written with the pointers off too.
 
@@ -87,6 +91,7 @@ DRIVEN_BROWSER = "Browser agent"   # a browser a program steers, when nobody is 
 AGENT_QUIET_S = 60                # an agent's app stays open all day: its pointer goes after this long without news
 CLICK_LANDS_S = 0.4               # the pointer needs this long to fly to a click: then it hops and ripples there
 CLICK_HOLDS_S = 10                # news about a window this soon after a click in it leaves the pointer at the click
+NEW_WINDOW_S = 10                 # a window is new for this long: its news is told even where you cannot see it
 PATH_RE = re.compile(r"[A-Za-z]:\\[^\"'|<>]*?\.(?:py|pyw|ps1|vbs|bat|cmd|exe)\b|[\w.-]+\.(?:py|pyw|ps1|vbs|bat)\b",
                      re.IGNORECASE)
 TITLE_RE = re.compile(r"--title\s+(?:\"([^\"]+)\"|'([^']+)'|(\S+))")
@@ -698,8 +703,8 @@ class TaskWatch:
     def browser_action(self, pid, action, what, x, y, window=""):
         """The agent clicked (or typed) at this screen point in its browser: the pointer flies there, and for a
         click it hops and ripples when it has arrived. Only the kind of thing is told, never its text. No
-        point (x is None) = the spot is behind another window: the trace has it, and the pointer is shown
-        on whatever of that browser window can be seen."""
+        point (x is None) = the spot is behind another window or off the screen: the trace has it, and the
+        pointer is shown on whatever of that browser window can be seen."""
         with self.lock:
             tag = self.tags.get(pid)
         if tag:
@@ -722,17 +727,21 @@ class TaskWatch:
             follow["moved"] = time.monotonic()
             # where the agent last clicked: the next news about that window leaves the pointer there
             follow["spot"] = (pid, hwnd, x, y, follow["moved"]) if x is not None else None
+            follow["pressed"] = (pid, hwnd, follow["moved"])     # and when, also for a press with no place
             exe = self.known.get(pid, (0, "browser", 0))[1]
             if x is not None:
                 where = f" at ({x}, {y})"
             else:
-                where = ": the thing was gone before its place could be read" if gone else " behind another window"
+                where = ": the thing was gone before its place could be read" if gone else " behind another window or off the screen"
             log(f"{'TYPE  ' if action == 'type' else 'CLICK '} {task}  -> {exe} pid {pid}: {thing}{where}"
                 + ("" if self.on else "  (pointers off)"))
             if not self.on:
                 return
             agent, team = short_agent(task)
-            event = {"agent": agent, "team": team, "id": f"task:{task}", "state": "working"}
+            # "dock": a press in a window you cannot see is said at the edge of the screen (no ghost).
+            # "press": on the window instead of on the thing (the thing is covered), the words say so
+            event = {"agent": agent, "team": team, "id": f"task:{task}", "state": "working", "dock": True,
+                     "press": True}
             if x is None:
                 event["window"] = window[:80]
             else:
@@ -740,7 +749,9 @@ class TaskWatch:
                 if hwnd:
                     # a spot in that window: when the window goes behind another one (a script parks
                     # its browser there after a press), the pointer goes to what is left to see of it
-                    event.update({"hwnd": hwnd, "window": window[:80]})
+                    event["window"] = window[:80]
+            if hwnd:
+                event["hwnd"] = hwnd         # this window and no other, whatever else has the same title
             post({**event, "say": f"Typing in {thing}" if action == "type" else f"Clicking {thing}"})
             follow["announced"] = True
         if action != "type":
@@ -801,8 +812,17 @@ class TaskWatch:
                 if changed:
                     log(f"WINDOW {task}  -> {exe} pid {pid}: \"{title[:90]}\"  [{say}]" + ("" if self.on else "  (pointers off)"))
                 if self.on:
+                    # "hwnd": this window and no other (your own Gmail has the same words in its title).
+                    # "dock": the news of a new window you cannot see (opened behind your windows or off
+                    # the screen) is said at the edge of the screen, and so is what a press there brings.
+                    # The titles such a window gets later by itself are not
                     event = {"agent": agent, "team": team, "id": f"task:{task}", "say": say,
-                             "window": title[:80], "state": "working"}
+                             "window": title[:80], "hwnd": hwnd, "state": "working"}
+                    pressed = follow.get("pressed")
+                    if not last or (first and wall - first < NEW_WINDOW_S) or (
+                            pressed and pressed[0] == pid and pressed[1] in (0, hwnd)
+                            and now - pressed[2] < CLICK_HOLDS_S):
+                        event["dock"] = True
                     spot = follow.get("spot")
                     if spot and spot[0] == pid and spot[1] in (0, hwnd) and now - spot[4] < CLICK_HOLDS_S:
                         # the agent just clicked in this window and the page changed: the pointer stays at
