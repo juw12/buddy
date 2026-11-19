@@ -79,6 +79,13 @@ after the last click.
   An agent that works from the command line is named by its tool (*python3.12*, *cliclick*), not by the
   app that started it.
 
+Checked on GitHub's Macs (macOS 15, Apple Silicon and Intel) with the built app: a click that another
+program posted (`osascript`) was heard with that program on it at the exact point, and the pointer flew
+there and said *osascript clicked here*; a click Buddy posted itself was heard and left alone; macOS asked
+for nothing. Not checked: a real mouse or trackpad (those machines have none, so "your own clicks are
+never shown" rests on how macOS marks them), the mouse tools in the list above, more than one display,
+and a MacBook Pro 2019.
+
 ## From source
 
     cd mac
