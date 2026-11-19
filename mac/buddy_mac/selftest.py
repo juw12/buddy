@@ -74,6 +74,7 @@ class SelfTestController(Controller):
         self.report = {"version": core.VERSION, "steps": [], "checks": {}}
         self.targets = []
         self.live_before = 0
+        self.live_keys_before = 0
 
     def start(self):
         super().start()
@@ -162,6 +163,7 @@ class SelfTestController(Controller):
         main_height = NSScreen.screens()[0].frame().size.height
         AppHelper.callLater(1.0, self._check_agent_landed, (200.0, main_height - 150.0))
         AppHelper.callLater(core.AGENT_HOLD_SECONDS + 1.0, self._check_agent_rested, None)
+        AppHelper.callLater(core.AGENT_HOLD_SECONDS + 1.1, self._check_agent_typing, None)
         if os.environ.get("BUDDY_SELFTEST_LIVE_CLICK") == "1":
             AppHelper.callLater(core.AGENT_HOLD_SECONDS + 1.2, self._live_click, None)
 
@@ -187,6 +189,45 @@ class SelfTestController(Controller):
 
     def _check_agent_rested(self, _):
         self.report["checks"]["agent_pointer_rests"] = self.agent is None
+
+    def _check_agent_typing(self, _):
+        """A program's typing: a key press is read back (only who posted it), your own keys and Buddy's are
+        never followed, another program's are told once per burst. The key is handed to the app directly, so
+        this needs no permission; whether macOS lets Buddy hear real keys here is reported, not required."""
+        import Quartz
+        from AppKit import NSEvent
+
+        from .app import _front_window, _may_hear_keys
+
+        checks = self.report["checks"]
+        result = self.report["agent_typing"] = {"may_hear_keys": _may_hear_keys(),
+                                                "key_monitor": self.key_monitor is not None}
+        try:
+            key = Quartz.CGEventCreateKeyboardEvent(None, 49, True)
+            read = self._read_key(NSEvent.eventWithCGEvent_(key))
+            result["read"] = read
+            checks["agent_key_read"] = isinstance(read, int)
+        except Exception as error:                                # noqa: BLE001
+            result["read_error"] = repr(error)
+            checks["agent_key_read"] = False
+        try:
+            name, box = _front_window()
+            result["front"] = {"app": name, "window": list(box) if box else None}
+            before = len(self.events)
+            other = os.getppid()
+            result["own_hand_followed"] = self.program_typed(0)
+            result["buddy_followed"] = self.program_typed(os.getpid())
+            result["program_followed"] = self.program_typed(other, now=1000.0)
+            result["again_at_once"] = self.program_typed(other, now=1000.5)
+            told = [detail for what, detail in self.events[before:] if what == "agent_typing"]
+            result["told"] = told
+            checks["agent_typing_told"] = (result["program_followed"] and result["again_at_once"]
+                                           and len(told) == 1 and told[0].endswith("is typing here")
+                                           and not result["own_hand_followed"] and not result["buddy_followed"])
+        except Exception as error:                                # noqa: BLE001
+            result["error"] = repr(error)
+            checks["agent_typing_told"] = False
+        self.agent_typed_at = float("-inf")                       # the made-up clock above must not hide a real key
 
     def _live_click(self, _):
         """Only when CI asks for it: post real clicks and see whether the monitor hears them with the posting
@@ -215,6 +256,16 @@ class SelfTestController(Controller):
                 "var up = $.CGEventCreateMouseEvent($(), $.kCGEventLeftMouseUp, at, $.kCGMouseButtonLeft); "
                 "$.CGEventPost($.kCGHIDEventTap, up); delay(0.3);"
             )
+            if self.key_monitor is not None:
+                # Buddy may hear keys on this machine: the same program also presses a key nothing uses (F13)
+                self.agent_keys_heard = []
+                self.live_keys_before = len(self.events)
+                script += (
+                    " var key = $.CGEventCreateKeyboardEvent($(), 105, true); "
+                    "$.CGEventPost($.kCGHIDEventTap, key); "
+                    "key = $.CGEventCreateKeyboardEvent($(), 105, false); "
+                    "$.CGEventPost($.kCGHIDEventTap, key); delay(0.3);"
+                )
             subprocess.Popen(["osascript", "-l", "JavaScript", "-e", script],
                              stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             live["other_posted_at"] = list(other)
@@ -235,6 +286,11 @@ class SelfTestController(Controller):
         other = live.get("other_posted_at")
         checks["live_click_followed"] = bool(other) and len(live["followed"]) == 1 and any(
             press[0] not in (0, os.getpid()) and [press[1], press[2]] == other for press in heard)
+        if self.agent_keys_heard is not None:
+            keys, self.agent_keys_heard = self.agent_keys_heard, None
+            told = [detail for what, detail in self.events[self.live_keys_before:] if what == "agent_typing"]
+            self.report["live_key"] = {"heard": keys, "told": told}
+            checks["live_key_followed"] = bool(told) and any(pid not in (0, os.getpid()) for pid in keys)
 
     def _check_text_recognition(self):
         """The arrow snaps onto text read by Apple's Vision framework: prove it is bundled and works."""
@@ -370,7 +426,8 @@ class SelfTestController(Controller):
                     "brain_called", "hotkey_registered", "menu_bar_item", "text_recognition",
                     "island_at_top", "island_clickable", "island_renders", "island_mirrors",
                     "voice_languages", "voice_language_switch", "language_detect",
-                    "agent_monitor", "agent_press_read", "agent_pointer_flies", "agent_pointer_rests"]
+                    "agent_monitor", "agent_press_read", "agent_pointer_flies", "agent_pointer_rests",
+                    "agent_key_read", "agent_typing_told"]
         self.report["passed"] = reason == "done" and all(checks.get(name) for name in required)
         (self.out_dir / "report.json").write_text(json.dumps(self.report, indent=1), encoding="utf-8")
         print(json.dumps({"passed": self.report["passed"], "checks": checks,
@@ -382,6 +439,8 @@ class SelfTestController(Controller):
                           "answer_voices": self.report.get("answer_voices"),
                           "agent_pointer": self.report.get("agent_pointer"),
                           "live_click": self.report.get("live_click"),
+                          "agent_typing": self.report.get("agent_typing"),
+                          "live_key": self.report.get("live_key"),
                           "text_recognition_error": self.report.get("text_recognition_error")}, indent=1), flush=True)
         self.server.shutdown()
         AppHelper.stopEventLoop()

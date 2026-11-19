@@ -190,7 +190,7 @@ jobs:
           BUDDY_SELFTEST_LIVE_CLICK: "1"
         run: |
           ./dist/Buddy.app/Contents/MacOS/Buddy --selftest "$RUNNER_TEMP/selftest_arm64"
-          "$PY" -c "import json,sys; r=json.load(open('$RUNNER_TEMP/selftest_arm64/report.json')); print(r['checks']); print('live click:', r.get('live_click')); sys.exit(0 if r['passed'] else 1)"
+          "$PY" -c "import json,sys; r=json.load(open('$RUNNER_TEMP/selftest_arm64/report.json')); print(r['checks']); print('live click:', r.get('live_click')); print('agent typing:', r.get('agent_typing'), r.get('live_key')); sys.exit(0 if r['passed'] else 1)"
 
       - name: Zip
         working-directory: mac/dist
@@ -233,7 +233,7 @@ jobs:
           BUDDY_SELFTEST_LIVE_CLICK: "1"
         run: |
           ./Buddy.app/Contents/MacOS/Buddy --selftest "$RUNNER_TEMP/selftest_intel"
-          python3 -c "import json,sys; r=json.load(open('$RUNNER_TEMP/selftest_intel/report.json')); print(r['checks']); print('live click:', r.get('live_click')); sys.exit(0 if r['passed'] else 1)"
+          python3 -c "import json,sys; r=json.load(open('$RUNNER_TEMP/selftest_intel/report.json')); print(r['checks']); print('live click:', r.get('live_click')); print('agent typing:', r.get('agent_typing'), r.get('live_key')); sys.exit(0 if r['passed'] else 1)"
 
       - uses: actions/upload-artifact@v4
         if: always()

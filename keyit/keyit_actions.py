@@ -53,7 +53,9 @@ user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintyp
 user32.SendMessageTimeoutW.argtypes = [wintypes.HWND, wintypes.UINT, wintypes.WPARAM, wintypes.LPARAM,
                                        wintypes.UINT, wintypes.UINT, ctypes.POINTER(ctypes.c_size_t)]  # PDWORD_PTR
 WM_CLOSE = 0x0010
-OWN_CLICK_MARK = 0x42554459          # the same as keyit_core.MouseClicks.OWN_CLICK_MARK (a test holds them together)
+# The extra word of a click or a key Buddy makes itself: the crew's task watch never takes those for an
+# agent's. The same as keyit_core.MouseClicks.OWN_CLICK_MARK (a test holds them together)
+OWN_CLICK_MARK = 0x42554459
 SW_MINIMIZE, SW_MAXIMIZE, SW_RESTORE = 6, 3, 9
 GWL_EXSTYLE = -20
 WS_EX_TOOLWINDOW = 0x00000080
@@ -397,9 +399,9 @@ def _vk(key):
 def press_keys(combo):
     codes = [_vk(part) for part in re.split(r"\s*\+\s*", combo) if part]
     for code in codes:
-        user32.keybd_event(code, 0, 0, 0)
+        user32.keybd_event(code, 0, 0, OWN_CLICK_MARK)
     for code in reversed(codes):
-        user32.keybd_event(code, 0, 2, 0)
+        user32.keybd_event(code, 0, 2, OWN_CLICK_MARK)
 
 
 class _KEYBDINPUT(ctypes.Structure):
@@ -442,7 +444,7 @@ def type_text(text):
         events = []
         for vk, scan, flags in chunk:
             event = _INPUT(type=1)
-            event.ki = _KEYBDINPUT(vk, scan, flags, 0, 0)
+            event.ki = _KEYBDINPUT(vk, scan, flags, 0, OWN_CLICK_MARK)
             events.append(event)
         array = (_INPUT * len(events))(*events)
         sent += user32.SendInput(len(events), array, ctypes.sizeof(_INPUT))

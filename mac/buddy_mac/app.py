@@ -10,6 +10,7 @@ import os
 import subprocess
 import sys
 import threading
+import time
 from pathlib import Path
 
 import objc
@@ -54,10 +55,13 @@ UPDATE_EVERY_S = 3 * 3600
 UPDATE_IDLE_S = 90           # a ready update installs after 90 s without keyboard/mouse use
 
 PRIVACY_SCREEN = "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"
+PRIVACY_ACCESSIBILITY = "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
+APPLICATION_SERVICES = "/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices"
 
 # NSEventMask for left, right and other mouse button presses (NSEventType 1, 3 and 25)
 MOUSE_PRESSES = (1 << 1) | (1 << 3) | (1 << 25)
 MOUSE_BUTTONS = {1: "left", 3: "right"}
+KEY_PRESSES = 1 << 10        # NSEventMask for a key going down (NSEventType 10)
 EVENT_SOURCE_PID = 41        # kCGEventSourceUnixProcessID: the process that posted an event, 0 = the device
 
 
@@ -75,6 +79,42 @@ def _program(pid):
     except Exception:                                       # noqa: BLE001
         logging.exception("could not name process %s", pid)
     return "", ""
+
+
+def _may_hear_keys():
+    """Has the user allowed Buddy under Accessibility? Only asked, never requested: macOS shows nothing."""
+    try:
+        import ctypes
+
+        trusted = ctypes.CDLL(APPLICATION_SERVICES).AXIsProcessTrusted
+        trusted.restype = ctypes.c_bool
+        return bool(trusted())
+    except Exception:                                       # noqa: BLE001
+        logging.exception("could not ask macOS about Accessibility")
+        return False
+
+
+def _front_window():
+    """(name of the app in front, its front window as (x, y, width, height) from the top-left of the main
+    display, or None when it shows none). The list of windows needs no permission; no title is read."""
+    import Quartz
+    from AppKit import NSWorkspace
+
+    front = NSWorkspace.sharedWorkspace().frontmostApplication()
+    if front is None:
+        return "", None
+    name, pid = str(front.localizedName() or ""), int(front.processIdentifier())
+    listed = Quartz.CGWindowListCopyWindowInfo(
+        Quartz.kCGWindowListOptionOnScreenOnly | Quartz.kCGWindowListExcludeDesktopElements, Quartz.kCGNullWindowID
+    )
+    for window in listed or ():                             # from the front to the back
+        if int(window.get("kCGWindowOwnerPID", -1)) != pid or int(window.get("kCGWindowLayer", 1)) != 0:
+            continue
+        bounds = window.get("kCGWindowBounds") or {}
+        box = tuple(float(bounds.get(key, 0.0)) for key in ("X", "Y", "Width", "Height"))
+        if box[2] >= 40 and box[3] >= 40:
+            return name, box
+    return name, None
 
 
 def _status_icon():
@@ -140,6 +180,9 @@ class _Delegate(NSObject):
     def agentPointerClicked_(self, sender):
         self.controller.toggle("agent_pointer", sender)
 
+    def agentTypingClicked_(self, sender):
+        self.controller.open_accessibility()
+
     def colorClicked_(self, sender):
         self.controller.set_color(sender.representedObject())
 
@@ -182,6 +225,9 @@ class Controller:
         self.agent_token = 0
         self.agent_monitor = None
         self.agent_heard = None             # self-test: a list here collects every press the monitor reads
+        self.key_monitor = None             # hears that a key went down, only with Accessibility allowed
+        self.agent_typed_at = float("-inf")  # when a program's typing was last told
+        self.agent_keys_heard = None        # self-test: a list here collects the posting process of every key
 
     # ------------------------------------------------------------------ startup
     def start(self):
@@ -194,6 +240,7 @@ class Controller:
                                  language=self.settings.get("voice_language", ""))
         self.hotkey = HotKey(self._key_down, self._key_up)
         self._watch_program_clicks()
+        self._watch_program_keys()
         self._build_menu()
         if self.persist:
             self._ask_screen_permission()
@@ -312,6 +359,9 @@ class Controller:
         island.setState_(1 if self.settings.get("island", True) else 0)
         agent = add("Show where an agent clicks", "agentPointerClicked:")
         agent.setState_(1 if self.settings.get("agent_pointer", True) else 0)
+        if self.key_monitor is None:
+            # typing is only heard once you allow Buddy under Accessibility: your choice, Buddy never asks itself
+            add("Show an agent's typing too: allow Accessibility…", "agentTypingClicked:")
 
         colors = NSMenu.alloc().init()
         self.color_items = {}
@@ -443,6 +493,10 @@ class Controller:
             self.history = []
             self._save()
 
+    def open_accessibility(self):
+        """From the menu: open the Accessibility list. Tick Buddy there and start Buddy again."""
+        subprocess.run(["open", PRIVACY_ACCESSIBILITY], check=False)
+
     def open_screen_access(self):
         self._ask_screen_permission()
         subprocess.run(["open", PRIVACY_SCREEN], check=False)
@@ -454,7 +508,8 @@ class Controller:
             "Hold Control+Option+Space and ask, or tap it to type. Buddy looks at the display under your mouse, "
             "points at what it means and reads the answer aloud.\n\n"
             "When a program clicks with the mouse, a second pointer flies to the click and names the program; "
-            "every such click is in the log.\n\n"
+            "every such click is in the log. Its typing is shown too once you allow Buddy under Accessibility "
+            "(the window, never the keys).\n\n"
             "Lite means: pointing and answers only. Clicking and typing for you, the Pips pet and keyboard "
             "sounds are on Windows for now.\n\nhttps://juw12.github.io/buddy/"
         )
@@ -509,17 +564,78 @@ class Controller:
         shown = bool(self.settings.get("agent_pointer", True))
         logging.info(core.click_log_line(name, pid, button, clicks, x, y, shown))
         self.events.append(("agent_click", core.click_words(name, button, clicks)))
-        if not shown:
-            return True
+        if shown:
+            self._agent_show(x, y, core.click_words(name, button, clicks))
+        return True
+
+    def _agent_show(self, x, y, words):
+        """Fly the agent pointer to (x, y) from the top-left of the main display and let it say `words`."""
         cocoa_x, cocoa_y = core.quartz_to_cocoa(x, y, NSScreen.screens()[0].frame().size.height)
         if self.agent is None:
             self.agent = Overlay(core.COLORS[core.agent_color(self.settings["color"])], follow_mouse=False)
             self.agent.fly_seconds = core.AGENT_FLY_SECONDS
             self.agent.pos = [cocoa_x + core.AGENT_START_OFFSET[0], cocoa_y + core.AGENT_START_OFFSET[1]]
         self.agent.fly_to(cocoa_x, cocoa_y)
-        self.agent.say(core.click_words(name, button, clicks))
+        self.agent.say(words)
         self.agent_token += 1
         AppHelper.callLater(core.AGENT_HOLD_SECONDS, self._agent_rest, self.agent_token)
+
+    # typing: only with Accessibility allowed (macOS lets no app hear keys without it)
+    def _watch_program_keys(self):
+        """Hear that a key went down in other apps, when you have allowed Buddy under Accessibility. Buddy
+        never asks for it by itself (the menu has a line that opens the list). Only the process that posted
+        the key is read, never which key; your own keys never leave _key_heard."""
+        if not _may_hear_keys():
+            logging.info("a program's typing is not shown: Buddy is not allowed under Accessibility")
+            return
+        try:
+            self.key_monitor = NSEvent.addGlobalMonitorForEventsMatchingMask_handler_(KEY_PRESSES, self._key_heard)
+        except Exception:                                   # noqa: BLE001
+            logging.exception("could not watch for a program's typing")
+        if self.key_monitor is None:
+            logging.warning("a program's typing is not shown: macOS gave no key monitor")
+
+    def _read_key(self, event):
+        """The process that posted a key press (0 = your keyboard). Which key it was is never read."""
+        import Quartz
+
+        press = event.CGEvent()
+        if press is None:
+            return None
+        return int(Quartz.CGEventGetIntegerValueField(press, EVENT_SOURCE_PID))
+
+    def _key_heard(self, event):
+        try:
+            pid = self._read_key(event)
+            if pid is None:
+                return
+            if self.agent_keys_heard is not None:
+                self.agent_keys_heard.append(pid)
+            if pid:
+                self.program_typed(pid)
+        except Exception:                                   # noqa: BLE001
+            logging.exception("could not read a key press")
+
+    def program_typed(self, pid, now=None):
+        """Process `pid` posted a key: write it to the log and, unless the menu switch is off, fly the agent
+        pointer to the window in front (that is where keys go). Told every 1.5 s at most. True = taken as a
+        program's typing."""
+        if not pid or pid == os.getpid():
+            return False
+        name, bundle = _program(pid)
+        if not core.is_program_click(pid, os.getpid(), bundle):
+            return False
+        now = time.monotonic() if now is None else now
+        if now - self.agent_typed_at < core.AGENT_TYPING_EVERY_SECONDS:
+            return True
+        self.agent_typed_at = now
+        into, box = _front_window()
+        point = core.typing_point(*box) if box else None
+        shown = bool(self.settings.get("agent_pointer", True))
+        logging.info(core.typing_log_line(name, pid, into, point, shown))
+        self.events.append(("agent_typing", core.typing_words(name)))
+        if shown and point:
+            self._agent_show(point[0], point[1], core.typing_words(name))
         return True
 
     def _agent_rest(self, token):

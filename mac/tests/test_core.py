@@ -443,3 +443,22 @@ def test_the_agent_pointer_is_on_unless_switched_off(tmp_path):
     saved = tmp_path / "settings.json"
     core.save_settings({**core.DEFAULTS, "agent_pointer": False}, saved)
     assert core.load_settings(saved)["agent_pointer"] is False
+
+
+def test_what_the_agent_pointer_says_when_a_program_types():
+    assert core.typing_words("osascript") == "osascript is typing here"
+    assert core.typing_words("  ") == "A program is typing here"
+
+
+def test_a_program_typing_is_shown_near_the_top_of_the_window_in_front():
+    assert core.typing_point(100.0, 50.0, 1200.0, 800.0) == (260.0, 110.0)
+    assert core.typing_point(100.0, 50.0, 200.0, 80.0) == (200.0, 90.0)        # a small window: its middle
+
+
+def test_a_program_typing_gets_a_log_line_that_never_names_keys():
+    line = core.typing_log_line("osascript", 812, "TextEdit", (260.4, 109.6), True)
+    assert line == "agent typing: osascript (pid 812) typed in TextEdit, at (260, 110) - pointer shown"
+    off = core.typing_log_line("", 9, "", (5, 6), False)
+    assert off == "agent typing: A program (pid 9) typed in the app in front, at (5, 6) - pointer is off"
+    unknown = core.typing_log_line("python3", 77, "Finder", None, True)
+    assert unknown == "agent typing: python3 (pid 77) typed in Finder, its window is not known - no pointer"

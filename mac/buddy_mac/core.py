@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 APP_NAME = "Buddy"
-VERSION = "1.12.0"
+VERSION = "1.13.0"
 
 SUPPORT_DIR = Path.home() / "Library" / "Application Support" / APP_NAME
 SETTINGS_PATH = SUPPORT_DIR / "settings.json"
@@ -303,7 +303,10 @@ class ScreenRect:
 # A click a program makes with the mouse (an AI agent, a script, a remote tool) is flown to by a second
 # pointer that names the program, and is written to the log, so nothing clicks on this Mac without a trace.
 # macOS marks every mouse press with the process that posted it; a press from your own mouse or trackpad
-# has none. A press a program makes without the mouse (through Accessibility) is not seen.
+# has none. Keys carry the same mark, but macOS only lets an app hear keys once you have allowed it under
+# Accessibility: Buddy never asks for that by itself, and with it a program's typing is shown as well
+# (which window, never which keys). A press a program makes without the mouse (through Accessibility) is
+# not seen: macOS tells nobody about it.
 AGENT_FLY_SECONDS = 0.2           # short, so the pointer is at the click while it happens
 AGENT_HOLD_SECONDS = 2.5          # how long it stays after the last click
 AGENT_START_OFFSET = (90.0, -90.0)   # the first flight starts this far from the click (Cocoa: y grows up)
@@ -354,6 +357,35 @@ def click_log_line(name: str, pid: int, button: str, clicks: int, x: float, y: f
     words = click_words(name, button, clicks).rsplit(" here", 1)[0]
     drawn = "pointer shown" if shown else "pointer is off"
     return f"agent click: {words} (pid {pid}) at ({round(x)}, {round(y)}) - {drawn}"
+
+
+AGENT_TYPING_EVERY_SECONDS = 1.5  # a program's typing is told this often at most, never key by key
+
+
+def typing_words(name: str) -> str:
+    """What the agent pointer says when a program types: "osascript is typing here"."""
+    who = (name or "").strip() or "A program"
+    return f"{who} is typing here"
+
+
+def typing_point(x: float, y: float, width: float, height: float) -> tuple[float, float]:
+    """Where the pointer goes when a program types in a window (x, y: its top-left corner, y grows down).
+
+    macOS does not say where in the window the text goes unless the window's content is read, and Buddy
+    does not read it. So the pointer goes near the top of the window, where it covers little.
+    """
+    return x + min(width / 2.0, 160.0), y + min(height / 2.0, 60.0)
+
+
+def typing_log_line(name: str, pid: int, into: str, point, shown: bool) -> str:
+    """One line in the log when a program types (at most every 1.5 s). Never which keys.
+
+    into: the app in front. point: (x, y) from the top-left of the main display, None = its window is not known.
+    """
+    who = (name or "").strip() or "A program"
+    where = f"at ({round(point[0])}, {round(point[1])})" if point else "its window is not known"
+    drawn = "pointer shown" if shown and point else "pointer is off" if not shown else "no pointer"
+    return f"agent typing: {who} (pid {pid}) typed in {(into or '').strip() or 'the app in front'}, {where} - {drawn}"
 
 
 def quartz_to_cocoa(x: float, y: float, main_height: float) -> tuple[float, float]:
