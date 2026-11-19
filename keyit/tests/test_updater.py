@@ -32,6 +32,16 @@ def test_app_version_matches_what_updates_read():
     assert buddy_updater.built_version(_fake_build_tree(ROOT)) == _host_version(host)
 
 
+def test_mac_app_has_the_same_version_as_windows():
+    """One release, one version. mac.yml stamps the release's version into the Mac build anyway; this keeps
+    the source honest, so Buddy Lite run from source reports the version it really is."""
+    import re
+
+    mac_core = (ROOT / "mac" / "buddy_mac" / "core.py").read_text(encoding="utf-8")
+    mac_version = re.search(r'^VERSION\s*=\s*"([^"]+)"', mac_core, re.M).group(1)
+    assert mac_version == _host_version((ROOT / "buddy_host.py").read_text(encoding="utf-8"))
+
+
 def _host_version(text):
     import re
 
