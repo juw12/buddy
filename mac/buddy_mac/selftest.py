@@ -73,6 +73,7 @@ class SelfTestController(Controller):
         super().__init__(settings=settings, persist=False)
         self.report = {"version": core.VERSION, "steps": [], "checks": {}}
         self.targets = []
+        self.live_before = 0
 
     def start(self):
         super().start()
@@ -188,8 +189,9 @@ class SelfTestController(Controller):
         self.report["checks"]["agent_pointer_rests"] = self.agent is None
 
     def _live_click(self, _):
-        """Only when CI asks for it: post one real click and see whether the monitor hears it with the
-        posting process on it. Reported, not required: a machine may not let a program post clicks."""
+        """Only when CI asks for it: post real clicks and see whether the monitor hears them with the posting
+        process on them. One from Buddy itself (never followed), one from another program (osascript), which
+        must get the agent pointer. Reported, not required: a machine may not let a program post clicks."""
         import Quartz
 
         live = self.report["live_click"] = {"buddy": os.getpid()}
@@ -199,21 +201,40 @@ class SelfTestController(Controller):
             frame = NSScreen.screens()[0].frame()
             where = (frame.size.width / 2.0, frame.size.height / 2.0)
             self.agent_heard = []
+            self.live_before = sum(1 for what, _ in self.events if what == "agent_click")
             for kind in (Quartz.kCGEventLeftMouseDown, Quartz.kCGEventLeftMouseUp):
                 press = Quartz.CGEventCreateMouseEvent(None, kind, where, Quartz.kCGMouseButtonLeft)
                 Quartz.CGEventPost(Quartz.kCGHIDEventTap, press)
             live["posted_at"] = list(where)
+            other = (where[0] + 60.0, where[1] + 40.0)
+            script = (
+                'ObjC.import("CoreGraphics"); '
+                f"var at = $.CGPointMake({other[0]}, {other[1]}); "
+                "var down = $.CGEventCreateMouseEvent($(), $.kCGEventLeftMouseDown, at, $.kCGMouseButtonLeft); "
+                "$.CGEventPost($.kCGHIDEventTap, down); "
+                "var up = $.CGEventCreateMouseEvent($(), $.kCGEventLeftMouseUp, at, $.kCGMouseButtonLeft); "
+                "$.CGEventPost($.kCGHIDEventTap, up); delay(0.3);"
+            )
+            subprocess.Popen(["osascript", "-l", "JavaScript", "-e", script],
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            live["other_posted_at"] = list(other)
         except Exception as error:                                # noqa: BLE001
             live["error"] = repr(error)
-        AppHelper.callLater(1.5, self._live_click_heard, None)
+        AppHelper.callLater(3.0, self._live_click_heard, None)
 
     def _live_click_heard(self, _):
         live = self.report["live_click"]
         heard = self.agent_heard or []
         self.agent_heard = None
         live["heard"] = [list(press) for press in heard]
-        # Buddy posted it, so the press must come back carrying Buddy's own process
-        self.report["checks"]["live_click_seen"] = any(press[0] == os.getpid() for press in heard)
+        live["followed"] = [detail for what, detail in self.events if what == "agent_click"][self.live_before:]
+        checks = self.report["checks"]
+        # Buddy posted the first one, so it must come back carrying Buddy's own process, and not be followed
+        checks["live_click_seen"] = any(press[0] == os.getpid() for press in heard)
+        # The other program's click must come back with that program on it and get the pointer
+        other = live.get("other_posted_at")
+        checks["live_click_followed"] = bool(other) and len(live["followed"]) == 1 and any(
+            press[0] not in (0, os.getpid()) and [press[1], press[2]] == other for press in heard)
 
     def _check_text_recognition(self):
         """The arrow snaps onto text read by Apple's Vision framework: prove it is bundled and works."""
