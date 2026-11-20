@@ -18,7 +18,7 @@ from pathlib import Path
 from AppKit import NSApp, NSScreen
 from PyObjCTools import AppHelper
 
-from . import core, ocr
+from . import certs, core, ocr
 from .app import Controller
 
 CANNED_REPLY = (
@@ -86,6 +86,10 @@ class SelfTestController(Controller):
         self.report["checks"]["speech_in_available"] = self.listener.ok
         self.report["checks"]["speech_out_available"] = self.speaker.ok
         self.report["checks"]["menu_bar_item"] = self.status_item is not None
+        # Without certificate authorities no https call works: not the update check, not a brain on the internet.
+        _, source = certs.build_context()
+        self.report["https_certificates"] = source
+        self.report["checks"]["https_certificates"] = source != "none"
         self._check_island()
         self._check_text_recognition()
         self._check_voice_languages()

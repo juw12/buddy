@@ -21,6 +21,8 @@ import time
 import urllib.request
 from pathlib import Path
 
+from . import certs
+
 MANIFEST_URL = "https://juw12.github.io/buddy/latest.json"
 USER_AGENT = "Buddy-Mac-Updater"
 
@@ -44,8 +46,10 @@ def is_newer(remote, local) -> bool:
 
 
 def _openers():
-    yield urllib.request.build_opener()
-    yield urllib.request.build_opener(urllib.request.ProxyHandler({}))
+    # Both routes check certificates against the authorities certs.py found (the built app has none of its own).
+    https = urllib.request.HTTPSHandler(context=certs.https_context())
+    yield urllib.request.build_opener(https)
+    yield urllib.request.build_opener(urllib.request.ProxyHandler({}), https)
 
 
 def _open(url: str, timeout: float):
