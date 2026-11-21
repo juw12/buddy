@@ -67,8 +67,15 @@ analysis = Analysis(
     excludes=["pytest"],
 )
 
-# Keep our own modules OUT of the frozen archive: they are imported from dist\Buddy\app at run time
-analysis.pure = [entry for entry in analysis.pure if not Path(entry[1]).resolve().is_relative_to(ROOT)]
+# Keep our own modules OUT of the frozen archive: they are imported from dist\Buddy\app at run time.
+# The .venv that setup.bat makes is under ROOT too: its libraries (site-packages) are not ours and stay in,
+# otherwise Buddy.exe is built without numpy, pystray, pynput and the rest and cannot start.
+def own_source(path):
+    path = Path(path).resolve()
+    return path.is_relative_to(ROOT) and "site-packages" not in path.parts
+
+
+analysis.pure = [entry for entry in analysis.pure if not own_source(entry[1])]
 
 pyz = PYZ(analysis.pure)
 exe = EXE(
