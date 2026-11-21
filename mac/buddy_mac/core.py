@@ -23,7 +23,7 @@ from pathlib import Path
 from . import certs
 
 APP_NAME = "Buddy"
-VERSION = "1.13.0"
+VERSION = "1.13.1"
 
 SUPPORT_DIR = Path.home() / "Library" / "Application Support" / APP_NAME
 SETTINGS_PATH = SUPPORT_DIR / "settings.json"
