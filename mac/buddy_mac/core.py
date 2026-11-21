@@ -20,6 +20,8 @@ import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from . import certs
+
 APP_NAME = "Buddy"
 VERSION = "1.13.0"
 
@@ -525,7 +527,8 @@ _DIRECT_OPENER = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 def _open(request: urllib.request.Request, timeout: float):
     if _is_loopback_url(request.full_url):
         return _DIRECT_OPENER.open(request, timeout=timeout)
-    return urllib.request.urlopen(request, timeout=timeout)
+    # The context brings the certificate authorities: the built app has none of its own on most Macs (certs.py).
+    return urllib.request.urlopen(request, timeout=timeout, context=certs.https_context())
 
 
 @dataclass
