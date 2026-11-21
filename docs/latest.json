@@ -19,10 +19,10 @@
     "sha256": "a3f96d0116d88825e056abea1590b7dcd55259c6e3f2d0814770bda22cb4d6b4"
   },
   "mac": {
-    "version": "1.13.0",
-    "url": "https://github.com/juw12/buddy/releases/download/v1.13.0/Buddy-mac.zip",
-    "size": 17602935,
-    "sha256": "cc85516a76c555e0ad1e780989066881d8ed2084a465b41f53d8b266e019d54b"
+    "version": "1.13.1",
+    "url": "https://github.com/juw12/buddy/releases/download/v1.13.1/Buddy-mac.zip",
+    "size": 17604921,
+    "sha256": "768aa96e0da3570cc4325fc66a2cc87a5108807ebe24dba323b11aa86c6e9f98"
   },
   "ios": {
     "version": "1.1.0",
