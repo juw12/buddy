@@ -18,6 +18,12 @@ It has three features:
 
 Click the orange Buddy icon by the clock to open the main window. Its tabs are Home, Focus, Keyboard sounds and AI helper.
 
+## On an Android phone
+
+- **Android:** [`Buddy-android.apk`](https://github.com/juw12/buddy/releases/download/android/Buddy-android.apk): open the file on the phone and allow your browser to install apps once.
+
+It is the web app (https://juw12.github.io/buddy/) in a full-screen window of its own ([`android/`](android/README.md)) and changes with it. The build is opened on an Android emulator on GitHub before it is published: it installs, opens and stays up. No real phone has run it yet.
+
 ## Run
 - **App:** unzip `Buddy-win64.zip` anywhere and run `Buddy.exe`. You don't need Python.
 - **From source:** run `setup.bat` once (it creates `.venv`, installs the requirements, and runs the self-test).
