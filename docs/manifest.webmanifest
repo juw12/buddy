@@ -1,0 +1,22 @@
+{
+  "name": "Buddy",
+  "short_name": "Buddy",
+  "description": "Buddy walks new engineers through clunky PLM, SRM and ERP screens: it points at the exact button, explains it in a natural voice, and can do the clicks for you. No guides to write, and it can run full",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff7ef",
+  "theme_color": "#fff7ef",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
