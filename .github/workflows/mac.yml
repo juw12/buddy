@@ -91,7 +91,7 @@ jobs:
     runs-on: macos-15            # Apple Silicon (macos-14 was retired on 2026-11-02): builds the universal app and tests the arm64 half
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ needs.plan.outputs.ref }}
 
@@ -198,7 +198,7 @@ jobs:
           ditto -c -k --sequesterRsrc --keepParent Buddy.app Buddy-mac.zip
           ls -lh Buddy-mac.zip
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: selftest-arm64
@@ -207,7 +207,7 @@ jobs:
             ${{ runner.temp }}/selftest_arm64
           if-no-files-found: warn
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Buddy-mac
           path: mac/dist/Buddy-mac.zip
@@ -217,7 +217,7 @@ jobs:
     runs-on: macos-15-intel      # a real Intel Mac: run the same zip natively on x86_64
     timeout-minutes: 15
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: Buddy-mac
 
@@ -235,7 +235,7 @@ jobs:
           ./Buddy.app/Contents/MacOS/Buddy --selftest "$RUNNER_TEMP/selftest_intel"
           python3 -c "import json,sys; r=json.load(open('$RUNNER_TEMP/selftest_intel/report.json')); print(r['checks']); print('live click:', r.get('live_click')); print('agent typing:', r.get('agent_typing'), r.get('live_key')); sys.exit(0 if r['passed'] else 1)"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: selftest-intel
@@ -248,7 +248,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: Buddy-mac
       - name: Attach to the release and refresh the manifest
