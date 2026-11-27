@@ -70,7 +70,7 @@ MAAS_PAGE = "https://ai-gateway.example.com/maas/token-usage"
 DEFAULTS = {
     "user": "",
     "dashboard_base": "https://monitor.example.com",
-    "dashboard_token": "5c22b4c5a91c4f26a10d73b63f333c3e",
+    "dashboard_token": "",   # set token_board.dashboard_token in config.json
     "user_panel": 112,
     "top_n": 30,
     "long_range": "now-5y",
@@ -398,6 +398,8 @@ def _http_json(url: str, payload: dict | None = None, timeout: float = 60.0) -> 
 
 def query_user_panel(conf: dict, time_from: str, time_to: str = "now") -> list:
     """Rows [level1, unit, user, uses, tokens, days] sorted by tokens desc."""
+    if not conf.get("dashboard_token"):
+        raise RuntimeError("token_board.dashboard_token is not set in config.json")
     url = (f"{conf['dashboard_base']}/api/public/dashboards/"
            f"{conf['dashboard_token']}/panels/{int(conf['user_panel'])}/query")
     payload = {
